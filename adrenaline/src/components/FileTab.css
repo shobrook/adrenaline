@@ -1,0 +1,28 @@
+.fileTab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+}
+
+
+.fileDetails {
+  display: flex;
+  flex-direction: row;
+}
+
+.fileName {
+
+}
+
+.closeFileButton {
+
+}
+
+
+.fileIsActiveIndicator {
+  height: 5px;
+  width: 100%;
+  background-color: "green";
+}

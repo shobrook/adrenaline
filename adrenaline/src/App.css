@@ -1,28 +1,25 @@
-.app {
+.openFileScreen {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+  /* background-color: #101d42; */
+  background: rgb(40, 47, 68);
+  background: linear-gradient(
+    45deg,
+    rgba(40, 47, 68, 1) 0%,
+    rgba(81, 92, 121, 1) 100%
+  );
+}
+
+.editFileScreen {
   position: absolute;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-}
-
-.titleBar {
-  height: 50px;
-  width: 100%;
-  /* top: 0; */
-  /* left: 0; */
-}
-
-.editorContainer {
-  height: 380px;
-}
-
-.editor {
-  height: 380px;
-  overflow: auto;
-}
-
-.shellContainer {
-  height: 200px;
-  background-color: "black";
 }

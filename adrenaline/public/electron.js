@@ -50,7 +50,7 @@ app.on("window-all-closed", () => {
  * Inter-Process Event Handlers
  ******************************/
 
-// ipcMain.on("fixErrorRequest", (event, arg) => {
-//   const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}
-//   event.fixedCode = {};
-// });
+ipcMain.on("fixErrorRequest", (event, arg) => {
+  const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}
+  event.fixedCode = {};
+});

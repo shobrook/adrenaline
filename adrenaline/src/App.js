@@ -1,11 +1,17 @@
+import React, { Component } from 'react';
+
+import OpenFileButton from "./components/OpenFileButton";
+import Header from "./containers/Header";
+import CodeEditor from "./containers/CodeEditor";
+import Terminal from "./containers/Terminal";
+
 import './App.css';
 
-import React, { Component } from 'react';
-import CodeMirror from '@uiw/react-codemirror';
-// import { EditorState, EditorView, basicSetup } from "@codemirror/basic-setup";
-import { python } from '@codemirror/lang-python';
-
+// const electron = require('electron');
+// const ipcRenderer = electron.ipcRenderer;
+// import { ipcRenderer } from 'electron';
 // const { ipcRenderer, remote } = window.require("electron");
+// const ipcRenderer = window.require('electron').ipcRenderer;
 
 const SCREENS = {
   OpenFile: 0,
@@ -26,11 +32,11 @@ export default class App extends Component {
 
 	/* Utilities */
 
-  setFilePath = file => {
-    const { name, path } = file;
+  onClickOpenFile = () => {
+    // const { name, path } = file;
     this.setState({
-      filePath: path,
-      fileName: name,
+      filePath: "test.py", // TEMP
+      fileName: "test.py", // TEMP
       screen: SCREENS.EditFile
     });
   };
@@ -51,47 +57,45 @@ export default class App extends Component {
   // }
 
 	render() {
-    this.setFilePath({name: "test.py", path: "path/to/test.py"}); // TEMP
+    const code = `
+    class ThaiBoy(object):
+        def __init__(this):
+            pass
 
-    const { fileName, screen } = this.state;
+        def drain(this):
+            return this.gang
 
-		let appBody;
-		if (screen === SCREENS.EditFile) {
-			appBody = (
-        <div className="editorContainer">
-          <CodeMirror
-            className="editor"
-            value={
-`class ThaiBoy(object):
-    def __init__(this):
-        pass
+        @staticmethod
+        def gang(that):
+            return that(that)
 
-    def drain(this):
-        return this.gang
+    thaiboy = ThaiBoy()
+    that = thaiboy.drain()
+    thaiboy.gang(that)
+`;
 
-    @staticmethod
-    def gang(that):
-        return that(that)
+    const { fileName, filePath, screen } = this.state;
 
-thaiboy = ThaiBoy()
-that = thaiboy.drain()
-thaiboy.gang(that)
-            `}
-            extensions={[python()]}
-          />
+    if (screen == SCREENS.OpenFile) {
+      return (
+        <div className="openFileScreen">
+          <OpenFileButton onClick={this.onClickOpenFile} />
         </div>
       );
-		} else if (screen === SCREENS.OpenFile) {
-			appBody = (<div />);
-		};
-
-		return (
-			<div className="app">
-				<div className="titlebar">
-          <span>{fileName}</span>
+    } else if (screen == SCREENS.EditFile) {
+      return (
+        <div className="editFileScreen">
+          <Header
+            fileName={fileName}
+            filePath={filePath}
+            isActive={true}
+          />
+          <CodeEditor code={code} />
+          <Terminal />
         </div>
-				{appBody}
-			</div>
-		);
+      );
+    }
 	}
 }
+
+// Terminal window should be collapsable; should have buttons too on the far right (Optimize, Lint, etc.)

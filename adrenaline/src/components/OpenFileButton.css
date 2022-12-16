@@ -1,0 +1,15 @@
+.openFileButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 35px;
+  width: 100%;
+  background-color: #11b5e4;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.openFileButton:hover {
+  opacity: 0.75;
+}
