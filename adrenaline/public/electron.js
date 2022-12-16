@@ -6,6 +6,9 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
 const isDev = require("electron-is-dev");
+const { Configuration, OpenAIApi } = require("openai");
+const rc = require('rc');
+const defaultConfig = require('./config.js');
 
 /**************
  * Window Setup
@@ -51,6 +54,7 @@ app.on("window-all-closed", () => {
  * Inter-Process Event Handlers
  ******************************/
 
+
 ipcMain.on("openFileRequest", (event, arg) => {
 	// TODO: Prompt user to open file
 	event.reply("openFileResponse", {
@@ -59,7 +63,38 @@ ipcMain.on("openFileRequest", (event, arg) => {
 		code: ["my_var = [i ** 2 for i in range(10)]"]
 	});
 });
+
+
+ const config = rc(
+     'gpt3-code-fix',
+     defaultConfig,
+     null,
+     (content) => eval(content) // not good. but is it different from require()?
+ );
+
 ipcMain.on("fixErrorRequest", (event, arg) => {
-  const { brokenCode, stackTrace } = arg; // brokenCode as [lineOfCode1, lineOfCode2, ...]
-  event.fixedCode = {};
+  const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}
+	if (!stackTrace) {
+	   console.error("No RunTime errors.");
+	   process.exit(1);
+	}
+	const prompt = `${config.prompt}
+	${config.kCode}
+	${brokenCode}
+
+	${config.kError}
+	${stackTrace}
+
+	${config.kSolution}
+
+	`
+	openai
+	  .createCompletion({
+	    prompt,
+	    ...config.completionPromptParams
+	  })
+	  .then((data) => {
+			event.reply("fixErrorResponse", {fixedCode: data.data.choices[0].text});
+		});
+
 });
