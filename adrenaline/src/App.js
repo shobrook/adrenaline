@@ -7,11 +7,7 @@ import Terminal from "./containers/Terminal";
 
 import './App.css';
 
-// const electron = require('electron');
-// const ipcRenderer = electron.ipcRenderer;
-// import { ipcRenderer } from 'electron';
-// const { ipcRenderer, remote } = window.require("electron");
-// const ipcRenderer = window.require('electron').ipcRenderer;
+const { ipcRenderer } = window.require("electron");
 
 const SCREENS = {
   OpenFile: 0,
@@ -20,8 +16,9 @@ const SCREENS = {
 const DEFAULT_STATE = {
   filePath: "",
   fileName: "",
+  code: [],
   screen: SCREENS.OpenFile
-}; // QUESTION: Store code in here? Or in child CodeMirror state?
+};
 
 export default class App extends Component {
 	constructor(props) {
@@ -30,18 +27,21 @@ export default class App extends Component {
 		this.state = DEFAULT_STATE;
 	}
 
-	/* Utilities */
+	/* Event Handlers */
 
   onClickOpenFile = () => {
-    // const { name, path } = file;
-    this.setState({
-      filePath: "test.py", // TEMP
-      fileName: "test.py", // TEMP
-      screen: SCREENS.EditFile
+    ipcRenderer.send("openFileRequest");
+    ipcRenderer.on("openFileResponse", (event, arg) => {
+      const { fileName, filePath, code } = arg;
+
+      this.setState({
+          fileName,
+          filePath,
+          code,
+          screen: SCREENS.EditFile
+      });
     });
   };
-
-	/* Event Handlers */
 
   // onFixError = stackTrace => {
   //   // Get code from state
@@ -57,24 +57,7 @@ export default class App extends Component {
   // }
 
 	render() {
-    const code = `
-    class ThaiBoy(object):
-        def __init__(this):
-            pass
-
-        def drain(this):
-            return this.gang
-
-        @staticmethod
-        def gang(that):
-            return that(that)
-
-    thaiboy = ThaiBoy()
-    that = thaiboy.drain()
-    thaiboy.gang(that)
-`;
-
-    const { fileName, filePath, screen } = this.state;
+    const { fileName, filePath, code, screen } = this.state;
 
     if (screen == SCREENS.OpenFile) {
       return (

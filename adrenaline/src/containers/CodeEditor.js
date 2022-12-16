@@ -8,11 +8,12 @@ import { python } from '@codemirror/lang-python';
 export default class CodeEditor extends Component {
 	render() {
     const { code } = this.props;
+		const stringifiedCode = code.join("\n");
 
     return (
       <CodeMirror
         className="editor"
-        value={code}
+        value={stringifiedCode}
         extensions={[python()]}
       />
     )

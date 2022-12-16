@@ -16,12 +16,13 @@ let mainWindow;
 function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 400,
-		height: 600,
+		width: 800,
+		height: 1000,
 		resizable: false,
 		// titleBarStyle: "hidden",
 		webPreferences: {
-			nodeIntegration: true
+			nodeIntegration: true,
+			contextIsolation: false
 		}
 	});
 
@@ -50,7 +51,15 @@ app.on("window-all-closed", () => {
  * Inter-Process Event Handlers
  ******************************/
 
+ipcMain.on("openFileRequest", (event, arg) => {
+	// TODO: Prompt user to open file
+	event.reply("openFileResponse", {
+		fileName: "test.py",
+		filePath: "test.py",
+		code: ["my_var = [i ** 2 for i in range(10)]"]
+	});
+});
 ipcMain.on("fixErrorRequest", (event, arg) => {
-  const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}
+  const { brokenCode, stackTrace } = arg; // brokenCode as [lineOfCode1, lineOfCode2, ...]
   event.fixedCode = {};
 });
