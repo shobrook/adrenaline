@@ -65,12 +65,12 @@ ipcMain.on("openFileRequest", (event, arg) => {
 });
 
 
- const config = rc(
-     'gpt3-code-fix',
-     defaultConfig,
-     null,
-     (content) => eval(content) // not good. but is it different from require()?
- );
+const config = rc(
+   'gpt3-code-fix',
+   defaultConfig,
+   null,
+   (content) => eval(content) // not good. but is it different from require()?
+);
 
 ipcMain.on("fixErrorRequest", (event, arg) => {
   const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}
@@ -86,15 +86,21 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 	${stackTrace}
 
 	${config.kSolution}
-
 	`
+	const apiConfig = new Configuration({
+  apiKey: config.openAiKey
+});
+	const openai = new OpenAIApi(apiConfig);
+
 	openai
 	  .createCompletion({
 	    prompt,
 	    ...config.completionPromptParams
 	  })
 	  .then((data) => {
+			console.log(data.data.choices[0].text);
 			event.reply("fixErrorResponse", {fixedCode: data.data.choices[0].text});
-		});
+		})
+		.catch((error) => console.log(error.response));
 
 });
