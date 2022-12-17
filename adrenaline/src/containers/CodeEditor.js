@@ -23,8 +23,25 @@ export default class CodeEditor extends Component {
 		this.state.codeChanges.forEach(codeChange => {
 			const { oldLines, newLines } = codeChange;
 
-			oldLines.forEach(lineNum => this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine"));
-			newLines.forEach(lineNum => this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine"));
+			oldLines.forEach((lineNum, index) => {
+				if (index === oldLines.length - 1) {
+						this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine last");
+				} else {
+					this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine");
+				}
+			});
+			newLines.forEach((lineNum, index) => {
+				if (index === 0) {
+						this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine first");
+				} else {
+					this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine");
+				}
+			});
+
+			// var button = document.createElement('button');
+			// button.innerHTML = 'Click me';
+			//
+			// this.codeMirrorRef.addLineWidget(3, button, { above: true });
 		});
 	}
 
@@ -33,6 +50,7 @@ export default class CodeEditor extends Component {
 
 		return (
 			<CodeMirror
+				className="codeEditor"
 			  value={this.state.code}
 			  options={{
 					mode: "python",
@@ -40,9 +58,15 @@ export default class CodeEditor extends Component {
 			    lineNumbers: true
 			  }}
 			  onBeforeChange={(editor, data, code) => {
+					console.log("beforechange");
+					console.log(editor);
+					console.log(data);
 			    this.setState({code});
 			  }}
 			  onChange={(editor, data, value) => {
+					console.log("change");
+					console.log(data)
+
 			  }}
 				editorDidMount={(editor) => { this.codeMirrorRef = editor }}
 			/>

@@ -18,6 +18,7 @@ const DEFAULT_STATE = {
   fileName: "",
   code: [], // Array of strings, each representing a LOC
   codeChanges: [], // Array of {oldLines: [], newLines: []} objects
+  shellCommand: "",
   screen: SCREENS.OpenFile
 };
 
@@ -58,7 +59,7 @@ export default class App extends Component {
   // }
 
 	render() {
-    const { fileName, filePath, codeEditor, code, screen } = this.state;
+    const { fileName, filePath, codeEditor, code, shellCommand, screen } = this.state;
 
     let codeChanges = [{oldLines: [3, 4, 5], newLines: [0, 1, 2]}]; // TEMP
 
@@ -76,7 +77,13 @@ export default class App extends Component {
             isActive={true}
           />
           <CodeEditor code={code} codeChanges={codeChanges} />
-          <Terminal />
+          <Terminal
+            inputValue={shellCommand}
+            filePath={filePath}
+            onChange={() => {}}
+            onKeyDown={() => {}}
+            onSubmit={command => {console.log(command)}}
+          />
         </div>
       );
     }

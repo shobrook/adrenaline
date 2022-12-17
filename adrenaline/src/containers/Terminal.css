@@ -2,3 +2,27 @@
   height: 200px;
   background-color: black;
 }
+
+
+.terminalInputForm {
+  display: flex;
+}
+
+.promptSymbol {
+  color: white;
+  font-size: 1em;
+  font-family: monospace;
+}
+
+.terminalInput {
+  flex: 1;
+  border: 0;
+  box-sizing: border-box;
+  outline: none;
+  color: white;
+  background-color: black;
+  font-size: 1em;
+  font-family: monospace;
+  padding: 0;
+  padding-left: 5px;
+}
