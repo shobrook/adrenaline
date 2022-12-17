@@ -1,4 +1,12 @@
-.editor {
+.codeEditor {
   height: 380px;
   overflow: auto;
+}
+
+.oldLine {
+  background-color: red;
+}
+
+.newLine {
+  background-color: green;
 }
