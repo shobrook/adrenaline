@@ -11,7 +11,6 @@ export default class Header extends Component {
       <div className="header">
         <FileTab
           fileName={fileName}
-          filePath={filePath}
           isActive={true}
         />
         {/* TODO: Add button for opening file */}

@@ -1,62 +1,51 @@
-import React, { Component, Fragment } from "react";
-import CodeMirror from '@uiw/react-codemirror';
-import { python } from '@codemirror/lang-python';
+import React, { Component } from "react";
+import {Controlled as CodeMirror} from 'react-codemirror2';
+import { aura } from "@uiw/codemirror-theme-aura";
+
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/dracula.css';
 
 import "./CodeEditor.css";
 
+require('codemirror/mode/python/python');
+
 export default class CodeEditor extends Component {
 	constructor(props) {
-    super(props);
+		super(props);
 
-    this.codeMirrorRef = React.createRef();
+		const { code, codeChanges } = props;
+
+		this.state = {codeChanges, code: code.join("\n")};
+		this.codeMirrorRef = null;
 	}
 
 	componentDidMount(props) {
-		const { codeChanges } = this.props;
+		this.state.codeChanges.forEach(codeChange => {
+			const { oldLines, newLines } = codeChange;
 
-		let codeIsRendered = false;
-		const interval = setInterval(() => {
-			if (codeIsRendered) {
-				clearInterval(interval);
-			}
-
-			let linesOfCode = this.codeMirrorRef.current.editor.getElementsByClassName("cm-line");
-
-			if (linesOfCode.length == 0) {
-				return;
-			}
-
-			codeIsRendered = true;
-			codeChanges.forEach(codeChange => {
-				const { oldLines, newLines } = codeChange;
-
-				Array.from(linesOfCode).forEach((lineOfCode, index, _) => {
-					if (oldLines.includes(index)) {
-						lineOfCode.className = "cm-line oldLine";
-					} else if (newLines.includes(index)) {
-						lineOfCode.className = "cm-line newLine";
-					}
-				});
-			});
-	  }, 100);
+			oldLines.forEach(lineNum => this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine"));
+			newLines.forEach(lineNum => this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine"));
+		});
 	}
 
 	render() {
-    const { code, codeChanges } = this.props;
+		const { code } = this.props;
 
-
-    return (
-			<Fragment>
-      <CodeMirror
-				ref={this.codeMirrorRef}
-        className="editor"
-        value={code.join("\n")}
-				extensions={[python()]}
-        onChange={(editor, data, value) => {
-          this.setState({});
-        }}
-      />
-			</Fragment>
-    );
+		return (
+			<CodeMirror
+			  value={this.state.code}
+			  options={{
+					mode: "python",
+					theme: "dracula",
+			    lineNumbers: true
+			  }}
+			  onBeforeChange={(editor, data, code) => {
+			    this.setState({code});
+			  }}
+			  onChange={(editor, data, value) => {
+			  }}
+				editorDidMount={(editor) => { this.codeMirrorRef = editor }}
+			/>
+	  );
 	}
 }

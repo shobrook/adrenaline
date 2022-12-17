@@ -4,9 +4,9 @@
 }
 
 .oldLine {
-  background-color: red;
+  background-color: rgb(251, 54, 64, 0.25);
 }
 
 .newLine {
-  background-color: green;
+  background-color: rgb(0, 232, 252, 0.25);
 }

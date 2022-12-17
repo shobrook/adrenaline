@@ -2,27 +2,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  align-self: flex-end;
   justify-content: center;
-  width: 100px;
+  width: 150px;
+  height: 85%;
+  background-color: #1A1C23;
 }
 
 
 .fileDetails {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  margin-bottom: 12px;
 }
 
 .fileName {
-
+  color: white;
+  font-size: 14px;
+  font-family: "Helvetica Neue";
 }
-
-.closeFileButton {
-
-}
-
 
 .fileIsActiveIndicator {
-  height: 5px;
+  height: 3px;
   width: 100%;
-  background-color: "green";
+  background-color: #A663CC;
+  margin-bottom: auto;
 }

@@ -16,7 +16,8 @@ const SCREENS = {
 const DEFAULT_STATE = {
   filePath: "",
   fileName: "",
-  code: [],
+  code: [], // Array of strings, each representing a LOC
+  codeChanges: [], // Array of {oldLines: [], newLines: []} objects
   screen: SCREENS.OpenFile
 };
 
@@ -29,7 +30,7 @@ export default class App extends Component {
 
 	/* Event Handlers */
 
-  onClickOpenFile = () => {
+  onOpenFile = () => {
     ipcRenderer.send("openFileRequest");
     ipcRenderer.on("openFileResponse", (event, arg) => {
       const { fileName, filePath, code } = arg;
@@ -57,12 +58,14 @@ export default class App extends Component {
   // }
 
 	render() {
-    const { fileName, filePath, code, screen } = this.state;
+    const { fileName, filePath, codeEditor, code, screen } = this.state;
+
+    let codeChanges = [{oldLines: [3, 4, 5], newLines: [0, 1, 2]}]; // TEMP
 
     if (screen == SCREENS.OpenFile) {
       return (
         <div className="openFileScreen">
-          <OpenFileButton onClick={this.onClickOpenFile} />
+          <OpenFileButton onClick={this.onOpenFile} />
         </div>
       );
     } else if (screen == SCREENS.EditFile) {
@@ -70,10 +73,9 @@ export default class App extends Component {
         <div className="editFileScreen">
           <Header
             fileName={fileName}
-            filePath={filePath}
             isActive={true}
           />
-          <CodeEditor code={code} />
+          <CodeEditor code={code} codeChanges={codeChanges} />
           <Terminal />
         </div>
       );
