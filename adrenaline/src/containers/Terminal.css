@@ -1,8 +1,20 @@
-.terminal {
+.terminalContainer {
+  display: flex;
+  flex-direction: column;
   height: 200px;
-  background-color: black;
 }
 
+.terminalContainer .header {
+  display: flex;
+  flex-direction: row;
+  height: 50px;
+  background-color: #111641;
+  color: white;
+}
+
+.terminalContainer .body {
+  background-color: #1D276F;
+}
 
 .terminalInputForm {
   display: flex;

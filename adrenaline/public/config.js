@@ -1,6 +1,6 @@
 module.exports = {
-    openAiKey: "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",//process.env.OPENAI_API_KEY,
-    prompt: `Multi
+    openAiKey: "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",//process.env.OPENAI_API_KEY,
+    prompt: `
     ##EXAMPLE
     CODE:
     def apply_input_to_func(func, input):

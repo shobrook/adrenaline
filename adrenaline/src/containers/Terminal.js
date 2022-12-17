@@ -1,20 +1,25 @@
 import React, { Component } from "react";
 import "./Terminal.css";
 
+import Button from "../components/Button";
+
 export default class Terminal extends Component {
-	buildPromptSymbol = filePath => "~ $ " // TEMP
+	buildPromptSymbol = filePath => "~ >" // TEMP
 
 	focus = () => this.input.focus();
 
 	render() {
-		const { filePath, onChange, onKeyDown, onSubmit } = this.props;
+		const { filePath, onSubmit } = this.props;
 
     return (
-      <div className="terminal" onClick={this.focus}>
-				<div className="terminalInputContainer">
+      <div className="terminalContainer" onClick={this.focus}>
+				<div className="header">
+					<span className="terminalLabel">TERMINAL</span>
+					<Button className="fixItButton">Fix It</Button>
+				</div>
+				<div className="body">
 					<form
 						className="terminalInputForm"
-						onKeyDown={onKeyDown}
 						onSubmit={e => {
 							e.preventDefault();
 							onSubmit(this.input.value);
@@ -25,10 +30,6 @@ export default class Terminal extends Component {
 						</span>
 						<input
 							className="terminalInput"
-							onChange={e => {
-								e.persist();
-								onChange(e);
-							}}
 							ref={ref => this.input = ref}
 						/>
 					</form>

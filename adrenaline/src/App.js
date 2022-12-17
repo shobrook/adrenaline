@@ -18,7 +18,8 @@ const DEFAULT_STATE = {
   fileName: "",
   code: [], // Array of strings, each representing a LOC
   codeChanges: [], // Array of {oldLines: [], newLines: []} objects
-  shellCommand: "",
+  stdout: "",
+  stderr: "",
   screen: SCREENS.OpenFile
 };
 
@@ -45,6 +46,15 @@ export default class App extends Component {
     });
   };
 
+  onRunCommand = command => {
+    ipcRenderer.send("runCommandRequest", { command });
+    ipcRenderer.on("runCommandResponse", (event, arg) => {
+      const { stdout, stderr } = arg;
+
+      this.setState({stdout, stderr});
+    });
+  }
+
   // onFixError = stackTrace => {
   //   // Get code from state
   //   ipcRenderer.sendSync("fixErrorRequest", {
@@ -59,7 +69,7 @@ export default class App extends Component {
   // }
 
 	render() {
-    const { fileName, filePath, codeEditor, code, shellCommand, screen } = this.state;
+    const { fileName, filePath, codeEditor, code, screen } = this.state;
 
     let codeChanges = [{oldLines: [3, 4, 5], newLines: [0, 1, 2]}]; // TEMP
 
@@ -78,11 +88,10 @@ export default class App extends Component {
           />
           <CodeEditor code={code} codeChanges={codeChanges} />
           <Terminal
-            inputValue={shellCommand}
             filePath={filePath}
             onChange={() => {}}
             onKeyDown={() => {}}
-            onSubmit={command => {console.log(command)}}
+            onSubmit={this.onRunCommand}
           />
         </div>
       );

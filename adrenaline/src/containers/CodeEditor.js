@@ -38,10 +38,10 @@ export default class CodeEditor extends Component {
 				}
 			});
 
-			// var button = document.createElement('button');
-			// button.innerHTML = 'Click me';
-			//
-			// this.codeMirrorRef.addLineWidget(3, button, { above: true });
+			var button = document.createElement('button');
+			button.innerHTML = 'Click me';
+
+			this.codeMirrorRef.addLineWidget(3, button, { above: true });
 		});
 	}
 
@@ -58,15 +58,9 @@ export default class CodeEditor extends Component {
 			    lineNumbers: true
 			  }}
 			  onBeforeChange={(editor, data, code) => {
-					console.log("beforechange");
-					console.log(editor);
-					console.log(data);
 			    this.setState({code});
 			  }}
 			  onChange={(editor, data, value) => {
-					console.log("change");
-					console.log(data)
-
 			  }}
 				editorDidMount={(editor) => { this.codeMirrorRef = editor }}
 			/>
