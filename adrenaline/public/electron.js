@@ -71,22 +71,30 @@ app.on("window-all-closed", () => {
  ******************************/
 
 ipcMain.on("runCommandRequest", (event, arg) => {
-	const { command } = arg;
+	const { command, currDir } = arg;
 
-	console.log("receieved", command);
+	if (command.trim() === "") {
+		event.reply("runCommandResponse", { command, stdout: "", stderr: "" });
+		return;
+	}
 
-	exec(command, (err, stdout, stderr) => {
+	let commandToRun;
+	let commandParts = command.split(" ");
+	if (commandParts.length > 1) {
+		const homeDir = os.homedir();
+		const relativePath = `${currDir}/${commandParts[1]}`
+		const absolutePath = path.resolve(homeDir, relativePath);
+
+		commandToRun = `${commandParts[0]} ${absolutePath} ${commandParts.slice(2, commandParts.length)}`;
+	} else {
+		commandToRun = command;
+	}
+
+	exec(commandToRun, (err, stdout, stderr) => {
 	  event.reply("runCommandResponse", {command, stdout, stderr});
 	});
 });
-// diffTool (oldCode, newCode) => {
-// 	const codeDiff = diff.diffTrimmedLines(oldCode, newCode);
-// 	codeDiff.forEach( (part) => {
-// 		console.log("diff value: ", codeDiff.value)
-// 		console.log("diff added: ", codeDiff.added)
-// 		console.log("diff removed: ", codeDiff.removed)
-// 	})
-// }
+
 ipcMain.on("fixErrorRequest", (event, arg) => {
   const { code, stackTrace } = arg;
 	const prompt = buildGPTPrompt(code, stackTrace);

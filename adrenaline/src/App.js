@@ -36,7 +36,7 @@ statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test 
 
 const DEFAULT_STATE = {
   fileName: "test_program.py", // TEMP
-  currDir: "/Projects/adrenaline/adrenaline", // TEMP
+  currDir: "Projects/adrenaline/adrenaline", // TEMP
   code: testCode, // TEMP
   codeChanges: [{oldLines: [7, 8], newLines: [4, 5], mergeLine: 6}], // TEMP
   stdout: "",
@@ -53,27 +53,10 @@ export default class App extends Component {
 		this.state = DEFAULT_STATE;
 	}
 
-
   onRunCommand = command => {
-    const { fileName, currDir } = this.state;
+    const { currDir } = this.state;
 
-    if (command.trim() === "") {
-      return;
-    }
-
-    let runCommandRequest;
-    let commandParts = command.split(" ");
-    if (commandParts.length > 1) { // Changes file references in command to absolute paths
-      // TODO: Validate that commandParts[1] is actually a file
-      let filePath = `${currDir}/${commandParts[1]}`;
-      runCommandRequest = {
-        command: `${commandParts[0]} ${filePath} ${commandParts.slice(2, commandParts.length)}`
-      }
-    } else {
-      runCommandRequest = { command }
-    }
-
-    ipcRenderer.send("runCommandRequest", runCommandRequest);
+    ipcRenderer.send("runCommandRequest", { currDir, command });
   }
 
   onResolveDiff = (linesToDelete, codeChangeIndex, codeMirrorRef, codeChange) => {
@@ -101,71 +84,6 @@ export default class App extends Component {
 
     // TODO: Update the line numbers in all the other codeChange objects?
   }
-
-  // FOR MALIK
-  // fixedCodeStr should be a string representing the NEW code.
-  // Merge the fixedCode with the current code (this.state.code). The fixed
-  // lines should be inserted above the old lines. Separators should also
-  // be added to delineate between fixed and old code. Here's an example:
-
-    /* OLD CODE: */
-
-    // x = 10
-    // y = "hey"
-    // z = "yo"
-    // result = x + y + z
-    // print("What's up")
-
-    /* FIXED CODE */
-
-    // x = 10
-    // y = 20
-    // z = 30
-    // result = x + y + z
-    // print(result)
-
-    /* MERGED CODE */
-
-    // x = 10
-    // >>>FIXED CODE<<<
-    // y = 20
-    // z = 30
-    // ================
-    // y = "hey"
-    // z = "yo"
-    // >>>OLD CODE<<<
-    // result = x + y + z
-    // >>>FIXED CODE<<<
-    // print(result)
-    // ================
-    // print("What's up")
-    // >>>OLD CODE<<<
-
-    // x = 10
-    // >>>OLD CODE<<<
-    // y = "hey"
-    // z = "yo"
-    // ================
-    // y = 20
-    // z = 30
-    // >>>FIXED CODE<<<
-    // result = x + y + z
-    // >>>OLD CODE<<<
-    // print("What's up")
-    // ================
-    // print(result)
-    // >>>FIXED CODE<<<
-
-  // Once you do this, set this.state.code to this new code. Then set
-  // this.state.codeChanges to be a list of "changedCode" objects, each
-  // indexing the old lines of code and the new lines of code. For the example
-  // above, this would look like:
-
-    // codeChanges = [
-    //    {oldLines: [5, 6, 7], newLines: [1, 2, 3]},
-    //    {oldLines: [12, 13], newLines: [9, 10]}
-    // ]
-
 
   onFixCode = () => {
     const { code, stderr } = this.state;
