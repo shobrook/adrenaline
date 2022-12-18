@@ -16,7 +16,7 @@ const testCode = [
   "",
   "n = 1000",
   "ls = np.linspace(0, 2*np.pi, n)",
-  "==========",
+  "",
   "df1 = pd.DataFrame(np.sin(ls))",
   "df2 = pd.DataFrame(2*np.sin(1+ls))",
   "",
@@ -37,7 +37,7 @@ const DEFAULT_STATE = {
   fileName: "test_program.py", // TEMP
   currDir: "Projects/adrenaline/adrenaline", // TEMP
   code: testCode, // TEMP
-  codeChanges: [{oldLines: [7, 8], newLines: [4, 5], mergeLine: 6}], // TEMP
+  codeChanges: [], // TEMP
   stdout: "",
   stderr: "", // TEMP
   isCodeBroken: false,
@@ -65,12 +65,12 @@ export default class App extends Component {
     // Delete the diff decoration
     oldLines.map((oldLine, index) => {
       let className = "oldLine";
-      className += index === codeChange.oldLines.length - 1 ? " last" : "";
+      className += index === 0 ? " first" : "";
       codeMirrorRef.removeLineClass(index, "wrap", className);
     });
     newLines.map((newLine, index) => {
       let className = "newLine";
-      className += index === 0 ? " first" : "";
+      className += index === codeChange.newLines.length - 1 ? " last" : "";
       codeMirrorRef.removeLineClass(index, "wrap", className);
     });
     codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
@@ -87,7 +87,7 @@ export default class App extends Component {
   onFixCode = () => {
     const { code, stderr } = this.state;
 
-    ipcRenderer.sendSync("fixErrorRequest", {
+    ipcRenderer.send("fixErrorRequest", {
       code: code,
       stackTrace: stderr
     });
@@ -124,8 +124,8 @@ export default class App extends Component {
     });
 
     ipcRenderer.on("fixErrorResponse", (event, arg) => {
+      console.log("got reply");
       const { mergedCode, codeChanges } = arg;
-
       this.setState({ code: mergedCode.split("\n"), codeChanges });
     });
 
@@ -164,7 +164,7 @@ export default class App extends Component {
         <CodeEditor
           code={code}
           codeChanges={codeChanges}
-          onChange={(editor, data, strCode) => this.setState({code: strCode.split("\n"), isUnsaved: true})}
+          onChange={strCode => this.setState({code: strCode.split("\n"), isUnsaved: true})}
           onClickUseMe={this.onResolveDiff}
           onSaveFile={this.onSaveFile}
         />
