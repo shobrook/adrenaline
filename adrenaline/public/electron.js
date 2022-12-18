@@ -84,6 +84,24 @@ const config = rc(
    (content) => eval(content) // not good. but is it different from require()?
 );
 
+
+ipcMain.on("runCodeRequest", (event, arg) => {
+	let stdOut = '';
+	let stdErr = '';
+	const { command } = arg;
+
+	const { exec, spawn } = require('node:child_process');
+	exec(command, (err, stdOut, stdErr) => {
+	  if (err) {
+	    // something handly
+	    return;
+	  }
+		console.log("exec? stdout ", stdOut)
+		console.log("exec? stderr", stdErr)
+	  event.reply("runCodeResponse", {stdOut, stdErr});
+	});
+
+});
 ipcMain.on("runCodeRequest", (event, arg) => {
 	let stdOut = '';
 	let stdErr = '';
