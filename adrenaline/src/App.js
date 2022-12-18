@@ -115,11 +115,12 @@ export default class App extends Component {
 
       // NOTE: Hacky, shouldn't have to return command in the
 
-      let isCodeBroken = false;
-      let commandParts = command.split(" ")
-      if (commandParts.length > 1 && commandParts[1].endsWith(fileName)) {
-        isCodeBroken = stderr.length !== 0;
-      }
+      // let isCodeBroken = false;
+      // let commandParts = command.split(" ")
+      // if (commandParts.length > 1 && commandParts[1].endsWith(fileName)) {
+      //   isCodeBroken = stderr.length !== 0;
+      // }
+      let isCodeBroken = stderr.length !== 0;
 
       let commandAndOutput = {
         command: command,
@@ -224,7 +225,7 @@ export default class App extends Component {
           stderr={stderr}
           isCodeBroken={isCodeBroken}
           onSubmit={this.onRunCommand}
-          onClickFixIt={this.onFixCode}
+          onFixCode={this.onFixCode}
           history={terminalHistory}
         />
       </div>

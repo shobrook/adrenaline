@@ -23,13 +23,33 @@ export default class Terminal extends Component {
 	);
 
 	render() {
-		const { filePath, stdout, stderr, onSubmit, isCodeBroken, history } = this.props;
+		const {
+			filePath,
+			stdout,
+			stderr,
+			onSubmit,
+			onFixCode,
+			isCodeBroken,
+			history
+		} = this.props;
 
     return (
       <div className="terminalContainer" onClick={this.focus}>
 				<div className="header">
 					<span className="terminalLabel">TERMINAL</span>
-					<Button className="fixItButton">Fix It</Button>
+					{
+						isCodeBroken ? (
+							<div className="fixItButtonContainer">
+								<Button
+									className="fixItButton"
+									isPrimary={true}
+									onClick={onFixCode}
+								>
+									Fix It
+								</Button>
+							</div>
+						) : null
+					}
 				</div>
 				<div className="body">
 					{this.renderHistory(history)}
