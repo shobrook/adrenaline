@@ -9,24 +9,38 @@ import './App.css';
 
 const { ipcRenderer } = window.require("electron");
 
+const testCode = [
+  "import numpy as np",
+  "import pandas as pd",
+  "",
+  "from statsmodels.tsa.stattools import grangercausalitytests",
+  "",
+  "n = 1000",
+  "ls = np.linspace(0, 2*np.pi, n)",
+  "",
+  "df1 = pd.DataFrame(np.sin(ls))",
+  "df2 = pd.DataFrame(2*np.sin(1+ls))",
+  "",
+  "df = pd.concat([df1, df2], axis=1)",
+  "",
+  "df.plot()",
+  "",
+  "grangercausalitytests(df, maxlag=20)"
+];
+const testStackTrace = `Traceback (most recent call last):
+  File "broken.py", line 16, in <module>
+    grangercausalitytests(df, maxlag=20)
+  File "/Users/jshobrook/Library/Python/3.8/lib/python/site-packages/statsmodels/tsa/stattools.py", line 1532, in grangercausalitytests
+    raise InfeasibleTestError(
+statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test statistic cannot be compute because the VAR has a perfect fit of the data.`;
+
 const DEFAULT_STATE = {
   fileName: "test_program.py", // TEMP
   filePath: "test_program.py", // TEMP
-  code: [
-    "def main():",
-    "\targs = sys.argv",
-    "\tif len(args) == 1 or args[1].lower() in (\"-h\", \"--help\"):",
-    "\t\tprinters.print_help_message()",
-    "\t\treturn",
-    "",
-    "\tlanguage = parsers.get_language(args)",
-    "\tif not language:",
-    "\t\tprinters.print_invalid_language_message()",
-    "\t\treturn"
-  ], // TEMP
+  code: testCode, // TEMP
   codeChanges: [{oldLines: [3, 4, 5], newLines: [0, 1, 2]}], // TEMP
   stdout: "",
-  stderr: ""
+  stderr: testStackTrace // TEMP
 };
 
 export default class App extends Component {
@@ -37,28 +51,6 @@ export default class App extends Component {
 	}
 
 	/* Event Handlers */
-
-  onRunCommand = command => {
-    ipcRenderer.send("runCommandRequest", { command });
-    ipcRenderer.on("runCommandResponse", (event, arg) => {
-      const { stdout, stderr } = arg;
-
-      this.setState({stdout, stderr});
-    });
-  }
-
-  // onFixError = stackTrace => {
-  //   // Get code from state
-  //   ipcRenderer.sendSync("fixErrorRequest", {
-  //     brokenCode: {},
-  //     stackTrace: stackTrace
-  //   });
-  //   ipcRenderer.on("fixErrorResponse", (event, arg) => {
-  //     const { fixedCode } = arg;
-  //
-  //     // TODO: Update state
-  //   });
-  // }
 
   onRunCode = () => {
     // Get code from state
@@ -74,9 +66,8 @@ export default class App extends Component {
     });
   }
 
-  onClickUseMe = (linesToDelete, codeChangeIndex, codeMirrorRef, codeChange) => {
+  onResolveDiff = (linesToDelete, codeChangeIndex, codeMirrorRef, codeChange) => {
     // Delete the diff decoration
-    // this.state.diffWidgets[codeChangeIndex].clear();
     codeChange.oldLines.map((oldLine, index) => {
       let className = "oldLine";
       className += index === codeChange.oldLines.length - 1 ? " last" : "";
@@ -97,6 +88,19 @@ export default class App extends Component {
     // TODO: Do we need to update the line numbers in all the other codeChange objects?
   }
 
+  onFixCode = () => {
+    const { code, stderr } = this.state;
+
+    ipcRenderer.sendSync("fixErrorRequest", {
+      code: code,
+      stackTrace: stderr
+    });
+    ipcRenderer.on("fixErrorResponse", (event, arg) => {
+      const { fixedCode } = arg;
+      console.log(fixedCode);
+    })
+  }
+
 	render() {
     const { fileName, filePath, codeEditor, code, codeChanges, screen } = this.state;
 
@@ -110,13 +114,14 @@ export default class App extends Component {
           code={code}
           codeChanges={codeChanges}
           onChange={(editor, data, strCode) => { console.log(strCode); this.setState({code: strCode.split("\n")})}}
-          onClickUseMe={this.onClickUseMe}
+          onClickUseMe={this.onResolveDiff}
         />
         <Terminal
           filePath={filePath}
           onChange={() => {}}
           onKeyDown={() => {}}
           onSubmit={this.onRunCommand}
+          onClickFixIt={this.onFixCode}
         />
       </div>
     );

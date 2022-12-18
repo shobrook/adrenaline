@@ -10,6 +10,27 @@ const { Configuration, OpenAIApi } = require("openai");
 const rc = require('rc');
 const defaultConfig = require('./config.js');
 
+/*********
+ * Helpers
+ *********/
+
+const buildGPTPrompt = (brokenCode, stackTrace) => {
+	// const config = rc(
+	//    'gpt3-code-fix',
+	//    defaultConfig,
+	//    null,
+	//    (content) => eval(content) // not good. but is it different from require()?
+	// );
+	return `${defaultConfig.prompt}
+					${defaultConfig.codeKey}
+					${brokenCode}
+
+					${defaultConfig.errorKey}
+					${stackTrace}
+
+					${defaultConfig.solutionKey}`;
+}
+
 /**************
  * Window Setup
  **************/
@@ -54,13 +75,6 @@ app.on("window-all-closed", () => {
  * Inter-Process Event Handlers
  ******************************/
 
-const config = rc(
-   'gpt3-code-fix',
-   defaultConfig,
-   null,
-   (content) => eval(content) // not good. but is it different from require()?
-);
-
 ipcMain.on("runCodeRequest", (event, arg) => {
 
 	const { command } = arg;
@@ -85,35 +99,19 @@ ipcMain.on("runCodeRequest", (event, arg) => {
 });
 
 ipcMain.on("fixErrorRequest", (event, arg) => {
-  const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}
-	if (!stackTrace) {
-	   console.error("No RunTime errors.");
-	   process.exit(1);
-	}
-	const prompt = `${config.prompt}
-	${config.kCode}
-	${brokenCode}
+  const { code, stackTrace } = arg;
+	const prompt = buildGPTPrompt(code, stackTrace);
+	const apiConfig = new Configuration({apiKey: defaultConfig.apiKey});
+	const api = new OpenAIApi(apiConfig);
 
-	${config.kError}
-	${stackTrace}
-
-	${config.kSolution}
-	`
-	const apiConfig = new Configuration({
-  	apiKey: config.openAiKey
-	});
-	const openai = new OpenAIApi(apiConfig);
-
-	openai
-	  .createCompletion({
+	api
+		.createCompletion({
 	    prompt,
-	    ...config.completionPromptParams
+	    ...defaultConfig.completionPromptParams
 	  })
-	  .then((data) => {
-			//for choice in data.data.choices:
-				//console.log('choice: \n', choice.text);
+	  .then(data => {
+			console.log(data.data);
 			event.reply("fixErrorResponse", {fixedCode: data.data.choices[0].text});
 		})
 		.catch((error) => console.log(error.response));
-
 });

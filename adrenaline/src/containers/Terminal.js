@@ -9,7 +9,7 @@ export default class Terminal extends Component {
 	focus = () => this.input.focus();
 
 	render() {
-		const { filePath, onSubmit } = this.props;
+		const { filePath, onSubmit, onClickFixIt } = this.props;
 
     return (
       <div className="terminalContainer" onClick={this.focus}>
@@ -19,6 +19,7 @@ export default class Terminal extends Component {
 						<Button
 							className="fixItButton"
 							isPrimary={true}
+							onClick={onClickFixIt}
 						>
 							Fix It
 						</Button>
