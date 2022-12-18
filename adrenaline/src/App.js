@@ -75,13 +75,26 @@ export default class App extends Component {
     });
     codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
 
+    // Updates line numbers in codeChange objects after lines are deleted
+    let numLinesDeleted = linesToDelete.length;
+    let codeChanges = this.state.codeChanges.map((_codeChange, index) => {
+      if (index <= codeChangeIndex) {
+        return _codeChange;
+      }
+
+      _codeChange.oldLines = _codeChange.oldLines.map(line => line - numLinesDeleted);
+      _codeChange.newLines = _codeChange.newLines.map(line => line - numLinesDeleted);
+      _codeChange.mergeLine = _codeChange.mergeLine -= numLinesDeleted;
+
+      return _codeChange;
+    });
+    codeChanges = codeChanges.filter((_, index) => index != codeChangeIndex);
+
     // Update code to reflect accepted or rejected changes
 		this.setState(prevState => ({
 			code: prevState.code.filter((_, index) => !linesToDelete.includes(index)),
-			codeChanges: prevState.codeChanges.filter((_, index) => index != codeChangeIndex)
+			codeChanges
 		}));
-
-    // TODO: Update the line numbers in all the other codeChange objects?
   }
 
   onFixCode = () => {

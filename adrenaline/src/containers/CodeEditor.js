@@ -15,7 +15,6 @@ export default class CodeEditor extends Component {
 	constructor(props) {
 		super(props);
 
-		// this.state = {diffWidgets: {}}
 		this.diffWidgets = {}
 	}
 
@@ -41,6 +40,8 @@ export default class CodeEditor extends Component {
 		if (codeChangeIndex in this.diffWidgets) {
 			this.diffWidgets[codeChangeIndex].oldCodeWidget.clear();
 			this.diffWidgets[codeChangeIndex].newCodeWidget.clear();
+
+			delete this.diffWidgets[codeChangeIndex];
 		}
 	}
 
@@ -57,20 +58,17 @@ export default class CodeEditor extends Component {
 			});
 			this.codeMirrorRef.addLineClass(mergeLine, "wrap", "mergeLine");
 			newLines.forEach((lineNum, index) => {
-				if (index === newLines.length) {
-					this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine last");
-				} else {
-					this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine");
-				}
+				this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine");
 			});
+			this.codeMirrorRef.addLineClass(newLines.at(-1) + 1, "wrap", "newLine last"); // Because newLine is missing the last line
 
 			let oldCodeWidget = this.addDiffWidget(oldLines.at(0), false, () => {
-				onClickUseMe(newLines, index, this.codeMirrorRef, codeChange);
 				this.deleteDiffWidgets(index);
+				onClickUseMe(newLines, index, this.codeMirrorRef, codeChange);
 			});
 			let newCodeWidget = this.addDiffWidget(newLines.at(-1) + 1, true, () => {
-				onClickUseMe(oldLines, index, this.codeMirrorRef, codeChange);
 				this.deleteDiffWidgets(index);
+				onClickUseMe(oldLines, index, this.codeMirrorRef, codeChange);
 			});
 
 			this.diffWidgets[index] = {oldCodeWidget, newCodeWidget};
@@ -102,11 +100,13 @@ export default class CodeEditor extends Component {
 		this.addCodeChangeDiffs(codeChanges, onClickUseMe);
 	}
 
+	componentDidMount() {
+		const { codeChanges, onClickUseMe } = this.props;
+		this.addCodeChangeDiffs(codeChanges, onClickUseMe);
+	}
+
 	render() {
 		const { code, codeChanges, onChange, onClickUseMe, onSaveFile } = this.props;
-
-		console.log("Rendering")
-		console.log(codeChanges);
 
 		return (
 			<CodeMirror
@@ -121,7 +121,7 @@ export default class CodeEditor extends Component {
 				onChange={(editor, data, strCode) => { onChange(strCode); }}
 				editorDidMount={editor => {
 					this.codeMirrorRef = editor;
-					this.addCodeChangeDiffs(codeChanges, onClickUseMe);
+					// this.addCodeChangeDiffs(codeChanges, onClickUseMe);
 				}}
 				onKeyDown={(editor, event) => {
 					const isSaveKey = event.which == 83 && (event.ctrlKey || event.metaKey);
