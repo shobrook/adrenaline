@@ -39,13 +39,19 @@ export default class Terminal extends Component {
 							e.preventDefault();
 							onSubmit(this.input.value);
 
+							console.log("command");
+							console.log(this.input.value);
+							console.log(stdout);
+							console.log(stderr);
+							console.log("");
+
 							this.setState(prevState => ({
 								history: prevState.history.concat({
 									command: this.input.value,
 									output: stdout + '\n' + stderr
 								})
 							}));
-							this.input.value: ''
+							// this.input.value = '';
 						}}
 					>
 						<span className="promptSymbol">

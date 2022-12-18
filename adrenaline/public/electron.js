@@ -85,54 +85,56 @@ const config = rc(
 );
 
 
-ipcMain.on("runCodeRequest", (event, arg) => {
-	let stdOut = '';
-	let stdErr = '';
+ipcMain.on("runCommandRequest", (event, arg) => {
+	console.log("Received runCommandRequest");
+
+	let stdout = '';
+	let stderr = '';
 	const { command } = arg;
 
 	const { exec, spawn } = require('node:child_process');
-	exec(command, (err, stdOut, stdErr) => {
+	exec(command, (err, stdout, stderr) => {
 	  if (err) {
 	    // something handly
-	    return;
+			console.log("exec Error: ", err)
 	  }
-		console.log("exec? stdout ", stdOut)
-		console.log("exec? stderr", stdErr)
-	  event.reply("runCodeResponse", {stdOut, stdErr});
+		console.log("exec? stdout ", stdout)
+		console.log("exec? stderr ", stderr)
+	  event.reply("runCommandResponse", {stdout, stderr});
 	});
-
 });
-ipcMain.on("runCodeRequest", (event, arg) => {
-	let stdOut = '';
-	let stdErr = '';
-	const { command } = arg;
-	// command parsing
-	// if (command === '') { // skip Spawn overhead
-	// 	event.reply("runCodeResponse", {stdOut, stdErr});
-	// 	return;
-	// }
-
-	commandParts = command.split(" ");
-	const { spawn } = require('child_process');
-	// TODO: handle when len == 1
-	const child = spawn(commandParts[0], commandParts.slice(1))
-
-	child.stdout.on('data', (data) => {
-	  stdOut += data;
-	});
-
-	child.stderr.on('data', (data) => {
-	  stdErr += data;
-	});
-
-	child.on('close', () => {
-		console.log("close")
-	  event.reply("runCodeResponse", {stdOut, stdErr});
-		child.kill();
-		console.log("close killed")
-	});
-	console.log('magic')
-});
+//
+// ipcMain.on("runCodeRequest", (event, arg) => {
+// 	let stdOut = '';
+// 	let stdErr = '';
+// 	const { command } = arg;
+// 	// command parsing
+// 	// if (command === '') { // skip Spawn overhead
+// 	// 	event.reply("runCodeResponse", {stdOut, stdErr});
+// 	// 	return;
+// 	// }
+//
+// 	commandParts = command.split(" ");
+// 	const { spawn } = require('child_process');
+// 	// TODO: handle when len == 1
+// 	const child = spawn(commandParts[0], commandParts.slice(1))
+//
+// 	child.stdout.on('data', (data) => {
+// 	  stdOut += data;
+// 	});
+//
+// 	child.stderr.on('data', (data) => {
+// 	  stdErr += data;
+// 	});
+//
+// 	child.on('close', () => {
+// 		console.log("close")
+// 	  event.reply("runCodeResponse", {stdOut, stdErr});
+// 		child.kill();
+// 		console.log("close killed")
+// 	});
+// 	console.log('magic')
+// });
 
 ipcMain.on("fixErrorRequest", (event, arg) => {
   const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}

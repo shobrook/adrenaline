@@ -36,11 +36,11 @@ statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test 
 
 const DEFAULT_STATE = {
   fileName: "test_program.py", // TEMP
-  filePath: "test_program.py", // TEMP
+  currDir: "~/Development/adrenaline/adrenaline/", // TEMP
   code: testCode, // TEMP
   codeChanges: [{oldLines: [3, 4, 5], newLines: [0, 1, 2]}], // TEMP
   stdout: "",
-  stderr: testStackTrace, // TEMP
+  stderr: "", // TEMP
   enableFixIt: false
 };
 
@@ -51,46 +51,34 @@ export default class App extends Component {
 		this.state = DEFAULT_STATE;
 	}
 
-
   onRunCommand = command => {
-    ipcRenderer.send("runCommandRequest", { command });
-    ipcRenderer.on("runCommandResponse", (event, arg) => {
-      const { stdout, stderr } = arg;
-
-      this.setState({stdout, stderr});
-    });
-  }
-
-  // onFixError = stackTrace => {
-  //   // Get code from state
-  //   ipcRenderer.sendSync("fixErrorRequest", {
-  //     brokenCode: {},
-  //     stackTrace: stackTrace
-  //   });
-  //   ipcRenderer.on("fixErrorResponse", (event, arg) => {
-  //     const { fixedCode } = arg;
-  //
-  //     // TODO: Update state
-  //   });
-  // }
-
-  onRunCode = command => {
     // Get code from state
-    const { fileName, filePath } = this.state;
-    ipcRenderer.sendSync("runCodeRequest", {
-      // TODO: Error handling for bad filename/paths
-      command: command
+    const { fileName, currDir } = this.state;
+    // TODO: Error handling for bad filename/paths
+    let _command;
+    let commandParts = command.split(" ");
+    if (commandParts > 1) {
+      let filePath = this.state.currDir + commandParts[1];
+      _command = [commandParts[0], filePath, ...commandParts.slice(1)].join(" ")
+    } else {
+      _command = command
+    }
+    ipcRenderer.send("runCommandRequest", {
+      command: _command
     });
-    ipcRenderer.on("runCodeResponse", (event, arg) => {
-      const { stdOut, stdErr } = arg;
-      if (command.split(" ")[1] == this.state.fileName) {
+    console.log("Sent runCommandRequest");
+    ipcRenderer.on("runCommandResponse", (event, arg) => {
+      console.log("Received runCommandResponse");
 
-        this.setState({enableFixIt: !stdErr.isEmpty()});
+      const { stdout, stderr } = arg;
+      let enableFixIt = false;
+      if (command.split(" ").length >1 && command.split(" ")[1] == this.state.fileName) {
+        enableFixIt = !stderr.isEmpty();
       }
 
-      this.setState({stdOut, stdOut});
-      console.log(`stdout: ${stdOut}`);
-      console.log(`stderr: ${stdErr}`);
+      this.setState({stdout, stderr, enableFixIt});
+      console.log(`stdout: ${stdout}`);
+      console.log(`stderr: ${stderr}`);
       console.log(`should fix: ${this.state.enableFixIt}`);
 
     });
@@ -132,7 +120,7 @@ export default class App extends Component {
   }
 
 	render() {
-    const { fileName, filePath, codeEditor, code, codeChanges, screen } = this.state;
+    const { fileName, currDir, codeEditor, code, codeChanges, screen } = this.state;
 
     return (
       <div className="app">
@@ -147,7 +135,7 @@ export default class App extends Component {
           onClickUseMe={this.onResolveDiff}
         />
         <Terminal
-          filePath={filePath}
+          currDir={currDir}
           onChange={() => {}}
           onKeyDown={() => {}}
           stdout={this.state.stdout}
