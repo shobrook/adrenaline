@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.1.5",
     "@uiw/codemirror-theme-aura": "^4.19.4",
     "codemirror": "^5.65.10",
+    "diff": "^5.1.0",
     "openai": "^3.1.0",
     "rc": "^1.2.8",
     "react": "^16.13.0",
