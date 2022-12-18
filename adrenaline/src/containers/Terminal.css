@@ -7,13 +7,27 @@
 .terminalContainer .header {
   display: flex;
   flex-direction: row;
-  height: 50px;
-  background-color: #111641;
+  height: 75px;
+  background-color: #111317;
   color: white;
+  align-items: center;
+}
+
+.terminalContainer .terminalLabel {
+  margin-right: auto;
+  padding-left: 25px;
+}
+
+.terminalContainer .header .fitItButtonContainer {
+  width: 80px;
+  margin-left: auto;
+  padding-right: 25px;
 }
 
 .terminalContainer .body {
-  background-color: #1D276F;
+  background-color: #1A1C23;
+  height: 100%;
+  padding-top: 10px
 }
 
 .terminalInputForm {
@@ -24,6 +38,7 @@
   color: white;
   font-size: 1em;
   font-family: monospace;
+  padding-left: 25px;
 }
 
 .terminalInput {
@@ -32,7 +47,7 @@
   box-sizing: border-box;
   outline: none;
   color: white;
-  background-color: black;
+  background-color: #1A1C23;
   font-size: 1em;
   font-family: monospace;
   padding: 0;

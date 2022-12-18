@@ -15,7 +15,14 @@ export default class Terminal extends Component {
       <div className="terminalContainer" onClick={this.focus}>
 				<div className="header">
 					<span className="terminalLabel">TERMINAL</span>
-					<Button className="fixItButton">Fix It</Button>
+					<div className="fitItButtonContainer">
+						<Button
+							className="fixItButton"
+							isPrimary={true}
+						>
+							Fix It
+						</Button>
+					</div>
 				</div>
 				<div className="body">
 					<form
