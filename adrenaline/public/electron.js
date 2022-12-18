@@ -75,25 +75,20 @@ app.on("window-all-closed", () => {
  * Inter-Process Event Handlers
  ******************************/
 
-ipcMain.on("runCodeRequest", (event, arg) => {
+ipcMain.on("runCommandRequest", (event, arg) => {
+	console.log("Received runCommandRequest");
+
+	let stdout = '';
+	let stderr = '';
 	const { command } = arg;
 
-	const { spawn } = require('child_process');
-	// TODO: determine command type (python, bash, etc) via file extension
-	const child = spawn('python3', [command])
-	let stdOut = '';
-	let stdErr = '';
-
-	child.stdout.on('data', (data) => {
-	  stdOut += data;
-	});
-
-	child.stderr.on('data', (data) => {
-	  stdErr += data;
-	});
-
-	child.on('close', () => {
-	  event.reply("runCodeResponse", {stdOut, stdErr});
+	const { exec, spawn } = require('node:child_process');
+	exec(command, (err, stdout, stderr) => {
+	  if (err) {
+	    // something handly
+			console.log("exec Error: ", err)
+	  }
+	  event.reply("runCommandResponse", {stdout, stderr});
 	});
 });
 
