@@ -33,6 +33,8 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 	const diff = Diff.diffTrimmedLines(brokenCode, fixedCode);
 	let mergedCode = "";
 
+	let hasOld = false;
+	let isFixed = true;
 	for (let i = 0; i < diff.length; i++) {
 		let part = diff[i];
 
@@ -44,19 +46,29 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 			mergedCode += part.value;
 		} else if (part.removed) {
 			mergedCode += '>>>OLD CODE<<<\n';
-
+			hasOld = true;
+			isFixed = false;
 			for (let j = 0; j < part.value.length; j++) {
 				mergedCode += part.value[j];
 			}
 
 			mergedCode += "================\n"
 		} else if (part.added) {
+			if (!hasOld) {
+				mergedCode += '>>>OLD CODE<<<\n';
+				hasOld = true;
+				mergedCode += "================\n"
+			}
 			for (let j = 0; j < part.value.length; j++) {
 				mergedCode += part.value[j];
 			}
 
 			mergedCode += '>>>FIXED CODE<<<\n'
+			isFixed = true;
 		}
+	}
+	if (!isFixed) {
+		mergedCode += '>>>FIXED CODE<<<\n'
 	}
 
 	console.log("final merged code: ", mergedCode)
@@ -74,11 +86,12 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 			oldLines.push(i);
 		} else if (line.includes('>>>FIXED CODE<<<')) {
 			newLines.push(i);
-		} else if (line.includes('===============')) {
+		} else if (line.includes('===============\n')) {
 			mergeLine = i;
 		}
-
 		if (oldLines.length > 0 && newLines.length > 0 && mergeLine > -1) {
+			console.log('test')
+
 			for (let j = oldLines[0]+1; j < mergeLine; j++) {
 				oldLines.push(j);
 			}
@@ -93,7 +106,7 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 			mergeLine = -1;
 		}
 	}
-
+	console.log("num changes: ", codeChange.length)
 	codeChanges.forEach( (codeChange) => {
 		console.log("\tlines added: ", codeChange.newLines)
 		console.log("\tlines removed: ", codeChange.oldLines)
@@ -177,36 +190,66 @@ ipcMain.on("runCommandRequest", (event, arg) => {
 
 ipcMain.on("fixErrorRequest", (event, arg) => {
 	let testBrokenCodeStr = `
-		x = 10
-		y = "hey"
-		z = "yo"
-		result = x + y + z
-		print("What's up")
+	def apply_input_to_func(func, input):
+	    func(input)
+
+	def main():
+	    my_data = []
+	    their_data = []
+	    for i in range(10):
+	        apply_input_to_func(my_data.append, i)
+	        their_data.add(i)
+
+	    print(my_data)
+
+	main()
 	`
 	let testFixedCodeStr = `
-		x = 10
-		y = 20
-		z = 30
-		result = x + y + z
-		print(result)
+	def apply_input_to_func(func, input):
+	    func(input)
+
+	def main():
+	    my_data = []
+	    for i in range(10):
+	        apply_input_to_func(my_data.append, i)
+
+	    print(my_data)
+
+	main()
 	`
-	const { mergedCode, codeChanges } = parseGPTOutput(testBrokenCodeStr, testFixedCodeStr);
-	event.reply("fixErrorResponse", { mergedCode, codeChanges });
-	return;
+	let testError = `
+	Traceback (most recent call last):
+	  File "broken.py", line 14, in <module>
+	    main()
+	  File "broken.py", line 10, in main
+	    their_data.add(i)
+	AttributeError: 'list' object has no attribute 'add'
+	`
+	//const { mergedCode, codeChanges } = parseGPTOutput(testBrokenCodeStr, testFixedCodeStr);
+	//event.reply("fixErrorResponse", { mergedCode, codeChanges });
+	//return;
 
   const { code, stackTrace } = arg;
-	const prompt = buildGPTPrompt(code, stackTrace);
+
+	const input = code.join('\n');
+	//let input = testBrokenCodeStr
+	console.log("this is input: ", input)
+
+	const instruction = "Propose a fix for the code given this Error StackTrace: " + stackTrace.replace(/\n|\r/g, "");
+	//const instruction = "Propose a fix for the code given this Error StackTrace: " + testError.replace(/\n|\r/g, "");
 	const apiConfig = new Configuration({apiKey: defaultConfig.apiKey});
 	const api = new OpenAIApi(apiConfig);
-
+	console.log("instruction: ", instruction)
 
 	api
-		.createCompletion({
-	    prompt,
-	    ...defaultConfig.completionPromptParams
+		.createEdit({
+	    ...defaultConfig.editPromptParams, input, instruction
 	  })
 	  .then(data => {
-
+			let fixedCode = data.data.choices[0].text
+			console.log("fixed code response: ", fixedCode)
+			const { mergedCode, codeChanges } = parseGPTOutput(input, fixedCode);
+			event.reply("fixErrorResponse", { mergedCode, codeChanges });
 		})
 		.catch((error) => console.log(error.response));
 });
