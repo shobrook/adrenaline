@@ -142,7 +142,7 @@ function createWindow() {
 			: `file://${path.join(__dirname, "../build/index.html")}`
 	);
 	mainWindow.on("closed", () => (mainWindow = null));
-	mainWindow.webContents.openDevTools(); // TEMP: For testing
+	// mainWindow.webContents.openDevTools(); // TEMP: For testing
 }
 
 app.whenReady().then(createWindow);
@@ -186,6 +186,26 @@ ipcMain.on("runCommandRequest", (event, arg) => {
 });
 
 ipcMain.on("fixErrorRequest", (event, arg) => {
+	// let mergedCodeLines = [
+	//   "def apply_func_to_input(func, input):",
+	//   "\tfunc(input)",
+	//   "",
+	//   "def main():",
+	//   "\tmy_data = []",
+	//   "\tfor i in range(10):",
+	// 	">>> OLD CODE",
+	//   "\t\tapply_func_to_input(my_data.add, i)",
+	// 	"============",
+	// 	"\t\tapply_func_to_input(my_data.append, i)",
+	// 	">>> FIXED CODE",
+	//   "",
+	//   "\tprint(my_data)",
+	//   "",
+	//   "main()"
+	// ];
+	// let codeChanges = [{oldLines: [6, 7], mergeLine: 8, newLines: [9]}];
+	// event.reply("fixErrorResponse", { mergedCode: mergedCodeLines.join("\n"), codeChanges });
+
 	console.log("RECEIEVED fixErrorRequest");
 	let testBrokenCodeStr = `
 	def apply_input_to_func(func, input):
@@ -234,6 +254,7 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 	console.log("this is input: ", input)
 
 	const instruction = "Propose a fix for the code given this Error StackTrace: " + stackTrace.replace(/\n|\r/g, "");
+	// const instruction = "Propose a fix for this code.";
 	//const instruction = "Propose a fix for the code given this Error StackTrace: " + testError.replace(/\n|\r/g, "");
 	const apiConfig = new Configuration({apiKey: defaultConfig.apiKey});
 	const api = new OpenAIApi(apiConfig);

@@ -10,21 +10,17 @@ import './App.css';
 const { ipcRenderer } = window.require("electron");
 
 const testCode = [
-  "import numpy as np",
-  "import pandas as pd",
-  "from statsmodels.tsa.stattools import grangercausalitytests",
+  "def apply_func_to_input(func, input):",
+  "\tfunc(input)",
   "",
-  "n = 1000",
-  "ls = np.linspace(0, 2*np.pi, n)",
+  "def main():",
+  "\tmy_data = []",
+  "\tfor i in range(10):",
+  "\t\tapply_func_to_input(my_data.add, i)",
   "",
-  "df1 = pd.DataFrame(np.sin(ls))",
-  "df2 = pd.DataFrame(2*np.sin(1+ls))",
+  "\tprint(my_data)",
   "",
-  "df = pd.concat([df1, df2], axis=1)",
-  "",
-  "df.plot()",
-  "",
-  "grangercausalitytests(df, maxlag=20)"
+  "main()"
 ];
 const testStackTrace = `Traceback (most recent call last):
   File "broken.py", line 16, in <module>
