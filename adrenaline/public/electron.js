@@ -98,8 +98,6 @@ ipcMain.on("runCommandRequest", (event, arg) => {
 	    // something handly
 			console.log("exec Error: ", err)
 	  }
-		console.log("exec? stdout ", stdout)
-		console.log("exec? stderr ", stderr)
 	  event.reply("runCommandResponse", {stdout, stderr});
 	});
 });

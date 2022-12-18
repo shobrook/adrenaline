@@ -51,7 +51,7 @@ export default class Terminal extends Component {
 									output: stdout + '\n' + stderr
 								})
 							}));
-							// this.input.value = '';
+							this.input.value = '';
 						}}
 					>
 						<span className="promptSymbol">

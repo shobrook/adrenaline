@@ -68,13 +68,12 @@ export default class App extends Component {
     // Get code from state
     const { fileName, currDir } = this.state;
     // TODO: Error handling for bad filename/paths
-    let _command;
+    if (command === '') return;
     let commandParts = command.split(" ");
+    let _command = command;
     if (commandParts > 1) {
       let filePath = this.state.currDir + commandParts[1];
       _command = [commandParts[0], filePath, ...commandParts.slice(1)].join(" ")
-    } else {
-      _command = command
     }
     ipcRenderer.send("runCommandRequest", {
       command: _command
