@@ -3,63 +3,78 @@ import "./Terminal.css";
 
 import Button from "../components/Button";
 
-const DEFAULT_STATE = {
-	history: []
-}
+const PROMPT_SYMBOL = ">"
 
 export default class Terminal extends Component {
-	constructor(props) {
-		super(props);
-
-		this.state = DEFAULT_STATE;
-	}
-
-	buildPromptSymbol = filePath => ">" // TODO: Add current directory here
-
 	focus = () => this.input.focus();
 
+	renderPrompt = () => (
+		<span className="promptSymbol">
+			{PROMPT_SYMBOL}
+		</span>
+	);
+
+	renderHistory = history => (
+		<div className="history">
+			{history.map((priorCommand, index) => {
+				const { command, stdout, stderr } = priorCommand;
+
+				return (
+					<div className="historyItem" key={index}>
+						<div className="priorCommandContainer">
+							{this.renderPrompt()}
+							<span className="command">{command}</span>
+						</div>
+						<div className="outputContainer">
+							<span className="stdout">{stdout}</span>
+							<span className="stderr">{stderr}</span>
+						</div>
+					</div>
+				);
+			})}
+		</div>
+	);
+
 	render() {
-		const { filePath, stdout, stderr, onSubmit, isCodeBroken } = this.props;
-		const { history } = this.state;
+		const {
+			filePath,
+			stdout,
+			stderr,
+			onSubmit,
+			onFixCode,
+			isCodeBroken,
+			history
+		} = this.props;
 
     return (
       <div className="terminalContainer" onClick={this.focus}>
 				<div className="header">
 					<span className="terminalLabel">TERMINAL</span>
-					<Button className="fixItButton">Fix It</Button>
+					{
+						isCodeBroken ? (
+							<div className="fixItButtonContainer">
+								<Button
+									className="fixItButton"
+									isPrimary={true}
+									onClick={onFixCode}
+								>
+									Fix It
+								</Button>
+							</div>
+						) : null
+					}
 				</div>
 				<div className="body">
-					<div className="history">
-						{history.map((priorCommand, index) => {
-							const { command, output } = priorCommand;
-
-							return (
-								<div className="priorCommand" key={index}>
-									<span>{command}</span>
-									<p>{output}</p>
-								</div>
-							)
-						})}
-					</div>
+					{this.renderHistory(history)}
 					<form
 						className="terminalInputForm"
 						onSubmit={e => {
 							e.preventDefault();
 							onSubmit(this.input.value);
-
-							// Bring this up a level; store history in App
-							this.setState(prevState => ({
-								history: prevState.history.concat({
-									command: this.input.value,
-									output: stdout + '\n' + stderr
-								})
-							}));
 							this.input.value = '';
 						}}
 					>
-						<span className="promptSymbol">
-							{this.buildPromptSymbol(filePath)}
-						</span>
+						{this.renderPrompt()}
 						<input
 							className="terminalInput"
 							ref={ref => this.input = ref}

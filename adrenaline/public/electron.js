@@ -6,30 +6,25 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
 const isDev = require("electron-is-dev");
+const fs = require("fs");
+const os = require("os");
 const { Configuration, OpenAIApi } = require("openai");
-const rc = require('rc');
+const { exec, spawn } = require('node:child_process');
 const defaultConfig = require('./config.js');
 //const diff = require('diff');
 /*********
  * Helpers
  *********/
 
-const buildGPTPrompt = (brokenCode, stackTrace) => {
-	// const config = rc(
-	//    'gpt3-code-fix',
-	//    defaultConfig,
-	//    null,
-	//    (content) => eval(content) // not good. but is it different from require()?
-	// );
-	return `${defaultConfig.prompt}
-					${defaultConfig.codeKey}
-					${brokenCode}
+const buildGPTPrompt = (brokenCode, stackTrace) =>
+	`${defaultConfig.prompt}
+	 ${defaultConfig.codeKey}
+	 ${brokenCode}
 
-					${defaultConfig.errorKey}
-					${stackTrace}
+	 ${defaultConfig.errorKey}
+	 ${stackTrace}
 
-					${defaultConfig.solutionKey}`;
-}
+	 ${defaultConfig.solutionKey}`;
 
 /**************
  * Window Setup
@@ -40,8 +35,8 @@ let mainWindow;
 function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1000,
-		height: 600,
+		width: 800,
+		height: 700,
 		resizable: false,
 		// titleBarStyle: "hidden",
 		webPreferences: {
@@ -76,19 +71,12 @@ app.on("window-all-closed", () => {
  ******************************/
 
 ipcMain.on("runCommandRequest", (event, arg) => {
-	console.log("Received runCommandRequest");
-
-	let stdout = '';
-	let stderr = '';
 	const { command } = arg;
 
-	const { exec, spawn } = require('node:child_process');
+	console.log("receieved", command);
+
 	exec(command, (err, stdout, stderr) => {
-	  if (err) {
-	    // something handly
-			console.log("exec Error: ", err)
-	  }
-	  event.reply("runCommandResponse", {stdout, stderr});
+	  event.reply("runCommandResponse", {command, stdout, stderr});
 	});
 });
 // diffTool (oldCode, newCode) => {
@@ -116,3 +104,20 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 		})
 		.catch((error) => console.log(error.response));
 });
+
+ipcMain.on("saveFileRequest", (event, arg) => {
+	const { code, filePath } = arg;
+	const homeDir = os.homedir();
+	const fullPath = path.resolve(homeDir, filePath);
+
+	fs.writeFile(fullPath, code.join("\n"), { flag: 'wx' }, err => {
+		if (err) {
+			console.log(filePath);
+			console.log(err);
+			event.reply("saveFileResponse", { success: false });
+		} else {
+			event.reply("saveFileResponse", { success: true })
+		}
+	});
+
+})
