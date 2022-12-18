@@ -51,6 +51,19 @@ export default class App extends Component {
 		this.state = DEFAULT_STATE;
 	}
 
+  // onFixError = stackTrace => {
+  //   // Get code from state
+  //   ipcRenderer.sendSync("fixErrorRequest", {
+  //     brokenCode: {},
+  //     stackTrace: stackTrace
+  //   });
+  //   ipcRenderer.on("fixErrorResponse", (event, arg) => {
+  //     const { fixedCode } = arg;
+  //
+  //     // TODO: Update state
+  //   });
+  // }
+
   onRunCommand = command => {
     // Get code from state
     const { fileName, currDir } = this.state;
