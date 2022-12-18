@@ -28,7 +28,7 @@ const buildGPTPrompt = (brokenCode, stackTrace) =>
 	 ${defaultConfig.solutionKey}`;
 
 const parseGPTOutput = (brokenCode, fixedCode) => {
-	const diff = Diff.diffTrimmedLines(brokenCode, fixedCode);
+	const diff = Diff.diffLines(brokenCode, fixedCode, ignoreWhitespace=false);
 	console.log("diff: ", diff)
 	let mergedCode = "";
 
@@ -61,7 +61,6 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 			mergedCode += '\n>>> FIXED CODE<<<\n'
 			isFixed = true;
 		} else {
-			console.log('wtf')
 		}
 	}
 
@@ -70,10 +69,8 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 	if (!isFixed) {
 		mergedCode += '>>> FIXED CODE <<<'
 	}
-	console.log("merged code: ", mergedCode)
 	const codeChanges = [];
 	const lines = mergedCode.split('\n');
-	console.log('mc lines: ',lines)
 	let oldLines = [];
 	let newLines = [];
 	let mergeLine = -1;
@@ -88,7 +85,6 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 			mergeLine = i;
 		}
 		if (oldLines.length > 0 && newLines.length > 0 && mergeLine > -1) {
-			console.log('test')
 
 			for (let j = oldLines[0]+1; j < mergeLine; j++) {
 				oldLines.push(j);
