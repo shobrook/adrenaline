@@ -1,12 +1,24 @@
 .codeEditor {
-  height: 380px;
+  height: 75%;
   overflow: auto;
+}
+
+.CodeMirror {
+  height: 100%;
 }
 
 .oldLine {
   background-color: rgb(251, 54, 64, 0.25);
 }
 
+.last {
+  border-radius: 0px 0px 7px 7px;
+}
+
 .newLine {
   background-color: rgb(0, 232, 252, 0.25);
+}
+
+.first {
+  border-radius: 7px 7px 0px 0px;
 }

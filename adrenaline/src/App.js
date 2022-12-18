@@ -18,6 +18,8 @@ const DEFAULT_STATE = {
   fileName: "",
   code: [], // Array of strings, each representing a LOC
   codeChanges: [], // Array of {oldLines: [], newLines: []} objects
+  stdout: "",
+  stderr: "",
   screen: SCREENS.OpenFile
 };
 
@@ -43,6 +45,15 @@ export default class App extends Component {
       });
     });
   };
+
+  onRunCommand = command => {
+    ipcRenderer.send("runCommandRequest", { command });
+    ipcRenderer.on("runCommandResponse", (event, arg) => {
+      const { stdout, stderr } = arg;
+
+      this.setState({stdout, stderr});
+    });
+  }
 
   // onFixError = stackTrace => {
   //   // Get code from state
@@ -90,7 +101,12 @@ export default class App extends Component {
             isActive={true}
           />
           <CodeEditor code={code} codeChanges={codeChanges} />
-          <Terminal />
+          <Terminal
+            filePath={filePath}
+            onChange={() => {}}
+            onKeyDown={() => {}}
+            onSubmit={this.onRunCommand}
+          />
         </div>
       );
     }
