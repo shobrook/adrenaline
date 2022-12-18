@@ -64,5 +64,9 @@ module.exports = {
     n: 1,
     stream: false,
     // stop: ["\n\n\n"],
+  },
+  editPromptParams: {
+    model: "text-davinci-edit-001",
+    // stop: ["\n\n\n"],
   }
 }
