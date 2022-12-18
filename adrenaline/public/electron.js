@@ -117,19 +117,21 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 	};
 }
 
-const callGPTEditsAPI = (code, instruction, ipcChannel) => {
+const callGPTEditsAPI = (code, instruction, sendMessage) => {
 	const apiConfig = new Configuration({apiKey: defaultConfig.apiKey});
 	const api = new OpenAIApi(apiConfig);
 
 	api
 		.createEdit({
-	    ...defaultConfig.editPromptParams, code, instruction
+	    ...defaultConfig.editPromptParams, input: code, instruction
 	  })
 	  .then(data => {
 			let changedCode = data.data.choices[0].text
 			console.log("changedCode response: ", changedCode)
 			const { mergedCode, codeChanges } = parseGPTOutput(code, changedCode);
-
+			console.log("MERGED CODE ====================")
+			console.log(mergedCode);
+			sendMessage({ mergedCode, codeChanges });
 			event.reply(ipcChannel, { mergedCode, codeChanges });
 		})
 		.catch((error) => console.log(error.response));
@@ -160,7 +162,7 @@ function createWindow() {
 			: `file://${path.join(__dirname, "../build/index.html")}`
 	);
 	mainWindow.on("closed", () => (mainWindow = null));
-	// mainWindow.webContents.openDevTools(); // TEMP: For testing
+	mainWindow.webContents.openDevTools(); // TEMP: For testing
 }
 
 app.whenReady().then(createWindow);
@@ -227,25 +229,25 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 	const { code, stackTrace } = arg;
 	const instruction = "Propose a fix for the code given this Error StackTrace: " + stackTrace.replace(/\n|\r/g, "");
 
-	callGPTEditsAPI(code, instruction, "fixErrorResponse");
+	callGPTEditsAPI(code, instruction, payload => event.reply("fixErrorResponse", payload));
 });
 ipcMain.on("lintCodeRequest", (event, arg) => {
 	const { code } = arg;
 	const instruction = "Fix all the bugs in this code, if there are any.";
 
-	callGPTEditsAPI(code, instruction, "lintCodeResponse");
+	callGPTEditsAPI(code, instruction, payload => event.reply("lintCodeResponse", payload));
 });
 ipcMain.on("optimizeCodeRequest", (event, arg) => {
 	const { code } = arg;
 	const instruction = "Optimize this code.";
 
-	callGPTEditsAPI(code, instruction, "optimizeCodeResponse");
+	callGPTEditsAPI(code, instruction, payload => event.reply("optimizeCodeResponse", payload));
 });
 ipcMain.on("documentCodeRequest", (event, arg) => {
 	const { code } = arg;
 	const instruction = "Add comments to this code.";
 
-	callGPTEditsAPI(code, instruction, "documentCodeResponse");
+	callGPTEditsAPI(code, instruction, payload => event.reply("documentCodeResponse", payload));
 });
 
 ipcMain.on("saveFileRequest", (event, arg) => {
