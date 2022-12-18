@@ -9,7 +9,7 @@ const isDev = require("electron-is-dev");
 const { Configuration, OpenAIApi } = require("openai");
 const rc = require('rc');
 const defaultConfig = require('./config.js');
-
+//const diff = require('diff');
 /*********
  * Helpers
  *********/
@@ -91,7 +91,14 @@ ipcMain.on("runCommandRequest", (event, arg) => {
 	  event.reply("runCommandResponse", {stdout, stderr});
 	});
 });
-
+// diffTool (oldCode, newCode) => {
+// 	const codeDiff = diff.diffTrimmedLines(oldCode, newCode);
+// 	codeDiff.forEach( (part) => {
+// 		console.log("diff value: ", codeDiff.value)
+// 		console.log("diff added: ", codeDiff.added)
+// 		console.log("diff removed: ", codeDiff.removed)
+// 	})
+// }
 ipcMain.on("fixErrorRequest", (event, arg) => {
   const { code, stackTrace } = arg;
 	const prompt = buildGPTPrompt(code, stackTrace);
@@ -104,6 +111,7 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 	    ...defaultConfig.completionPromptParams
 	  })
 	  .then(data => {
+			//diffTool(code, data.data.choices[0].text.split("\n"))
 			event.reply("fixErrorResponse", {fixedCode: data.data.choices[0].text.split("\n")});
 		})
 		.catch((error) => console.log(error.response));
