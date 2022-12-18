@@ -29,45 +29,51 @@ const buildGPTPrompt = (brokenCode, stackTrace) =>
 
 const parseGPTOutput = (brokenCode, fixedCode) => {
 	const diff = Diff.diffTrimmedLines(brokenCode, fixedCode);
+	console.log("diff: ", diff)
 	let mergedCode = "";
 
 	let hasOld = false;
 	let isFixed = true;
 	for (let i = 0; i < diff.length; i++) {
 		let part = diff[i];
-
+		let partLines = part.value.split('\n')
 		if (!part.added && !part.removed) {
 			mergedCode += part.value;
 		} else if (part.removed) {
-			mergedCode += '>>>OLD CODE<<<\n';
+			mergedCode += '>>> OLD CODE <<<\n';
 			hasOld = true;
 			isFixed = false;
-			for (let j = 0; j < part.value.length; j++) {
-				mergedCode += part.value[j];
+			for (let j = 0; j < partLines.length; j++) {
+				mergedCode += partLines[j];
 			}
 
-			mergedCode += "================\n"
+			mergedCode += "\n================\n"
 		} else if (part.added) {
 			if (!hasOld) {
-				mergedCode += '>>>OLD CODE<<<\n';
+				mergedCode += '>>> OLD CODE <<<\n';
 				hasOld = true;
 				mergedCode += "================\n"
 			}
-			for (let j = 0; j < part.value.length; j++) {
-				mergedCode += part.value[j];
+			for (let j = 0; j < partLines.length; j++) {
+				mergedCode += partLines[j];
 			}
 
-			mergedCode += '>>>FIXED CODE<<<\n'
+			mergedCode += '\n>>> FIXED CODE<<<\n'
 			isFixed = true;
+		} else {
+			console.log('wtf')
 		}
 	}
-	if (!isFixed) {
-		mergedCode += '>>>FIXED CODE<<<\n'
-	}
 
+
+
+	if (!isFixed) {
+		mergedCode += '>>> FIXED CODE <<<'
+	}
+	console.log("merged code: ", mergedCode)
 	const codeChanges = [];
 	const lines = mergedCode.split('\n');
-
+	console.log('mc lines: ',lines)
 	let oldLines = [];
 	let newLines = [];
 	let mergeLine = -1;
@@ -78,7 +84,7 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 			oldLines.push(i);
 		} else if (line.includes('>>> FIXED CODE')) {
 			newLines.push(i);
-		} else if (line.includes('===============\n')) {
+		} else if (line.includes('===============')) {
 			mergeLine = i;
 		}
 		if (oldLines.length > 0 && newLines.length > 0 && mergeLine > -1) {
@@ -98,7 +104,7 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 			mergeLine = -1;
 		}
 	}
-	console.log("num changes: ", codeChange.length)
+	console.log("num changes: ", codeChanges.length)
 	codeChanges.forEach( (codeChange) => {
 		console.log("\tlines added: ", codeChange.newLines)
 		console.log("\tlines removed: ", codeChange.oldLines)
@@ -241,6 +247,8 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 			let fixedCode = data.data.choices[0].text
 			console.log("fixed code response: ", fixedCode)
 			const { mergedCode, codeChanges } = parseGPTOutput(input, fixedCode);
+			console.log(mergedCode);
+			console.log(codeChanges);
 			event.reply("fixErrorResponse", { mergedCode, codeChanges });
 		})
 		.catch((error) => console.log(error.response));
