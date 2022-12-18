@@ -51,7 +51,6 @@ export default class App extends Component {
 		this.state = DEFAULT_STATE;
 	}
 
-
   onRunCommand = command => {
     ipcRenderer.send("runCommandRequest", { command });
     ipcRenderer.on("runCommandResponse", (event, arg) => {
@@ -60,19 +59,6 @@ export default class App extends Component {
       this.setState({stdout, stderr});
     });
   }
-
-  // onFixError = stackTrace => {
-  //   // Get code from state
-  //   ipcRenderer.sendSync("fixErrorRequest", {
-  //     brokenCode: {},
-  //     stackTrace: stackTrace
-  //   });
-  //   ipcRenderer.on("fixErrorResponse", (event, arg) => {
-  //     const { fixedCode } = arg;
-  //
-  //     // TODO: Update state
-  //   });
-  // }
 
   onRunCode = command => {
     // Get code from state
@@ -127,6 +113,7 @@ export default class App extends Component {
     });
     ipcRenderer.on("fixErrorResponse", (event, arg) => {
       const { fixedCode } = arg;
+
       console.log(fixedCode);
     })
   }
