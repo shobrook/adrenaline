@@ -3,9 +3,9 @@ import "./Terminal.css";
 
 import Button from "../components/Button";
 
-export default class Terminal extends Component {
-	buildPromptSymbol = filePath => ">" // TODO: Add current directory here
+const PROMPT_SYMBOL = "$ >"
 
+export default class Terminal extends Component {
 	focus = () => this.input.focus();
 
 	renderHistory = history => (
@@ -15,8 +15,7 @@ export default class Terminal extends Component {
 
 				return (
 					<div className="priorCommand" key={index}>
-						<span>{command}</span>
-						<p>{output}</p>
+						{PROMPT_SYMBOL} {command}<br />{output}
 					</div>
 				)
 			})}
@@ -25,8 +24,6 @@ export default class Terminal extends Component {
 
 	render() {
 		const { filePath, stdout, stderr, onSubmit, isCodeBroken, history } = this.props;
-
-		console.log(history);
 
     return (
       <div className="terminalContainer" onClick={this.focus}>
@@ -45,7 +42,7 @@ export default class Terminal extends Component {
 						}}
 					>
 						<span className="promptSymbol">
-							{this.buildPromptSymbol(filePath)}
+							{PROMPT_SYMBOL}
 						</span>
 						<input
 							className="terminalInput"
