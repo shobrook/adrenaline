@@ -70,6 +70,7 @@ export default class App extends Component {
 
   onRunCode = () => {
     // Get code from state
+    const { fileName, filePath } = this.state;
     ipcRenderer.sendSync("runCodeRequest", {
       // TODO: Error handling for bad filename/paths
       command: filePath + '/' + fileName
