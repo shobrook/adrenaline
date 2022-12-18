@@ -1,6 +1,6 @@
 module.exports = {
-    openAiKey: "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",//process.env.OPENAI_API_KEY,
-    prompt: `
+  apiKey: "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",
+  prompt: `
     ##EXAMPLE
     CODE:
     def apply_input_to_func(func, input):
@@ -50,21 +50,19 @@ module.exports = {
     {line number(s) and new code}
 
     Now fix this.`,
-    kCode: "CODE:",
-    kError: "ERROR:",
-    kSOLUTION: "SOLUTION:",
-    //promptAfterDiff: 'Generate 1 to 3 paragraphs to explain this diff to a human without mentioning changes themselves:',
-
-    completionPromptParams: {
-        model: "text-davinci-002",
-        max_tokens: 500,
-        temperature: 0.2,
-        top_p: 1,
-        presence_penalty: 0,
-        frequency_penalty: 0,
-        best_of: 1,
-        n: 1,
-        stream: false,
-        // stop: ["\n\n\n"],
-    }
+  codeKey: "CODE:",
+  errorKey: "ERROR:",
+  solutionKey: "SOLUTION:",
+  completionPromptParams: {
+    model: "text-davinci-002",
+    max_tokens: 500,
+    temperature: 0.2,
+    top_p: 1,
+    presence_penalty: 0,
+    frequency_penalty: 0,
+    best_of: 1,
+    n: 1,
+    stream: false,
+    // stop: ["\n\n\n"],
+  }
 }

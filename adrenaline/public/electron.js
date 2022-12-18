@@ -54,6 +54,29 @@ app.on("window-all-closed", () => {
  * Inter-Process Event Handlers
  ******************************/
 
+ipcMain.on("openFileRequest", (event, arg) => {
+	// TODO: Prompt user to select a file in their file manager
+	// TODO: Once a file is selected, read its contents
+
+	event.reply("openFileResponse", {
+		fileName: "test_program.py", // TEMP
+		filePath: "test_program.py", // TEMP
+		code: [
+			"def main():",
+			"\targs = sys.argv",
+			"\tif len(args) == 1 or args[1].lower() in (\"-h\", \"--help\"):",
+			"\t\tprinters.print_help_message()",
+			"\t\treturn",
+			"",
+			"\tlanguage = parsers.get_language(args)",
+			"\tif not language:",
+			"\t\tprinters.print_invalid_language_message()",
+			"\t\treturn"
+		] // TEMP
+	});
+});
+
+
 const config = rc(
    'gpt3-code-fix',
    defaultConfig,
@@ -66,15 +89,15 @@ ipcMain.on("runCodeRequest", (event, arg) => {
 	let stdErr = '';
 	const { command } = arg;
 	// command parsing
+	// if (command === '') { // skip Spawn overhead
+	// 	event.reply("runCodeResponse", {stdOut, stdErr});
+	// 	return;
+	// }
+
 	commandParts = command.split(" ");
-	if (!commandParts) { // skip Spawn overhead
-		event.reply("runCodeResponse", {stdOut, stdErr});
-	}
-
 	const { spawn } = require('child_process');
-	// TODO: determine command type (python, bash, etc) via file extension
+	// TODO: handle when len == 1
 	const child = spawn(commandParts[0], commandParts.slice(1))
-
 
 	child.stdout.on('data', (data) => {
 	  stdOut += data;
@@ -85,8 +108,12 @@ ipcMain.on("runCodeRequest", (event, arg) => {
 	});
 
 	child.on('close', () => {
+		console.log("close")
 	  event.reply("runCodeResponse", {stdOut, stdErr});
+		child.kill();
+		console.log("close killed")
 	});
+	console.log('magic')
 });
 
 ipcMain.on("fixErrorRequest", (event, arg) => {
