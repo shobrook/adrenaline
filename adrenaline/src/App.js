@@ -68,6 +68,20 @@ export default class App extends Component {
   //   });
   // }
 
+  onRunCode = () => {
+    // Get code from state
+    const { fileName, filePath } = this.state;
+    ipcRenderer.sendSync("runCodeRequest", {
+      // TODO: Error handling for bad filename/paths
+      command: filePath + '/' + fileName
+    });
+    ipcRenderer.on("runCodeResponse", (event, arg) => {
+      const { stdOut, stdErr } = arg;
+      console.log(`stdout: ${stdOut}`);
+      console.log(`stderr: ${stdErr}`);
+    });
+  }
+
 	render() {
     const { fileName, filePath, codeEditor, code, screen } = this.state;
 
@@ -80,6 +94,7 @@ export default class App extends Component {
         </div>
       );
     } else if (screen == SCREENS.EditFile) {
+      let response = this.onRunCode();
       return (
         <div className="editFileScreen">
           <Header

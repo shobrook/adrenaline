@@ -84,6 +84,29 @@ const config = rc(
    (content) => eval(content) // not good. but is it different from require()?
 );
 
+ipcMain.on("runCodeRequest", (event, arg) => {
+
+	const { command } = arg;
+
+	const { spawn } = require('child_process');
+	// TODO: determine command type (python, bash, etc) via file extension
+	const child = spawn('python3', [command])
+	let stdOut = '';
+	let stdErr = '';
+
+	child.stdout.on('data', (data) => {
+	  stdOut += data;
+	});
+
+	child.stderr.on('data', (data) => {
+	  stdErr += data;
+	});
+
+	child.on('close', () => {
+	  event.reply("runCodeResponse", {stdOut, stdErr});
+	});
+});
+
 ipcMain.on("fixErrorRequest", (event, arg) => {
   const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}
 	if (!stackTrace) {
@@ -100,8 +123,8 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 	${config.kSolution}
 	`
 	const apiConfig = new Configuration({
-  apiKey: config.openAiKey
-});
+  	apiKey: config.openAiKey
+	});
 	const openai = new OpenAIApi(apiConfig);
 
 	openai
@@ -110,7 +133,8 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 	    ...config.completionPromptParams
 	  })
 	  .then((data) => {
-			console.log(data.data.choices[0].text);
+			//for choice in data.data.choices:
+				//console.log('choice: \n', choice.text);
 			event.reply("fixErrorResponse", {fixedCode: data.data.choices[0].text});
 		})
 		.catch((error) => console.log(error.response));
