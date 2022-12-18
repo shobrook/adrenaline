@@ -41,7 +41,7 @@ const DEFAULT_STATE = {
   codeChanges: [{oldLines: [3, 4, 5], newLines: [0, 1, 2]}], // TEMP
   stdout: "",
   stderr: "", // TEMP
-  enableFixIt: false
+  isCodeBroken: false
 };
 
 export default class App extends Component {
@@ -52,34 +52,34 @@ export default class App extends Component {
 	}
 
   onRunCommand = command => {
-    // Get code from state
     const { fileName, currDir } = this.state;
-    // TODO: Error handling for bad filename/paths
-    if (command === '') return;
-    let commandParts = command.split(" ");
-    let _command = command;
-    if (commandParts > 1) {
-      let filePath = this.state.currDir + commandParts[1];
-      _command = [commandParts[0], filePath, ...commandParts.slice(1)].join(" ")
-    }
-    ipcRenderer.send("runCommandRequest", {
-      command: _command
-    });
-    console.log("Sent runCommandRequest");
-    ipcRenderer.on("runCommandResponse", (event, arg) => {
-      console.log("Received runCommandResponse");
 
+    if (command.trim() === "") {
+      return;
+    }
+
+    let runCommandRequest;
+    let commandParts = command.split(" ");
+    if (commandParts.length > 1) { // Changes file references in command to absolute paths
+      // TODO: Validate that commandParts[1] is actually a file
+      let filePath = `${currDir}/${commandParts[1]}`;
+      runCommandRequest = {
+        command: `${commandParts[0]} ${filePath} ${commandParts.slice(2, commandParts.length)}`
+      }
+    } else {
+      runCommandRequest = { command }
+    }
+
+    ipcRenderer.send("runCommandRequest", runCommandRequest);
+    ipcRenderer.on("runCommandResponse", (event, arg) => {
       const { stdout, stderr } = arg;
-      let enableFixIt = false;
-      if (command.split(" ").length >1 && command.split(" ")[1] == this.state.fileName) {
-        enableFixIt = !stderr.isEmpty();
+
+      let isCodeBroken = false;
+      if (commandParts.length > 1 && commandParts[1] == fileName) {
+        isCodeBroken = stderr.length !== 0;
       }
 
-      this.setState({stdout, stderr, enableFixIt});
-      console.log(`stdout: ${stdout}`);
-      console.log(`stderr: ${stderr}`);
-      console.log(`should fix: ${this.state.enableFixIt}`);
-
+      this.setState({stdout, stderr, isCodeBroken});
     });
   }
 
@@ -102,7 +102,7 @@ export default class App extends Component {
 			codeChanges: prevState.codeChanges.filter((_, index) => index != codeChangeIndex)
 		}));
 
-    // TODO: Do we need to update the line numbers in all the other codeChange objects?
+    // TODO: Update the line numbers in all the other codeChange objects?
   }
 
   onFixCode = () => {
@@ -113,14 +113,70 @@ export default class App extends Component {
       stackTrace: stderr
     });
     ipcRenderer.on("fixErrorResponse", (event, arg) => {
-      const { fixedCode } = arg;
+      const { fixedCodeStr } = arg;
 
-      console.log(fixedCode);
+      // FOR MALIK
+      // fixedCodeStr should be a string representing the NEW code.
+      // Merge the fixedCode with the current code (this.state.code). The fixed
+      // lines should be inserted above the old lines. Separators should also
+      // be added to delineate between fixed and old code. Here's an example:
+
+        /* OLD CODE: */
+
+        // x = 10
+        // y = "hey"
+        // z = "yo"
+        // result = x + y + z
+        // print("What's up")
+
+        /* FIXED CODE */
+
+        // x = 10
+        // y = 20
+        // z = 30
+        // result = x + y + z
+        // print(result)
+
+        /* MERGED CODE */
+
+        // x = 10
+        // >>>FIXED CODE<<<
+        // y = 20
+        // z = 30
+        // ================
+        // y = "hey"
+        // z = "yo"
+        // >>>OLD CODE<<<
+        // result = x + y + z
+        // >>>FIXED CODE<<<
+        // print(result)
+        // ================
+        // print("What's up")
+        // >>>OLD CODE<<<
+
+      // Once you do this, set this.state.code to this new code. Then set
+      // this.state.codeChanges to be a list of "changedCode" objects, each
+      // indexing the old lines of code and the new lines of code. For the example
+      // above, this would look like:
+
+        // codeChanges = [
+        //    {oldLines: [3, 4], newLines: [1, 2]},
+        //    {oldLines: [7], newLines: [6]}
+        // ]
     })
   }
 
 	render() {
-    const { fileName, currDir, codeEditor, code, codeChanges, screen } = this.state;
+    const {
+      fileName,
+      currDir,
+      codeEditor,
+      code,
+      codeChanges,
+      stdout,
+      stderr,
+      isCodeBroken
+    } = this.state;
 
     return (
       <div className="app">
@@ -131,16 +187,16 @@ export default class App extends Component {
         <CodeEditor
           code={code}
           codeChanges={codeChanges}
-          onChange={(editor, data, strCode) => { console.log(strCode); this.setState({code: strCode.split("\n")})}}
+          onChange={(editor, data, strCode) => this.setState({code: strCode.split("\n")})}
           onClickUseMe={this.onResolveDiff}
         />
         <Terminal
           currDir={currDir}
           onChange={() => {}}
           onKeyDown={() => {}}
-          stdout={this.state.stdout}
-          stderr={this.state.stderr}
-          enableFixIt={this.state.enableFixIt}
+          stdout={stdout}
+          stderr={stderr}
+          isCodeBroken={isCodeBroken}
           onSubmit={this.onRunCommand}
           onClickFixIt={this.onFixCode}
         />

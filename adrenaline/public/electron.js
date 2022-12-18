@@ -104,8 +104,7 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 	    ...defaultConfig.completionPromptParams
 	  })
 	  .then(data => {
-			console.log(data.data);
-			event.reply("fixErrorResponse", {fixedCode: data.data.choices[0].text});
+			event.reply("fixErrorResponse", {fixedCode: data.data.choices[0].text.split("\n")});
 		})
 		.catch((error) => console.log(error.response));
 });

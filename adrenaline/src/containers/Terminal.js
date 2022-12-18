@@ -3,19 +3,24 @@ import "./Terminal.css";
 
 import Button from "../components/Button";
 
+const DEFAULT_STATE = {
+	history: []
+}
+
 export default class Terminal extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {history: []};
+		this.state = DEFAULT_STATE;
 	}
 
-	buildPromptSymbol = filePath => "~ >" // TEMP
+	buildPromptSymbol = filePath => ">" // TODO: Add current directory here
 
 	focus = () => this.input.focus();
 
 	render() {
-		const { filePath, stdout, stderr, onSubmit, enableFixit } = this.props;
+		const { filePath, stdout, stderr, onSubmit, isCodeBroken } = this.props;
+		const { history } = this.state;
 
     return (
       <div className="terminalContainer" onClick={this.focus}>
@@ -24,27 +29,25 @@ export default class Terminal extends Component {
 					<Button className="fixItButton">Fix It</Button>
 				</div>
 				<div className="body">
-					{ this.state.history.map((obj, index) => {
-					  const { command, output } = obj;
-					  return (
-					    <div className="terminalHistory" key={index}>
-					      <span>{command}</span>
-					      <p>{output}</p>
-					    </div>
-					  )
-					})}
+					<div className="history">
+						{history.map((priorCommand, index) => {
+							const { command, output } = priorCommand;
+
+							return (
+								<div className="priorCommand" key={index}>
+									<span>{command}</span>
+									<p>{output}</p>
+								</div>
+							)
+						})}
+					</div>
 					<form
 						className="terminalInputForm"
 						onSubmit={e => {
 							e.preventDefault();
 							onSubmit(this.input.value);
 
-							console.log("command");
-							console.log(this.input.value);
-							console.log(stdout);
-							console.log(stderr);
-							console.log("");
-
+							// Bring this up a level; store history in App
 							this.setState(prevState => ({
 								history: prevState.history.concat({
 									command: this.input.value,
