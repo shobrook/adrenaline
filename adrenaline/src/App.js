@@ -36,12 +36,13 @@ statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test 
 
 const DEFAULT_STATE = {
   fileName: "test_program.py", // TEMP
-  currDir: "~/Development/adrenaline/adrenaline/", // TEMP
+  currDir: "~/Development/adrenaline/adrenaline", // TEMP
   code: testCode, // TEMP
   codeChanges: [{oldLines: [3, 4, 5], newLines: [0, 1, 2]}], // TEMP
   stdout: "",
   stderr: "", // TEMP
-  isCodeBroken: false
+  isCodeBroken: false,
+  terminalHistory: []
 };
 
 export default class App extends Component {
@@ -50,6 +51,8 @@ export default class App extends Component {
 
 		this.state = DEFAULT_STATE;
 	}
+
+  /* Event Handlers */
 
   onRunCommand = command => {
     const { fileName, currDir } = this.state;
@@ -71,16 +74,6 @@ export default class App extends Component {
     }
 
     ipcRenderer.send("runCommandRequest", runCommandRequest);
-    ipcRenderer.on("runCommandResponse", (event, arg) => {
-      const { stdout, stderr } = arg;
-
-      let isCodeBroken = false;
-      if (commandParts.length > 1 && commandParts[1] == fileName) {
-        isCodeBroken = stderr.length !== 0;
-      }
-
-      this.setState({stdout, stderr, isCodeBroken});
-    });
   }
 
   onResolveDiff = (linesToDelete, codeChangeIndex, codeMirrorRef, codeChange) => {
@@ -112,6 +105,34 @@ export default class App extends Component {
       code: code,
       stackTrace: stderr
     });
+
+  }
+
+  componentDidMount() {
+    ipcRenderer.on("runCommandResponse", (event, arg) => {
+      const { fileName } = this.state;
+      const { command, stdout, stderr } = arg;
+
+      // NOTE: Hacky, shouldn't have to return command in the
+
+      let isCodeBroken = false;
+      let commandParts = command.split(" ")
+      if (commandParts.length > 1 && commandParts[1].endsWith(fileName)) {
+        isCodeBroken = stderr.length !== 0;
+      }
+
+      let commandAndOutput = {
+        command: command,
+        output: `${stdout}\n${stderr}`
+      };
+      this.setState(prevState => ({
+          stdout,
+          stderr,
+          isCodeBroken,
+          terminalHistory: prevState.terminalHistory.concat(commandAndOutput)
+      }));
+    });
+
     ipcRenderer.on("fixErrorResponse", (event, arg) => {
       const { fixedCodeStr } = arg;
 
@@ -160,10 +181,14 @@ export default class App extends Component {
       // above, this would look like:
 
         // codeChanges = [
-        //    {oldLines: [3, 4], newLines: [1, 2]},
-        //    {oldLines: [7], newLines: [6]}
+        //    {oldLines: [5, 6, 7], newLines: [1, 2, 3]},
+        //    {oldLines: [12, 13], newLines: [9, 10]}
         // ]
-    })
+    });
+  }
+
+  componentWillUnmount() {
+    ipcRenderer.removeAllListeners();
   }
 
 	render() {
@@ -175,7 +200,8 @@ export default class App extends Component {
       codeChanges,
       stdout,
       stderr,
-      isCodeBroken
+      isCodeBroken,
+      terminalHistory
     } = this.state;
 
     return (
@@ -199,6 +225,7 @@ export default class App extends Component {
           isCodeBroken={isCodeBroken}
           onSubmit={this.onRunCommand}
           onClickFixIt={this.onFixCode}
+          history={terminalHistory}
         />
       </div>
     );

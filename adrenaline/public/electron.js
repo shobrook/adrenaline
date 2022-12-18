@@ -7,29 +7,22 @@ const path = require("path");
 const url = require("url");
 const isDev = require("electron-is-dev");
 const { Configuration, OpenAIApi } = require("openai");
-const rc = require('rc');
+const { exec, spawn } = require('node:child_process');
 const defaultConfig = require('./config.js');
 
 /*********
  * Helpers
  *********/
 
-const buildGPTPrompt = (brokenCode, stackTrace) => {
-	// const config = rc(
-	//    'gpt3-code-fix',
-	//    defaultConfig,
-	//    null,
-	//    (content) => eval(content) // not good. but is it different from require()?
-	// );
-	return `${defaultConfig.prompt}
-					${defaultConfig.codeKey}
-					${brokenCode}
+const buildGPTPrompt = (brokenCode, stackTrace) =>
+	`${defaultConfig.prompt}
+	 ${defaultConfig.codeKey}
+	 ${brokenCode}
 
-					${defaultConfig.errorKey}
-					${stackTrace}
+	 ${defaultConfig.errorKey}
+	 ${stackTrace}
 
-					${defaultConfig.solutionKey}`;
-}
+	 ${defaultConfig.solutionKey}`;
 
 /**************
  * Window Setup
@@ -76,19 +69,12 @@ app.on("window-all-closed", () => {
  ******************************/
 
 ipcMain.on("runCommandRequest", (event, arg) => {
-	console.log("Received runCommandRequest");
-
-	let stdout = '';
-	let stderr = '';
 	const { command } = arg;
 
-	const { exec, spawn } = require('node:child_process');
+	console.log("receieved", command);
+
 	exec(command, (err, stdout, stderr) => {
-	  if (err) {
-	    // something handly
-			console.log("exec Error: ", err)
-	  }
-	  event.reply("runCommandResponse", {stdout, stderr});
+	  event.reply("runCommandResponse", {command, stdout, stderr});
 	});
 });
 
