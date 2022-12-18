@@ -6,6 +6,8 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
 const isDev = require("electron-is-dev");
+const fs = require("fs");
+const os = require("os");
 const { Configuration, OpenAIApi } = require("openai");
 const { exec, spawn } = require('node:child_process');
 const defaultConfig = require('./config.js');
@@ -33,8 +35,8 @@ let mainWindow;
 function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1000,
-		height: 600,
+		width: 800,
+		height: 700,
 		resizable: false,
 		// titleBarStyle: "hidden",
 		webPreferences: {
@@ -94,3 +96,20 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 		})
 		.catch((error) => console.log(error.response));
 });
+
+ipcMain.on("saveFileRequest", (event, arg) => {
+	const { code, filePath } = arg;
+	const homeDir = os.homedir();
+	const fullPath = path.resolve(homeDir, filePath);
+
+	fs.writeFile(fullPath, code.join("\n"), { flag: 'wx' }, err => {
+		if (err) {
+			console.log(filePath);
+			console.log(err);
+			event.reply("saveFileResponse", { success: false });
+		} else {
+			event.reply("saveFileResponse", { success: true })
+		}
+	});
+
+})

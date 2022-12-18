@@ -1,7 +1,42 @@
 .header {
   display: flex;
   flex-direction: row;
-  height: 50px;
-  background-color: #111317;
+  height: 75px;
+  /* background-color: #111317; */
+  background-color: rgba(17, 19, 23, 0.65);
   width: 100%;
+  color: white;
+  font-family: "Monaco";
+  letter-spacing: 0.75px;
+  font-weight: 900;
+}
+
+.fileNameContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 0.75em;
+  padding-left: 25px;
+}
+
+.actionButtonsContainer {
+  display: flex;
+  flex-direction: row;
+  width: 250px;
+  align-items: center;
+  margin-left: auto;
+  padding-right: 25px;
+  justify-content: space-between;
+}
+
+.actionButton {
+  background-color: rgb(49, 133, 252, 1.0) !important;
+}
+
+.unsavedIcon {
+    border-radius: 50%;
+    background-color: rgb(49, 133, 252, 1.0);
+    width: 7px;
+    height: 7px;
+    margin-left: 7px;
 }

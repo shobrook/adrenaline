@@ -2,8 +2,6 @@
   display: flex;
   flex-direction: column;
   height: 200px;
-  font-size: 1em;
-  font-family: monospace;
 }
 
 .terminalContainer .header {
@@ -18,12 +16,19 @@
 .terminalContainer .terminalLabel {
   margin-right: auto;
   padding-left: 25px;
+  font-family: "Monaco";
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.75px;
 }
 
 .terminalContainer .header .fixItButtonContainer {
   width: 80px;
   margin-left: auto;
   padding-right: 25px;
+  font-family: Monaco;
+  font-size: 1em;
+  font-weight: 900;
 }
 
 .terminalContainer .body {
@@ -34,6 +39,8 @@
   display: flex;
   flex-direction: column;
   color: white;
+  font-size: 1em;
+  font-family: monospace;
 }
 
 .terminalContainer .body .history {
@@ -49,6 +56,7 @@
   color: white;
   font-size: 1em;
   font-family: monospace;
+  font-weight: 900;
   padding-left: 25px;
 }
 
@@ -60,12 +68,36 @@
   color: white;
   background-color: #1A1C23;
   padding: 0;
-  padding-left: 5px;
+  padding-left: 7px;
   font-size: 1em;
   font-family: monospace;
 }
 
-.priorCommand {
+.historyItem {
   padding-left: 25px;
-  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.priorCommandContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.priorCommandContainer .command {
+  padding-left: 7px;
+}
+
+.priorCommandContainer .promptSymbol {
+  padding-left: 0px !important;
+}
+
+.outputContainer {
+  display: flex;
+  flex-direction: column;
+  padding-top: 7px;
+}
+
+.outputContainer .stderr {
+  color: #E84855;
 }

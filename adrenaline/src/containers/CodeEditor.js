@@ -44,7 +44,7 @@ export default class CodeEditor extends Component {
 
 	addCodeChangeDiffs = (codeChanges, onClickUseMe) => {
 		codeChanges.forEach((codeChange, index) => {
-			const { oldLines, newLines } = codeChange;
+			const { oldLines, newLines, mergeLine } = codeChange;
 
 			oldLines.forEach((lineNum, index) => {
 				if (index === oldLines.length - 1) {
@@ -60,6 +60,7 @@ export default class CodeEditor extends Component {
 					this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine");
 				}
 			});
+			this.codeMirrorRef.addLineClass(mergeLine, "wrap", "mergeLine");
 
 			let oldCodeWidget = this.addDiffWidget(oldLines.at(-1), false, () => {
 				onClickUseMe(newLines, index, this.codeMirrorRef, codeChange);
@@ -75,7 +76,7 @@ export default class CodeEditor extends Component {
 	}
 
 	render() {
-		const { code, codeChanges, onChange, onClickUseMe } = this.props;
+		const { code, codeChanges, onChange, onClickUseMe, onSaveFile } = this.props;
 
 		console.log("Rendering")
 
@@ -93,6 +94,17 @@ export default class CodeEditor extends Component {
 				editorDidMount={(editor) => {
 					this.codeMirrorRef = editor;
 					this.addCodeChangeDiffs(codeChanges, onClickUseMe);
+				}}
+				onKeyDown={(editor, event) => {
+					const isSaveKey = event.which == 83 && (event.ctrlKey || event.metaKey);
+					if (isSaveKey) {
+						event.preventDefault();
+						onSaveFile();
+
+						return false;
+					}
+
+					return true;
 				}}
 			/>
 	  );

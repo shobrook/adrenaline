@@ -1,6 +1,7 @@
 .codeEditor {
   height: 75%;
   overflow: auto;
+  padding-right: 24px;
 }
 
 .CodeMirror {
@@ -23,13 +24,21 @@
   border-radius: 7px 7px 0px 0px;
 }
 
+.mergeLine {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
 .useMeHeader {
   flex-direction: row;
   flex-wrap: wrap;
   display: flex;
   height: 40px;
-  padding: 0px 10px 0px 10px;
+  padding: 0px 5px 0px 5px;
   align-items: center;
+  font-family: Monaco;
+  font-size: 0.65em;
+  font-weight: 900;
+  letter-spacing: 0.75px;
 }
 
 .useMeButton {
@@ -41,6 +50,11 @@
   width: 65px;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.useMeLabel {
+  font-weight: 300 !important;
+  padding-right: 5px;
 }
 
 .newLine .useMeHeader {

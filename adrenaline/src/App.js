@@ -12,12 +12,11 @@ const { ipcRenderer } = window.require("electron");
 const testCode = [
   "import numpy as np",
   "import pandas as pd",
-  "",
   "from statsmodels.tsa.stattools import grangercausalitytests",
   "",
   "n = 1000",
   "ls = np.linspace(0, 2*np.pi, n)",
-  "",
+  "==========",
   "df1 = pd.DataFrame(np.sin(ls))",
   "df2 = pd.DataFrame(2*np.sin(1+ls))",
   "",
@@ -36,13 +35,14 @@ statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test 
 
 const DEFAULT_STATE = {
   fileName: "test_program.py", // TEMP
-  currDir: "~/Development/adrenaline/adrenaline", // TEMP
+  currDir: "/Projects/adrenaline/adrenaline", // TEMP
   code: testCode, // TEMP
-  codeChanges: [{oldLines: [3, 4, 5], newLines: [0, 1, 2]}], // TEMP
+  codeChanges: [{oldLines: [7, 8], newLines: [4, 5], mergeLine: 6}], // TEMP
   stdout: "",
   stderr: "", // TEMP
   isCodeBroken: false,
-  terminalHistory: []
+  terminalHistory: [],
+  isUnsaved: false
 };
 
 export default class App extends Component {
@@ -77,17 +77,21 @@ export default class App extends Component {
   }
 
   onResolveDiff = (linesToDelete, codeChangeIndex, codeMirrorRef, codeChange) => {
+    const { oldLines, newLines, mergeLine } = codeChange;
+    linesToDelete.push(mergeLine);
+
     // Delete the diff decoration
-    codeChange.oldLines.map((oldLine, index) => {
+    oldLines.map((oldLine, index) => {
       let className = "oldLine";
       className += index === codeChange.oldLines.length - 1 ? " last" : "";
       codeMirrorRef.removeLineClass(index, "wrap", className);
     });
-    codeChange.newLines.map((newLine, index) => {
+    newLines.map((newLine, index) => {
       let className = "newLine";
       className += index === 0 ? " first" : "";
       codeMirrorRef.removeLineClass(index, "wrap", className);
     });
+    codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
 
     // Update code to reflect accepted or rejected changes
 		this.setState(prevState => ({
@@ -105,7 +109,13 @@ export default class App extends Component {
       code: code,
       stackTrace: stderr
     });
+  }
 
+  onSaveFile = () => {
+    const { code, fileName, currDir } = this.state;
+    const filePath = `${currDir}/${fileName}`;
+
+    ipcRenderer.send("saveFileRequest", { code, filePath })
   }
 
   componentDidMount() {
@@ -122,10 +132,7 @@ export default class App extends Component {
       // }
       let isCodeBroken = stderr.length !== 0;
 
-      let commandAndOutput = {
-        command: command,
-        output: `${stdout}\n${stderr}`
-      };
+      let commandAndOutput = { command, stdout, stderr };
       this.setState(prevState => ({
           stdout,
           stderr,
@@ -186,6 +193,14 @@ export default class App extends Component {
         //    {oldLines: [12, 13], newLines: [9, 10]}
         // ]
     });
+
+    ipcRenderer.on("saveFileResponse", (event, arg) => {
+      const { success } = arg;
+
+      console.log(success)
+      // TODO: Show error message if saving fails
+      this.setState({isUnsaved: !success});
+    })
   }
 
   componentWillUnmount() {
@@ -202,20 +217,22 @@ export default class App extends Component {
       stdout,
       stderr,
       isCodeBroken,
-      terminalHistory
+      terminalHistory,
+      isUnsaved
     } = this.state;
 
     return (
       <div className="app">
         <Header
           fileName={fileName}
-          isActive={true}
+          isUnsaved={isUnsaved}
         />
         <CodeEditor
           code={code}
           codeChanges={codeChanges}
-          onChange={(editor, data, strCode) => this.setState({code: strCode.split("\n")})}
+          onChange={(editor, data, strCode) => this.setState({code: strCode.split("\n"), isUnsaved: true})}
           onClickUseMe={this.onResolveDiff}
+          onSaveFile={this.onSaveFile}
         />
         <Terminal
           currDir={currDir}

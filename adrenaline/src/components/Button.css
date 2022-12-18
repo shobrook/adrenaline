@@ -3,11 +3,16 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: 35px;
-  width: 100%;
+  height: 30px;
+  /* width: 100%; */
+  padding-left: 10px;
+  padding-right: 10px;
   background-color: #EF6BFF;
   border-radius: 5px;
   cursor: pointer;
+  font-family: "Monaco";
+  font-size: 0.75em;
+  font-weight: 900;
 }
 
 .primaryButton:hover {

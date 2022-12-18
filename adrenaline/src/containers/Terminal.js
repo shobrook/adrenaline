@@ -3,21 +3,34 @@ import "./Terminal.css";
 
 import Button from "../components/Button";
 
-const PROMPT_SYMBOL = "$ >"
+const PROMPT_SYMBOL = ">"
 
 export default class Terminal extends Component {
 	focus = () => this.input.focus();
 
+	renderPrompt = () => (
+		<span className="promptSymbol">
+			{PROMPT_SYMBOL}
+		</span>
+	);
+
 	renderHistory = history => (
 		<div className="history">
 			{history.map((priorCommand, index) => {
-				const { command, output } = priorCommand;
+				const { command, stdout, stderr } = priorCommand;
 
 				return (
-					<div className="priorCommand" key={index}>
-						{PROMPT_SYMBOL} {command}<br />{output}
+					<div className="historyItem" key={index}>
+						<div className="priorCommandContainer">
+							{this.renderPrompt()}
+							<span className="command">{command}</span>
+						</div>
+						<div className="outputContainer">
+							<span className="stdout">{stdout}</span>
+							<span className="stderr">{stderr}</span>
+						</div>
 					</div>
-				)
+				);
 			})}
 		</div>
 	);
@@ -61,9 +74,7 @@ export default class Terminal extends Component {
 							this.input.value = '';
 						}}
 					>
-						<span className="promptSymbol">
-							{PROMPT_SYMBOL}
-						</span>
+						{this.renderPrompt()}
 						<input
 							className="terminalInput"
 							ref={ref => this.input = ref}
