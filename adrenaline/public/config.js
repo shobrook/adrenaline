@@ -1,5 +1,5 @@
 module.exports = {
-  apiKey: "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",
+  apiKey: "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",
   prompt: `
     ##EXAMPLE
     CODE:

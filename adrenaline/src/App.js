@@ -10,21 +10,17 @@ import './App.css';
 const { ipcRenderer } = window.require("electron");
 
 const testCode = [
-  "import numpy as np",
-  "import pandas as pd",
-  "from statsmodels.tsa.stattools import grangercausalitytests",
+  "def apply_func_to_input(func, input):",
+  "\tfunc(input)",
   "",
-  "n = 1000",
-  "ls = np.linspace(0, 2*np.pi, n)",
+  "def main():",
+  "\tmy_data = []",
+  "\tfor i in range(10):",
+  "\t\tapply_func_to_input(my_data.add, i)",
   "",
-  "df1 = pd.DataFrame(np.sin(ls))",
-  "df2 = pd.DataFrame(2*np.sin(1+ls))",
+  "\tprint(my_data)",
   "",
-  "df = pd.concat([df1, df2], axis=1)",
-  "",
-  "df.plot()",
-  "",
-  "grangercausalitytests(df, maxlag=20)"
+  "main()"
 ];
 const testStackTrace = `Traceback (most recent call last):
   File "broken.py", line 16, in <module>
@@ -101,9 +97,27 @@ export default class App extends Component {
     const { code, stderr } = this.state;
 
     ipcRenderer.send("fixErrorRequest", {
-      code: code,
+      code: code.join("\n"),
       stackTrace: stderr
     });
+  }
+
+  onLintCode = () => {
+    const { code } = this.state;
+
+    ipcRenderer.send("lintCodeRequest", { code: code.join("\n") });
+  }
+
+  onOptimizeCode = () => {
+    const { code } = this.state;
+
+    ipcRenderer.send("optimizeCodeRequest", { code: code.join("\n") });
+  }
+
+  onDocumentCode = () => {
+    const { code } = this.state;
+
+    ipcRenderer.send("documentCodeRequest", { code: code.join("\n") });
   }
 
   onSaveFile = () => {
@@ -111,6 +125,14 @@ export default class App extends Component {
     const filePath = `${currDir}/${fileName}`;
 
     ipcRenderer.send("saveFileRequest", { code, filePath })
+  }
+
+  /* Response Handlers */
+
+  handleCodeChangeResponse = (event, arg) => {
+    const { mergedCode, codeChanges } = arg;
+
+    this.setState({ code: mergedCode.split("\n"), codeChanges });
   }
 
   componentDidMount() {
@@ -136,19 +158,18 @@ export default class App extends Component {
       }));
     });
 
-    ipcRenderer.on("fixErrorResponse", (event, arg) => {
-      console.log("got reply");
-      const { mergedCode, codeChanges } = arg;
-      this.setState({ code: mergedCode.split("\n"), codeChanges });
-    });
-
     ipcRenderer.on("saveFileResponse", (event, arg) => {
       const { success } = arg;
 
       console.log(success)
       // TODO: Show error message if saving fails
       this.setState({isUnsaved: !success});
-    })
+    });
+
+    ipcRenderer.on("fixErrorResponse", this.handleCodeChangeResponse);
+    ipcRenderer.on("lintCodeResponse", this.handleCodeChangeResponse);
+    ipcRenderer.on("optimizeCodeResponse", this.handleCodeChangeResponse);
+    ipcRenderer.on("documentCodeResponse", this.handleCodeChangeResponse);
   }
 
   componentWillUnmount() {
@@ -168,11 +189,15 @@ export default class App extends Component {
       terminalHistory,
       isUnsaved
     } = this.state;
+
     return (
       <div className="app">
         <Header
           fileName={fileName}
           isUnsaved={isUnsaved}
+          onLintCode={this.onLintCode}
+          onOptimizeCode={this.onOptimizeCode}
+          onDocumentCode={this.onDocumentCode}
         />
         <CodeEditor
           code={code}
