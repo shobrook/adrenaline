@@ -8,7 +8,7 @@
 }
 
 .oldLine {
-  background-color: rgb(251, 54, 64, 0.25);
+  background-color: rgb(49, 133, 252, 0.25);
 }
 
 .last {
@@ -16,9 +16,51 @@
 }
 
 .newLine {
-  background-color: rgb(0, 232, 252, 0.25);
+  background-color: rgb(239, 107, 255, 0.25);
 }
 
 .first {
   border-radius: 7px 7px 0px 0px;
+}
+
+.useMeHeader {
+  flex-direction: row;
+  flex-wrap: wrap;
+  display: flex;
+  height: 40px;
+  padding: 0px 10px 0px 10px;
+  align-items: center;
+}
+
+.useMeButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  width: 65px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.newLine .useMeHeader {
+  background-color: rgb(239, 107, 255, 0.325);
+  border-radius: 7px 7px 0px 0px;
+}
+
+.newLine .useMeButton {
+  background-color: rgb(239, 107, 255, 1.0);
+}
+
+.oldLine .useMeHeader {
+  background-color: rgb(49, 133, 252, 0.325);
+  border-radius: 0px 0px 7px 7px;
+}
+
+.oldLine .useMeButton {
+  background-color: rgb(49, 133, 252, 1.0);
+}
+
+.useMeLabel {
+  margin-left: auto;
 }

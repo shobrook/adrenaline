@@ -54,29 +54,6 @@ app.on("window-all-closed", () => {
  * Inter-Process Event Handlers
  ******************************/
 
-ipcMain.on("openFileRequest", (event, arg) => {
-	// TODO: Prompt user to select a file in their file manager
-	// TODO: Once a file is selected, read its contents
-
-	event.reply("openFileResponse", {
-		fileName: "test_program.py", // TEMP
-		filePath: "test_program.py", // TEMP
-		code: [
-			"def main():",
-			"\targs = sys.argv",
-			"\tif len(args) == 1 or args[1].lower() in (\"-h\", \"--help\"):",
-			"\t\tprinters.print_help_message()",
-			"\t\treturn",
-			"",
-			"\tlanguage = parsers.get_language(args)",
-			"\tif not language:",
-			"\t\tprinters.print_invalid_language_message()",
-			"\t\treturn"
-		] // TEMP
-	});
-});
-
-
 const config = rc(
    'gpt3-code-fix',
    defaultConfig,
