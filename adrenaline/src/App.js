@@ -97,9 +97,27 @@ export default class App extends Component {
     const { code, stderr } = this.state;
 
     ipcRenderer.send("fixErrorRequest", {
-      code: code,
+      code: code.join("\n"),
       stackTrace: stderr
     });
+  }
+
+  onLintCode = () => {
+    const { code } = this.state;
+
+    ipcRenderer.send("lintCodeRequest", { code: code.join("\n") });
+  }
+
+  onOptimizeCode = () => {
+    const { code } = this.state;
+
+    ipcRenderer.send("optimizeCodeRequest", { code: code.join("\n") });
+  }
+
+  onDocumentCode = () => {
+    const { code } = this.state;
+
+    ipcRenderer.send("documentCodeRequest", { code: code.join("\n") });
   }
 
   onSaveFile = () => {
@@ -107,6 +125,14 @@ export default class App extends Component {
     const filePath = `${currDir}/${fileName}`;
 
     ipcRenderer.send("saveFileRequest", { code, filePath })
+  }
+
+  /* Response Handlers */
+
+  handleCodeChangeResponse = (event, arg) => {
+    const { mergedCode, codeChanges } = arg;
+
+    this.setState({ code: mergedCode.split("\n"), codeChanges });
   }
 
   componentDidMount() {
@@ -132,19 +158,18 @@ export default class App extends Component {
       }));
     });
 
-    ipcRenderer.on("fixErrorResponse", (event, arg) => {
-      console.log("got reply");
-      const { mergedCode, codeChanges } = arg;
-      this.setState({ code: mergedCode.split("\n"), codeChanges });
-    });
-
     ipcRenderer.on("saveFileResponse", (event, arg) => {
       const { success } = arg;
 
       console.log(success)
       // TODO: Show error message if saving fails
       this.setState({isUnsaved: !success});
-    })
+    });
+
+    ipcRenderer.on("fixErrorResponse", this.handleCodeChangeResponse);
+    ipcRenderer.on("lintCodeResponse", this.handleCodeChangeResponse);
+    ipcRenderer.on("optimizeCodeResponse", this.handleCodeChangeResponse);
+    ipcRenderer.on("documentCodeResponse", this.handleCodeChangeResponse);
   }
 
   componentWillUnmount() {
@@ -164,11 +189,15 @@ export default class App extends Component {
       terminalHistory,
       isUnsaved
     } = this.state;
+
     return (
       <div className="app">
         <Header
           fileName={fileName}
           isUnsaved={isUnsaved}
+          onLintCode={this.onLintCode}
+          onOptimizeCode={this.onOptimizeCode}
+          onDocumentCode={this.onDocumentCode}
         />
         <CodeEditor
           code={code}

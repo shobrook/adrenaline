@@ -117,6 +117,24 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 	};
 }
 
+const callGPTEditsAPI = (code, instruction, ipcChannel) => {
+	const apiConfig = new Configuration({apiKey: defaultConfig.apiKey});
+	const api = new OpenAIApi(apiConfig);
+
+	api
+		.createEdit({
+	    ...defaultConfig.editPromptParams, code, instruction
+	  })
+	  .then(data => {
+			let changedCode = data.data.choices[0].text
+			console.log("changedCode response: ", changedCode)
+			const { mergedCode, codeChanges } = parseGPTOutput(code, changedCode);
+
+			event.reply(ipcChannel, { mergedCode, codeChanges });
+		})
+		.catch((error) => console.log(error.response));
+}
+
 /**************
  * Window Setup
  **************/
@@ -206,73 +224,28 @@ ipcMain.on("fixErrorRequest", (event, arg) => {
 	// let codeChanges = [{oldLines: [6, 7], mergeLine: 8, newLines: [9]}];
 	// event.reply("fixErrorResponse", { mergedCode: mergedCodeLines.join("\n"), codeChanges });
 
-	console.log("RECEIEVED fixErrorRequest");
-	let testBrokenCodeStr = `
-	def apply_input_to_func(func, input):
-	    func(input)
-
-	def main():
-	    my_data = []
-	    their_data = []
-	    for i in range(10):
-	        apply_input_to_func(my_data.append, i)
-	        their_data.add(i)
-
-	    print(my_data)
-
-	main()
-	`
-	let testFixedCodeStr = `
-	def apply_input_to_func(func, input):
-	    func(input)
-
-	def main():
-	    my_data = []
-	    for i in range(10):
-	        apply_input_to_func(my_data.append, i)
-
-	    print(my_data)
-
-	main()
-	`
-	let testError = `
-	Traceback (most recent call last):
-	  File "broken.py", line 14, in <module>
-	    main()
-	  File "broken.py", line 10, in main
-	    their_data.add(i)
-	AttributeError: 'list' object has no attribute 'add'
-	`
-	//const { mergedCode, codeChanges } = parseGPTOutput(testBrokenCodeStr, testFixedCodeStr);
-	//event.reply("fixErrorResponse", { mergedCode, codeChanges });
-	//return;
-
-  const { code, stackTrace } = arg;
-
-	const input = code.join('\n');
-	//let input = testBrokenCodeStr
-	console.log("this is input: ", input)
-
+	const { code, stackTrace } = arg;
 	const instruction = "Propose a fix for the code given this Error StackTrace: " + stackTrace.replace(/\n|\r/g, "");
-	// const instruction = "Propose a fix for this code.";
-	//const instruction = "Propose a fix for the code given this Error StackTrace: " + testError.replace(/\n|\r/g, "");
-	const apiConfig = new Configuration({apiKey: defaultConfig.apiKey});
-	const api = new OpenAIApi(apiConfig);
-	console.log("instruction: ", instruction)
 
-	api
-		.createEdit({
-	    ...defaultConfig.editPromptParams, input, instruction
-	  })
-	  .then(data => {
-			let fixedCode = data.data.choices[0].text
-			console.log("fixed code response: ", fixedCode)
-			const { mergedCode, codeChanges } = parseGPTOutput(input, fixedCode);
-			console.log(mergedCode);
-			console.log(codeChanges);
-			event.reply("fixErrorResponse", { mergedCode, codeChanges });
-		})
-		.catch((error) => console.log(error.response));
+	callGPTEditsAPI(code, instruction, "fixErrorResponse");
+});
+ipcMain.on("lintCodeRequest", (event, arg) => {
+	const { code } = arg;
+	const instruction = "Fix all the bugs in this code, if there are any.";
+
+	callGPTEditsAPI(code, instruction, "lintCodeResponse");
+});
+ipcMain.on("optimizeCodeRequest", (event, arg) => {
+	const { code } = arg;
+	const instruction = "Optimize this code.";
+
+	callGPTEditsAPI(code, instruction, "optimizeCodeResponse");
+});
+ipcMain.on("documentCodeRequest", (event, arg) => {
+	const { code } = arg;
+	const instruction = "Add comments to this code.";
+
+	callGPTEditsAPI(code, instruction, "documentCodeResponse");
 });
 
 ipcMain.on("saveFileRequest", (event, arg) => {
