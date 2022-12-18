@@ -85,14 +85,19 @@ const config = rc(
 );
 
 ipcMain.on("runCodeRequest", (event, arg) => {
-
+	let stdOut = '';
+	let stdErr = '';
 	const { command } = arg;
+	// command parsing
+	commandParts = command.split(" ");
+	if (!commandParts) { // skip Spawn overhead
+		event.reply("runCodeResponse", {stdOut, stdErr});
+	}
 
 	const { spawn } = require('child_process');
 	// TODO: determine command type (python, bash, etc) via file extension
-	const child = spawn('python3', [command])
-	let stdOut = '';
-	let stdErr = '';
+	const child = spawn(commandParts[0], commandParts.slice(1))
+
 
 	child.stdout.on('data', (data) => {
 	  stdOut += data;

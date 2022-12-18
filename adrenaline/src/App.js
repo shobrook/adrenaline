@@ -14,12 +14,13 @@ const SCREENS = {
   EditFile: 1
 };
 const DEFAULT_STATE = {
-  filePath: "",
+  filePath: ".",
   fileName: "",
   code: [], // Array of strings, each representing a LOC
   codeChanges: [], // Array of {oldLines: [], newLines: []} objects
   stdout: "",
   stderr: "",
+  enableFixIt: false,
   screen: SCREENS.OpenFile
 };
 
@@ -46,14 +47,6 @@ export default class App extends Component {
     });
   };
 
-  onRunCommand = command => {
-    ipcRenderer.send("runCommandRequest", { command });
-    ipcRenderer.on("runCommandResponse", (event, arg) => {
-      const { stdout, stderr } = arg;
-
-      this.setState({stdout, stderr});
-    });
-  }
 
   // onFixError = stackTrace => {
   //   // Get code from state
@@ -68,17 +61,25 @@ export default class App extends Component {
   //   });
   // }
 
-  onRunCode = () => {
+  onRunCode = command => {
     // Get code from state
     const { fileName, filePath } = this.state;
     ipcRenderer.sendSync("runCodeRequest", {
       // TODO: Error handling for bad filename/paths
-      command: filePath + '/' + fileName
+      command: command
     });
     ipcRenderer.on("runCodeResponse", (event, arg) => {
       const { stdOut, stdErr } = arg;
+      if (command.split(" ")[1] == this.state.fileName) {
+
+        this.setState({enableFixIt: !stdErr.isEmpty()});
+      }
+
+      this.setState({stdOut, stdOut});
       console.log(`stdout: ${stdOut}`);
       console.log(`stderr: ${stdErr}`);
+      console.log(`should fix: ${this.state.enableFixIt}`);
+
     });
   }
 
@@ -94,7 +95,6 @@ export default class App extends Component {
         </div>
       );
     } else if (screen == SCREENS.EditFile) {
-      let response = this.onRunCode();
       return (
         <div className="editFileScreen">
           <Header
@@ -106,7 +106,10 @@ export default class App extends Component {
             filePath={filePath}
             onChange={() => {}}
             onKeyDown={() => {}}
-            onSubmit={this.onRunCommand}
+            stdout={this.state.stdout}
+            stderr={this.state.stderr}
+            enableFixIt={this.state.enableFixIt}
+            onSubmit={this.onRunCode}
           />
         </div>
       );

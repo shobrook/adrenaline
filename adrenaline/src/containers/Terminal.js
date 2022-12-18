@@ -9,7 +9,7 @@ export default class Terminal extends Component {
 	focus = () => this.input.focus();
 
 	render() {
-		const { filePath, onSubmit } = this.props;
+		const { filePath, stdout, stderr, onSubmit } = this.props;
 
     return (
       <div className="terminalContainer" onClick={this.focus}>
