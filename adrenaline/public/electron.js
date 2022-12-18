@@ -10,6 +10,27 @@ const { Configuration, OpenAIApi } = require("openai");
 const rc = require('rc');
 const defaultConfig = require('./config.js');
 
+/*********
+ * Helpers
+ *********/
+
+const buildGPTPrompt = (brokenCode, stackTrace) => {
+	// const config = rc(
+	//    'gpt3-code-fix',
+	//    defaultConfig,
+	//    null,
+	//    (content) => eval(content) // not good. but is it different from require()?
+	// );
+	return `${defaultConfig.prompt}
+					${defaultConfig.codeKey}
+					${brokenCode}
+
+					${defaultConfig.errorKey}
+					${stackTrace}
+
+					${defaultConfig.solutionKey}`;
+}
+
 /**************
  * Window Setup
  **************/
@@ -54,50 +75,14 @@ app.on("window-all-closed", () => {
  * Inter-Process Event Handlers
  ******************************/
 
-ipcMain.on("openFileRequest", (event, arg) => {
-	// TODO: Prompt user to select a file in their file manager
-	// TODO: Once a file is selected, read its contents
-
-	event.reply("openFileResponse", {
-		fileName: "test_program.py", // TEMP
-		filePath: "test_program.py", // TEMP
-		code: [
-			"def main():",
-			"\targs = sys.argv",
-			"\tif len(args) == 1 or args[1].lower() in (\"-h\", \"--help\"):",
-			"\t\tprinters.print_help_message()",
-			"\t\treturn",
-			"",
-			"\tlanguage = parsers.get_language(args)",
-			"\tif not language:",
-			"\t\tprinters.print_invalid_language_message()",
-			"\t\treturn"
-		] // TEMP
-	});
-});
-
-
-const config = rc(
-   'gpt3-code-fix',
-   defaultConfig,
-   null,
-   (content) => eval(content) // not good. but is it different from require()?
-);
-
 ipcMain.on("runCodeRequest", (event, arg) => {
+	const { command } = arg;
+
+	const { spawn } = require('child_process');
+	// TODO: determine command type (python, bash, etc) via file extension
+	const child = spawn('python3', [command])
 	let stdOut = '';
 	let stdErr = '';
-	const { command } = arg;
-	// command parsing
-	// if (command === '') { // skip Spawn overhead
-	// 	event.reply("runCodeResponse", {stdOut, stdErr});
-	// 	return;
-	// }
-
-	commandParts = command.split(" ");
-	const { spawn } = require('child_process');
-	// TODO: handle when len == 1
-	const child = spawn(commandParts[0], commandParts.slice(1))
 
 	child.stdout.on('data', (data) => {
 	  stdOut += data;
@@ -108,44 +93,24 @@ ipcMain.on("runCodeRequest", (event, arg) => {
 	});
 
 	child.on('close', () => {
-		console.log("close")
 	  event.reply("runCodeResponse", {stdOut, stdErr});
-		child.kill();
-		console.log("close killed")
 	});
-	console.log('magic')
 });
 
 ipcMain.on("fixErrorRequest", (event, arg) => {
-  const { brokenCode, stackTrace } = arg; // brokenCode as {lineNo: lineOfCode}
-	if (!stackTrace) {
-	   console.error("No RunTime errors.");
-	   process.exit(1);
-	}
-	const prompt = `${config.prompt}
-	${config.kCode}
-	${brokenCode}
+  const { code, stackTrace } = arg;
+	const prompt = buildGPTPrompt(code, stackTrace);
+	const apiConfig = new Configuration({apiKey: defaultConfig.apiKey});
+	const api = new OpenAIApi(apiConfig);
 
-	${config.kError}
-	${stackTrace}
-
-	${config.kSolution}
-	`
-	const apiConfig = new Configuration({
-  	apiKey: config.openAiKey
-	});
-	const openai = new OpenAIApi(apiConfig);
-
-	openai
-	  .createCompletion({
+	api
+		.createCompletion({
 	    prompt,
-	    ...config.completionPromptParams
+	    ...defaultConfig.completionPromptParams
 	  })
-	  .then((data) => {
-			//for choice in data.data.choices:
-				//console.log('choice: \n', choice.text);
+	  .then(data => {
+			console.log(data.data);
 			event.reply("fixErrorResponse", {fixedCode: data.data.choices[0].text});
 		})
 		.catch((error) => console.log(error.response));
-
 });
