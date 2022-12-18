@@ -186,7 +186,7 @@ ipcMain.on("saveFileRequest", (event, arg) => {
 	const homeDir = os.homedir();
 	const fullPath = path.resolve(homeDir, filePath);
 
-	fs.writeFile(fullPath, code.join("\n"), { flag: 'wx' }, err => {
+	fs.writeFile(fullPath, code.join("\n"), err => {
 		if (err) {
 			event.reply("saveFileResponse", { success: false });
 		} else {
