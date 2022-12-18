@@ -15,7 +15,6 @@ export default class CodeEditor extends Component {
 	constructor(props) {
 		super(props);
 
-		// this.state = {diffWidgets: {}}
 		this.diffWidgets = {}
 	}
 
@@ -34,12 +33,16 @@ export default class CodeEditor extends Component {
 		useMeHeader.appendChild(useMeButton);
 		useMeHeader.appendChild(useMeLabel);
 
-		return this.codeMirrorRef.addLineWidget(insertLine, useMeHeader, { above: isFixedCode });
+		return this.codeMirrorRef.addLineWidget(insertLine, useMeHeader, { above: !isFixedCode });
 	}
 
 	deleteDiffWidgets = codeChangeIndex => {
-		this.diffWidgets[codeChangeIndex].oldCodeWidget.clear();
-		this.diffWidgets[codeChangeIndex].newCodeWidget.clear();
+		if (codeChangeIndex in this.diffWidgets) {
+			this.diffWidgets[codeChangeIndex].oldCodeWidget.clear();
+			this.diffWidgets[codeChangeIndex].newCodeWidget.clear();
+
+			delete this.diffWidgets[codeChangeIndex];
+		}
 	}
 
 	addCodeChangeDiffs = (codeChanges, onClickUseMe) => {
@@ -47,38 +50,63 @@ export default class CodeEditor extends Component {
 			const { oldLines, newLines, mergeLine } = codeChange;
 
 			oldLines.forEach((lineNum, index) => {
-				if (index === oldLines.length - 1) {
-						this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine last");
+				if (index === 0) {
+						this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine first");
 				} else {
 					this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine");
 				}
 			});
-			newLines.forEach((lineNum, index) => {
-				if (index === 0) {
-						this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine first");
-				} else {
-					this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine");
-				}
-			});
 			this.codeMirrorRef.addLineClass(mergeLine, "wrap", "mergeLine");
-
-			let oldCodeWidget = this.addDiffWidget(oldLines.at(-1), false, () => {
-				onClickUseMe(newLines, index, this.codeMirrorRef, codeChange);
-				this.deleteDiffWidgets(index);
+			newLines.forEach((lineNum, index) => {
+				this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine");
 			});
-			let newCodeWidget = this.addDiffWidget(newLines.at(0), true, () => {
-				onClickUseMe(oldLines, index, this.codeMirrorRef, codeChange);
+			this.codeMirrorRef.addLineClass(newLines.at(-1) + 1, "wrap", "newLine last"); // Because newLine is missing the last line
+
+			let oldCodeWidget = this.addDiffWidget(oldLines.at(0), false, () => {
 				this.deleteDiffWidgets(index);
+				onClickUseMe(newLines, index, this.codeMirrorRef, codeChange);
+			});
+			let newCodeWidget = this.addDiffWidget(newLines.at(-1) + 1, true, () => {
+				this.deleteDiffWidgets(index);
+				onClickUseMe(oldLines, index, this.codeMirrorRef, codeChange);
 			});
 
 			this.diffWidgets[index] = {oldCodeWidget, newCodeWidget};
 		});
 	}
 
+	componentDidUpdate() {
+		const { codeChanges, onClickUseMe } = this.props;
+
+		codeChanges.forEach((codeChange, index) => {
+			const { oldLines, newLines, mergeLine } = codeChange;
+
+			// Delete the diff decoration
+	    oldLines.map((oldLine, index) => {
+	      let className = "oldLine";
+	      className += index === 0 ? " first" : "";
+	      this.codeMirrorRef.removeLineClass(index, "wrap", className);
+	    });
+	    newLines.map((newLine, index) => {
+	      let className = "newLine";
+	      className += index === codeChange.newLines.length - 1 ? " last" : "";
+	      this.codeMirrorRef.removeLineClass(index, "wrap", className);
+	    });
+	    this.codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
+
+			this.deleteDiffWidgets(index);
+		});
+
+		this.addCodeChangeDiffs(codeChanges, onClickUseMe);
+	}
+
+	componentDidMount() {
+		const { codeChanges, onClickUseMe } = this.props;
+		this.addCodeChangeDiffs(codeChanges, onClickUseMe);
+	}
+
 	render() {
 		const { code, codeChanges, onChange, onClickUseMe, onSaveFile } = this.props;
-
-		console.log("Rendering")
 
 		return (
 			<CodeMirror
@@ -89,11 +117,11 @@ export default class CodeEditor extends Component {
 					theme: "dracula",
 			    lineNumbers: true
 			  }}
-			  onBeforeChange={onChange}
-				onChange={onChange}
-				editorDidMount={(editor) => {
+			  onBeforeChange={(editor, data, strCode) => onChange(strCode)}
+				onChange={(editor, data, strCode) => { onChange(strCode); }}
+				editorDidMount={editor => {
 					this.codeMirrorRef = editor;
-					this.addCodeChangeDiffs(codeChanges, onClickUseMe);
+					// this.addCodeChangeDiffs(codeChanges, onClickUseMe);
 				}}
 				onKeyDown={(editor, event) => {
 					const isSaveKey = event.which == 83 && (event.ctrlKey || event.metaKey);

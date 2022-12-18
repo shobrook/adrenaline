@@ -59,7 +59,7 @@
 
 .newLine .useMeHeader {
   background-color: rgb(239, 107, 255, 0.325);
-  border-radius: 7px 7px 0px 0px;
+  border-radius: 0px 0px 7px 7px;
 }
 
 .newLine .useMeButton {
@@ -68,7 +68,7 @@
 
 .oldLine .useMeHeader {
   background-color: rgb(49, 133, 252, 0.325);
-  border-radius: 0px 0px 7px 7px;
+  border-radius: 7px 7px 0px 0px;
 }
 
 .oldLine .useMeButton {

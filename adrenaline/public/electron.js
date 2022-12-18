@@ -28,8 +28,6 @@ const buildGPTPrompt = (brokenCode, stackTrace) =>
 	 ${defaultConfig.solutionKey}`;
 
 const parseGPTOutput = (brokenCode, fixedCode) => {
-	console.log("broken code: \n", brokenCode)
-
 	const diff = Diff.diffTrimmedLines(brokenCode, fixedCode);
 	let mergedCode = "";
 
@@ -37,10 +35,6 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 	let isFixed = true;
 	for (let i = 0; i < diff.length; i++) {
 		let part = diff[i];
-
-		console.log("diff value: ", part.value)
-		console.log("diff added: ", part.added)
-		console.log("diff removed: ", part.removed)
 
 		if (!part.added && !part.removed) {
 			mergedCode += part.value;
@@ -71,8 +65,6 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 		mergedCode += '>>>FIXED CODE<<<\n'
 	}
 
-	console.log("final merged code: ", mergedCode)
-
 	const codeChanges = [];
 	const lines = mergedCode.split('\n');
 
@@ -82,9 +74,9 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
-		if (line.includes('>>>OLD CODE<<<')) {
+		if (line.includes('>>> OLD CODE')) {
 			oldLines.push(i);
-		} else if (line.includes('>>>FIXED CODE<<<')) {
+		} else if (line.includes('>>> FIXED CODE')) {
 			newLines.push(i);
 		} else if (line.includes('===============\n')) {
 			mergeLine = i;
@@ -96,7 +88,7 @@ const parseGPTOutput = (brokenCode, fixedCode) => {
 				oldLines.push(j);
 			}
 
-			for (let k = mergeLine+1; k < newLines[0]; k++) {
+			for (let k = mergeLine + 1; k < newLines[0]; k++) {
 				newLines.push(k);
 			}
 
@@ -168,27 +160,27 @@ ipcMain.on("runCommandRequest", (event, arg) => {
 
 	if (command.trim() === "") {
 		event.reply("runCommandResponse", { command, stdout: "", stderr: "" });
-		return;
-	}
-
-	let commandToRun;
-	let commandParts = command.split(" ");
-	if (commandParts.length > 1) {
-		const homeDir = os.homedir();
-		const relativePath = `${currDir}/${commandParts[1]}`
-		const absolutePath = path.resolve(homeDir, relativePath);
-
-		commandToRun = `${commandParts[0]} ${absolutePath} ${commandParts.slice(2, commandParts.length)}`;
 	} else {
-		commandToRun = command;
-	}
+		let commandToRun;
+		let commandParts = command.split(" ");
+		if (commandParts.length > 1) {
+			const homeDir = os.homedir();
+			const relativePath = `${currDir}/${commandParts[1]}`
+			const absolutePath = path.resolve(homeDir, relativePath);
 
-	exec(commandToRun, (err, stdout, stderr) => {
-	  event.reply("runCommandResponse", {command, stdout, stderr});
-	});
+			commandToRun = `${commandParts[0]} ${absolutePath} ${commandParts.slice(2, commandParts.length)}`;
+		} else {
+			commandToRun = command;
+		}
+
+		exec(commandToRun, (err, stdout, stderr) => {
+		  event.reply("runCommandResponse", {command, stdout, stderr});
+		});
+	}
 });
 
 ipcMain.on("fixErrorRequest", (event, arg) => {
+	console.log("RECEIEVED fixErrorRequest");
 	let testBrokenCodeStr = `
 	def apply_input_to_func(func, input):
 	    func(input)
@@ -259,14 +251,11 @@ ipcMain.on("saveFileRequest", (event, arg) => {
 	const homeDir = os.homedir();
 	const fullPath = path.resolve(homeDir, filePath);
 
-	fs.writeFile(fullPath, code.join("\n"), { flag: 'wx' }, err => {
+	fs.writeFile(fullPath, code.join("\n"), err => {
 		if (err) {
-			console.log(filePath);
-			console.log(err);
 			event.reply("saveFileResponse", { success: false });
 		} else {
 			event.reply("saveFileResponse", { success: true })
 		}
-	});
-
-})
+ 	});
+});
