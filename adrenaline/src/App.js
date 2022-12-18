@@ -132,6 +132,7 @@ export default class App extends Component {
   handleCodeChangeResponse = (event, arg) => {
     const { mergedCode, codeChanges } = arg;
 
+    console.log("got response")
     this.setState({ code: mergedCode.split("\n"), codeChanges });
   }
 
