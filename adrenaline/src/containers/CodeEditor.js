@@ -1,13 +1,9 @@
 import React, { Component } from "react";
-import {Controlled as CodeMirror} from 'react-codemirror2';
-import { aura } from "@uiw/codemirror-theme-aura";
-
-import Button from "../components/Button";
-
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/dracula.css';
+import { Controlled as CodeMirror } from 'react-codemirror2';
 
 import "./CodeEditor.css";
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/dracula.css';
 
 require('codemirror/mode/python/python');
 
@@ -101,12 +97,12 @@ export default class CodeEditor extends Component {
 	}
 
 	componentDidMount() {
-		const { codeChanges, onClickUseMe } = this.props;
-		this.addCodeChangeDiffs(codeChanges, onClickUseMe);
+		const { diffs, onResolveDiff } = this.props;
+		this.addCodeChangeDiffs(diffs, onResolveDiff);
 	}
 
 	render() {
-		const { code, codeChanges, onChange, onClickUseMe, onSaveFile } = this.props;
+		const { code, onChange } = this.props;
 
 		return (
 			<CodeMirror

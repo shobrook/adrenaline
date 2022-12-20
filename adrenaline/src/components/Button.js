@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+
 import "./Button.css";
 
 export default class Button extends Component {
@@ -7,7 +8,7 @@ export default class Button extends Component {
 
 		return (
 			<div
-				className={isPrimary ? `${className} primaryButton` : `${className} secondaryButton`}
+				className={`${className} ${isPrimary ? "primaryButton" : "secondaryButton"}`}
 				onClick={onClick}
 			>
 				{children}
