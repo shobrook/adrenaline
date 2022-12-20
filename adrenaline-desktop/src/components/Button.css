@@ -1,0 +1,30 @@
+.primaryButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  /* width: 100%; */
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: #EF6BFF;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "Monaco";
+  font-size: 0.75em;
+  font-weight: 900;
+}
+
+.primaryButton:hover {
+  opacity: 0.75;
+}
+
+.secondaryButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  cursor: pointer;
+  padding-top: 15px;
+}

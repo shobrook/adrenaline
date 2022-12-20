@@ -1,0 +1,52 @@
+{
+  "name": "adrenaline",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^12.1.5",
+    "@testing-library/user-event": "^12.1.5",
+    "@uiw/codemirror-theme-aura": "^4.19.4",
+    "codemirror": "^5.65.10",
+    "diff": "^5.1.0",
+    "openai": "^3.1.0",
+    "rc": "^1.2.8",
+    "react": "^16.13.0",
+    "react-codemirror2": "^7.2.1",
+    "react-dom": "^16.13.0",
+    "react-scripts": "5.0.1"
+  },
+  "main": "public/electron.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "dev": "concurrently -k \"BROWSER=none npm start\" \"npm:electron\"",
+    "electron": "wait-on tcp:3000 && electron ."
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "electron": "^22.0.0",
+    "electron-is-dev": "^2.0.0",
+    "wait-on": "^6.0.1"
+  }
+}
