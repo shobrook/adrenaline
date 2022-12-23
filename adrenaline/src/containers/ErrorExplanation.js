@@ -10,9 +10,8 @@ export default class ErrorExplanation extends Component {
 
     return (
       <div className="errorExplanation">
-        <div className="errorMessageHeader">
-          <span>Error Message</span>
-          <Button onClick={onDebug}>Debug</Button>
+        <div className="errorExplanationHeader">
+          <span>Error Explanation</span>
         </div>
       </div>
     );

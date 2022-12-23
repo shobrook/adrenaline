@@ -1,8 +1,12 @@
 .header {
   display: flex;
   flex-direction: row;
-  height: 75px;
-  width: 100%;
+  align-items: center;
+  height: 60px;
+  padding-left: 30px;
+  padding-right: 30px;
+  justify-content: space-between;
+  border-bottom: 2px solid #4E4881;
 }
 
 .header .logo {
@@ -12,5 +16,5 @@
 .header .buttons {
   display: flex;
   flex-direction: row;
-
+  align-items: center;
 }

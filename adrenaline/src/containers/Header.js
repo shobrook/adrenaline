@@ -14,7 +14,8 @@ export default class Header extends Component {
 				</div>
 				<div className="buttons">
 					<Link>About</Link>
-					<Button isPrimary>Donate</Button>
+					<Link>Contribute</Link>
+					<Button isPrimary>Set API key</Button>
 				</div>
 			</div>
     );

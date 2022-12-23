@@ -2,12 +2,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 30px;
-  padding-left: 10px;
-  padding-right: 10px;
   background-color: #279AF1;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 500;
+  height: 40px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .primaryButton:hover {

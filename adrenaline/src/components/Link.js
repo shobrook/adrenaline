@@ -7,12 +7,12 @@ export default class Link extends Component {
 		const { className, onClick, children } = this.props;
 
 		return (
-			<span
-        className={className}
+			<a
+        className={`link ${className}`}
 				onClick={onClick}
 			>
 				{children}
-			</span>
+			</a>
 		);
 	}
 }

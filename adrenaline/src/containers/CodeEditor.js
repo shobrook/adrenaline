@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import { Controlled as CodeMirror } from 'react-codemirror2';
 
+import Dropdown from "../components/Dropdown";
+
 import "./CodeEditor.css";
 import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/dracula.css';
+// import 'codemirror/theme/dracula.css';
+import "./theme.css";
 
 require('codemirror/mode/python/python');
 
@@ -14,7 +17,7 @@ export default class CodeEditor extends Component {
 		this.diffWidgets = {}
 	}
 
-	addDiffWidget = (insertLine, isFixedCode, onClickUseMe) => {
+	addDiffWidget = (insertLine, isFixedCode, onResolveDiff) => {
 		let useMeHeader = document.createElement("div");
 		let useMeButton = document.createElement("div");
 		let useMeLabel = document.createElement("span");
@@ -22,7 +25,7 @@ export default class CodeEditor extends Component {
 		useMeHeader.className = "useMeHeader";
 		useMeButton.className = "useMeButton";
 		useMeButton.innerHTML = "Use me";
-		useMeButton.onclick = onClickUseMe;
+		useMeButton.onclick = onResolveDiff;
 		useMeLabel.className = "useMeLabel";
 		useMeLabel.innerHTML = isFixedCode ? "fixed code" : "your code";
 
@@ -41,9 +44,9 @@ export default class CodeEditor extends Component {
 		}
 	}
 
-	addCodeChangeDiffs = (codeChanges, onClickUseMe) => {
-		codeChanges.forEach((codeChange, index) => {
-			const { oldLines, newLines, mergeLine } = codeChange;
+	addDiffsToEditor = (diffs, onResolveDiff) => {
+		diffs.forEach((diff, index) => {
+			const { oldLines, newLines, mergeLine } = diff;
 
 			oldLines.forEach((lineNum, index) => {
 				if (index === 0) {
@@ -60,11 +63,11 @@ export default class CodeEditor extends Component {
 
 			let oldCodeWidget = this.addDiffWidget(oldLines.at(0), false, () => {
 				this.deleteDiffWidgets(index);
-				onClickUseMe(newLines, index, this.codeMirrorRef, codeChange);
+				onResolveDiff(newLines, index, this.codeMirrorRef, diff);
 			});
 			let newCodeWidget = this.addDiffWidget(newLines.at(-1) + 1, true, () => {
 				this.deleteDiffWidgets(index);
-				onClickUseMe(oldLines, index, this.codeMirrorRef, codeChange);
+				onResolveDiff(oldLines, index, this.codeMirrorRef, diff);
 			});
 
 			this.diffWidgets[index] = {oldCodeWidget, newCodeWidget};
@@ -72,10 +75,10 @@ export default class CodeEditor extends Component {
 	}
 
 	componentDidUpdate() {
-		const { codeChanges, onClickUseMe } = this.props;
+		const { diffs, onResolveDiff } = this.props;
 
-		codeChanges.forEach((codeChange, index) => {
-			const { oldLines, newLines, mergeLine } = codeChange;
+		diffs.forEach((diff, index) => {
+			const { oldLines, newLines, mergeLine } = diff;
 
 			// Delete the diff decoration
 	    oldLines.map((oldLine, index) => {
@@ -85,7 +88,7 @@ export default class CodeEditor extends Component {
 	    });
 	    newLines.map((newLine, index) => {
 	      let className = "newLine";
-	      className += index === codeChange.newLines.length - 1 ? " last" : "";
+	      className += index === newLines.length - 1 ? " last" : "";
 	      this.codeMirrorRef.removeLineClass(index, "wrap", className);
 	    });
 	    this.codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
@@ -93,44 +96,37 @@ export default class CodeEditor extends Component {
 			this.deleteDiffWidgets(index);
 		});
 
-		this.addCodeChangeDiffs(codeChanges, onClickUseMe);
+		this.addDiffsToEditor(diffs, onResolveDiff);
 	}
 
 	componentDidMount() {
 		const { diffs, onResolveDiff } = this.props;
-		this.addCodeChangeDiffs(diffs, onResolveDiff);
+		this.addDiffsToEditor(diffs, onResolveDiff);
 	}
 
 	render() {
-		const { code, onChange } = this.props;
+		const { language, code, onChange, onSelectLanguage } = this.props;
 
 		return (
-			<CodeMirror
-				className="codeEditor"
-			  value={code.join("\n")}
-			  options={{
-					mode: "python",
-					theme: "dracula",
-			    lineNumbers: true
-			  }}
-			  onBeforeChange={(editor, data, strCode) => onChange(strCode)}
-				onChange={(editor, data, strCode) => { onChange(strCode); }}
-				editorDidMount={editor => {
-					this.codeMirrorRef = editor;
-					// this.addCodeChangeDiffs(codeChanges, onClickUseMe);
-				}}
-				onKeyDown={(editor, event) => {
-					const isSaveKey = event.which == 83 && (event.ctrlKey || event.metaKey);
-					if (isSaveKey) {
-						event.preventDefault();
-						onSaveFile();
-
-						return false;
-					}
-
-					return true;
-				}}
-			/>
+			<div className="codeEditorContainer">
+				<Dropdown
+					className="languageDropdown"
+					value={language}
+					onSelect={onSelectLanguage}
+				/>
+				<CodeMirror
+					className="codeEditor"
+				  value={code.join("\n")}
+				  options={{
+						mode: "python",
+						theme: "dracula",
+				    lineNumbers: true
+				  }}
+				  onBeforeChange={onChange}
+					onChange={onChange}
+					editorDidMount={editor => this.codeMirrorRef = editor}
+				/>
+			</div>
 	  );
 	}
 }

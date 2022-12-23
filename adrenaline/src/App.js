@@ -29,6 +29,7 @@ const testErrorMessage = `Traceback (most recent call last):
 statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test statistic cannot be compute because the VAR has a perfect fit of the data.`;
 
 const DEFAULT_STATE = {
+  language: "Python",
   code: testCode,
   errorMessage: testErrorMessage,
   diffs: [],
@@ -84,14 +85,18 @@ export default class App extends Component {
 		}));
   }
 
-  onDebug = () => {
-    const { code, errorMessage } = this.state;
+  onDebug = errorMessage => {
+    const { code } = this.state;
+    const diffs = [{newLines: [6,7], mergeLine: 5, oldLines: [3,4]}]
 
+    this.setState({ errorMessage, diffs });
     // TODO: Call the OpenAI API
   };
 
+  onSelectLanguage = language => this.setState({ language });
+
 	render() {
-    const { code, diffs, errorMessage, errorExplanation } = this.state;
+    const { language, code, diffs, errorExplanation } = this.state;
 
     return (
       <div className="app">
@@ -103,11 +108,10 @@ export default class App extends Component {
               diffs={diffs}
               onResolveDiff={this.onResolveDiff}
               onChange={this.onCodeChange}
+              language={language}
+              onSelectLanguage={this.onSelectLanguage}
             />
-            <ErrorMessage
-              errorMessage={errorMessage}
-              onDebug={this.onDebug}
-            />
+            <ErrorMessage onDebug={this.onDebug} />
           </div>
           <ErrorExplanation errorExplanation={errorExplanation} />
         </div>

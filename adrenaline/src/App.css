@@ -14,11 +14,12 @@
 .app .body {
   display: flex;
   flex-direction: row;
+  height: calc(100% - 60px);
 }
 
 .app .body .lhs {
   display: flex;
   flex-direction: column;
   width: 66%;
-  /* height */
+  height: 100%;
 }

@@ -1,0 +1,42 @@
+.errorMessage {
+  height: 33%;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.errorMessageHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 20px;
+  font-weight: 500;
+}
+
+.debugButton {
+  background-color: #D93CFF;
+  width: fit-content;
+}
+
+.errorMessageInput {
+  border: 0;
+  box-sizing: border-box;
+  outline: none;
+  color: white;
+  background-color: #373171;
+  padding: 0;
+  padding-left: 20px;
+  padding-top: 15px;
+  width: calc(100% - 60px);
+  height: 100%;
+  border-radius: 10px;
+  resize: none;
+  margin-left: 30px;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-family: Monaco;
+  font-size: 14px;
+}
