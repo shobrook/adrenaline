@@ -8,29 +8,68 @@ import ErrorExplanation from "./containers/ErrorExplanation";
 
 import './App.css';
 
+const range = (size, startAt = 0) => [...Array(size).keys()].map(i => i + startAt);
+
 const diffGPTOutput = (inputCode, gptCode) => {
-  const diffResult = Diff.diffArrays(inputCode, gptCode);
+  const diffResults = Diff.diffArrays(inputCode, gptCode);
 
-  // TODO: Handle inserts with no deletions, and deletions with no insertions
+  let mergedCode = []; let diffs = [];
+  // let diffIndex = 0;
+  // let mergedCodeIndex = -1;
+  let i = 0; let j = -1;
+  while (i < diffResults.length) {
+    let diffResult = diffResults[i];
+    let numLinesChanged = diffResult.value.length;
+    let diff = { oldLines: [], mergeLine: -1, newLines: [] }
 
-  let oldLineStart = -1;
-  let mergeLine = -1;
-  var mergedCode = [];
-  for (let i = 0; i < diffResult.length; i++) {
-    let codeBlock = diffResult[i];
-    if (codeBlock.removed) { // Lines were removed from inputCode
-      mergedCode.push(">>>>>>> OLD CODE");
-      mergedCode.push(...codeBlock.value);
-      mergedCode.push("=======");
-    } else if (codeBlock.added) { // Lines are added to inputCode
-      mergedCode.push(...codeBlock.value);
-      mergedCode.push(">>>>>>> NEW CODE");
-    } else {
-      mergedCode.push(...codeBlock.value);
+    // Assumes deletions always come before insertions
+    if (diffResult.removed) {
+      mergedCode.push(">>>>>>> OLD CODE"); j += 1;
+      diff.oldLines.push(j);
+
+      diff.oldLines.push(...range(numLinesChanged, j + 1));
+      mergedCode.push(...diffResult.value); j += numLinesChanged;
+
+      mergedCode.push("======="); j += 1;
+      diff.mergeLine = j;
+
+      if (i < diffResults.length - 1 && diffResults[i + 1].added) { // Deletion with an insertion
+        diff.newLines.push(...range(diffResults[i + 1].value.length, j + 1));
+        mergedCode.push(...diffResults[i + 1].value); j += diffResults[i + 1].value.length;
+
+        i += 2;
+      } else { // Deletion with no insertion
+        i += 1;
+      }
+
+      mergedCode.push(">>>>>>> NEW CODE"); j += 1;
+      diff.newLines.push(j);
+
+      diffs.push(diff);
+      continue;
+    } else if (diffResult.added) { // Insertion with no deletion
+      mergedCode.push(">>>>>>> OLD CODE"); j += 1;
+      diff.oldLines.push(j);
+
+      mergedCode.push("======="); j += 1;
+      diff.mergeLine = j;
+
+      mergedCode.push(...diffResult.value); j += numLinesChanged;
+      mergedCode.push(">>>>>>> NEW CODE"); j += 1;
+      diff.newLines.push(...range(numLinesChanged + 1, j + 1));
+
+      diffs.push(diff);
+    } else { // No deletion or insertion
+      mergedCode.push(...diffResult.value); j += numLinesChanged;
     }
-  }
 
-  return mergedCode.join("\n");
+    i += 1;
+  };
+
+  return {
+    diffs,
+    mergedCode,
+  };
 }
 
 // TEMP: Testing only
@@ -127,14 +166,14 @@ export default class App extends Component {
 
   onDebug = errorMessage => {
     const { code } = this.state;
-    // const diffs = [{newLines: [6,7], mergeLine: 5, oldLines: [3,4]}]
 
     // TODO: Call the OpenAI API
+    let { mergedCode, diffs } = diffGPTOutput(code, testGPTCode);
 
-    // const diff = Diff.diffLines()
-    let mergedCode = diffGPTOutput(code, testGPTCode)
+    console.log(mergedCode);
+    console.log(diffs);
 
-    this.setState({ code: mergedCode.split("\n"), errorMessage });
+    this.setState({ code: mergedCode, diffs, errorMessage });
   };
 
   onSelectLanguage = event => this.setState({ language: event.target.value });

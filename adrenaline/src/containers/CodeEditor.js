@@ -61,13 +61,13 @@ export default class CodeEditor extends Component {
 			newLines.forEach((lineNum, index) => {
 				this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine");
 			});
-			this.codeMirrorRef.addLineClass(newLines.at(-1) + 1, "wrap", "newLine last"); // Because newLine is missing the last line
+			this.codeMirrorRef.addLineClass(newLines.at(-1), "wrap", "newLine last"); // Because newLine is missing the last line
 
 			let oldCodeWidget = this.addDiffWidget(oldLines.at(0), false, () => {
 				this.deleteDiffWidgets(index);
 				onResolveDiff(newLines, index, this.codeMirrorRef, diff);
 			});
-			let newCodeWidget = this.addDiffWidget(newLines.at(-1) + 1, true, () => {
+			let newCodeWidget = this.addDiffWidget(newLines.at(-1), true, () => {
 				this.deleteDiffWidgets(index);
 				onResolveDiff(oldLines, index, this.codeMirrorRef, diff);
 			});
