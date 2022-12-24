@@ -9,6 +9,8 @@ import 'codemirror/lib/codemirror.css';
 import "./theme.css";
 
 require('codemirror/mode/python/python');
+require('codemirror/mode/javascript/javascript');
+require('codemirror/mode/clike/clike');
 
 export default class CodeEditor extends Component {
 	constructor(props) {
@@ -118,7 +120,7 @@ export default class CodeEditor extends Component {
 					className="codeEditor"
 				  value={code.join("\n")}
 				  options={{
-						mode: "python",
+						mode: language.toLowerCase(),
 						theme: "dracula",
 				    lineNumbers: true
 				  }}

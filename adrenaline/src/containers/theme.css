@@ -1,5 +1,5 @@
 .cm-s-dracula.CodeMirror, .cm-s-dracula .CodeMirror-gutters {
-  background-color: #140C58 !important;
+  background-color: #373751 !important; /* #140C58 !important; */
   color: #E5FCFF !important;
   border: none;
 }

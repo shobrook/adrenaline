@@ -1,6 +1,14 @@
 .errorExplanation {
-  border-left: 2px solid #4E4881;
+  border-left: 2px solid #54546A; /* #4E4881 */
   padding-top: 20px;
   padding-left: 30px;
   font-weight: 500;
+}
+
+.errorExplanationHeader p {
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 400;
+  font-family: Monaco;
+  font-size: 14px;
+  overflow: auto;
 }

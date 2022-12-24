@@ -5,7 +5,16 @@ import Button from "../components/Button";
 import "./ErrorMessage.css";
 
 export default class ErrorMessage extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = { value: "" };
+	}
+
+	onChange = event => this.setState({ value: event.target.value });
+
 	render() {
+		const { value } = this.state;
     const { onDebug } = this.props;
 
     return (
@@ -14,7 +23,7 @@ export default class ErrorMessage extends Component {
           <span>Error Message</span>
           <Button
 						className="debugButton"
-						onClick={() => onDebug(this.input.value)}
+						onClick={() => onDebug(value)}
 						isPrimary
 					>
 						Fix it
@@ -23,6 +32,9 @@ export default class ErrorMessage extends Component {
 				<textarea
 					className="errorMessageInput"
 					ref={ref => this.input = ref}
+					value={value}
+					onChange={this.onChange}
+					placeholder="Paste your error message here"
 				/>
       </div>
     );

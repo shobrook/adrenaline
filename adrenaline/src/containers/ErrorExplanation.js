@@ -12,6 +12,7 @@ export default class ErrorExplanation extends Component {
       <div className="errorExplanation">
         <div className="errorExplanationHeader">
           <span>Error Explanation</span>
+					<p>Click "Fix it" to debug and explain your error.</p>
         </div>
       </div>
     );

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import * as Diff from 'diff';
 
 import Header from "./containers/Header";
 import CodeEditor from "./containers/CodeEditor";
@@ -7,8 +8,33 @@ import ErrorExplanation from "./containers/ErrorExplanation";
 
 import './App.css';
 
+const diffGPTOutput = (inputCode, gptCode) => {
+  const diffResult = Diff.diffArrays(inputCode, gptCode);
+
+  // TODO: Handle inserts with no deletions, and deletions with no insertions
+
+  let oldLineStart = -1;
+  let mergeLine = -1;
+  var mergedCode = [];
+  for (let i = 0; i < diffResult.length; i++) {
+    let codeBlock = diffResult[i];
+    if (codeBlock.removed) { // Lines were removed from inputCode
+      mergedCode.push(">>>>>>> OLD CODE");
+      mergedCode.push(...codeBlock.value);
+      mergedCode.push("=======");
+    } else if (codeBlock.added) { // Lines are added to inputCode
+      mergedCode.push(...codeBlock.value);
+      mergedCode.push(">>>>>>> NEW CODE");
+    } else {
+      mergedCode.push(...codeBlock.value);
+    }
+  }
+
+  return mergedCode.join("\n");
+}
+
 // TEMP: Testing only
-const testCode = [
+const testInputCode = [
   "def apply_func_to_input(func, input):",
   "\tfunc(input)",
   "",
@@ -21,6 +47,20 @@ const testCode = [
   "",
   "main()"
 ];
+const testGPTCode = [
+  "def apply_func_to_input(func, input):",
+  "\t# This will apply func to input",
+  "\t(lambda: func(input))()",
+  "",
+  "def main():",
+  "\tmy_data = []",
+  "\tfor i in range(10):",
+  "\t\tapply_func_to_input(my_data.append, i)",
+  "",
+  "\tprint(my_data)",
+  "",
+  "main()"
+]
 const testErrorMessage = `Traceback (most recent call last):
   File "broken.py", line 16, in <module>
     grangercausalitytests(df, maxlag=20)
@@ -30,7 +70,7 @@ statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test 
 
 const DEFAULT_STATE = {
   language: "Python",
-  code: testCode,
+  code: testInputCode,
   errorMessage: testErrorMessage,
   diffs: [],
   errorExplanation: ""
@@ -87,16 +127,22 @@ export default class App extends Component {
 
   onDebug = errorMessage => {
     const { code } = this.state;
-    const diffs = [{newLines: [6,7], mergeLine: 5, oldLines: [3,4]}]
+    // const diffs = [{newLines: [6,7], mergeLine: 5, oldLines: [3,4]}]
 
-    this.setState({ errorMessage, diffs });
     // TODO: Call the OpenAI API
+
+    // const diff = Diff.diffLines()
+    let mergedCode = diffGPTOutput(code, testGPTCode)
+
+    this.setState({ code: mergedCode.split("\n"), errorMessage });
   };
 
-  onSelectLanguage = language => this.setState({ language });
+  onSelectLanguage = event => this.setState({ language: event.target.value });
 
 	render() {
     const { language, code, diffs, errorExplanation } = this.state;
+
+    console.log(language)
 
     return (
       <div className="app">

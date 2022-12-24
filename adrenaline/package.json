@@ -7,6 +7,7 @@
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^12.1.5",
     "codemirror": "^5.65.10",
+    "diff": "^5.1.0",
     "react": "^16.13.0",
     "react-codemirror2": "^7.2.1",
     "react-dom": "^16.13.0",
