@@ -6,13 +6,16 @@ import "./ErrorExplanation.css";
 
 export default class ErrorExplanation extends Component {
 	render() {
-    const { errorMessage, onDebug } = this.props;
+    const { errorExplanation, onDebug } = this.props;
 
     return (
       <div className="errorExplanation">
         <div className="errorExplanationHeader">
           <span>Error Explanation</span>
-					<p>Click "Fix it" to debug and explain your error.</p>
+					<p>{
+						errorExplanation === "" ?
+						"Click \"Fix it\" to debug and explain your error." : errorExplanation
+					}</p>
         </div>
       </div>
     );

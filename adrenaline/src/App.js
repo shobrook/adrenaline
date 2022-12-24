@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as Diff from 'diff';
+import { Configuration, OpenAIApi } from "openai";
 
 import Header from "./containers/Header";
 import CodeEditor from "./containers/CodeEditor";
@@ -9,7 +10,6 @@ import ErrorExplanation from "./containers/ErrorExplanation";
 import './App.css';
 
 const range = (size, startAt = 0) => [...Array(size).keys()].map(i => i + startAt);
-
 const diffGPTOutput = (inputCode, gptCode) => {
   const diffResults = Diff.diffArrays(inputCode, gptCode);
 
@@ -52,9 +52,9 @@ const diffGPTOutput = (inputCode, gptCode) => {
       mergedCode.push("======="); j += 1;
       diff.mergeLine = j;
 
+      diff.newLines.push(...range(numLinesChanged + 1, j + 1));
       mergedCode.push(...diffResult.value); j += numLinesChanged;
       mergedCode.push(">>>>>>> NEW CODE"); j += 1;
-      diff.newLines.push(...range(numLinesChanged + 1, j + 1));
 
       diffs.push(diff);
     } else { // No deletion or insertion
@@ -84,20 +84,22 @@ const testInputCode = [
   "",
   "main()"
 ];
-const testGPTCode = [
-  "def apply_func_to_input(func, input):",
-  "\t# This will apply func to input",
-  "\t(lambda: func(input))()",
-  "",
-  "def main():",
-  "\tmy_data = []",
-  "\tfor i in range(10):",
-  "\t\tapply_func_to_input(my_data.append, i)",
-  "",
-  "\tprint(my_data)",
-  "",
-  "main()"
-]
+let testGPTCode = "def apply_func_to_input(func, input):\n\tfunc(input)\n\ndef main():\n\tmy_data = []\n\tfor i in range(10):\n\t\tapply_func_to_input(my_data.append, i)\n\n\tprint(my_data)\n\nmain()\n";
+testGPTCode = testGPTCode.split("\n");
+// const testGPTCode = [
+//   "def apply_func_to_input(func, input):",
+//   "\t# This will apply func to input",
+//   "\t(lambda: func(input))()",
+//   "",
+//   "def main():",
+//   "\tmy_data = []",
+//   "\tfor i in range(10):",
+//   "\t\tapply_func_to_input(my_data.append, i)",
+//   "",
+//   "\tprint(my_data)",
+//   "",
+//   "main()"
+// ]
 const testErrorMessage = `Traceback (most recent call last):
   File "broken.py", line 16, in <module>
     grangercausalitytests(df, maxlag=20)
@@ -105,12 +107,30 @@ const testErrorMessage = `Traceback (most recent call last):
     raise InfeasibleTestError(
 statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test statistic cannot be compute because the VAR has a perfect fit of the data.`;
 
+const EDIT_PROMPT_PARAMS = {
+  // model: "text-davinci-edit-001",
+  model: "code-davinci-edit-001",
+  // stop: ["\n\n\n"],
+};
+const COMPLETION_PROMPT_PARAMS = {
+  model: "text-davinci-003",
+  max_tokens: 500,
+  temperature: 0.2,
+  top_p: 1,
+  presence_penalty: 0,
+  frequency_penalty: 0,
+  best_of: 1,
+  n: 1,
+  stream: false,
+  // stop: ["\n\n\n"],
+};
 const DEFAULT_STATE = {
   language: "Python",
   code: testInputCode,
   errorMessage: testErrorMessage,
   diffs: [],
-  errorExplanation: ""
+  errorExplanation: "",
+  apiKey: ""
 };
 export default class App extends Component {
 	constructor(props) {
@@ -163,15 +183,49 @@ export default class App extends Component {
   }
 
   onDebug = errorMessage => {
-    const { code } = this.state;
+    const { code, language, apiKey } = this.state;
 
-    // TODO: Call the OpenAI API
-    let { mergedCode, diffs } = diffGPTOutput(code, testGPTCode);
+    // let gptCode = testGPTCode;
+    // let { mergedCode, diffs } = diffGPTOutput(code, gptCode);
+    //
+    // console.log("diffs");
+    // console.log(diffs);
+    //
+    // this.setState({ code: mergedCode, diffs, errorMessage });
 
-    console.log(mergedCode);
-    console.log(diffs);
+    const apiConfig = new Configuration({ apiKey });
+    const api = new OpenAIApi(apiConfig);
 
-    this.setState({ code: mergedCode, diffs, errorMessage });
+    let instruction = `This ${language} code throws an error.`;
+    if (errorMessage !== "") {
+      instruction += `Here is the error message: ${errorMessage}.`;
+    }
+    instruction += "Fix it.";
+
+    api
+  		.createEdit({
+  	    ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
+  	  })
+  	  .then(data => {
+  			let gptCode = data.data.choices[0].text.split("\n");
+        let { mergedCode, diffs } = diffGPTOutput(code, gptCode);
+
+        if (errorMessage !== "") {
+          let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+          api
+            .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
+            .then(data => {
+              console.log(data);
+
+              let errorExplanation = data.data.choices[0].text;
+              this.setState({ code: mergedCode, diffs, errorMessage, errorExplanation });
+            }).
+            catch(error => console.log(error.response));
+        } else {
+          this.setState({ code: mergedCode, diffs, errorMessage });
+        }
+  		})
+  		.catch(error => console.log(error.response));
   };
 
   onSelectLanguage = event => this.setState({ language: event.target.value });

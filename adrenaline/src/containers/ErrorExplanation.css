@@ -3,6 +3,8 @@
   padding-top: 20px;
   padding-left: 30px;
   font-weight: 500;
+  width: 33%;
+  padding-right: 30px;
 }
 
 .errorExplanationHeader p {
@@ -11,4 +13,5 @@
   font-family: Monaco;
   font-size: 14px;
   overflow: auto;
+  line-height: 20px
 }
