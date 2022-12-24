@@ -5,8 +5,7 @@ import Dropdown from "../components/Dropdown";
 
 import "./CodeEditor.css";
 import 'codemirror/lib/codemirror.css';
-// import 'codemirror/theme/dracula.css';
-import "./theme.css";
+import "./theme.css"; // TODO: Move to CodeEditor.css
 
 require('codemirror/mode/python/python');
 require('codemirror/mode/javascript/javascript');
@@ -19,13 +18,22 @@ export default class CodeEditor extends Component {
 		this.diffWidgets = {}
 	}
 
+	deleteDiffWidgets = diffIndex => {
+		if (diffIndex in this.diffWidgets) {
+			this.diffWidgets[diffIndex].oldCodeWidget.clear();
+			this.diffWidgets[diffIndex].newCodeWidget.clear();
+
+			delete this.diffWidgets[diffIndex];
+		}
+	}
+
 	addDiffWidget = (insertLine, isFixedCode, onResolveDiff) => {
 		let useMeHeader = document.createElement("div");
 		let useMeButton = document.createElement("div");
 		let useMeLabel = document.createElement("span");
 
-		useMeHeader.className = "useMeHeader";
-		useMeButton.className = "useMeButton";
+		useMeHeader.className = isFixedCode ? "useMeHeader newCodeHeader" : "useMeHeader oldCodeHeader";
+		useMeButton.className = isFixedCode ? "useMeButton newCodeButton" : "useMeButton oldCodeButton";
 		useMeButton.innerHTML = "Use me";
 		useMeButton.onclick = onResolveDiff;
 		useMeLabel.className = "useMeLabel";
@@ -37,12 +45,22 @@ export default class CodeEditor extends Component {
 		return this.codeMirrorRef.addLineWidget(insertLine, useMeHeader, { above: !isFixedCode });
 	}
 
-	deleteDiffWidgets = codeChangeIndex => {
-		if (codeChangeIndex in this.diffWidgets) {
-			this.diffWidgets[codeChangeIndex].oldCodeWidget.clear();
-			this.diffWidgets[codeChangeIndex].newCodeWidget.clear();
+	addLineHighlights = diff => {
+		const { oldLines, newLines, mergeLine } = diff;
 
-			delete this.diffWidgets[codeChangeIndex];
+		console.log(diff)
+
+		oldLines.forEach((lineNum, index) => {
+			let className = index === 0 ? "oldLine first" : "oldLine";
+			this.codeMirrorRef.addLineClass(lineNum, "wrap", className);
+		});
+		newLines.forEach((lineNum, index) => {
+			let className = index === newLines.length - 1 ? "newLine last" : "newLine";
+			this.codeMirrorRef.addLineClass(lineNum, "wrap", className);
+		});
+
+		if (mergeLine !== -1) {
+			this.codeMirrorRef.addLineClass(mergeLine, "wrap", "mergeLine");
 		}
 	}
 
@@ -50,29 +68,23 @@ export default class CodeEditor extends Component {
 		diffs.forEach((diff, index) => {
 			const { oldLines, newLines, mergeLine } = diff;
 
-			oldLines.forEach((lineNum, index) => {
-				if (index === 0) {
-						this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine first");
-				} else {
-					this.codeMirrorRef.addLineClass(lineNum, "wrap", "oldLine");
-				}
-			});
-			this.codeMirrorRef.addLineClass(mergeLine, "wrap", "mergeLine");
-			newLines.forEach((lineNum, index) => {
-				this.codeMirrorRef.addLineClass(lineNum, "wrap", "newLine");
-			});
-			this.codeMirrorRef.addLineClass(newLines.at(-1), "wrap", "newLine last"); // Because newLine is missing the last line
-
 			let oldCodeWidget = this.addDiffWidget(oldLines.at(0), false, () => {
+				let linesToDelete = newLines;
+				linesToDelete.push(oldLines.at(0));
+
+				onResolveDiff(linesToDelete, index, this.codeMirrorRef, diff);
 				this.deleteDiffWidgets(index);
-				onResolveDiff(newLines, index, this.codeMirrorRef, diff);
 			});
 			let newCodeWidget = this.addDiffWidget(newLines.at(-1), true, () => {
+				let linesToDelete = oldLines;
+				linesToDelete.push(newLines.at(-1));
+
+				onResolveDiff(linesToDelete, index, this.codeMirrorRef, diff);
 				this.deleteDiffWidgets(index);
-				onResolveDiff(oldLines, index, this.codeMirrorRef, diff);
 			});
 
 			this.diffWidgets[index] = {oldCodeWidget, newCodeWidget};
+			this.addLineHighlights(diff);
 		});
 	}
 

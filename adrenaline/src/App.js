@@ -14,8 +14,6 @@ const diffGPTOutput = (inputCode, gptCode) => {
   const diffResults = Diff.diffArrays(inputCode, gptCode);
 
   let mergedCode = []; let diffs = [];
-  // let diffIndex = 0;
-  // let mergedCodeIndex = -1;
   let i = 0; let j = -1;
   while (i < diffResults.length) {
     let diffResult = diffResults[i];
@@ -125,42 +123,42 @@ export default class App extends Component {
 
   onCodeChange = (editor, data, code) => this.setState({ code: code.split("\n") });
 
-  onResolveDiff = (linesToDelete, codeChangeIndex, codeMirrorRef, codeChange) => {
-    const { oldLines, newLines, mergeLine } = codeChange;
+  onResolveDiff = (linesToDelete, diffIndex, codeMirrorRef, diff) => {
+    const { oldLines, newLines, mergeLine } = diff;
     linesToDelete.push(mergeLine);
 
     // Delete the diff decoration
-    oldLines.map((oldLine, index) => {
+    oldLines.forEach((oldLine, index) => {
       let className = "oldLine";
       className += index === 0 ? " first" : "";
       codeMirrorRef.removeLineClass(index, "wrap", className);
     });
-    newLines.map((newLine, index) => {
+    newLines.forEach((newLine, index) => {
       let className = "newLine";
-      className += index === codeChange.newLines.length - 1 ? " last" : "";
+      className += index === newLines.length - 1 ? " last" : "";
       codeMirrorRef.removeLineClass(index, "wrap", className);
     });
     codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
 
     // Updates line numbers in codeChange objects after lines are deleted
     let numLinesDeleted = linesToDelete.length;
-    let codeChanges = this.state.codeChanges.map((_codeChange, index) => {
-      if (index <= codeChangeIndex) {
-        return _codeChange;
+    let diffs = this.state.diffs.map((diff, index) => {
+      if (index <= diffIndex) {
+        return diff;
       }
 
-      _codeChange.oldLines = _codeChange.oldLines.map(line => line - numLinesDeleted);
-      _codeChange.newLines = _codeChange.newLines.map(line => line - numLinesDeleted);
-      _codeChange.mergeLine = _codeChange.mergeLine -= numLinesDeleted;
+      diff.oldLines = diff.oldLines.map(line => line - numLinesDeleted);
+      diff.newLines = diff.newLines.map(line => line - numLinesDeleted);
+      diff.mergeLine = diff.mergeLine - numLinesDeleted;
 
-      return _codeChange;
+      return diff;
     });
-    codeChanges = codeChanges.filter((_, index) => index != codeChangeIndex);
+    diffs = diffs.filter((_, index) => index != diffIndex);
 
     // Update code to reflect accepted or rejected changes
 		this.setState(prevState => ({
 			code: prevState.code.filter((_, index) => !linesToDelete.includes(index)),
-			codeChanges
+			diffs
 		}));
   }
 
@@ -180,8 +178,6 @@ export default class App extends Component {
 
 	render() {
     const { language, code, diffs, errorExplanation } = this.state;
-
-    console.log(language)
 
     return (
       <div className="app">

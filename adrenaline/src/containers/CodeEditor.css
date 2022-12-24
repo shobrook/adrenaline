@@ -61,6 +61,16 @@
   /* letter-spacing: 0.75px; */
 }
 
+.oldCodeHeader {
+  background-color: rgba(39, 154, 241, 0.33) !important;
+  border-radius: 7px 7px 0px 0px !important;
+}
+
+.newCodeHeader {
+  background-color: rgb(217, 60, 255, 0.325);
+  border-radius: 0px 0px 7px 7px;
+}
+
 .useMeButton {
   display: flex;
   flex-direction: row;
@@ -72,29 +82,16 @@
   cursor: pointer;
 }
 
-.useMeLabel {
-  font-weight: 500 !important;
-  padding-right: 5px;
-}
-
-.newLine .useMeHeader {
-  background-color: rgb(217, 60, 255, 0.325);
-  border-radius: 0px 0px 7px 7px;
-}
-
-.newLine .useMeButton {
+.newCodeButton {
   background-color: rgb(217, 60, 255, 1.0);
 }
 
-.oldLine .useMeHeader {
-  background-color: rgba(39, 154, 241, 0.33);
-  border-radius: 7px 7px 0px 0px;
-}
-
-.oldLine .useMeButton {
+.oldCodeButton {
   background-color: #279AF1;
 }
 
 .useMeLabel {
+  font-weight: 500 !important;
+  padding-right: 5px;
   margin-left: auto;
 }
