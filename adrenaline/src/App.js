@@ -207,8 +207,9 @@ export default class App extends Component {
   	    ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
   	  })
   	  .then(data => {
-  			let gptCode = data.data.choices[0].text.split("\n");
-        let { mergedCode, diffs } = diffGPTOutput(code, gptCode);
+        let inputCode = code.join("\n").trim().split("\n");
+  			let gptCode = data.data.choices[0].text.trim().split("\n");
+        let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
 
         if (errorMessage !== "") {
           let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
