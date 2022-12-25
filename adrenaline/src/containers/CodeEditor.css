@@ -24,8 +24,16 @@
   height: 100% !important;
 }
 
+.CodeMirror-lines {
+  padding-left: 20px !important;
+}
+
 .CodeMirror-line {
-  padding-left: 25px !important;
+  padding-left: 5px !important;
+}
+
+.CodeMirror-linenumber {
+  margin-left: -20px;
 }
 
 .oldLine {
