@@ -36,6 +36,10 @@
   margin-left: -20px;
 }
 
+.CodeMirror-code > div {
+  padding-bottom: 2px; /* Line spacing */
+}
+
 .oldLine {
   background-color: rgba(39, 154, 241, 0.25);
 }
@@ -77,6 +81,8 @@
 .newCodeHeader {
   background-color: rgb(217, 60, 255, 0.325);
   border-radius: 0px 0px 7px 7px;
+  position: relative;
+  top: 2px; /* Equal to line spacing */
 }
 
 .useMeButton {
