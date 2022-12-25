@@ -15,40 +15,68 @@ export default class CodeEditor extends Component {
 	constructor(props) {
 		super(props);
 
-		this.diffWidgets = {}
+		this.createWidget = this.createWidget.bind(this);
+		this.addDiffWidgets = this.addDiffWidgets.bind(this);
+		this.deleteDiffWidgets = this.deleteDiffWidgets.bind(this);
+		this.addLineHighlights = this.addLineHighlights.bind(this);
+		this.deleteLineHighlights = this.deleteLineHighlights.bind(this);
+		this.addDiffsToEditor = this.addDiffsToEditor.bind(this);
+		this.deleteDiffsFromEditor = this.deleteDiffsFromEditor.bind(this);
 	}
 
-	deleteDiffWidgets = diffIndex => {
-		if (diffIndex in this.diffWidgets) {
-			this.diffWidgets[diffIndex].oldCodeWidget.clear();
-			this.diffWidgets[diffIndex].newCodeWidget.clear();
+	/* Diff Utilities */
 
-			delete this.diffWidgets[diffIndex];
-		}
-	}
+	createWidget(insertLineNum, isAboveLine, onClickUseMe) {
+		let widget = document.createElement("div");
+		widget.className = isAboveLine ? "useMeHeader oldCodeHeader" : "useMeHeader newCodeHeader";
 
-	addDiffWidget = (insertLine, isFixedCode, onResolveDiff) => {
-		let useMeHeader = document.createElement("div");
 		let useMeButton = document.createElement("div");
-		let useMeLabel = document.createElement("span");
-
-		useMeHeader.className = isFixedCode ? "useMeHeader newCodeHeader" : "useMeHeader oldCodeHeader";
-		useMeButton.className = isFixedCode ? "useMeButton newCodeButton" : "useMeButton oldCodeButton";
+		useMeButton.className = isAboveLine ? "useMeButton oldCodeButton" : "useMeButton newCodeButton";
 		useMeButton.innerHTML = "Use me";
-		useMeButton.onclick = onResolveDiff;
-		useMeLabel.className = "useMeLabel";
-		useMeLabel.innerHTML = isFixedCode ? "fixed code" : "your code";
+		useMeButton.onclick = onClickUseMe;
 
-		useMeHeader.appendChild(useMeButton);
-		useMeHeader.appendChild(useMeLabel);
+		let label = document.createElement("span");
+		label.className = "useMeLabel";
+		label.innerHTML = isAboveLine ? "your code" : "fixed code";
 
-		return this.codeMirrorRef.addLineWidget(insertLine, useMeHeader, { above: !isFixedCode });
+		widget.appendChild(useMeButton);
+		widget.appendChild(label);
+
+		return this.codeMirrorRef.addLineWidget(insertLineNum, widget, { above: isAboveLine });
 	}
 
-	addLineHighlights = diff => {
+	addDiffWidgets(diff, onResolveDiff) {
 		const { oldLines, newLines, mergeLine } = diff;
 
-		console.log(diff)
+		const oldCodeStart = oldLines.at(0);
+		const newCodeEnd = newLines.at(-1);
+
+		const onUseOldCode = () => {
+			let linesToDelete = newLines;
+			linesToDelete.push(oldCodeStart);
+			linesToDelete.push(mergeLine);
+
+			onResolveDiff(diff, linesToDelete);
+		};
+		const onUseNewCode = () => {
+			let linesToDelete = oldLines;
+			linesToDelete.push(newCodeEnd);
+			linesToDelete.push(mergeLine);
+
+			onResolveDiff(diff, linesToDelete);
+		}
+
+		diff.oldCodeWidget = this.createWidget(oldCodeStart, true, onUseOldCode);
+		diff.newCodeWidget = this.createWidget(newCodeEnd, false, onUseNewCode);
+	}
+
+	deleteDiffWidgets(diff) {
+		diff.oldCodeWidget?.clear();
+		diff.newCodeWidget?.clear();
+	}
+
+	addLineHighlights(diff) {
+		const { oldLines, newLines, mergeLine } = diff;
 
 		oldLines.forEach((lineNum, index) => {
 			let className = index === 0 ? "oldLine first" : "oldLine";
@@ -59,62 +87,56 @@ export default class CodeEditor extends Component {
 			this.codeMirrorRef.addLineClass(lineNum, "wrap", className);
 		});
 
-		if (mergeLine !== -1) {
+		if (mergeLine !== -1) { // QUESTION: Is this ever not hit?
 			this.codeMirrorRef.addLineClass(mergeLine, "wrap", "mergeLine");
 		}
 	}
 
-	addDiffsToEditor = (diffs, onResolveDiff) => {
-		diffs.forEach((diff, index) => {
-			const { oldLines, newLines, mergeLine } = diff;
+	deleteLineHighlights(diff) {
+		const { oldLines, newLines, mergeLine } = diff;
 
-			let oldCodeWidget = this.addDiffWidget(oldLines.at(0), false, () => {
-				let linesToDelete = newLines;
-				linesToDelete.push(oldLines.at(0));
+		oldLines.forEach((oldLine, index) => {
+			let className = "oldLine";
+			className += index === 0 ? " first" : "";
 
-				onResolveDiff(linesToDelete, index, this.codeMirrorRef, diff);
-				this.deleteDiffWidgets(index);
-			});
-			let newCodeWidget = this.addDiffWidget(newLines.at(-1), true, () => {
-				let linesToDelete = oldLines;
-				linesToDelete.push(newLines.at(-1));
+			this.codeMirrorRef.removeLineClass(index, "wrap", className);
+		});
+		this.codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
+		newLines.forEach((newLine, index) => {
+			let className = "newLine";
+			className += index === newLines.length - 1 ? " last" : "";
 
-				onResolveDiff(linesToDelete, index, this.codeMirrorRef, diff);
-				this.deleteDiffWidgets(index);
-			});
-
-			this.diffWidgets[index] = {oldCodeWidget, newCodeWidget};
-			this.addLineHighlights(diff);
+			this.codeMirrorRef.removeLineClass(index, "wrap", className);
 		});
 	}
+
+	addDiffsToEditor(diffs, onResolveDiff) {
+		diffs.forEach((diff, index) => {
+			this.addLineHighlights(diff);
+			this.addDiffWidgets(diff, onResolveDiff);
+		});
+	}
+
+	deleteDiffsFromEditor(diffs) {
+		diffs.forEach((diff, index) => {
+			this.deleteLineHighlights(diff);
+			this.deleteDiffWidgets(diff);
+		});
+	}
+
+	/* Lifecycle Methods */
 
 	componentDidUpdate() {
 		const { diffs, onResolveDiff } = this.props;
 
-		diffs.forEach((diff, index) => {
-			const { oldLines, newLines, mergeLine } = diff;
-
-			// Delete the diff decoration
-	    oldLines.map((oldLine, index) => {
-	      let className = "oldLine";
-	      className += index === 0 ? " first" : "";
-	      this.codeMirrorRef.removeLineClass(index, "wrap", className);
-	    });
-	    newLines.map((newLine, index) => {
-	      let className = "newLine";
-	      className += index === newLines.length - 1 ? " last" : "";
-	      this.codeMirrorRef.removeLineClass(index, "wrap", className);
-	    });
-	    this.codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
-
-			this.deleteDiffWidgets(index);
-		});
-
+		this.deleteDiffsFromEditor(diffs);
 		this.addDiffsToEditor(diffs, onResolveDiff);
 	}
 
 	componentDidMount() {
 		const { diffs, onResolveDiff } = this.props;
+
+		this.deleteDiffsFromEditor(diffs);
 		this.addDiffsToEditor(diffs, onResolveDiff);
 	}
 

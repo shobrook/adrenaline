@@ -9,16 +9,18 @@ import ErrorExplanation from "./containers/ErrorExplanation";
 
 import './App.css';
 
+// TODO: Move these into a utilities module
 const range = (size, startAt = 0) => [...Array(size).keys()].map(i => i + startAt);
 const diffGPTOutput = (inputCode, gptCode) => {
   const diffResults = Diff.diffArrays(inputCode, gptCode);
 
   let mergedCode = []; let diffs = [];
   let i = 0; let j = -1;
+  let currDiffId = 0;
   while (i < diffResults.length) {
     let diffResult = diffResults[i];
     let numLinesChanged = diffResult.value.length;
-    let diff = { oldLines: [], mergeLine: -1, newLines: [] }
+    let diff = { id: currDiffId, oldLines: [], mergeLine: -1, newLines: [] }
 
     // Assumes deletions always come before insertions
     if (diffResult.removed) {
@@ -44,6 +46,8 @@ const diffGPTOutput = (inputCode, gptCode) => {
       diff.newLines.push(j);
 
       diffs.push(diff);
+      currDiffId++;
+
       continue;
     } else if (diffResult.added) { // Insertion with no deletion
       mergedCode.push(">>>>>>> OLD CODE"); j += 1;
@@ -57,6 +61,7 @@ const diffGPTOutput = (inputCode, gptCode) => {
       mergedCode.push(">>>>>>> NEW CODE"); j += 1;
 
       diffs.push(diff);
+      currDiffId++;
     } else { // No deletion or insertion
       mergedCode.push(...diffResult.value); j += numLinesChanged;
     }
@@ -136,100 +141,97 @@ export default class App extends Component {
 	constructor(props) {
 		super(props);
 
+    this.onCodeChange = this.onCodeChange.bind(this);
+    this.onResolveDiff = this.onResolveDiff.bind(this);
+    this.onDebug = this.onDebug.bind(this);
+    this.onSelectLanguage = this.onSelectLanguage.bind(this);
+
 		this.state = DEFAULT_STATE;
 	}
 
   /* Event Handlers */
 
-  onCodeChange = (editor, data, code) => this.setState({ code: code.split("\n") });
+  onCodeChange(editor, data, code) { this.setState({ code: code.split("\n") }); }
 
-  onResolveDiff = (linesToDelete, diffIndex, codeMirrorRef, diff) => {
-    const { oldLines, newLines, mergeLine } = diff;
-    linesToDelete.push(mergeLine);
+  onResolveDiff(diff, linesToDelete) {
+    const { code, diffs } = this.state;
+    const { id: diffId, oldCodeWidget, newCodeWidget } = diff;
 
-    // Delete the diff decoration
-    oldLines.forEach((oldLine, index) => {
-      let className = "oldLine";
-      className += index === 0 ? " first" : "";
-      codeMirrorRef.removeLineClass(index, "wrap", className);
-    });
-    newLines.forEach((newLine, index) => {
-      let className = "newLine";
-      className += index === newLines.length - 1 ? " last" : "";
-      codeMirrorRef.removeLineClass(index, "wrap", className);
-    });
-    codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
+    // Delete widgets from editor
+    oldCodeWidget.clear();
+    newCodeWidget.clear();
 
-    // Updates line numbers in codeChange objects after lines are deleted
     let numLinesDeleted = linesToDelete.length;
-    let diffs = this.state.diffs.map((diff, index) => {
-      if (index <= diffIndex) {
-        return diff;
+    let updatedDiffs = diffs.map((otherDiff, index) => {
+      const {
+        id: otherDiffId,
+        oldLines,
+        newLines,
+        mergeLine
+      } = otherDiff;
+
+      // If diff comes before one that was resolved, no line update needed
+      if (otherDiffId <= diffId) {
+        return otherDiff;
       }
 
-      diff.oldLines = diff.oldLines.map(line => line - numLinesDeleted);
-      diff.newLines = diff.newLines.map(line => line - numLinesDeleted);
-      diff.mergeLine = diff.mergeLine - numLinesDeleted;
+      // Updates line numbers in codeChange objects after lines are deleted
+      otherDiff.oldLines = oldLines.map(line => line - numLinesDeleted);
+      otherDiff.newLines = newLines.map(line => line - numLinesDeleted);
+      otherDiff.mergeLine = mergeLine - numLinesDeleted;
 
-      return diff;
-    });
-    diffs = diffs.filter((_, index) => index != diffIndex);
+      return otherDiff;
+    }).filter(otherDiff => otherDiff.id != diffId);
+    let updatedCode = code.filter((_, index) => !linesToDelete.includes(index));
 
-    // Update code to reflect accepted or rejected changes
-		this.setState(prevState => ({
-			code: prevState.code.filter((_, index) => !linesToDelete.includes(index)),
-			diffs
-		}));
+    this.setState({ code: updatedCode, diffs: updatedDiffs });
   }
 
-  onDebug = errorMessage => {
+  onDebug(errorMessage) {
     const { code, language, apiKey } = this.state;
 
-    // let gptCode = testGPTCode;
-    // let { mergedCode, diffs } = diffGPTOutput(code, gptCode);
+    let gptCode = testGPTCode;
+    let { mergedCode, diffs } = diffGPTOutput(code, gptCode);
+
+    this.setState({ code: mergedCode, diffs, errorMessage });
+
+    // const apiConfig = new Configuration({ apiKey });
+    // const api = new OpenAIApi(apiConfig);
     //
-    // console.log("diffs");
-    // console.log(diffs);
+    // let instruction = `This ${language} code throws an error.`;
+    // if (errorMessage !== "") {
+    //   instruction += `Here is the error message: ${errorMessage}.`;
+    // }
+    // instruction += "Fix it.";
     //
-    // this.setState({ code: mergedCode, diffs, errorMessage });
-
-    const apiConfig = new Configuration({ apiKey });
-    const api = new OpenAIApi(apiConfig);
-
-    let instruction = `This ${language} code throws an error.`;
-    if (errorMessage !== "") {
-      instruction += `Here is the error message: ${errorMessage}.`;
-    }
-    instruction += "Fix it.";
-
-    api
-  		.createEdit({
-  	    ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
-  	  })
-  	  .then(data => {
-        let inputCode = code.join("\n").trim().split("\n");
-  			let gptCode = data.data.choices[0].text.trim().split("\n");
-        let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
-
-        if (errorMessage !== "") {
-          let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
-          api
-            .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
-            .then(data => {
-              console.log(data);
-
-              let errorExplanation = data.data.choices[0].text;
-              this.setState({ code: mergedCode, diffs, errorMessage, errorExplanation });
-            }).
-            catch(error => console.log(error.response));
-        } else {
-          this.setState({ code: mergedCode, diffs, errorMessage });
-        }
-  		})
-  		.catch(error => console.log(error.response));
+    // api
+  	// 	.createEdit({
+  	//     ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
+  	//   })
+  	//   .then(data => {
+    //     let inputCode = code.join("\n").trim().split("\n");
+  	// 		let gptCode = data.data.choices[0].text.trim().split("\n");
+    //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+    //
+    //     if (errorMessage !== "") {
+    //       let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+    //       api
+    //         .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
+    //         .then(data => {
+    //           console.log(data);
+    //
+    //           let errorExplanation = data.data.choices[0].text;
+    //           this.setState({ code: mergedCode, diffs, errorMessage, errorExplanation });
+    //         }).
+    //         catch(error => console.log(error.response));
+    //     } else {
+    //       this.setState({ code: mergedCode, diffs, errorMessage });
+    //     }
+  	// 	})
+  	// 	.catch(error => console.log(error.response));
   };
 
-  onSelectLanguage = event => this.setState({ language: event.target.value });
+  onSelectLanguage(event) { this.setState({ language: event.target.value }); }
 
 	render() {
     const { language, code, diffs, errorExplanation } = this.state;
