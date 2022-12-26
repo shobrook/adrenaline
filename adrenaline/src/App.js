@@ -84,27 +84,26 @@ const testInputCode = [
   "\tmy_data = []",
   "\tfor i in range(10):",
   "\t\tapply_func_to_input(my_data.add, i)",
+  "\t\tYOOOOO",
   "",
   "\tprint(my_data)",
   "",
   "main()"
 ];
-let testGPTCode = "def apply_func_to_input(func, input):\n\tfunc(input)\n\ndef main():\n\tmy_data = []\n\tfor i in range(10):\n\t\tapply_func_to_input(my_data.append, i)\n\n\tprint(my_data)\n\nmain()\n";
-testGPTCode = testGPTCode.split("\n");
-// const testGPTCode = [
-//   "def apply_func_to_input(func, input):",
-//   "\t# This will apply func to input",
-//   "\t(lambda: func(input))()",
-//   "",
-//   "def main():",
-//   "\tmy_data = []",
-//   "\tfor i in range(10):",
-//   "\t\tapply_func_to_input(my_data.append, i)",
-//   "",
-//   "\tprint(my_data)",
-//   "",
-//   "main()"
-// ]
+const testGPTCode = [
+  "def apply_func_to_input(func, input):",
+  "\t# This will apply func to input",
+  "\t(lambda: func(input))()",
+  "",
+  "def main():",
+  "\tmy_data = []",
+  "\tfor i in range(10):",
+  "\t\tapply_func_to_input(my_data.append, i)",
+  "",
+  "\tprint(my_data)",
+  "",
+  "main()"
+]
 const testErrorMessage = `Traceback (most recent call last):
   File "broken.py", line 16, in <module>
     grangercausalitytests(df, maxlag=20)
@@ -151,7 +150,84 @@ export default class App extends Component {
 
   /* Event Handlers */
 
-  onCodeChange(editor, data, code) { this.setState({ code: code.split("\n") }); }
+  onCodeChange(editor, data, newCode) {
+    const { code, diffs } = this.state;
+    newCode = newCode.split("\n")
+
+    if (code.length !== newCode.length) {
+      const { from, text, to } = data;
+
+      if (from.line === to.line) { // Insertion
+        let insertLine = from.line;
+        let numLinesAdded = text.length - 1;
+
+        diffs.forEach(diff => {
+          const { oldLines, mergeLine, newLines } = diff;
+          const lastLineInDiff = newLines.at(-1);
+
+          // Insertions don't affect diffs *before* the insertLine
+          if (lastLineInDiff < insertLine) {
+            return;
+          }
+
+          if (oldLines.includes(insertLine)) { // Change occurred in old code
+            let lastOldLine = oldLines.at(-1)
+            diff.oldLines.push(...range(numLinesAdded, lastOldLine + 1));
+
+            diff.mergeLine += numLinesAdded;
+            diff.newLines = newLines.map(line => line + numLinesAdded);
+          } else if (mergeLine === insertLine || newLines.includes(insertLine)) { // Change occurred in new code
+            let lastNewLine = newLines.at(-1);
+            diff.newLines = newLines.push(...range(numLinesAdded, lastNewLine + 1))
+          } else { // Change occurred outside of diff
+            diff.oldLines = oldLines.map(line => line + numLinesAdded);
+            diff.mergeLine += numLinesAdded;
+            diff.newLines = newLines.map(line => line + numLinesAdded);
+          }
+        });
+      } else if (from.line < to.line) { // Deletion
+        let deleteLine = to.line;
+        let numLinesDeleted = to.line - from.line;
+
+        diffs.forEach(diff => {
+          const { oldLines, mergeLine, newLines } = diff;
+          const lastLineInDiff = newLines.at(-1);
+
+          // Deletions don't affect diffs *before* the deleteLine
+          if (lastLineInDiff < deleteLine) {
+            return;
+          }
+
+          if (oldLines.includes(deleteLine)) { // Change occurred in old code
+            let deleteStartIndex = oldLines.indexOf(from.line);
+            let deleteEndIndex = oldLines.indexOf(to.line);
+
+            // TODO: Delete lines in oldLines from start to end index
+            // TODO: Decrement lines following the one at end index
+
+            // let indexOfDeleteLine = oldLines.indexOf(deleteLine);
+            // diff.oldLines = oldLines.filter((line, index) => index > indexOfDeleteLine || index <= indexOfDeleteLine - numLinesDeleted).map(line => line - numLinesDeleted);
+            // diff.mergeLine -= numLinesDeleted;
+            // diff.newLines = newLines.map(line => line - numLinesDeleted);
+          } else if (mergeLine === deleteLine) {
+            // TODO: Delete the diff
+          } else if (newLines.includes(deleteLine)) { // Change occurred in new code
+            let indexOfDeleteLine = newLines.indexOf(deleteLine);
+
+            // TODO: If deletion extends to or past mergeLine, then delete the whole diff
+          } else { // Change occurred outside of diff
+            diff.oldLines = oldLines.map(line => line - numLinesDeleted);
+            diff.mergeLine -= numLinesDeleted;
+            diff.newLines = newLines.map(line => line - numLinesDeleted);
+          }
+        });
+      }
+
+      console.log(data);
+    }
+
+    this.setState({ code: newCode, diffs });
+  }
 
   onResolveDiff(diff, linesToDelete) {
     const { code, diffs } = this.state;
