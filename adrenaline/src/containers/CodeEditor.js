@@ -53,21 +53,22 @@ export default class CodeEditor extends Component {
 
 		const onUseOldCode = () => {
 			let linesToDelete = newLines;
-			linesToDelete.push(oldCodeStart);
 			linesToDelete.push(mergeLine);
 
-			onResolveDiff(diff, linesToDelete);
+			onResolveDiff(diff, linesToDelete, oldCodeStart);
 		};
 		const onUseNewCode = () => {
 			let linesToDelete = oldLines;
-			linesToDelete.push(newCodeEnd);
 			linesToDelete.push(mergeLine);
 
-			onResolveDiff(diff, linesToDelete);
+			onResolveDiff(diff, linesToDelete, newCodeEnd);
 		}
 
-		diff.oldCodeWidget = this.createWidget(oldCodeStart, true, onUseOldCode);
-		diff.newCodeWidget = this.createWidget(newCodeEnd, false, onUseNewCode);
+		const oldCodeWidgetInsertLine = oldLines.length === 0 ? mergeLine : oldCodeStart;
+		const newCodeWidgetInsertLine = newLines.length === 0 ? mergeLine : newCodeEnd;
+
+		diff.oldCodeWidget = this.createWidget(oldCodeWidgetInsertLine, true, onUseOldCode);
+		diff.newCodeWidget = this.createWidget(newCodeWidgetInsertLine, false, onUseNewCode);
 	}
 
 	deleteDiffWidgets(diff) {

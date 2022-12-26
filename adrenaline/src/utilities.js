@@ -1,6 +1,11 @@
 import * as Diff from 'diff';
 
+export const OLD_CODE_LABEL = ">>>>>>> OLD CODE";
+export const CODE_SEPARATOR = "=======";
+export const FIXED_CODE_LABEL = ">>>>>>> FIXED CODE"
+
 export const range = (size, startAt = 0) => [...Array(size).keys()].map(i => i + startAt);
+
 export const diffGPTOutput = (inputCode, gptCode) => {
   const diffResults = Diff.diffArrays(inputCode, gptCode);
 
@@ -14,13 +19,13 @@ export const diffGPTOutput = (inputCode, gptCode) => {
 
     // Assumes deletions always come before insertions
     if (diffResult.removed) {
-      mergedCode.push(">>>>>>> OLD CODE"); j += 1;
+      mergedCode.push(OLD_CODE_LABEL); j += 1;
       diff.oldLines.push(j);
 
       diff.oldLines.push(...range(numLinesChanged, j + 1));
       mergedCode.push(...diffResult.value); j += numLinesChanged;
 
-      mergedCode.push("======="); j += 1;
+      mergedCode.push(CODE_SEPARATOR); j += 1;
       diff.mergeLine = j;
 
       if (i < diffResults.length - 1 && diffResults[i + 1].added) { // Deletion with an insertion
@@ -32,7 +37,7 @@ export const diffGPTOutput = (inputCode, gptCode) => {
         i += 1;
       }
 
-      mergedCode.push(">>>>>>> NEW CODE"); j += 1;
+      mergedCode.push(FIXED_CODE_LABEL); j += 1;
       diff.newLines.push(j);
 
       diffs.push(diff);
@@ -40,15 +45,15 @@ export const diffGPTOutput = (inputCode, gptCode) => {
 
       continue;
     } else if (diffResult.added) { // Insertion with no deletion
-      mergedCode.push(">>>>>>> OLD CODE"); j += 1;
+      mergedCode.push(OLD_CODE_LABEL); j += 1;
       diff.oldLines.push(j);
 
-      mergedCode.push("======="); j += 1;
+      mergedCode.push(CODE_SEPARATOR); j += 1;
       diff.mergeLine = j;
 
       diff.newLines.push(...range(numLinesChanged + 1, j + 1));
       mergedCode.push(...diffResult.value); j += numLinesChanged;
-      mergedCode.push(">>>>>>> NEW CODE"); j += 1;
+      mergedCode.push(FIXED_CODE_LABEL); j += 1;
 
       diffs.push(diff);
       currDiffId++;

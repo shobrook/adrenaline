@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Configuration, OpenAIApi } from "openai";
 
-import { range, diffGPTOutput } from "./utilities";
+import { OLD_CODE_LABEL, FIXED_CODE_LABEL, range, diffGPTOutput } from "./utilities";
 
 import Header from "./containers/Header";
 import CodeEditor from "./containers/CodeEditor";
@@ -63,7 +63,7 @@ const DEFAULT_STATE = {
   errorMessage: "",
   diffs: [],
   errorExplanation: "",
-  apiKey: "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"
+  apiKey: ""
 };
 export default class App extends Component {
 	constructor(props) {
@@ -107,7 +107,7 @@ export default class App extends Component {
             diff.newLines = newLines.map(line => line + numLinesAdded);
           } else if (mergeLine === insertLine || newLines.includes(insertLine)) { // Change occurred in new code
             let lastNewLine = newLines.at(-1);
-            diff.newLines = newLines.push(...range(numLinesAdded, lastNewLine + 1))
+            diff.newLines.push(...range(numLinesAdded, lastNewLine + 1))
           } else { // Change occurred outside of diff
             diff.oldLines = oldLines.map(line => line + numLinesAdded);
             diff.mergeLine += numLinesAdded;
@@ -131,19 +131,44 @@ export default class App extends Component {
             let deleteStartIndex = oldLines.indexOf(from.line);
             let deleteEndIndex = oldLines.indexOf(to.line);
 
-            // TODO: Delete lines in oldLines from start to end index
-            // TODO: Decrement lines following the one at end index
+            diff.oldLines = oldLines.map((line, index) => {
+              if (index > deleteEndIndex) {
+                return line - numLinesDeleted;
+              }
 
-            // let indexOfDeleteLine = oldLines.indexOf(deleteLine);
-            // diff.oldLines = oldLines.filter((line, index) => index > indexOfDeleteLine || index <= indexOfDeleteLine - numLinesDeleted).map(line => line - numLinesDeleted);
-            // diff.mergeLine -= numLinesDeleted;
-            // diff.newLines = newLines.map(line => line - numLinesDeleted);
+              return line;
+            });
+
+            if (deleteStartIndex === -1) {
+              diff.oldLines.splice(0, deleteEndIndex + 1);
+            } else {
+              diff.oldLines.splice(deleteStartIndex + 1, deleteEndIndex - deleteStartIndex);
+            }
+
+            diff.mergeLine -= numLinesDeleted;
+            diff.newLines = newLines.map(line => line - numLinesDeleted);
           } else if (mergeLine === deleteLine) {
             // TODO: Delete the diff
+            return;
           } else if (newLines.includes(deleteLine)) { // Change occurred in new code
-            let indexOfDeleteLine = newLines.indexOf(deleteLine);
+            let deleteStartIndex = newLines.indexOf(from.line);
+            let deleteEndIndex = newLines.indexOf(to.line);
 
-            // TODO: If deletion extends to or past mergeLine, then delete the whole diff
+            diff.newLines = newLines.map((line, index) => {
+              if (index > deleteEndIndex) {
+                return line - numLinesDeleted;
+              }
+
+              return line;
+            });
+
+            if (deleteStartIndex === -1) {
+              diff.newLines.splice(0, deleteEndIndex + 1);
+            } else {
+              diff.newLines.splice(deleteStartIndex + 1, deleteEndIndex - deleteStartIndex);
+            }
+
+            // TODO: If deletion extends to or before mergeLine, delete the whole diff
           } else { // Change occurred outside of diff
             diff.oldLines = oldLines.map(line => line - numLinesDeleted);
             diff.mergeLine -= numLinesDeleted;
@@ -158,9 +183,17 @@ export default class App extends Component {
     this.setState({ code: newCode, diffs });
   }
 
-  onResolveDiff(diff, linesToDelete) {
+  onResolveDiff(diff, linesToDelete, indicatorLineNum) {
     const { code, diffs } = this.state;
     const { id: diffId, oldCodeWidget, newCodeWidget } = diff;
+
+    if (indicatorLineNum !== undefined) {
+      let line = code[indicatorLineNum];
+
+      if (line === OLD_CODE_LABEL || line === FIXED_CODE_LABEL) {
+        linesToDelete.push(indicatorLineNum);
+      }
+    }
 
     // Delete widgets from editor
     oldCodeWidget.clear();
