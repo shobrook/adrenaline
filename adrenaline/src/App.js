@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import * as Diff from 'diff';
 import { Configuration, OpenAIApi } from "openai";
+
+import { range, diffGPTOutput } from "./utilities";
 
 import Header from "./containers/Header";
 import CodeEditor from "./containers/CodeEditor";
@@ -8,72 +9,6 @@ import ErrorMessage from "./containers/ErrorMessage";
 import ErrorExplanation from "./containers/ErrorExplanation";
 
 import './App.css';
-
-// TODO: Move these into a utilities module
-const range = (size, startAt = 0) => [...Array(size).keys()].map(i => i + startAt);
-const diffGPTOutput = (inputCode, gptCode) => {
-  const diffResults = Diff.diffArrays(inputCode, gptCode);
-
-  let mergedCode = []; let diffs = [];
-  let i = 0; let j = -1;
-  let currDiffId = 0;
-  while (i < diffResults.length) {
-    let diffResult = diffResults[i];
-    let numLinesChanged = diffResult.value.length;
-    let diff = { id: currDiffId, oldLines: [], mergeLine: -1, newLines: [] }
-
-    // Assumes deletions always come before insertions
-    if (diffResult.removed) {
-      mergedCode.push(">>>>>>> OLD CODE"); j += 1;
-      diff.oldLines.push(j);
-
-      diff.oldLines.push(...range(numLinesChanged, j + 1));
-      mergedCode.push(...diffResult.value); j += numLinesChanged;
-
-      mergedCode.push("======="); j += 1;
-      diff.mergeLine = j;
-
-      if (i < diffResults.length - 1 && diffResults[i + 1].added) { // Deletion with an insertion
-        diff.newLines.push(...range(diffResults[i + 1].value.length, j + 1));
-        mergedCode.push(...diffResults[i + 1].value); j += diffResults[i + 1].value.length;
-
-        i += 2;
-      } else { // Deletion with no insertion
-        i += 1;
-      }
-
-      mergedCode.push(">>>>>>> NEW CODE"); j += 1;
-      diff.newLines.push(j);
-
-      diffs.push(diff);
-      currDiffId++;
-
-      continue;
-    } else if (diffResult.added) { // Insertion with no deletion
-      mergedCode.push(">>>>>>> OLD CODE"); j += 1;
-      diff.oldLines.push(j);
-
-      mergedCode.push("======="); j += 1;
-      diff.mergeLine = j;
-
-      diff.newLines.push(...range(numLinesChanged + 1, j + 1));
-      mergedCode.push(...diffResult.value); j += numLinesChanged;
-      mergedCode.push(">>>>>>> NEW CODE"); j += 1;
-
-      diffs.push(diff);
-      currDiffId++;
-    } else { // No deletion or insertion
-      mergedCode.push(...diffResult.value); j += numLinesChanged;
-    }
-
-    i += 1;
-  };
-
-  return {
-    diffs,
-    mergedCode,
-  };
-}
 
 // TEMP: Testing only
 const testInputCode = [
@@ -104,12 +39,6 @@ const testGPTCode = [
   "",
   "main()"
 ]
-const testErrorMessage = `Traceback (most recent call last):
-  File "broken.py", line 16, in <module>
-    grangercausalitytests(df, maxlag=20)
-  File "/Users/jshobrook/Library/Python/3.8/lib/python/site-packages/statsmodels/tsa/stattools.py", line 1532, in grangercausalitytests
-    raise InfeasibleTestError(
-statsmodels.tools.sm_exceptions.InfeasibleTestError: The Granger causality test statistic cannot be compute because the VAR has a perfect fit of the data.`;
 
 const EDIT_PROMPT_PARAMS = {
   // model: "text-davinci-edit-001",
@@ -131,10 +60,10 @@ const COMPLETION_PROMPT_PARAMS = {
 const DEFAULT_STATE = {
   language: "Python",
   code: testInputCode,
-  errorMessage: testErrorMessage,
+  errorMessage: "",
   diffs: [],
   errorExplanation: "",
-  apiKey: ""
+  apiKey: "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"
 };
 export default class App extends Component {
 	constructor(props) {
@@ -274,11 +203,12 @@ export default class App extends Component {
     // const apiConfig = new Configuration({ apiKey });
     // const api = new OpenAIApi(apiConfig);
     //
-    // let instruction = `This ${language} code throws an error.`;
-    // if (errorMessage !== "") {
-    //   instruction += `Here is the error message: ${errorMessage}.`;
-    // }
-    // instruction += "Fix it.";
+    // // let instruction = `This ${language} code throws an error.`;
+    // // if (errorMessage !== "") {
+    // //   instruction += `Here is the error message: ${errorMessage}.`;
+    // // }
+    // // instruction += "Fix it.";
+    // let instruction = `Fix this error: ${errorMessage}`;
     //
     // api
   	// 	.createEdit({

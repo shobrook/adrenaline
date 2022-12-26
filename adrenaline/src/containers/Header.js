@@ -13,8 +13,8 @@ export default class Header extends Component {
 					<img src="./logo.svg" />
 				</div>
 				<div className="buttons">
-					<Link>About</Link>
-					<Link>Contribute</Link>
+					<Link>Playground</Link>
+					<Link>View on Github</Link>
 					<Button isPrimary>Set API key</Button>
 				</div>
 			</div>
