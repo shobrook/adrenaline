@@ -42,9 +42,7 @@ const testGPTCode = [
 const testErrorExplanation = "The component also uses the split function to split the text into an array of words, and then uses the slice function to select a subset of the array up to the currentWordIndex. It then uses the join function to join this subset of words back into a single string of text, which is then rendered using the div element.";
 
 const EDIT_PROMPT_PARAMS = {
-  // model: "text-davinci-edit-001",
-  model: "code-davinci-edit-001",
-  // stop: ["\n\n\n"],
+  model: "code-davinci-edit-001"
 };
 const COMPLETION_PROMPT_PARAMS = {
   model: "text-davinci-003",
@@ -55,15 +53,14 @@ const COMPLETION_PROMPT_PARAMS = {
   frequency_penalty: 0,
   best_of: 1,
   n: 1,
-  stream: false,
-  // stop: ["\n\n\n"],
+  stream: false
 };
 const DEFAULT_STATE = {
-  language: "Python",
+  language: "python",
   code: testInputCode,
   errorMessage: "",
   diffs: [],
-  errorExplanation: testErrorExplanation,
+  errorExplanation: "", // testErrorExplanation,
   apiKey: "",
   waitingForAPI: false
 };
@@ -233,7 +230,7 @@ export default class App extends Component {
     let gptCode = testGPTCode;
     let { mergedCode, diffs } = diffGPTOutput(code, gptCode);
 
-    this.setState({ code: mergedCode, diffs, errorMessage });
+    this.setState({ code: mergedCode, diffs, errorMessage, errorExplanation: testErrorExplanation });
 
     // const apiConfig = new Configuration({ apiKey });
     // const api = new OpenAIApi(apiConfig);
@@ -251,7 +248,7 @@ export default class App extends Component {
   	//   })
   	//   .then(data => {
     //     let inputCode = code.join("\n").trim().split("\n");
-  	// 		let gptCode = data.data.choices[0].text.trim().split("\n");
+  	// 		let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
     //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
     //
     //     if (errorMessage !== "") {
@@ -259,8 +256,6 @@ export default class App extends Component {
     //       api
     //         .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
     //         .then(data => {
-    //           console.log(data);
-    //
     //           let errorExplanation = data.data.choices[0].text;
     //           this.setState({
     //             waitingForAPI: false,

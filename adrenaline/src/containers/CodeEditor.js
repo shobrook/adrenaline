@@ -155,7 +155,7 @@ export default class CodeEditor extends Component {
 					className="codeEditor"
 				  value={code.join("\n")}
 				  options={{
-						mode: language.toLowerCase(),
+						mode: language,
 						theme: "dracula",
 				    lineNumbers: true
 				  }}

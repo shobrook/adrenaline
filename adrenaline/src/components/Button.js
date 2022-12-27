@@ -11,7 +11,7 @@ export default class Button extends Component {
 		return (
 			<div
 				className={`${className} ${isPrimary ? "primaryButton" : "secondaryButton"}`}
-				onClick={onClick}
+				onClick={() => isLoading ? null : onClick()}
 			>
 				{isLoading ? (<Spinner />) : children}
 			</div>
