@@ -39,6 +39,7 @@ const testGPTCode = [
   "",
   "main()"
 ]
+const testErrorExplanation = "The component also uses the split function to split the text into an array of words, and then uses the slice function to select a subset of the array up to the currentWordIndex. It then uses the join function to join this subset of words back into a single string of text, which is then rendered using the div element.";
 
 const EDIT_PROMPT_PARAMS = {
   // model: "text-davinci-edit-001",
@@ -62,8 +63,9 @@ const DEFAULT_STATE = {
   code: testInputCode,
   errorMessage: "",
   diffs: [],
-  errorExplanation: "",
-  apiKey: ""
+  errorExplanation: testErrorExplanation,
+  apiKey: "",
+  waitingForAPI: false
 };
 export default class App extends Component {
 	constructor(props) {
@@ -176,8 +178,6 @@ export default class App extends Component {
           }
         });
       }
-
-      console.log(data);
     }
 
     this.setState({ code: newCode, diffs });
@@ -226,6 +226,8 @@ export default class App extends Component {
   }
 
   onDebug(errorMessage) {
+    this.setState({ waitingForAPI: true });
+
     const { code, language, apiKey } = this.state;
 
     let gptCode = testGPTCode;
@@ -260,11 +262,22 @@ export default class App extends Component {
     //           console.log(data);
     //
     //           let errorExplanation = data.data.choices[0].text;
-    //           this.setState({ code: mergedCode, diffs, errorMessage, errorExplanation });
+    //           this.setState({
+    //             waitingForAPI: false,
+    //             code: mergedCode,
+    //             diffs,
+    //             errorMessage,
+    //             errorExplanation
+    //           });
     //         }).
     //         catch(error => console.log(error.response));
     //     } else {
-    //       this.setState({ code: mergedCode, diffs, errorMessage });
+    //       this.setState({
+    //         waitingForAPI: false,
+    //         code: mergedCode,
+    //         diffs,
+    //         errorMessage
+    //       });
     //     }
   	// 	})
   	// 	.catch(error => console.log(error.response));
@@ -273,7 +286,7 @@ export default class App extends Component {
   onSelectLanguage(event) { this.setState({ language: event.target.value }); }
 
 	render() {
-    const { language, code, diffs, errorExplanation } = this.state;
+    const { language, code, diffs, errorExplanation, waitingForAPI } = this.state;
 
     return (
       <div className="app">
@@ -288,7 +301,7 @@ export default class App extends Component {
               language={language}
               onSelectLanguage={this.onSelectLanguage}
             />
-            <ErrorMessage onDebug={this.onDebug} />
+            <ErrorMessage onDebug={this.onDebug} isLoading={waitingForAPI} />
           </div>
           <ErrorExplanation errorExplanation={errorExplanation} />
         </div>

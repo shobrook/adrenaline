@@ -10,6 +10,7 @@
   background-color: #202030;
   border-top: 4px solid #D93CFF;
   padding-top: 2px;
+  min-height: 60px;
 }
 
 .header .logo {

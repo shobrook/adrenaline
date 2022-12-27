@@ -15,6 +15,7 @@
   display: flex;
   flex-direction: row;
   height: calc(100% - 60px);
+  overflow: auto;
 }
 
 .app .body .lhs {

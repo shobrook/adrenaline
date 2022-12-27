@@ -18,7 +18,7 @@
 
 .debugButton {
   background-color: #D93CFF;
-  width: fit-content;
+  width: 45px;
 }
 
 .errorMessageInput {

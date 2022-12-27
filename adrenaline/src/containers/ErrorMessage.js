@@ -15,7 +15,7 @@ export default class ErrorMessage extends Component {
 
 	render() {
 		const { value } = this.state;
-    const { onDebug } = this.props;
+    const { onDebug, isLoading } = this.props;
 
     return (
       <div className="errorMessage">
@@ -25,6 +25,7 @@ export default class ErrorMessage extends Component {
 						className="debugButton"
 						onClick={() => onDebug(value)}
 						isPrimary
+						isLoading={isLoading}
 					>
 						Fix it
 					</Button>
