@@ -1,23 +1,29 @@
-import React, { Component, Fragment } from "react";
-
-import Button from "../components/Button";
+import React, { useState, useEffect } from 'react';
 
 import "./ErrorExplanation.css";
 
-export default class ErrorExplanation extends Component {
-	render() {
-    const { errorExplanation, onDebug } = this.props;
+export default function ErrorExplanation({ errorExplanation, delay=50 }) {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
-    return (
-      <div className="errorExplanation">
-        <div className="errorExplanationHeader">
-          <span>Error Explanation</span>
-					<p>{
-						errorExplanation === "" ?
-						"Click \"Fix it\" to debug and explain your error." : errorExplanation
-					}</p>
-        </div>
-      </div>
-    );
-	}
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentWordIndex(currentWordIndex + 1);
+    }, delay);
+    return () => clearInterval(interval);
+  }, [currentWordIndex, delay]);
+
+  const words = errorExplanation.split(' ');
+  const currentText = words.slice(0, currentWordIndex).join(' ');
+
+  return (
+		<div className="errorExplanation">
+			<div className="errorExplanationHeader">
+				<span>Error Explanation</span>
+				<p>{
+					currentText === "" ?
+					"Click \"Fix it\" to debug and explain your error." : currentText
+				}</p>
+			</div>
+		</div>
+	)
 }
