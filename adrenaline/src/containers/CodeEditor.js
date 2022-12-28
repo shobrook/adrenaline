@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Controlled as CodeMirror } from 'react-codemirror2';
 
 import Dropdown from "../components/Dropdown";
+import Button from "../components/Button";
 
 import "./CodeEditor.css";
 import 'codemirror/lib/codemirror.css';
@@ -142,15 +143,32 @@ export default class CodeEditor extends Component {
 	}
 
 	render() {
-		const { language, code, onChange, onSelectLanguage } = this.props;
+		const {
+			language,
+			code,
+			onChange,
+			onSelectLanguage,
+			isLoading,
+			onLint
+		} = this.props;
 
 		return (
 			<div className="codeEditorContainer">
-				<Dropdown
-					className="languageDropdown"
-					value={language}
-					onSelect={onSelectLanguage}
-				/>
+				<div className="codeEditorHeader">
+					<Dropdown
+						className="languageDropdown"
+						value={language}
+						onSelect={onSelectLanguage}
+					/>
+					<Button
+						className="lintButton"
+						onClick={onLint}
+						isLoading={isLoading}
+						isPrimary
+					>
+						Lint
+					</Button>
+				</div>
 				<CodeMirror
 					className="codeEditor"
 				  value={code.join("\n")}

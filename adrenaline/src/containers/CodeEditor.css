@@ -1,4 +1,6 @@
 .codeEditorContainer {
+  display: flex;
+  flex-direction: column;
   height: 66%;
   overflow: auto;
   padding-left: 11px;
@@ -8,12 +10,27 @@
   border-bottom: 2px solid #54546A; /* #4E4881 */
 }
 
-.languageDropdown {
-  padding-top: 20px;
+.codeEditorHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   padding-left: 18px;
+  padding-top: 20px;
+  justify-content: space-between;
+}
+
+.languageDropdown {
   font-weight: 500;
   font-family: "Helvetica Neue" !important;
   font-size: 16px;
+}
+
+.lintButton {
+  font-weight: 500;
+  font-family: "Helvetica Neue" !important;
+  font-size: 16px;
+  background-color: #279AF1;
+  width: 45px;
 }
 
 .codeEditor {

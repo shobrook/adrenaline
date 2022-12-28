@@ -60,9 +60,10 @@ const DEFAULT_STATE = {
   code: testInputCode,
   errorMessage: "",
   diffs: [],
-  errorExplanation: "", // testErrorExplanation,
+  errorExplanation: "",
   apiKey: "",
-  waitingForAPI: false
+  waitingForCodeFix: false,
+  waitingForCodeLint: false
 };
 export default class App extends Component {
 	constructor(props) {
@@ -71,6 +72,7 @@ export default class App extends Component {
     this.onCodeChange = this.onCodeChange.bind(this);
     this.onResolveDiff = this.onResolveDiff.bind(this);
     this.onDebug = this.onDebug.bind(this);
+    this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
 
 		this.state = DEFAULT_STATE;
@@ -223,7 +225,7 @@ export default class App extends Component {
   }
 
   onDebug(errorMessage) {
-    this.setState({ waitingForAPI: true });
+    this.setState({ waitingForCodeFix: true });
 
     const { code, language, apiKey } = this.state;
 
@@ -258,7 +260,7 @@ export default class App extends Component {
     //         .then(data => {
     //           let errorExplanation = data.data.choices[0].text;
     //           this.setState({
-    //             waitingForAPI: false,
+    //             waitingForCodeFix: false,
     //             code: mergedCode,
     //             diffs,
     //             errorMessage,
@@ -268,7 +270,7 @@ export default class App extends Component {
     //         catch(error => console.log(error.response));
     //     } else {
     //       this.setState({
-    //         waitingForAPI: false,
+    //         waitingForCodeFix: false,
     //         code: mergedCode,
     //         diffs,
     //         errorMessage
@@ -278,10 +280,47 @@ export default class App extends Component {
   	// 	.catch(error => console.log(error.response));
   };
 
+  onLint() {
+    this.setState({ waitingForCodeLint: true });
+
+    const { code, language, apiKey } = this.state;
+
+    const apiConfig = new Configuration({ apiKey });
+    const api = new OpenAIApi(apiConfig);
+
+    let instruction = `Identify and fix all bugs in this ${language} code.`;
+
+    api
+      .createEdit({
+        ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
+      })
+      .then(data => {
+        let inputCode = code.join("\n").trim().split("\n");
+        let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
+        let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+
+        this.setState({
+          waitingForCodeLint: false,
+          code: mergedCode,
+          diffs
+        });
+      })
+      .catch(error => {
+        this.setState({ waitingForCodeLint: false });
+      });
+  }
+
   onSelectLanguage(event) { this.setState({ language: event.target.value }); }
 
 	render() {
-    const { language, code, diffs, errorExplanation, waitingForAPI } = this.state;
+    const {
+      language,
+      code,
+      diffs,
+      errorExplanation,
+      waitingForCodeFix,
+      waitingForCodeLint
+    } = this.state;
 
     return (
       <div className="app">
@@ -295,8 +334,10 @@ export default class App extends Component {
               onChange={this.onCodeChange}
               language={language}
               onSelectLanguage={this.onSelectLanguage}
+              isLoading={waitingForCodeLint}
+              onLint={this.onLint}
             />
-            <ErrorMessage onDebug={this.onDebug} isLoading={waitingForAPI} />
+            <ErrorMessage onDebug={this.onDebug} isLoading={waitingForCodeFix} />
           </div>
           <ErrorExplanation errorExplanation={errorExplanation} />
         </div>

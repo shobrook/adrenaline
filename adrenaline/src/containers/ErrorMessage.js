@@ -27,7 +27,7 @@ export default class ErrorMessage extends Component {
 						isPrimary
 						isLoading={isLoading}
 					>
-						Fix it
+						Debug
 					</Button>
         </div>
 				<textarea
