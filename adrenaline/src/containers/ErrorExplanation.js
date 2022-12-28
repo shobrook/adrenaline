@@ -1,29 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 
 import "./ErrorExplanation.css";
 
-export default function ErrorExplanation({ errorExplanation, delay=50 }) {
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+export default class ErrorExplanation extends Component {
+	constructor(props) {
+		super(props);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWordIndex(currentWordIndex + 1);
-    }, delay);
-    return () => clearInterval(interval);
-  }, [currentWordIndex, delay]);
+		this.state = { currentWordIndex: 0 };
+	}
 
-  const words = errorExplanation.split(' ');
-  const currentText = words.slice(0, currentWordIndex).join(' ');
+	isErrorExplanationEmpty = () => {
+		const { errorExplanation } = this.props;
+		return errorExplanation === "";
+	}
 
-  return (
-		<div className="errorExplanation">
-			<div className="errorExplanationHeader">
-				<span>Error Explanation</span>
-				<p>{
-					currentText === "" ?
-					"Click \"Fix it\" to debug and explain your error." : currentText
-				}</p>
+	isErrorExplanationFullyRendered = () => {
+		const { errorExplanation } = this.props;
+		const { currentWordIndex } = this.state;
+
+		return currentWordIndex >= errorExplanation.split(" ").length;
+	}
+
+	componentDidMount() {
+		const delay = 75;
+		this.interval = setInterval(() => {
+ 			if (this.isErrorExplanationEmpty()){
+				return;
+			}
+
+			this.setState(prevState => ({ currentWordIndex: prevState.currentWordIndex + 1 }));
+		}, delay);
+	}
+
+	componentDidUpdate() {
+		const { errorExplanation } = this.props;
+		const { currentWordIndex } = this.state;
+
+		if (!this.isErrorExplanationEmpty() && this.isErrorExplanationFullyRendered()) {
+			clearInterval(this.interval);
+		}
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.interval);
+	}
+
+	render() {
+		const { errorExplanation } = this.props;
+		const { currentWordIndex } = this.state;
+
+		const words = errorExplanation.split(' ');
+	  const currentText = words.slice(0, currentWordIndex).join(' ');
+
+	  return (
+			<div className="errorExplanation">
+				<div className="errorExplanationHeader">
+					<span>Error Explanation</span>
+					<p>{
+						errorExplanation === "" ?
+						"Click \"Fix it\" to debug and explain your error." : currentText
+					}</p>
+				</div>
 			</div>
-		</div>
-	)
+		);
+	}
 }
