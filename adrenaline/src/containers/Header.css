@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 60px;
+  height: 55px;
   padding-left: 30px;
   padding-right: 30px;
   justify-content: space-between;
@@ -10,7 +10,7 @@
   background-color: #202030;
   border-top: 4px solid #D93CFF;
   padding-top: 2px;
-  min-height: 60px;
+  min-height: 55px;
 }
 
 .header .logo {

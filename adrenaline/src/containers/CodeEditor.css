@@ -17,6 +17,7 @@
   padding-left: 18px;
   padding-top: 20px;
   justify-content: space-between;
+  height: 35px;
 }
 
 .languageDropdown__control {
@@ -24,6 +25,8 @@
   border-color: #9B9BA8 !important;
   border-radius: 5px !important;
   border-width: 2px !important;
+  min-height: 35px !important;
+  height: 35px !important;
 }
 
 .languageDropdown__single-value {
@@ -31,11 +34,18 @@
   font-family: "Helvetica Neue";
   font-size: 16px;
   font-weight: 500;
+  margin-top: -5px !important;
+}
+
+.languageDropdown__indicators {
+  margin-top: -2px !important;
 }
 
 .languageDropdown__indicator-separator {
   background-color: #9B9BA8 !important;
   width: 2px !important;
+  margin-top: 11px !important;
+  margin-bottom: 11px !important;
 }
 
 .languageDropdown__dropdown-indicator {

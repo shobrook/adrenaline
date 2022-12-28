@@ -14,7 +14,7 @@
 .app .body {
   display: flex;
   flex-direction: row;
-  height: calc(100% - 60px);
+  height: calc(100% - 55px);
   overflow: auto;
 }
 
