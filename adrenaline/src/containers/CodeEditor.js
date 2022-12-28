@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Controlled as CodeMirror } from 'react-codemirror2';
+import Select from 'react-select';
 
-import Dropdown from "../components/Dropdown";
 import Button from "../components/Button";
 
 import "./CodeEditor.css";
@@ -11,6 +11,31 @@ import "./theme.css"; // TODO: Move to CodeEditor.css
 require('codemirror/mode/python/python');
 require('codemirror/mode/javascript/javascript');
 require('codemirror/mode/clike/clike');
+
+const LANGUAGES = [
+	{label: "Python", value: "python"},
+	{label: "JavaScript", value: "javascript"},
+	{label: "Java", value: "clike"},
+	{label: "Ruby", value: "ruby"},
+	{label: "PHP", value: "php"},
+	{label: "C++", value: "clike"},
+	{label: "C", value: "clike"},
+	{label: "Shell", value: "shell"},
+	{label: "C#", value: "clike"},
+	{label: "Objective-C", value: "clike"},
+	{label: "R", value: "r"},
+	{label: "Go", value: "go"},
+	{label: "Perl", value: "perl"},
+	{label: "CoffeeScript", value: "coffeescript"},
+	{label: "Scala", value: "clike"},
+	{label: "Haskell", value: "haskell"},
+	{label: "HTML", value: "htmlmixed"},
+	{label: "CSS", value: "css"},
+	{label: "Kotlin", value: "clike"},
+	{label: "Rust", value: "rust"},
+	{label: "SQL", value: "sql"},
+	{label: "Swift", value: "swift"}
+];
 
 export default class CodeEditor extends Component {
 	constructor(props) {
@@ -155,10 +180,30 @@ export default class CodeEditor extends Component {
 		return (
 			<div className="codeEditorContainer">
 				<div className="codeEditorHeader">
-					<Dropdown
-						className="languageDropdown"
-						value={language}
-						onSelect={onSelectLanguage}
+					<Select
+						classNamePrefix="languageDropdown"
+						isClearable={false}
+						options={LANGUAGES}
+						defaultValue={language}
+						styles={{
+							control: (provided, state) => ({
+								...provided,
+								boxShadow: "none",
+								cursor: "pointer"
+							}),
+				      menu: (provided, state) => ({
+				        ...provided,
+				        backgroundColor: "#202030"
+				      }),
+							option: (provided, state) => ({
+								...provided,
+								fontFamily: "Helvetica Neue",
+								fontSize: "16px",
+								fontWeight: "500",
+								backgroundColor: state.isFocused ? "#279AF1" : "transparent",
+								cursor: "pointer"
+							})
+				    }}
 					/>
 					<Button
 						className="lintButton"
@@ -173,7 +218,7 @@ export default class CodeEditor extends Component {
 					className="codeEditor"
 				  value={code.join("\n")}
 				  options={{
-						mode: language,
+						mode: language.value,
 						theme: "dracula",
 				    lineNumbers: true
 				  }}

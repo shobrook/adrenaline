@@ -19,11 +19,36 @@
   justify-content: space-between;
 }
 
-.languageDropdown {
-  font-weight: 500;
-  font-family: "Helvetica Neue" !important;
-  font-size: 16px;
+.languageDropdown__control {
+  background-color: transparent !important;
+  border-color: #9B9BA8 !important;
+  border-radius: 5px !important;
+  border-width: 2px !important;
 }
+
+.languageDropdown__single-value {
+  color: white !important;
+  font-family: "Helvetica Neue";
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.languageDropdown__indicator-separator {
+  background-color: #9B9BA8 !important;
+  width: 2px !important;
+}
+
+.languageDropdown__dropdown-indicator {
+  color: #9B9BA8 !important;
+}
+
+/* .languageDropdown {
+  font-weight: 500 !important;
+  font-family: "Helvetica Neue" !important;
+  font-size: 16px !important;
+  color: white !important;
+  background: none !important;
+} */
 
 .lintButton {
   font-weight: 500;

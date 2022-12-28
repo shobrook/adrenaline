@@ -55,16 +55,7 @@ const COMPLETION_PROMPT_PARAMS = {
   n: 1,
   stream: false
 };
-const DEFAULT_STATE = {
-  language: "python",
-  code: testInputCode,
-  errorMessage: "",
-  diffs: [],
-  errorExplanation: "",
-  apiKey: "",
-  waitingForCodeFix: false,
-  waitingForCodeLint: false
-};
+
 export default class App extends Component {
 	constructor(props) {
 		super(props);
@@ -75,7 +66,16 @@ export default class App extends Component {
     this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
 
-		this.state = DEFAULT_STATE;
+		this.state = {
+      language: {label: "Python", value: "python"},
+      code: testInputCode,
+      errorMessage: "",
+      diffs: [],
+      errorExplanation: "",
+      apiKey: "",
+      waitingForCodeFix: false,
+      waitingForCodeLint: false
+    };
 	}
 
   /* Event Handlers */
@@ -237,7 +237,7 @@ export default class App extends Component {
     // const apiConfig = new Configuration({ apiKey });
     // const api = new OpenAIApi(apiConfig);
     //
-    // // let instruction = `This ${language} code throws an error.`;
+    // // let instruction = `This ${language.label} code throws an error.`;
     // // if (errorMessage !== "") {
     // //   instruction += `Here is the error message: ${errorMessage}.`;
     // // }
@@ -288,7 +288,7 @@ export default class App extends Component {
     const apiConfig = new Configuration({ apiKey });
     const api = new OpenAIApi(apiConfig);
 
-    let instruction = `Identify and fix all bugs in this ${language} code.`;
+    let instruction = `Identify and fix all bugs in this ${language.label} code.`;
 
     api
       .createEdit({
