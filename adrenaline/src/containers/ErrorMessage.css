@@ -41,3 +41,7 @@
   font-family: Monaco;
   font-size: 14px;
 }
+
+.errorMessageInput:placeholder {
+  color: #D4D4D9;
+}

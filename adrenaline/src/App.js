@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Configuration, OpenAIApi } from "openai";
 
 import { OLD_CODE_LABEL, FIXED_CODE_LABEL, range, diffGPTOutput } from "./utilities";
 
+import Popup from "./components/Popup";
 import Header from "./containers/Header";
 import CodeEditor from "./containers/CodeEditor";
 import ErrorMessage from "./containers/ErrorMessage";
@@ -19,7 +20,6 @@ const testInputCode = [
   "\tmy_data = []",
   "\tfor i in range(10):",
   "\t\tapply_func_to_input(my_data.add, i)",
-  "\t\tYOOOOO",
   "",
   "\tprint(my_data)",
   "",
@@ -65,6 +65,10 @@ export default class App extends Component {
     this.onDebug = this.onDebug.bind(this);
     this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
+    this.onOpenPopup = this.onOpenPopup.bind(this);
+    this.onSetAPIKey = this.onSetAPIKey.bind(this);
+    this.onClosePopup = this.onClosePopup.bind(this);
+    this.onSetPopupRef = this.onSetPopupRef.bind(this);
 
 		this.state = {
       language: {label: "Python", value: "python"},
@@ -74,9 +78,24 @@ export default class App extends Component {
       errorExplanation: "",
       apiKey: "",
       waitingForCodeFix: false,
-      waitingForCodeLint: false
+      waitingForCodeLint: false,
+      askForAPIKey: false
     };
+
+    const apiKey = localStorage.getItem("openAiApiKey");
+    if (apiKey) {
+      this.state.apiKey = JSON.parse(apiKey);
+    }
 	}
+
+  componentDidUpdate(prevProps, prevState) {
+    const { prevApiKey } = prevState;
+    const { apiKey } = this.state;
+
+    if (prevApiKey !== apiKey) {
+      localStorage.setItem("openAiApiKey", JSON.stringify(apiKey));
+    }
+  }
 
   /* Event Handlers */
 
@@ -84,6 +103,7 @@ export default class App extends Component {
     const { code, diffs } = this.state;
     newCode = newCode.split("\n")
 
+    // Lines were either inserted or deleted, requiring an update in diff indexing
     if (code.length !== newCode.length) {
       const { from, text, to } = data;
 
@@ -225,65 +245,65 @@ export default class App extends Component {
   }
 
   onDebug(errorMessage) {
-    this.setState({ waitingForCodeFix: true });
-
     const { code, language, apiKey } = this.state;
 
-    let gptCode = testGPTCode;
-    let { mergedCode, diffs } = diffGPTOutput(code, gptCode);
+    if (apiKey === "") {
+      this.setState({ askForAPIKey: true });
+      return;
+    } else {
+      this.setState({ waitingForCodeFix: true });
+    }
 
-    this.setState({ code: mergedCode, diffs, errorMessage, errorExplanation: testErrorExplanation });
+    const apiConfig = new Configuration({ apiKey });
+    const api = new OpenAIApi(apiConfig);
 
-    // const apiConfig = new Configuration({ apiKey });
-    // const api = new OpenAIApi(apiConfig);
-    //
-    // // let instruction = `This ${language.label} code throws an error.`;
-    // // if (errorMessage !== "") {
-    // //   instruction += `Here is the error message: ${errorMessage}.`;
-    // // }
-    // // instruction += "Fix it.";
-    // let instruction = `Fix this error: ${errorMessage}`;
-    //
-    // api
-  	// 	.createEdit({
-  	//     ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
-  	//   })
-  	//   .then(data => {
-    //     let inputCode = code.join("\n").trim().split("\n");
-  	// 		let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
-    //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
-    //
-    //     if (errorMessage !== "") {
-    //       let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
-    //       api
-    //         .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
-    //         .then(data => {
-    //           let errorExplanation = data.data.choices[0].text;
-    //           this.setState({
-    //             waitingForCodeFix: false,
-    //             code: mergedCode,
-    //             diffs,
-    //             errorMessage,
-    //             errorExplanation
-    //           });
-    //         }).
-    //         catch(error => console.log(error.response));
-    //     } else {
-    //       this.setState({
-    //         waitingForCodeFix: false,
-    //         code: mergedCode,
-    //         diffs,
-    //         errorMessage
-    //       });
-    //     }
-  	// 	})
-  	// 	.catch(error => console.log(error.response));
+    let instruction = `Fix this error: ${errorMessage}`;
+
+    api
+  		.createEdit({
+  	    ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
+  	  })
+  	  .then(data => {
+        let inputCode = code.join("\n").trim().split("\n");
+  			let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
+        let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+
+        if (errorMessage !== "") {
+          let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+          api
+            .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
+            .then(data => {
+              let errorExplanation = data.data.choices[0].text;
+              this.setState({
+                waitingForCodeFix: false,
+                code: mergedCode,
+                diffs,
+                errorMessage,
+                errorExplanation
+              });
+            }).
+            catch(error => console.log(error.response));
+        } else {
+          this.setState({
+            waitingForCodeFix: false,
+            code: mergedCode,
+            diffs,
+            errorMessage
+          });
+        }
+  		})
+  		.catch(error => console.log(error.response));
   };
 
   onLint() {
-    this.setState({ waitingForCodeLint: true });
-
     const { code, language, apiKey } = this.state;
+
+    if (apiKey === "") {
+      this.setState({ askForAPIKey: true });
+      return;
+    } else {
+      this.setState({ waitingForCodeLint: true });
+    }
 
     const apiConfig = new Configuration({ apiKey });
     const api = new OpenAIApi(apiConfig);
@@ -312,6 +332,20 @@ export default class App extends Component {
 
   onSelectLanguage(event) { this.setState({ language: event.target.value }); }
 
+  onOpenPopup() { this.setState({ askForAPIKey: true }); }
+
+  onSetAPIKey(apiKey) { this.setState({ apiKey, askForAPIKey: false }); }
+
+  onClosePopup(event) {
+    if (this.popupRef && this.popupRef.contains(event.target)) {
+      return;
+    }
+
+    this.setState({ askForAPIKey: false });
+  }
+
+  onSetPopupRef(ref) { this.popupRef = ref; }
+
 	render() {
     const {
       language,
@@ -319,29 +353,41 @@ export default class App extends Component {
       diffs,
       errorExplanation,
       waitingForCodeFix,
-      waitingForCodeLint
+      waitingForCodeLint,
+      askForAPIKey,
+      apiKey
     } = this.state;
 
     return (
-      <div className="app">
-        <Header />
-        <div className="body">
-          <div className="lhs">
-            <CodeEditor
-              code={code}
-              diffs={diffs}
-              onResolveDiff={this.onResolveDiff}
-              onChange={this.onCodeChange}
-              language={language}
-              onSelectLanguage={this.onSelectLanguage}
-              isLoading={waitingForCodeLint}
-              onLint={this.onLint}
+      <Fragment>
+        {askForAPIKey ? (
+          <div className="popupLayer" onClick={this.onClosePopup}>
+            <Popup
+              onSubmit={this.onSetAPIKey}
+              setRef={this.onSetPopupRef}
             />
-            <ErrorMessage onDebug={this.onDebug} isLoading={waitingForCodeFix} />
           </div>
-          <ErrorExplanation errorExplanation={errorExplanation} />
+        ) : null}
+        <div className="app">
+          <Header onClick={this.onOpenPopup} />
+          <div className="body">
+            <div className="lhs">
+              <CodeEditor
+                code={code}
+                diffs={diffs}
+                onResolveDiff={this.onResolveDiff}
+                onChange={this.onCodeChange}
+                language={language}
+                onSelectLanguage={this.onSelectLanguage}
+                isLoading={waitingForCodeLint}
+                onLint={this.onLint}
+              />
+              <ErrorMessage onDebug={this.onDebug} isLoading={waitingForCodeFix} />
+            </div>
+            <ErrorExplanation errorExplanation={errorExplanation} />
+          </div>
         </div>
-      </div>
+      </Fragment>
     );
 	}
 }

@@ -7,6 +7,8 @@ import "./Header.css";
 
 export default class Header extends Component {
 	render() {
+		const { onClick } = this.props;
+
     return (
       <div className="header">
 				<div className="logo">
@@ -15,7 +17,7 @@ export default class Header extends Component {
 				<div className="buttons">
 					<Link>Playground</Link>
 					<Link>View on Github</Link>
-					<Button isPrimary>Set API key</Button>
+					<Button isPrimary onClick={onClick}>Set API key</Button>
 				</div>
 			</div>
     );

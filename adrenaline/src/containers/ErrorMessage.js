@@ -35,7 +35,7 @@ export default class ErrorMessage extends Component {
 					ref={ref => this.input = ref}
 					value={value}
 					onChange={this.onChange}
-					placeholder="Paste your error message here"
+					placeholder="Describe your error in simple terms. Or paste an error message / stack trace."
 				/>
       </div>
     );
