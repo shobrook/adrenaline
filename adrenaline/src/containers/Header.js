@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
+import { Link } from "react-router-dom";
 
-import Link from "../components/Link";
+// import Link from "../components/Link";
 import Button from "../components/Button";
 
 import "./Header.css";
@@ -12,11 +13,13 @@ export default class Header extends Component {
     return (
       <div className="header">
 				<div className="logo">
-					<img src="./logo.svg" />
+					<Link to="/">
+						<img src="./logo.svg" />
+					</Link>
 				</div>
 				<div className="buttons">
-					<Link>Playground</Link>
-					<Link>View on Github</Link>
+					<Link to="/playground">Playground</Link>
+					<a href="https://github.com/shobrook/adrenaline/" target="_blank">View on Github</a>
 					<Button isPrimary onClick={onClick}>Set API key</Button>
 				</div>
 			</div>

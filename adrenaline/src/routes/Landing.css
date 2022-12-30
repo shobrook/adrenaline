@@ -1,0 +1,48 @@
+.landing {
+  position: absolute;
+  background-color: #373751;
+  height: 100%;
+  width: 100%;
+}
+
+.landingLHS {
+  padding-left: 60px;
+  padding-top: 125px;
+}
+
+.landingHeading {
+  width: 48%;
+}
+
+.landingTitle {
+  color: white;
+  font-size: 52px;
+  font-weight: 900;
+}
+
+.landingSubtitle {
+  color: rgba(255, 255, 255, 0.65);
+  font-family: "Helvetica Neue";
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.ctaButtons {
+  display: flex;
+  flex-direction: row;
+  width: fit-content;
+  padding-top: 15px;
+}
+
+.ctaButtons a {
+  text-decoration: none;
+}
+
+.getStartedButton {
+  color: white;
+}
+
+.githubButton {
+  background-color: white;
+  margin-left: 15px;
+}

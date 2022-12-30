@@ -1,18 +1,26 @@
 import React from 'react';
-// import ReactDOM from 'react-dom/client';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-// const root = ReactDOM.createRoot(document.getElementById('root'));
-// root.render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>
-// );
+import './index.css';
+
+import Landing from "./routes/Landing";
+import App from "./routes/App";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Landing />
+  },
+  {
+    path: "/playground",
+    element: <App />
+  }
+]);
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );

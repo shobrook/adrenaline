@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { Configuration, OpenAIApi } from "openai";
 
-import { OLD_CODE_LABEL, FIXED_CODE_LABEL, range, diffGPTOutput } from "./utilities";
+import { OLD_CODE_LABEL, FIXED_CODE_LABEL, range, diffGPTOutput } from "../utilities";
 
-import Popup from "./components/Popup";
-import Header from "./containers/Header";
-import CodeEditor from "./containers/CodeEditor";
-import ErrorMessage from "./containers/ErrorMessage";
-import ErrorExplanation from "./containers/ErrorExplanation";
+import Popup from "../components/Popup";
+import Header from "../containers/Header";
+import CodeEditor from "../containers/CodeEditor";
+import ErrorMessage from "../containers/ErrorMessage";
+import ErrorExplanation from "../containers/ErrorExplanation";
 
 import './App.css';
 
