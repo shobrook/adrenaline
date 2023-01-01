@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "Gilroy";
+  src: url("../styles/fonts/Gilroy-ExtraBold.otf") format("opentype");
+}
+
 .landing {
   position: absolute;
   background-color: #373751;
@@ -6,18 +11,27 @@
 }
 
 .landingLHS {
+  margin-top: -80px;
+}
+
+.landingBody {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   padding-left: 60px;
   padding-top: 125px;
 }
 
 .landingHeading {
-  width: 48%;
+  width: 650px;
 }
 
 .landingTitle {
   color: white;
   font-size: 52px;
   font-weight: 900;
+  font-family: "Gilroy";
 }
 
 .landingSubtitle {
@@ -32,6 +46,7 @@
   flex-direction: row;
   width: fit-content;
   padding-top: 15px;
+  font-weight: 600;
 }
 
 .ctaButtons a {
@@ -40,9 +55,15 @@
 
 .getStartedButton {
   color: white;
+  height: 45px;
 }
 
 .githubButton {
-  background-color: white;
+  height: 45px !important;
+  /* background-color: white; */
   margin-left: 15px;
+}
+
+.demoImage {
+  width: 600px;
 }

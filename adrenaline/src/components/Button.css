@@ -21,7 +21,17 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  background-color: transparent;
+  border: solid 2px rgba(255, 255, 255, 0.25);
+  border-radius: 5px;
   cursor: pointer;
-  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 35px;
+  color: white;
+  box-sizing: border-box;
+}
+
+.secondaryButton:hover {
+  border: solid 2px rgba(255, 255, 255, 1.0);
 }

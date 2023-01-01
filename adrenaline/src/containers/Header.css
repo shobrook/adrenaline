@@ -24,9 +24,10 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  font-weight: 600;
 }
 
-.header .buttons a {
+.header .buttons > a {
   text-decoration: none;
   color: white;
   font-family: "Helvetica Neue";
@@ -36,6 +37,19 @@
   cursor: pointer;
 }
 
-.header .buttons a:hover {
+.header .buttons .headerGithubButton a {
+  padding-right: 0px !important;
+  text-decoration: none;
+  color: white;
+  font-family: "Helvetica Neue";
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.apiKeyButton {
+  margin-left: 15px;
+}
+
+.header .buttons > a:hover {
   opacity: 0.75;
 }
