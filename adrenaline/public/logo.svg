@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="155px" height="27px" viewBox="0 0 155 27" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>Logo</title>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Artboard" transform="translate(-370.000000, -289.000000)">
-            <g id="Group" transform="translate(340.000000, 265.000000)">
-                <g id="Logo" transform="translate(30.000000, 24.000000)">
-                    <text id="Adrenaline" font-family="Gilroy-ExtraBold, Gilroy" font-size="22" font-weight="700" letter-spacing="0.800000178" fill="#FFFFFF">
-                        <tspan x="34" y="21">Adrenaline</tspan>
+<svg width="119px" height="18px" viewBox="0 0 119 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Adrenaline</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" font-family="Gilroy-ExtraBold, Gilroy" font-size="22" font-weight="700" letter-spacing="0.800000178">
+        <g id="Group-17" transform="translate(-164.000000, -121.000000)">
+            <g id="Group-14" transform="translate(114.000000, 93.000000)">
+                <g id="Logo" transform="translate(50.000000, 24.000000)">
+                    <text id="Adrenaline">
+                        <tspan x="0" y="21" fill="#D93CFF">A</tspan>
+                        <tspan x="15.4300002" y="21" fill="#FFFFFF">drenal</tspan>
+                        <tspan x="86.7580012" y="21" fill="#D93CFF">i</tspan>
+                        <tspan x="93.2780014" y="21" fill="#FFFFFF">ne</tspan>
                     </text>
-                    <path d="M22.971,19.322 L22.25,20.042 C21.928,20.364 21.404,20.364 21.082,20.042 L19.514,18.474 L17.509,20.479 L19.077,22.047 C19.399,22.369 19.4,22.892 19.077,23.215 L18.356,23.935 L19.387,25 L24,20.351 L22.971,19.322 L22.971,19.322 Z M6.591,8.755 L1,3 L3.581,3 L8.017,7.372 C8.931,6.68 10.32,5.914 11.405,5.922 L19.037,13.554 C19.361,13.877 19.883,13.877 20.206,13.554 L20.807,12.954 L22.212,14.359 L13.572,23 L12.166,21.595 L12.768,20.994 C13.09,20.671 13.09,20.148 12.768,19.825 L5.134,12.192 C5.126,11.107 5.898,9.669 6.591,8.755 Z M14.024,18.247 L14.727,18.951 L18.167,15.51 L14.216,11.559 L10.776,15 L11.917,16.141 L13.586,14.47 L14.28,15.163 L12.61,16.834 L13.331,17.554 L15,15.884 L15.694,16.577 L14.024,18.247 L14.024,18.247 Z M1.719,5.556 C2.765,7.116 3.436,8.092 3.436,9.041 C3.436,9.99 2.668,10.759 1.719,10.759 C0.769,10.759 0,9.99 0,9.041 C0,8.092 0.673,7.116 1.719,5.556 Z" id="Icon" fill="#D93CFF"></path>
                 </g>
             </g>
         </g>
