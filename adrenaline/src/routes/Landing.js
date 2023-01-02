@@ -61,7 +61,7 @@ export default class Landing extends Component {
 	                </Button>
 	              </Link>
 	              <Button className="githubButton" isPrimary={false}>
-	                View on Github
+	                <a href="https://github.com/shobrook/adrenaline/" target="_blank">View on Github</a>
 	              </Button>
 	            </div>
 	          </div>

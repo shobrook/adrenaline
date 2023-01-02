@@ -64,6 +64,11 @@
   margin-left: 15px;
 }
 
+.githubButton a {
+  text-decoration: none;
+  color: white;
+}
+
 .demoImage {
   width: 600px;
   padding-right: 13px;
