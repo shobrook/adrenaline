@@ -114,8 +114,17 @@ export default class CodeEditor extends Component {
 			this.codeMirrorRef.addLineClass(lineNum, "wrap", className);
 		});
 
-		if (mergeLine !== -1) { // QUESTION: Is this ever not hit?
-			this.codeMirrorRef.addLineClass(mergeLine, "wrap", "mergeLine");
+		if (mergeLine !== -1) {
+			let className = "mergeLine";
+			if (oldLines.length === 0 && newLines.length === 0) {
+				className += " both";
+			} else if (oldLines.length === 0) {
+				className += " first";
+			} else if (newLines.length === 0) {
+				className += " last";
+			}
+
+			this.codeMirrorRef.addLineClass(mergeLine, "wrap", className);
 		}
 	}
 
@@ -128,13 +137,25 @@ export default class CodeEditor extends Component {
 
 			this.codeMirrorRef.removeLineClass(index, "wrap", className);
 		});
-		this.codeMirrorRef.removeLineClass(mergeLine, "wrap", "mergeLine");
 		newLines.forEach((newLine, index) => {
 			let className = "newLine";
 			className += index === newLines.length - 1 ? " last" : "";
 
 			this.codeMirrorRef.removeLineClass(index, "wrap", className);
 		});
+
+		if (mergeLine !== -1) {
+			let className = "mergeLine";
+			if (oldLines.length === 0 && newLines.length === 0) {
+				className += " both";
+			} else if (oldLines.length === 0) {
+				className += " first";
+			} else if (newLines.length === 0) {
+				className += " last";
+			}
+
+			this.codeMirrorRef.removeLineClass(mergeLine, "wrap", className);
+		}
 	}
 
 	addDiffsToEditor(diffs, onResolveDiff) {

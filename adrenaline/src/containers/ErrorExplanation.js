@@ -57,7 +57,7 @@ export default class ErrorExplanation extends Component {
 				<div className="errorExplanationHeader">
 					<span>Error Explanation</span>
 					{errorExplanation === "" ? (
-						<p>Provide an error message and click <b>Debug</b> to explain and fix your error using GPT-3.</p>
+						<p>Provide an error message and click <b>Debug</b> to explain and fix your error.</p>
 					) : (<p>{currentText}</p>)}
 				</div>
 			</div>

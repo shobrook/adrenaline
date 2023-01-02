@@ -108,6 +108,10 @@
   border-radius: 7px 7px 0px 0px;
 }
 
+.both {
+  border-radius: 7px;
+}
+
 .mergeLine {
   background-color: rgba(255, 255, 255, 0.15);
 }
@@ -126,12 +130,14 @@
 }
 
 .oldCodeHeader {
-  background-color: rgba(39, 154, 241, 0.33) !important;
+  /* background-color: rgba(39, 154, 241, 0.33) !important; */
+  background-color: #2F68A1 !important;
   border-radius: 7px 7px 0px 0px !important;
 }
 
 .newCodeHeader {
-  background-color: rgb(217, 60, 255, 0.325);
+  /* background-color: rgb(217, 60, 255, 0.325); */
+  background-color: #8839A8 !important;
   border-radius: 0px 0px 7px 7px;
   position: relative;
   top: 2px; /* Equal to line spacing */

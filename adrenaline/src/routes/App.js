@@ -170,7 +170,7 @@ export default class App extends Component {
             diff.mergeLine -= numLinesDeleted;
             diff.newLines = newLines.map(line => line - numLinesDeleted);
           } else if (mergeLine === deleteLine) {
-            // TODO: Delete the diff
+            // TODO: Delete entire diff if merge line is deleted
             return;
           } else if (newLines.includes(deleteLine)) { // Change occurred in new code
             let deleteStartIndex = newLines.indexOf(from.line);
@@ -184,13 +184,12 @@ export default class App extends Component {
               return line;
             });
 
-            if (deleteStartIndex === -1) {
+            if (deleteStartIndex === -1) { // Deletion extends beyond merge line
               diff.newLines.splice(0, deleteEndIndex + 1);
+              // TODO: Delete entire diff if merge line is deleted
             } else {
               diff.newLines.splice(deleteStartIndex + 1, deleteEndIndex - deleteStartIndex);
             }
-
-            // TODO: If deletion extends to or before mergeLine, delete the whole diff
           } else { // Change occurred outside of diff
             diff.oldLines = oldLines.map(line => line - numLinesDeleted);
             diff.mergeLine -= numLinesDeleted;
