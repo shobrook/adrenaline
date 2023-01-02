@@ -89,14 +89,14 @@ export default class App extends Component {
     }
 	}
 
-  componentDidUpdate(prevProps, prevState) {
-    const { prevApiKey } = prevState;
-    const { apiKey } = this.state;
-
-    if (prevApiKey !== apiKey) {
-      localStorage.setItem("openAiApiKey", JSON.stringify(apiKey));
-    }
-  }
+  // componentDidUpdate(prevProps, prevState) {
+  //   const { prevApiKey } = prevState;
+  //   const { apiKey } = this.state;
+  //
+  //   if (prevApiKey !== apiKey) {
+  //     localStorage.setItem("openAiApiKey", JSON.stringify(apiKey));
+  //   }
+  // }
 
   /* Event Handlers */
 

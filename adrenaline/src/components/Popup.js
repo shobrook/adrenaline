@@ -38,7 +38,10 @@ export default class Popup extends Component {
                 onChange={this.onChange}
                 placeholder="Enter your OpenAI API key"
               />
-              <Button className="popupSubmit" isPrimary onClick={() => onSubmit(value)}>
+              <Button className="popupSubmit" isPrimary onClick={() => {
+                localStorage.setItem("openAiApiKey", JSON.stringify(value));
+                onSubmit(value);
+              }}>
                 Done
               </Button>
             </div>
