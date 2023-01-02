@@ -26,6 +26,7 @@ const testInputCode = [
   "main()"
 ];
 const testGPTCode = [
+  "import numpy as np",
   "def apply_func_to_input(func, input):",
   "\t# This will apply func to input",
   "\t(lambda: func(input))()",
@@ -254,45 +255,48 @@ export default class App extends Component {
       this.setState({ waitingForCodeFix: true });
     }
 
-    const apiConfig = new Configuration({ apiKey });
-    const api = new OpenAIApi(apiConfig);
+    let { mergedCode, diffs } = diffGPTOutput(testInputCode, testGPTCode);
+    this.setState({ waitingForCodeFix: false, code: mergedCode, diffs, errorMessage });
 
-    let instruction = `Fix this error: ${errorMessage}`;
-
-    api
-  		.createEdit({
-  	    ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
-  	  })
-  	  .then(data => {
-        let inputCode = code.join("\n").trim().split("\n");
-  			let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
-        let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
-
-        if (errorMessage !== "") {
-          let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
-          api
-            .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
-            .then(data => {
-              let errorExplanation = data.data.choices[0].text;
-              this.setState({
-                waitingForCodeFix: false,
-                code: mergedCode,
-                diffs,
-                errorMessage,
-                errorExplanation
-              });
-            }).
-            catch(error => console.log(error.response));
-        } else {
-          this.setState({
-            waitingForCodeFix: false,
-            code: mergedCode,
-            diffs,
-            errorMessage
-          });
-        }
-  		})
-  		.catch(error => console.log(error.response));
+    // const apiConfig = new Configuration({ apiKey });
+    // const api = new OpenAIApi(apiConfig);
+    //
+    // let instruction = `Fix this error: ${errorMessage}`;
+    //
+    // api
+  	// 	.createEdit({
+  	//     ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
+  	//   })
+  	//   .then(data => {
+    //     let inputCode = code.join("\n").trim().split("\n");
+  	// 		let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
+    //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+    //
+    //     if (errorMessage !== "") {
+    //       let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+    //       api
+    //         .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
+    //         .then(data => {
+    //           let errorExplanation = data.data.choices[0].text;
+    //           this.setState({
+    //             waitingForCodeFix: false,
+    //             code: mergedCode,
+    //             diffs,
+    //             errorMessage,
+    //             errorExplanation
+    //           });
+    //         }).
+    //         catch(error => console.log(error.response));
+    //     } else {
+    //       this.setState({
+    //         waitingForCodeFix: false,
+    //         code: mergedCode,
+    //         diffs,
+    //         errorMessage
+    //       });
+    //     }
+  	// 	})
+  	// 	.catch(error => console.log(error.response));
   };
 
   onLint() {
@@ -330,7 +334,7 @@ export default class App extends Component {
       });
   }
 
-  onSelectLanguage(event) { this.setState({ language: event.target.value }); }
+  onSelectLanguage(language) { this.setState({ language }); }
 
   onOpenPopup() { this.setState({ askForAPIKey: true }); }
 

@@ -153,10 +153,11 @@ export default class CodeEditor extends Component {
 
 	/* Lifecycle Methods */
 
-	componentDidUpdate() {
+	componentDidUpdate(prevProps) {
+		const { diffs: prevDiffs } = prevProps;
 		const { diffs, onResolveDiff } = this.props;
 
-		this.deleteDiffsFromEditor(diffs);
+		this.deleteDiffsFromEditor(prevDiffs);
 		this.addDiffsToEditor(diffs, onResolveDiff);
 	}
 
@@ -184,6 +185,7 @@ export default class CodeEditor extends Component {
 						classNamePrefix="languageDropdown"
 						isClearable={false}
 						options={LANGUAGES}
+						onChange={onSelectLanguage}
 						defaultValue={language}
 						styles={{
 							control: (provided, state) => ({
