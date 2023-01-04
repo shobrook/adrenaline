@@ -8,9 +8,12 @@
   background-color: #373751;
   height: 100%;
   width: 100%;
+  overflow: scroll;
 }
 
 .landingLHS {
+  /* padding-left: 60px; */
+  padding-left: 5%;
   margin-top: -80px;
 }
 
@@ -19,17 +22,48 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding-left: 60px;
   padding-top: 125px;
 }
 
+@media (max-width: 1130px) {
+  .landingLHS {
+    display: flex;
+    flex-direction: column;
+    width: 65%;
+    padding: 0 !important;
+    align-items: center;
+  }
+
+  .landingBody {
+    flex-direction: column;
+  }
+
+  .landingHeading {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .landingTitle {
+    font-size: 6vw;
+  }
+
+  .demoImage {
+    padding-top: 60px;
+    width: 65% !important;
+    padding: 0 !important;
+  }
+}
+
 .landingHeading {
-  width: 650px;
+  /* width: 650px; */
+  width: 85%;
 }
 
 .landingTitle {
   color: white;
-  font-size: 52px;
+  font-size: 3.25vw;
   font-weight: 900;
   font-family: "Gilroy";
 }
@@ -37,8 +71,10 @@
 .landingSubtitle {
   color: rgba(255, 255, 255, 0.65);
   font-family: "Helvetica Neue";
-  font-size: 22px;
+  /* font-size: 22px; */
+  font-size: 1.375vw;
   font-weight: 400;
+  width: 85%;
 }
 
 .ctaButtons {
@@ -47,6 +83,7 @@
   width: fit-content;
   padding-top: 15px;
   font-weight: 600;
+  /* font-size: 1.125vw !important; */
 }
 
 .ctaButtons a {
@@ -70,6 +107,8 @@
 }
 
 .demoImage {
-  width: 600px;
-  padding-right: 13px;
+  /* width: 600px; */
+  width: 62.5%;
+  /* padding-right: 60px; */
+  padding-right: 5%;
 }
