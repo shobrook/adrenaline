@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/adrenaline/static/css/main.741f6d14.css",
-    "main.js": "/adrenaline/static/js/main.14cf2da9.js",
+    "main.js": "/adrenaline/static/js/main.10d1b160.js",
     "static/media/Gilroy-ExtraBold.otf": "/adrenaline/static/media/Gilroy-ExtraBold.0094146a0505298ed06a.otf",
     "index.html": "/adrenaline/index.html",
     "main.741f6d14.css.map": "/adrenaline/static/css/main.741f6d14.css.map",
-    "main.14cf2da9.js.map": "/adrenaline/static/js/main.14cf2da9.js.map"
+    "main.10d1b160.js.map": "/adrenaline/static/js/main.10d1b160.js.map"
   },
   "entrypoints": [
     "static/css/main.741f6d14.css",
-    "static/js/main.14cf2da9.js"
+    "static/js/main.10d1b160.js"
   ]
 }
