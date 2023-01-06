@@ -254,48 +254,48 @@ export default class App extends Component {
       this.setState({ waitingForCodeFix: true });
     }
 
-    let { mergedCode, diffs } = diffGPTOutput(testInputCode, testGPTCode);
-    this.setState({ waitingForCodeFix: false, code: mergedCode, diffs, errorMessage });
+    // let { mergedCode, diffs } = diffGPTOutput(testInputCode, testGPTCode);
+    // this.setState({ waitingForCodeFix: false, code: mergedCode, diffs, errorMessage });
 
-    // const apiConfig = new Configuration({ apiKey });
-    // const api = new OpenAIApi(apiConfig);
-    //
-    // let instruction = `Fix this error: ${errorMessage}`;
-    //
-    // api
-  	// 	.createEdit({
-  	//     ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
-  	//   })
-  	//   .then(data => {
-    //     let inputCode = code.join("\n").trim().split("\n");
-  	// 		let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
-    //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
-    //
-    //     if (errorMessage !== "") {
-    //       let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
-    //       api
-    //         .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
-    //         .then(data => {
-    //           let errorExplanation = data.data.choices[0].text;
-    //           this.setState({
-    //             waitingForCodeFix: false,
-    //             code: mergedCode,
-    //             diffs,
-    //             errorMessage,
-    //             errorExplanation
-    //           });
-    //         }).
-    //         catch(error => console.log(error.response));
-    //     } else {
-    //       this.setState({
-    //         waitingForCodeFix: false,
-    //         code: mergedCode,
-    //         diffs,
-    //         errorMessage
-    //       });
-    //     }
-  	// 	})
-  	// 	.catch(error => console.log(error.response));
+    const apiConfig = new Configuration({ apiKey });
+    const api = new OpenAIApi(apiConfig);
+
+    let instruction = `Fix this error: ${errorMessage}`;
+
+    api
+  		.createEdit({
+  	    ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
+  	  })
+  	  .then(data => {
+        let inputCode = code.join("\n").trim().split("\n");
+  			let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
+        let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+
+        if (errorMessage !== "") {
+          let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+          api
+            .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
+            .then(data => {
+              let errorExplanation = data.data.choices[0].text;
+              this.setState({
+                waitingForCodeFix: false,
+                code: mergedCode,
+                diffs,
+                errorMessage,
+                errorExplanation
+              });
+            }).
+            catch(error => console.log(error.response));
+        } else {
+          this.setState({
+            waitingForCodeFix: false,
+            code: mergedCode,
+            diffs,
+            errorMessage
+          });
+        }
+  		})
+  		.catch(error => console.log(error.response));
   };
 
   onLint() {
