@@ -229,6 +229,8 @@ export default class App extends Component {
     if (apiKey === "") {
       this.setState({ askForAPIKey: true });
       return;
+    } else if (errorMessage === "") {
+      return;
     } else {
       this.setState({ waitingForCodeFix: true });
     }
@@ -237,7 +239,6 @@ export default class App extends Component {
     const api = new OpenAIApi(apiConfig);
 
     let instruction = `Fix this error: ${errorMessage}`;
-
     api
   		.createEdit({
   	    ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
@@ -247,29 +248,20 @@ export default class App extends Component {
   			let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
         let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
 
-        if (errorMessage !== "") {
-          let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
-          api
-            .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
-            .then(data => {
-              let errorExplanation = data.data.choices[0].text;
-              this.setState({
-                waitingForCodeFix: false,
-                code: mergedCode,
-                diffs,
-                errorMessage,
-                errorExplanation
-              });
-            }).
-            catch(error => console.log(error.response));
-        } else {
-          this.setState({
-            waitingForCodeFix: false,
-            code: mergedCode,
-            diffs,
-            errorMessage
-          });
-        }
+        let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+        api
+          .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
+          .then(data => {
+            let errorExplanation = data.data.choices[0].text;
+            this.setState({
+              waitingForCodeFix: false,
+              code: mergedCode,
+              diffs,
+              errorMessage,
+              errorExplanation
+            });
+          }).
+          catch(error => console.log(error.response));
   		})
   		.catch(error => console.log(error.response));
   };
