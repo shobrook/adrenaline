@@ -4,7 +4,11 @@ Adrenaline is a debugging assistant powered by the OpenAI Codex. It can fix and 
 
 ## Usage
 
-Adrenaline can be used at https://useadrenaline.com. Simply visit the site, paste your broken code and an error message (e.g. a stack trace, or a description of the error), and click "Debug".
+Adrenaline can be used [here.](https://useadrenaline.com/playground) Simply plug in your broken code and an error message (e.g. a stack trace or natural language description of the error) and click "Debug."
+
+> Note that users will have to supply their own OpenAI API key from the OpenAI Console. This is to prevent API misuse.
+
+### Running Locally
 
 To run locally, clone the repository and run the following:
 
@@ -12,8 +16,6 @@ To run locally, clone the repository and run the following:
 $ npm install
 $ npm run start-local
 ```
-
-> Note that users will have to supply their own OpenAI API key from the OpenAI Console. This is to prevent API misuse.
 
 ## Features
 
