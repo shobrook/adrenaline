@@ -46,13 +46,39 @@
   }
 
   .landingTitle {
-    font-size: 6vw;
+    font-size: 42px !important;
+  }
+
+  .landingSubtitle {
+    font-size: 18px !important;
   }
 
   .demoImage {
-    padding-top: 60px;
-    width: 65% !important;
-    padding: 0 !important;
+    padding-top: 60px !important;
+    width: 50% !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .landingLHS {
+    width: 85%;
+  }
+
+  .landingHeading {
+    width: 100% !important;
+  }
+
+  .landingTitle {
+    font-size: 32px !important;
+  }
+
+  .landingSubtitle {
+    font-size: 16px !important;
+  }
+
+  .demoImage {
+    padding-top: 40px !important;
+    width: 85% !important;
   }
 }
 
