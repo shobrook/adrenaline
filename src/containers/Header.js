@@ -8,7 +8,7 @@ import "./Header.css";
 
 export default class Header extends Component {
 	render() {
-		const { onClick } = this.props;
+		const { isPlaygroundActive, onClick } = this.props;
 
     return (
       <div className="header">
@@ -18,12 +18,16 @@ export default class Header extends Component {
 					</Link>
 				</div>
 				<div className="buttons">
-					<Link className="link" to="/playground">Playground</Link>
-					<a className="link" href="">Donate</a>
 					<Button className="headerGithubButton" isPrimary={false}>
-						<a href="https://github.com/shobrook/adrenaline/" target="_blank">View on Github</a>
+						<a href="https://github.com/shobrook/adrenaline/" target="_blank">View on GitHub</a>
 					</Button>
 					<Button className="apiKeyButton" isPrimary onClick={onClick}>Set API key</Button>
+				</div>
+				<div className="compactButtons">
+					<a className="githubIcon" href="https://github.com/shobrook/adrenaline/" target="_blank">
+						<img src="./github.png" />
+					</a>
+					<img className="keyIcon" src="./key.png" onClick={onClick} />
 				</div>
 			</div>
     );

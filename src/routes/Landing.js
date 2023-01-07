@@ -47,7 +47,7 @@ export default class Landing extends Component {
           </div>
         ) : null}
 	      <div className="landing">
-	        <Header onClick={this.onOpenPopup} />
+	        <Header onClick={this.onOpenPopup} isPlaygroundActive={false} />
 	        <div className="landingBody">
 	          <div className="landingLHS">
 	            <div className="landingHeading">

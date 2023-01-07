@@ -372,7 +372,7 @@ export default class App extends Component {
           </div>
         ) : null}
         <div className="app">
-          <Header onClick={this.onOpenPopup} />
+          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} />
           <div className="body">
             <div className="lhs">
               <CodeEditor

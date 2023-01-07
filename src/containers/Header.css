@@ -16,8 +16,41 @@
   color: white;
 }
 
-.header .logo {
+.header .compactButtons {
+  display: none;
+  position: absolute;
+}
 
+@media (max-width: 700px) {
+  .header .compactButtons {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .githubIcon img {
+    width: 30px;
+  }
+
+  .githubIcon:hover {
+    opacity: 0.75;
+  }
+
+  .keyIcon {
+    margin-left: 15px;
+    width: 35px;
+    cursor: pointer;
+  }
+
+  .keyIcon:hover {
+    opacity: 0.75;
+  }
+
+  .header .buttons {
+    display: none !important;
+    position: absolute !important;
+  }
 }
 
 .header .buttons {
