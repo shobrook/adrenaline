@@ -30,7 +30,7 @@
   }
 
   .githubIcon img {
-    width: 30px;
+    height: 24px;
   }
 
   .githubIcon:hover {
@@ -39,7 +39,7 @@
 
   .keyIcon {
     margin-left: 15px;
-    width: 35px;
+    height: 16px;
     cursor: pointer;
   }
 

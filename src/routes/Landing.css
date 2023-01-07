@@ -76,6 +76,15 @@
     font-size: 16px !important;
   }
 
+  .ctaButtons {
+    flex-direction: column !important;
+  }
+
+  .githubButton {
+    margin-left: 0px !important;
+    margin-top: 15px;
+  }
+
   .demoImage {
     padding-top: 40px !important;
     width: 85% !important;

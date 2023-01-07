@@ -46,7 +46,7 @@ export default class Popup extends Component {
               </Button>
             </div>
             <div className="instructions">
-              <span>1. Navigate to <a href="https://beta.openai.com/account/api-keys">https://beta.openai.com/account/api-keys</a></span>
+              <span>1. Navigate to <a href="https://beta.openai.com/account/api-keys" target="_blank">https://beta.openai.com/account/api-keys</a></span>
               <span className="lastStep">2. Log in and click <b>+ Create a new secret key</b></span>
             </div>
           </div>
