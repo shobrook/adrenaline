@@ -57,7 +57,7 @@ export default class Landing extends Component {
 	            <div className="ctaButtons">
 	              <Link to="/playground">
 	                <Button className="getStartedButton" isPrimary>
-	                  Launch
+	                  Debug your code
 	                </Button>
 	              </Link>
 	              <Button className="githubButton" isPrimary={false}>

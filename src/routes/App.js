@@ -11,8 +11,12 @@ import ErrorExplanation from "../containers/ErrorExplanation";
 
 import './App.css';
 
-// TEMP: Testing only
-const testInputCode = [
+const DEFAULT_CODE = [
+  "#################",
+  "### DEMO CODE ###",
+  "#################",
+  "",
+  "# Paste your own code here to get started.",
   "def apply_func_to_input(func, input):",
   "\tfunc(input)",
   "",
@@ -25,23 +29,6 @@ const testInputCode = [
   "",
   "main()"
 ];
-const testGPTCode = [
-  "import numpy as np",
-  "def apply_func_to_input(func, input):",
-  "\t# This will apply func to input",
-  "\t(lambda: func(input))()",
-  "",
-  "def main():",
-  "\tmy_data = []",
-  "\tfor i in range(10):",
-  "\t\tapply_func_to_input(my_data.append, i)",
-  "",
-  "\tprint(my_data)",
-  "",
-  "main()"
-]
-const testErrorExplanation = "The component also uses the split function to split the text into an array of words, and then uses the slice function to select a subset of the array up to the currentWordIndex. It then uses the join function to join this subset of words back into a single string of text, which is then rendered using the div element.";
-
 const EDIT_PROMPT_PARAMS = {
   model: "code-davinci-edit-001"
 };
@@ -73,7 +60,7 @@ export default class App extends Component {
 
 		this.state = {
       language: {label: "Python", value: "python"},
-      code: testInputCode,
+      code: DEFAULT_CODE,
       errorMessage: "",
       diffs: [],
       errorExplanation: "",
@@ -88,15 +75,6 @@ export default class App extends Component {
       this.state.apiKey = JSON.parse(apiKey);
     }
 	}
-
-  // componentDidUpdate(prevProps, prevState) {
-  //   const { prevApiKey } = prevState;
-  //   const { apiKey } = this.state;
-  //
-  //   if (prevApiKey !== apiKey) {
-  //     localStorage.setItem("openAiApiKey", JSON.stringify(apiKey));
-  //   }
-  // }
 
   /* Event Handlers */
 
@@ -253,9 +231,6 @@ export default class App extends Component {
     } else {
       this.setState({ waitingForCodeFix: true });
     }
-
-    // let { mergedCode, diffs } = diffGPTOutput(testInputCode, testGPTCode);
-    // this.setState({ waitingForCodeFix: false, code: mergedCode, diffs, errorMessage });
 
     const apiConfig = new Configuration({ apiKey });
     const api = new OpenAIApi(apiConfig);
