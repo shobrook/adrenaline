@@ -65,7 +65,8 @@
   font-family: "Helvetica Neue" !important;
   font-size: 16px;
   background-color: #279AF1;
-  width: 45px;
+  width: 45px !important;
+  margin-right: 6px;
 }
 
 .codeEditor {
