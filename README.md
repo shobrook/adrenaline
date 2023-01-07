@@ -43,4 +43,4 @@ Ultimately, while the OpenAI Codex is surprisingly good at debugging code (or at
 
 ## Acknowledgements
 
-Malik Drabla for helping build the initial PoC. Ramsey Lehman for design feedback. Paul Bogdan, Samarth Makhija, and Michael Usachenko for various feedback.
+Malik Drabla for helping build the initial PoC. Ramsey Lehman for design feedback. Paul Bogdan, Samarth Makhija, and Michael Usachenko for various other feedback.
