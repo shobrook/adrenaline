@@ -86,3 +86,7 @@
 .header .buttons > a:hover {
   opacity: 0.75;
 }
+
+.logo img {
+  height: 20px;
+}
