@@ -21,7 +21,11 @@ class Landing extends Component {
 		this.state = { askForAPIKey: false };
 	}
 
-	onOpenPopup() { this.setState({ askForAPIKey: true }); }
+	onOpenPopup() {
+		window.gtag("event", "click_set_api_key");
+
+		this.setState({ askForAPIKey: true });
+	}
 
 	onSubmit() { this.setState({ askForAPIKey: false }); }
 
@@ -63,11 +67,19 @@ class Landing extends Component {
 	            </div>
 	            <div className="ctaButtons">
 	              <Link to="/playground">
-	                <Button className="getStartedButton" isPrimary onClick={() => window.gtag("event", "click_get_started")}>
+	                <Button
+										className="getStartedButton"
+										isPrimary
+										onClick={() => window.gtag("event", "click_get_started")}
+									>
 	                  Fix your code
 	                </Button>
 	              </Link>
-	              <Button className="githubButton" isPrimary={false}>
+	              <Button
+									className="githubButton"
+									isPrimary={false}
+									onClick={() => window.gtag("event", "click_view_on_github")}
+								>
 	                <a href="https://github.com/shobrook/adrenaline/" target="_blank">View on Github</a>
 	              </Button>
 	            </div>
