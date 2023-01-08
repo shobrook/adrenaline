@@ -5,9 +5,11 @@ import Popup from "../components/Popup";
 import Button from "../components/Button";
 import Header from "../containers/Header";
 
+import { withRouter } from "../utilities";
+
 import "./Landing.css";
 
-export default class Landing extends Component {
+class Landing extends Component {
 	constructor(props) {
 		super(props);
 
@@ -34,7 +36,12 @@ export default class Landing extends Component {
 	onSetPopupRef(ref) { this.popupRef = ref; }
 
 	render() {
+		const { location } = this.props;
 		const { askForAPIKey } = this.state;
+
+		window.gtag("event", "page_view", {
+      page_path: location.pathname + location.search,
+    });
 
     return (
 			<Fragment>
@@ -56,8 +63,8 @@ export default class Landing extends Component {
 	            </div>
 	            <div className="ctaButtons">
 	              <Link to="/playground">
-	                <Button className="getStartedButton" isPrimary>
-	                  Debug your code
+	                <Button className="getStartedButton" isPrimary onClick={() => window.gtag("event", "click_get_started")}>
+	                  Fix your code
 	                </Button>
 	              </Link>
 	              <Button className="githubButton" isPrimary={false}>
@@ -72,3 +79,5 @@ export default class Landing extends Component {
     );
 	}
 }
+
+export default withRouter(Landing);

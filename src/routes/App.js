@@ -1,7 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { Configuration, OpenAIApi } from "openai";
 
-import { OLD_CODE_LABEL, FIXED_CODE_LABEL, range, diffGPTOutput } from "../utilities";
+import {
+  OLD_CODE_LABEL,
+  FIXED_CODE_LABEL,
+  range,
+  diffGPTOutput,
+  withRouter
+} from "../utilities";
 
 import Popup from "../components/Popup";
 import Header from "../containers/Header";
@@ -45,7 +51,7 @@ const COMPLETION_PROMPT_PARAMS = {
   stream: false
 };
 
-export default class App extends Component {
+class App extends Component {
 	constructor(props) {
 		super(props);
 
@@ -318,6 +324,7 @@ export default class App extends Component {
   onSetPopupRef(ref) { this.popupRef = ref; }
 
 	render() {
+    const { location } = this.props;
     const {
       language,
       code,
@@ -328,6 +335,10 @@ export default class App extends Component {
       askForAPIKey,
       apiKey
     } = this.state;
+
+    window.gtag("event", "page_view", {
+      page_path: location.pathname + location.search,
+    });
 
     return (
       <Fragment>
@@ -362,3 +373,5 @@ export default class App extends Component {
     );
 	}
 }
+
+export default withRouter(App);
