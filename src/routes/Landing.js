@@ -36,7 +36,7 @@ class Landing extends Component {
 	onSetPopupRef(ref) { this.popupRef = ref; }
 
 	render() {
-		const { location } = this.props;
+		const { location } = this.props.router;
 		const { askForAPIKey } = this.state;
 
 		window.gtag("event", "page_view", {

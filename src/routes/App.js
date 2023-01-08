@@ -324,7 +324,7 @@ class App extends Component {
   onSetPopupRef(ref) { this.popupRef = ref; }
 
 	render() {
-    const { location } = this.props;
+    const { location } = this.props.router;
     const {
       language,
       code,
