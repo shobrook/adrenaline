@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.698f34a8.css",
-    "main.js": "/static/js/main.98f452d4.js",
+    "main.css": "/static/css/main.b7f9d58b.css",
+    "main.js": "/static/js/main.e1c5d376.js",
     "static/media/Gilroy-ExtraBold.otf": "/static/media/Gilroy-ExtraBold.0094146a0505298ed06a.otf",
     "index.html": "/index.html",
-    "main.698f34a8.css.map": "/static/css/main.698f34a8.css.map",
-    "main.98f452d4.js.map": "/static/js/main.98f452d4.js.map"
+    "main.b7f9d58b.css.map": "/static/css/main.b7f9d58b.css.map",
+    "main.e1c5d376.js.map": "/static/js/main.e1c5d376.js.map"
   },
   "entrypoints": [
-    "static/css/main.698f34a8.css",
-    "static/js/main.98f452d4.js"
+    "static/css/main.b7f9d58b.css",
+    "static/js/main.e1c5d376.js"
   ]
 }
