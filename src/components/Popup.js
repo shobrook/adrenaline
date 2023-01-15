@@ -8,44 +8,41 @@ export default class Popup extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { email: "", password: ""};
+    this.state = { value: "" };
+
+    const apiKey = localStorage.getItem("openAiApiKey");
+    if (apiKey) {
+      this.state.value = JSON.parse(apiKey);
+    }
   }
 
-  onChangeEmail = event => this.setState({ email: event.target.value });
-  onChangePassword = event => this.setState({ password: event.target.value });
+  onChange = event => this.setState({ value: event.target.value });
 
   render() {
-    const { email, password } = this.state;
+    const { value } = this.state;
     const { onSubmit, setRef } = this.props;
 
     return (
       <div className="popup" ref={ref => setRef(ref)}>
         <div className="popupInner">
           <div className="popupHeader">
-            <span className="popupHeading">Sign In to Adrenaline</span>
+            <span className="popupHeading">Adrenaline is powered by OpenAI</span>
+            <span className="popupSubheading">Please provide an OpenAI API key. This key will only be stored locally in your browser cache.</span>
           </div>
           <div className="popupForm">
             <div className="inputField">
               <textarea
                 className="inputText"
                 ref={ref => this.input = ref}
-                value={email}
-                onChange={this.onChangeEmail}
-                placeholder="Email"
-              />
-              <textarea
-                className="inputText"
-                ref={ref => this.input = ref}
-                value={password}
-                onChange={this.onChangePassword}
-                placeholder="Password"
+                value={value}
+                onChange={this.onChange}
+                placeholder="Enter your OpenAI API key"
               />
               <Button className="popupSubmit" isPrimary onClick={() => {
-                window.gtag("event", "submit_login");
+                window.gtag("event", "submit_api_key");
 
-                localStorage.setItem("email", email);
-                localStorage.setItem("password", password);
-                onSubmit(email, password);
+                localStorage.setItem("openAiApiKey", JSON.stringify(value));
+                onSubmit(value);
               }}>
                 Done
               </Button>

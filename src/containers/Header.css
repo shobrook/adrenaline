@@ -79,8 +79,8 @@
   font-weight: 500;
 }
 
-.LogInButton {
-  margin-right: 15px;
+.apiKeyButton {
+  margin-left: 15px;
 }
 
 .header .buttons > a:hover {
