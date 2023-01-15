@@ -11,7 +11,7 @@
   border-top: 4px solid #D93CFF;
   padding-top: 2px;
   min-height: 55px;
-  font-family: "Helvetica Neue";
+  font-family: "Arial";
   font-size: 16px;
   color: white;
 }
@@ -63,7 +63,7 @@
 .header .buttons > a {
   text-decoration: none;
   color: white;
-  font-family: "Helvetica Neue";
+  font-family: "Arial";
   font-size: 16px;
   font-weight: 400;
   padding-right: 25px;
@@ -74,7 +74,7 @@
   padding-right: 0px !important;
   text-decoration: none;
   color: white;
-  font-family: "Helvetica Neue";
+  font-family: "Arial";
   font-size: 16px;
   font-weight: 500;
 }

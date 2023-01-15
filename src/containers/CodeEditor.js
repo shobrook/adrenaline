@@ -220,7 +220,7 @@ export default class CodeEditor extends Component {
 				      }),
 							option: (provided, state) => ({
 								...provided,
-								fontFamily: "Helvetica Neue",
+								fontFamily: "Arial",
 								fontSize: "16px",
 								fontWeight: "500",
 								backgroundColor: state.isFocused ? "#279AF1" : "transparent",

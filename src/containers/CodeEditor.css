@@ -31,7 +31,7 @@
 
 .languageDropdown__single-value {
   color: white !important;
-  font-family: "Helvetica Neue";
+  font-family: "Arial";
   font-size: 16px;
   font-weight: 500;
   margin-top: -5px !important;
@@ -54,7 +54,7 @@
 
 /* .languageDropdown {
   font-weight: 500 !important;
-  font-family: "Helvetica Neue" !important;
+  font-family: "Arial" !important;
   font-size: 16px !important;
   color: white !important;
   background: none !important;
@@ -62,7 +62,7 @@
 
 .lintButton {
   font-weight: 500;
-  font-family: "Helvetica Neue" !important;
+  font-family: "Arial" !important;
   font-size: 16px;
   background-color: #279AF1;
   width: 45px !important;
@@ -124,7 +124,7 @@
   height: 40px;
   padding: 0px 5px 0px 5px;
   align-items: center;
-  font-family: "Helvetica Neue";
+  font-family: "Arial";
   font-size: 12px;
   font-weight: 900;
   /* letter-spacing: 0.75px; */
