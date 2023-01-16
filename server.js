@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 
 const Account = require('./src/models/account');
 
-const uri = `${process.env.MONGODB_URI}`;
+const uri = process.env.MONGODB_URI;
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected...'))
