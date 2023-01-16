@@ -10,7 +10,9 @@ const port = process.env.PORT || 3000;
 
 const Account = require('./src/models/account');
 
-mongoose.connect('mongodb://localhost:27017/accounts_db', { useNewUrlParser: true, useUnifiedTopology: true })
+const uri = `${process.env.MONGODB_URI}`;
+
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected...'))
     .catch(err => console.log('MongoDB error: ', err));
 
