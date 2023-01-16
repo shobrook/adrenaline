@@ -25,7 +25,7 @@ export default class Header extends Component {
 					>
 						<a href="https://github.com/shobrook/adrenaline/" target="_blank">View on GitHub</a>
 					</Button>
-					<Button className="apiKeyButton" isPrimary onClick={onClick}>Set API key</Button>
+					<Button className="apiKeyButton" isPrimary onClick={onClick}>Set API Key</Button>
 				</div>
 				<div className="compactButtons">
 					<a className="githubIcon" href="https://github.com/shobrook/adrenaline/" target="_blank">
