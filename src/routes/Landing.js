@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
 
-import Popup from "../components/Popup";
+import LoginForm from "../components/LoginForm";
 import Button from "../components/Button";
 import Header from "../containers/Header";
 
@@ -14,45 +14,87 @@ class Landing extends Component {
 		super(props);
 
 		this.onOpenPopup = this.onOpenPopup.bind(this);
-		this.onSubmit = this.onSubmit.bind(this);
+		this.onLogIn = this.onLogIn.bind(this);
+		this.onSignUp = this.onSignUp.bind(this);
 		this.onClosePopup = this.onClosePopup.bind(this);
 		this.onSetPopupRef = this.onSetPopupRef.bind(this);
 
-		this.state = { askForLogIn: false };
+		this.state = {
+			displayPopup: false,
+			isInvalidLogin: false,
+			isInvalidSignUp: false
+		};
 	}
 
 	onOpenPopup() {
 		window.gtag("event", "click_login");
 
-		this.setState({ askForLogIn: true });
+		this.setState({ displayPopup: true });
 	}
 
-	onSubmit(email, password) {
-		console.log("onSubmit test")
-	    fetch('/login', {
-	        method: 'POST',
-	        headers: { 'Content-Type': 'application/json' },
-	        body: JSON.stringify({ email: email, password: password })
-	    })
-	    .then(res => res.json())
-	    .then(data => {
-	        if (data.message === 'Login successful') {
-	            // Handle successful login
-	            // e.g. redirect to a new page, display a message, etc.
-							console.log("onSubmit successful")
-							return;
-	        } else {
-	            // Handle unsuccessful login
-	            // e.g. display an error message, etc.
-							console.log("onSubmit fail: ", data.message)
-							return;
-	        }
-	    })
-	    .catch(error => {
-	        // Handle any errors that may occur during the login process
-					console.log("testing onsubmit error")
-	    });
-	    this.setState({ askForLogIn: false });
+	onSignUp(email, password, reEnteredPassword) {
+		const { navigate } = this.props.router;
+
+		if (password !== reEnteredPassword) {
+			this.setState({ displayPopup: true, isInvalidSignUp: true});
+			return;
+		}
+
+		fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.message === 'Signup successful') {
+				window.gtag("event", "submit_signup_success");
+
+				navigate("/playground");
+				this.setState({ displayPopup: false, isInvalidSignUp: false });
+      } else {
+				window.gtag("event", "submit_signup_failure");
+				console.log("onSubmit fail: ", data.message)
+
+				this.setState({ displayPopup: true, isInvalidSignUp: true });
+      }
+    })
+    .catch(error => {
+			window.gtag("event", "submit_signup_failure");
+
+			console.log(error);
+			this.setState({ displayPopup: true, isInvalidSignUp: true });
+    });
+	}
+
+	onLogIn(email, password) {
+		const { navigate } = this.props.router;
+
+    fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.message === 'Login successful') {
+				window.gtag("event", "submit_login_success");
+
+				navigate("/playground");
+				this.setState({ displayPopup: false, isInvalidLogin: false });
+      } else {
+				window.gtag("event", "submit_login_failure");
+				console.log("onSubmit fail: ", data.message)
+
+				this.setState({ displayPopup: true, isInvalidLogin: true });
+      }
+    })
+    .catch(error => {
+			window.gtag("event", "submit_login_failure");
+
+			console.log(error);
+			this.setState({ displayPopup: true, isInvalidLogin: true });
+    });
 	}
 
 	onClosePopup(event) {
@@ -60,14 +102,14 @@ class Landing extends Component {
       return;
     }
 
-    this.setState({ askForLogIn: false });
+    this.setState({ displayPopup: false });
   }
 
 	onSetPopupRef(ref) { this.popupRef = ref; }
 
 	render() {
 		const { location } = this.props.router;
-		const { askForLogIn } = this.state;
+		const { displayPopup, isInvalidLogin, isInvalidSignUp } = this.state;
 
 		window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
@@ -75,11 +117,14 @@ class Landing extends Component {
 
     return (
 			<Fragment>
-				{askForLogIn ? (
+				{displayPopup ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
-            <Popup
-              onSubmit={this.onSubmit}
+            <LoginForm
+							onLogIn={this.onLogIn}
+							onSignUp={this.onSignUp}
               setRef={this.onSetPopupRef}
+							isInvalidLogin={isInvalidLogin}
+							isInvalidSignUp={isInvalidSignUp}
             />
           </div>
         ) : null}

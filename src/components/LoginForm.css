@@ -1,12 +1,12 @@
 @media (max-width: 1130px) {
-  .popup {
+  #loginFormContainer {
     width: 75% !important;
   }
 }
 
-.popup {
-  width: 50%;
-  max-width: 600px;
+#loginFormContainer {
+  width: 40%;
+  max-width: 500px;
   height: fit-content;
   background-color: #373751;
   box-shadow: 0px 2px 8px 2px rgba(32, 32, 48, 0.5);
@@ -18,7 +18,7 @@
   z-index: 3;
 }
 
-.popupInner {
+#loginForm {
   display: flex;
   flex-direction: column;
   width: 85%;
@@ -28,12 +28,14 @@
   padding-bottom: 40px;
 }
 
-.popupHeader {
+#heading {
   display: flex;
   flex-direction: column;
+  text-align: center;
+  padding-bottom: 15px;
 }
 
-.popupHeading {
+#title {
   font-size: 26px;
   font-weight: 900;
   letter-spacing: 1.25px;
@@ -48,10 +50,9 @@
   padding-top: 15px;
 }
 
-.popupForm {
+#loginInputFields {
   display: flex;
   flex-direction: column;
-  padding-top: 40px;
 }
 
 .inputField {
@@ -78,14 +79,20 @@
   white-space: nowrap;
   overflow: hidden;
   margin-right: 15px;
+  margin-top: 15px;
 }
 
 .inputText:placeholder {
   color: rgba(255, 255, 255, 0.35);
 }
 
-.popupSubmit {
-  height: 45px;
+.loginButton {
+  height: 45px !important;
+  /* margin-top: 15px; */
+  color: white;
+  text-decoration: none;
+  margin-top: 15px;
+  font-weight: 600;
 }
 
 .instructions {

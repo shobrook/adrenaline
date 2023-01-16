@@ -9,15 +9,13 @@ import {
   withRouter
 } from "../utilities";
 
-import Popup from "../components/Popup";
+import LoginForm from "../components/LoginForm";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
 import ErrorExplanation from "../containers/ErrorExplanation";
 
 import './App.css';
-
-const Account = require('../models/account');
 
 const FIXED_CODE = [
   "import numpy as np",
@@ -83,6 +81,7 @@ class App extends Component {
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onOpenPopup = this.onOpenPopup.bind(this);
     this.onLogIn = this.onLogIn.bind(this);
+    this.onSignUp = this.onSignUp.bind(this);
     this.onClosePopup = this.onClosePopup.bind(this);
     this.onSetPopupRef = this.onSetPopupRef.bind(this);
 
@@ -95,7 +94,7 @@ class App extends Component {
       apiKey: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
-      askForLogIn: false
+      displayPopup: false
     };
 
     const apiKey = localStorage.getItem("openAiApiKey");
@@ -258,7 +257,7 @@ class App extends Component {
     const { code, language, apiKey } = this.state;
 
     if (apiKey === "") {
-      this.setState({ askForLogIn: true });
+      this.setState({ displayPopup: true });
       return;
     } else if (errorMessage === "") {
       return;
@@ -321,7 +320,7 @@ class App extends Component {
     const { code, language, apiKey } = this.state;
 
     if (apiKey === "") {
-      this.setState({ askForLogIn: true });
+      this.setState({ displayPopup: true });
       return;
     } else {
       this.setState({ waitingForCodeLint: true });
@@ -361,31 +360,7 @@ class App extends Component {
   onOpenPopup() {
     window.gtag("event", "click_login");
 
-    this.setState({ askForLogIn: true });
-  }
-  onLogIn(email, password) {
-      fetch('/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, password: password })
-      })
-      .then(res => res.json())
-      .then(data => {
-          if (data.message === 'Login successful') {
-              // Handle successful login
-              // e.g. redirect to a new page, display a message, etc.
-              console.log("onLogin success")
-          } else {
-              // Handle unsuccessful login
-              // e.g. display an error message, etc.
-              console.log("onLogin fail")
-          }
-      })
-      .catch(error => {
-          // Handle any errors that may occur during the login process
-          console.log("onLogin error: ", error)
-      });
-      //this.setState({ askForLogIn: false }
+    this.setState({ displayPopup: true });
   }
 
   onClosePopup(event) {
@@ -393,10 +368,42 @@ class App extends Component {
       return;
     }
 
-    this.setState({ askForLogIn: false });
+    this.setState({ displayPopup: false });
   }
 
   onSetPopupRef(ref) { this.popupRef = ref; }
+
+  onLogIn(email, password) {
+	    fetch("/login", {
+	        method: "POST",
+	        headers: { "Content-Type": "application/json" },
+	        body: JSON.stringify({ email: email, password: password })
+	    })
+	    .then(res => res.json())
+	    .then(data => {
+	        if (data.message === 'Login successful') {
+	            // Handle successful login
+	            // e.g. redirect to a new page, display a message, etc.
+							this.setState({ displayPopup: false, isInvalidLogin: false });
+	        } else {
+	            // Handle unsuccessful login
+	            // e.g. display an error message, etc.
+							console.log("onSubmit fail: ", data.message)
+							this.setState({ isInvalidLogin: true });
+	        }
+	    })
+	    .catch(error => {
+	        // Handle any errors that may occur during the login process
+					console.log("testing onsubmit error")
+	    });
+	    this.setState({ displayPopup: false });
+	}
+
+  onSignUp(email, password) {
+		// TODO: Make a post request
+
+		this.setState({ displayPopup: false });
+	}
 
 	render() {
     const { location } = this.props.router;
@@ -407,8 +414,10 @@ class App extends Component {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
-      askForLogIn,
-      apiKey
+      displayPopup,
+      apiKey,
+      isInvalidLogin,
+      isInvalidSignUp
     } = this.state;
 
     window.gtag("event", "page_view", {
@@ -417,11 +426,14 @@ class App extends Component {
 
     return (
       <Fragment>
-        {askForLogIn ? (
+        {displayPopup ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
-            <Popup
-              onSubmit={this.onLogIn}
+            <LoginForm
+              onLogin={this.onLogIn}
+              onSignUp={this.onSignUp}
               setRef={this.onSetPopupRef}
+              isInvalidLogin={isInvalidLogin}
+              isInvalidSignUp={isInvalidSignUp}
             />
           </div>
         ) : null}
