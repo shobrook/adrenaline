@@ -2,6 +2,7 @@ import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
 
 import LoginForm from "../components/LoginForm";
+import KeyForm from "../components/KeyForm";
 import Button from "../components/Button";
 import Header from "../containers/Header";
 
@@ -13,6 +14,7 @@ class Landing extends Component {
 	constructor(props) {
 		super(props);
 
+		this.onSubmit = this.onSubmit.bind(this);
 		this.onOpenPopup = this.onOpenPopup.bind(this);
 		this.onLogIn = this.onLogIn.bind(this);
 		this.onSignUp = this.onSignUp.bind(this);
@@ -22,9 +24,17 @@ class Landing extends Component {
 		this.state = {
 			displayPopup: false,
 			isInvalidLogin: false,
-			isInvalidSignUp: false
+			isInvalidSignUp: false,
+			isLoggedIn: false
 		};
+
+		const isLoggedIn = localStorage.getItem("isLoggedIn");
+		if (isLoggedIn) {
+			this.state.isLoggedIn = JSON.parse(isLoggedIn);
+		}
 	}
+
+	onSubmit() { this.setState({ displayPopup: false }); }
 
 	onOpenPopup() {
 		window.gtag("event", "click_login");
@@ -40,7 +50,7 @@ class Landing extends Component {
 			return;
 		}
 
-		fetch("/register", {
+		fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email, password: password })
@@ -51,7 +61,8 @@ class Landing extends Component {
 				window.gtag("event", "submit_signup_success");
 
 				navigate("/playground");
-				this.setState({ displayPopup: false, isInvalidSignUp: false });
+				localStorage.setItem("isLoggedIn", JSON.stringify(true));
+				this.setState({ displayPopup: false, isInvalidSignUp: false, isLoggedIn: true });
       } else {
 				window.gtag("event", "submit_signup_failure");
 				console.log("onSubmit fail: ", data.message)
@@ -63,6 +74,9 @@ class Landing extends Component {
 			window.gtag("event", "submit_signup_failure");
 
 			console.log(error);
+
+			// TEMP: Testing only
+			localStorage.setItem("isLoggedIn", JSON.stringify(true));
 			this.setState({ displayPopup: true, isInvalidSignUp: true });
     });
 	}
@@ -70,7 +84,7 @@ class Landing extends Component {
 	onLogIn(email, password) {
 		const { navigate } = this.props.router;
 
-    fetch("/login", {
+    fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email, password: password })
@@ -80,8 +94,9 @@ class Landing extends Component {
       if (data.message === 'Login successful') {
 				window.gtag("event", "submit_login_success");
 
+				localStorage.setItem("isLoggedIn", JSON.stringify(true));
 				navigate("/playground");
-				this.setState({ displayPopup: false, isInvalidLogin: false });
+				this.setState({ displayPopup: false, isInvalidLogin: false, isLoggedIn: true });
       } else {
 				window.gtag("event", "submit_login_failure");
 				console.log("onSubmit fail: ", data.message)
@@ -93,7 +108,12 @@ class Landing extends Component {
 			window.gtag("event", "submit_login_failure");
 
 			console.log(error);
-			this.setState({ displayPopup: true, isInvalidLogin: true });
+			// this.setState({ displayPopup: true, isInvalidLogin: true });
+
+			// TEMP: Testing only
+			localStorage.setItem("isLoggedIn", JSON.stringify(true));
+			navigate("/playground");
+			this.setState({ displayPopup: false, isInvalidLogin: false, isLoggedIn: true });
     });
 	}
 
@@ -109,7 +129,12 @@ class Landing extends Component {
 
 	render() {
 		const { location } = this.props.router;
-		const { displayPopup, isInvalidLogin, isInvalidSignUp } = this.state;
+		const {
+			displayPopup,
+			isInvalidLogin,
+			isInvalidSignUp,
+			isLoggedIn
+		} = this.state;
 
 		window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
@@ -117,7 +142,7 @@ class Landing extends Component {
 
     return (
 			<Fragment>
-				{displayPopup ? (
+				{displayPopup && !isLoggedIn ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
             <LoginForm
 							onLogIn={this.onLogIn}
@@ -128,8 +153,16 @@ class Landing extends Component {
             />
           </div>
         ) : null}
+				{displayPopup && isLoggedIn ? (
+          <div className="popupLayer" onClick={this.onClosePopup}>
+            <KeyForm
+							onSubmit={this.onSubmit}
+							setRef={this.onSetPopupRef}
+            />
+          </div>
+        ) : null}
 	      <div className="landing">
-	        <Header onClick={this.onOpenPopup} isPlaygroundActive={false} />
+	        <Header onClick={this.onOpenPopup} isPlaygroundActive={false} isLoggedIn={isLoggedIn} />
 	        <div className="landingBody">
 	          <div className="landingLHS">
 	            <div className="landingHeading">

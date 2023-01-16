@@ -10,6 +10,7 @@ import {
 } from "../utilities";
 
 import LoginForm from "../components/LoginForm";
+import KeyForm from "../components/KeyForm";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
@@ -84,6 +85,7 @@ class App extends Component {
     this.onSignUp = this.onSignUp.bind(this);
     this.onClosePopup = this.onClosePopup.bind(this);
     this.onSetPopupRef = this.onSetPopupRef.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
 
 		this.state = {
       language: {label: "Python", value: "python"},
@@ -94,16 +96,24 @@ class App extends Component {
       apiKey: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
-      displayPopup: false
+      displayPopup: false,
+      isLoggedIn: false
     };
 
     const apiKey = localStorage.getItem("openAiApiKey");
     if (apiKey) {
       this.state.apiKey = JSON.parse(apiKey);
     }
+
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+		if (isLoggedIn) {
+			this.state.isLoggedIn = JSON.parse(isLoggedIn);
+		}
 	}
 
   /* Event Handlers */
+
+  onSubmit() { this.setState({ displayPopup: false }); }
 
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
@@ -373,36 +383,75 @@ class App extends Component {
 
   onSetPopupRef(ref) { this.popupRef = ref; }
 
-  onLogIn(email, password) {
-	    fetch("/login", {
-	        method: "POST",
-	        headers: { "Content-Type": "application/json" },
-	        body: JSON.stringify({ email: email, password: password })
-	    })
-	    .then(res => res.json())
-	    .then(data => {
-	        if (data.message === 'Login successful') {
-	            // Handle successful login
-	            // e.g. redirect to a new page, display a message, etc.
-							this.setState({ displayPopup: false, isInvalidLogin: false });
-	        } else {
-	            // Handle unsuccessful login
-	            // e.g. display an error message, etc.
-							console.log("onSubmit fail: ", data.message)
-							this.setState({ isInvalidLogin: true });
-	        }
-	    })
-	    .catch(error => {
-	        // Handle any errors that may occur during the login process
-					console.log("testing onsubmit error")
-	    });
-	    this.setState({ displayPopup: false });
+  onSignUp(email, password, reEnteredPassword) {
+		const { navigate } = this.props.router;
+
+		if (password !== reEnteredPassword) {
+			this.setState({ displayPopup: true, isInvalidSignUp: true});
+			return;
+		}
+
+		fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.message === 'Signup successful') {
+				window.gtag("event", "submit_signup_success");
+
+        localStorage.setItem("isLoggedIn", true);
+				this.setState({ displayPopup: false, isInvalidSignUp: false });
+      } else {
+				window.gtag("event", "submit_signup_failure");
+				console.log("onSubmit fail: ", data.message)
+
+				this.setState({ displayPopup: true, isInvalidSignUp: true });
+      }
+    })
+    .catch(error => {
+			window.gtag("event", "submit_signup_failure");
+
+			console.log(error);
+
+      // TEMP: Testing only
+      localStorage.setItem("isLoggedIn", true);
+			this.setState({ displayPopup: true, isInvalidSignUp: true });
+    });
 	}
 
-  onSignUp(email, password) {
-		// TODO: Make a post request
+	onLogIn(email, password) {
+		const { navigate } = this.props.router;
 
-		this.setState({ displayPopup: false });
+    fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.message === 'Login successful') {
+				window.gtag("event", "submit_login_success");
+
+        localStorage.setItem("isLoggedIn", true);
+				this.setState({ displayPopup: false, isInvalidLogin: false });
+      } else {
+				window.gtag("event", "submit_login_failure");
+				console.log("onSubmit fail: ", data.message)
+
+				this.setState({ displayPopup: true, isInvalidLogin: true });
+      }
+    })
+    .catch(error => {
+			window.gtag("event", "submit_login_failure");
+
+			console.log(error);
+
+      // TEMP: Testing only
+      localStorage.setItem("isLoggedIn", true);
+			this.setState({ displayPopup: true, isInvalidLogin: true });
+    });
 	}
 
 	render() {
@@ -417,7 +466,8 @@ class App extends Component {
       displayPopup,
       apiKey,
       isInvalidLogin,
-      isInvalidSignUp
+      isInvalidSignUp,
+      isLoggedIn
     } = this.state;
 
     window.gtag("event", "page_view", {
@@ -426,7 +476,7 @@ class App extends Component {
 
     return (
       <Fragment>
-        {displayPopup ? (
+        {displayPopup & !isLoggedIn ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
             <LoginForm
               onLogin={this.onLogIn}
@@ -437,8 +487,16 @@ class App extends Component {
             />
           </div>
         ) : null}
+        {displayPopup && isLoggedIn ? (
+          <div className="popupLayer" onClick={this.onClosePopup}>
+            <KeyForm
+							onSubmit={this.onSubmit}
+							setRef={this.onSetPopupRef}
+            />
+          </div>
+        ) : null}
         <div className="app">
-          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} />
+          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} isLoggedIn={isLoggedIn} />
           <div className="body">
             <div className="lhs">
               <CodeEditor
