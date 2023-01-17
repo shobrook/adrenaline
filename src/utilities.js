@@ -1,7 +1,7 @@
 import {
   useLocation,
   useNavigate,
-  useParams
+  useParams,
 } from "react-router-dom";
 import * as Diff from 'diff';
 
@@ -80,8 +80,6 @@ export function withRouter(Component) {
     let location = useLocation();
     let navigate = useNavigate();
     let params = useParams();
-    console.log(navigate);
-
     return (
       <Component
         {...props}

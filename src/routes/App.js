@@ -9,14 +9,15 @@ import {
   withRouter
 } from "../utilities";
 
-import LoginForm from "../components/LoginForm";
-import KeyForm from "../components/KeyForm";
+import Popup from "../components/Popup";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
 import ErrorExplanation from "../containers/ErrorExplanation";
 
 import './App.css';
+
+const Account = require('../models/account');
 
 const FIXED_CODE = [
   "import numpy as np",
@@ -82,10 +83,8 @@ class App extends Component {
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onOpenPopup = this.onOpenPopup.bind(this);
     this.onLogIn = this.onLogIn.bind(this);
-    this.onSignUp = this.onSignUp.bind(this);
     this.onClosePopup = this.onClosePopup.bind(this);
     this.onSetPopupRef = this.onSetPopupRef.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
 
 		this.state = {
       language: {label: "Python", value: "python"},
@@ -96,30 +95,16 @@ class App extends Component {
       apiKey: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
-      displayPopup: false,
-      loginFailure: false,
-			isWrongPassword: false,
-			isInvalidAccount: false,
-			doPasswordsMatch: true,
-			signUpFailure: false,
-			accountAlreadyExists: false,
-      isLoggedIn: false
+      askForLogIn: false
     };
 
     const apiKey = localStorage.getItem("openAiApiKey");
     if (apiKey) {
       this.state.apiKey = JSON.parse(apiKey);
     }
-
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-		if (isLoggedIn) {
-			this.state.isLoggedIn = JSON.parse(isLoggedIn);
-		}
 	}
 
   /* Event Handlers */
-
-  onSubmit() { this.setState({ displayPopup: false }); }
 
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
@@ -270,10 +255,10 @@ class App extends Component {
   onDebug(errorMessage) {
     window.gtag("event", "click_debug");
 
-    const { code, language, apiKey, isLoggedIn } = this.state;
+    const { code, language, apiKey } = this.state;
 
-    if (!isLoggedIn || apiKey === "") {
-      this.setState({ displayPopup: true });
+    if (apiKey === "") {
+      this.setState({ askForLogIn: true });
       return;
     } else if (errorMessage === "") {
       return;
@@ -333,10 +318,10 @@ class App extends Component {
   onLint() {
     window.gtag("event", "click_lint");
 
-    const { code, language, apiKey, isLoggedIn } = this.state;
+    const { code, language, apiKey } = this.state;
 
-    if (!isLoggedIn || apiKey === "") {
-      this.setState({ displayPopup: true });
+    if (apiKey === "") {
+      this.setState({ askForLogIn: true });
       return;
     } else {
       this.setState({ waitingForCodeLint: true });
@@ -376,7 +361,31 @@ class App extends Component {
   onOpenPopup() {
     window.gtag("event", "click_login");
 
-    this.setState({ displayPopup: true });
+    this.setState({ askForLogIn: true });
+  }
+  onLogIn(email, password) {
+      fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password })
+      })
+      .then(res => res.json())
+      .then(data => {
+          if (data.message === 'Login successful') {
+              // Handle successful login
+              // e.g. redirect to a new page, display a message, etc.
+              console.log("onLogin success")
+          } else {
+              // Handle unsuccessful login
+              // e.g. display an error message, etc.
+              console.log("onLogin fail")
+          }
+      })
+      .catch(error => {
+          // Handle any errors that may occur during the login process
+          console.log("onLogin error: ", error)
+      });
+      //this.setState({ askForLogIn: false }
   }
 
   onClosePopup(event) {
@@ -384,83 +393,10 @@ class App extends Component {
       return;
     }
 
-    this.setState({ displayPopup: false });
+    this.setState({ askForLogIn: false });
   }
 
   onSetPopupRef(ref) { this.popupRef = ref; }
-
-  onSignUp(email, password, reEnteredPassword) {
-		const { navigate } = this.props.router;
-
-		if (password !== reEnteredPassword) {
-			this.setState({ displayPopup: true, doPasswordsMatch: false});
-			return;
-		}
-
-		fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, password: password })
-    })
-    .then(res => res.json())
-    .then(data => {
-			const { success, accountAlreadyExists } = data;
-
-      if (success) {
-				window.gtag("event", "submit_signup_success");
-
-				navigate("/playground");
-				localStorage.setItem("isLoggedIn", JSON.stringify(true));
-				this.setState({ displayPopup: false, isLoggedIn: true });
-      } else if (accountAlreadyExists) {
-				window.gtag("event", "submit_signup_failure");
-				this.setState({ accountAlreadyExists: true });
-      } else {
-				window.gtag("event", "submit_signup_failure");
-				this.setState({ signUpFailure: true });
-			}
-    })
-    .catch(error => {
-			window.gtag("event", "submit_signup_failure");
-			this.setState({ signUpFailure: true })
-    });
-	}
-
-  onLogIn(email, password) {
-		const { navigate } = this.props.router;
-
-    fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, password: password })
-    })
-    .then(res => res.json())
-    .then(data => {
-			const { success, isWrongPassword, isInvalidAccount } = data;
-
-      if (success) {
-				window.gtag("event", "submit_login_success");
-
-				navigate("/playground");
-				localStorage.setItem("isLoggedIn", JSON.stringify(true));
-				this.setState({ displayPopup: false, isLoggedIn: true });
-      } else if (isWrongPassword) {
-				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, isWrongPassword: true });
-      } else if (isInvalidAccount) {
-				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, isInvalidAccount: true });
-			} else {
-				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, loginFailure: true });
-			}
-    })
-    .catch(error => {
-			window.gtag("event", "submit_login_failure");
-			console.log(error);
-			this.setState({ loginFailure: true });
-    });
-	}
 
 	render() {
     const { location } = this.props.router;
@@ -471,23 +407,9 @@ class App extends Component {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
-      displayPopup,
-      apiKey,
-      loginFailure,
-			signUpFailure,
-			accountAlreadyExists,
-			doPasswordsMatch,
-			isWrongPassword,
-			isInvalidAccount,
-      isLoggedIn
+      askForLogIn,
+      apiKey
     } = this.state;
-
-    // let isLoggedIn = localStorage.getItem("isLoggedIn");
-		// if (isLoggedIn) {
-		// 	isLoggedIn = JSON.parse(isLoggedIn);
-		// } else {
-    //   isLoggedIn = false;
-    // }
 
     window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
@@ -495,31 +417,16 @@ class App extends Component {
 
     return (
       <Fragment>
-        {displayPopup & !isLoggedIn ? (
+        {askForLogIn ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
-            <LoginForm
-              onLogIn={this.onLogIn}
-              onSignUp={this.onSignUp}
+            <Popup
+              onSubmit={this.onLogIn}
               setRef={this.onSetPopupRef}
-              loginFailure={loginFailure}
-              signUpFailure={signUpFailure}
-              accountAlreadyExists={accountAlreadyExists}
-              doPasswordsMatch={doPasswordsMatch}
-              isInvalidAccount={isInvalidAccount}
-              isWrongPassword={isWrongPassword}
-            />
-          </div>
-        ) : null}
-        {displayPopup && isLoggedIn ? (
-          <div className="popupLayer" onClick={this.onClosePopup}>
-            <KeyForm
-							onSubmit={this.onSubmit}
-							setRef={this.onSetPopupRef}
             />
           </div>
         ) : null}
         <div className="app">
-          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} isLoggedIn={isLoggedIn} />
+          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} />
           <div className="body">
             <div className="lhs">
               <CodeEditor

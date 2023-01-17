@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 
 const Account = require('./src/models/account');
 
-const uri = process.env.MONGODB_URI;
+const uri = `${process.env.MONGODB_URI}`;
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected...'))
@@ -20,18 +20,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/api/register', [
-    check('email').isEmail().withMessage('Invalid email'),
-    check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    check('email').isEmail().withMessage('Invalid email\n'),
+    check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters\n')
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ success: false, accountAlreadyExists: false });
+        return res.status(400).json({ errors: errors.array() });
     }
 
     try {
         let existingAccount = await Account.findOne({ email: req.body.email });
         if (existingAccount) {
-            return res.status(400).json({ success: false, accountAlreadyExists: true });
+            return res.status(400).json({ errors: [{ msg: 'Email already in use\n' }] });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -44,36 +44,37 @@ app.post('/api/register', [
 
         await newAccount.save();
 
-        res.status(200).json({ success: true, accountAlreadyExists: false });
+        res.status(200).send('Registration successful\n');
     } catch (err) {
         console.log(err);
-        res.status(500).json({ success: false, accountAlreadyExists: false });
+        res.status(500).send('Error registering new account\n');
     }
 });
 
 app.post('/api/login', [
     check('email').isEmail().withMessage('Invalid email\n'),
-    check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters\n')
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ success: false, isWrongPassword: false, isInvalidLogin: false });
+        return res.status(400).json({ errors: errors.array() });
     }
 
     try {
         let account = await Account.findOne({ email: req.body.email });
         if (!account) {
-            return res.status(404).json({ success: false, isWrongPassword: false, isInvalidAccount: true});
+            return res.status(404).send('No account found\n');
         }
 
         const isMatch = await bcrypt.compare(req.body.password, account.password);
         if (!isMatch) {
-            return res.status(401).json({ success: false, isWrongPassword: true, isInvalidAccount: false });
+            return res.status(401).send('Incorrect password\n');
         }
-        res.status(200).json({ success: true, isWrongPassword: false, isInvalidAccount: false });
+
+        res.status(200).send('Login successful\n');
     } catch (err) {
         console.log(err);
-        res.status(500).json({ success: false, isWrongPassword: false, isInvalidAccount: false });
+        res.status(500).send('Error logging in\n');
 }
 });
 
