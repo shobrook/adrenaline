@@ -13,5 +13,9 @@
   "scripts": {
     "start": "node index.js",
     "heroku-postbuild": "cd client && npm install && npm run build"
-  }
+  },
+  "engines": {
+    "npm": "8.6.0",
+    "node": "18.0.0"
+  },
 }
