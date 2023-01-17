@@ -86,6 +86,10 @@
   color: rgba(255, 255, 255, 0.35);
 }
 
+.password {
+  padding-top: 0px !important;
+}
+
 .loginButton {
   height: 45px !important;
   /* margin-top: 15px; */
@@ -115,4 +119,10 @@
 
 .lastStep {
   padding-top: 3px;
+}
+
+.failure {
+  padding-top: 10px;
+  color: #FB4D3D;
+  font-size: 14px;
 }

@@ -25,13 +25,13 @@ app.post('/api/register', [
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ success: false, accountAlreadyExists: false });
     }
 
     try {
         let existingAccount = await Account.findOne({ email: req.body.email });
         if (existingAccount) {
-            return res.status(400).json({ errors: [{ msg: 'Email already in use' }] });
+            return res.status(400).json({ success: false, accountAlreadyExists: true });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -44,10 +44,10 @@ app.post('/api/register', [
 
         await newAccount.save();
 
-        res.status(200).json({ message: 'Registration successful'});
+        res.status(200).json({ success: true, accountAlreadyExists: false });
     } catch (err) {
         console.log(err);
-        res.status(500).json({ message: 'Error registering new account'});
+        res.status(500).json({ success: false, accountAlreadyExists: false });
     }
 });
 
@@ -57,23 +57,23 @@ app.post('/api/login', [
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ success: false, isWrongPassword: false, isInvalidLogin: false });
     }
 
     try {
         let account = await Account.findOne({ email: req.body.email });
         if (!account) {
-            return res.status(404).json({ message: 'No account found'});
+            return res.status(404).json({ success: false, isWrongPassword: false, isInvalidAccount: true});
         }
 
         const isMatch = await bcrypt.compare(req.body.password, account.password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Incorrect password'});
+            return res.status(401).json({ success: false, isWrongPassword: true, isInvalidAccount: false });
         }
-        res.status(200).json({ message: 'Login successful' });
+        res.status(200).json({ success: true, isWrongPassword: false, isInvalidAccount: false });
     } catch (err) {
         console.log(err);
-        res.status(500).json({ message: 'Error logging in'});
+        res.status(500).json({ success: false, isWrongPassword: false, isInvalidAccount: false });
 }
 });
 

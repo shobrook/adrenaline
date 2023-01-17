@@ -15,16 +15,20 @@ export default class LoginForm extends Component {
   onChangeEmail = event => this.setState({ email: event.target.value });
   onChangePassword = event => this.setState({ password: event.target.value });
   onChangeReEnteredPassword = event => this.setState({ reEnteredPassword: event.target.value });
-  onClickSignUp = () => this.setState({ isSignUp: true });
-  onClickLogin = () => this.setState({ isSignUp: false });
+  onClickSignUp = () => this.setState({ isSignUp: true, email: "", password: "", reEnteredPassword: "" });
+  onClickLogin = () => this.setState({ isSignUp: false, email: "", password: "", reEnteredPassword: "" });
 
   render() {
     const { email, password, reEnteredPassword, isSignUp } = this.state;
     const {
       onLogIn,
       onSignUp,
-      isInvalidLogin,
-      isInvalidSignUp,
+      loginFailure,
+      signUpFailure,
+      accountAlreadyExists,
+      doPasswordsMatch,
+      isWrongPassword,
+      isInvalidAccount,
       setRef
     } = this.props;
 
@@ -43,7 +47,7 @@ export default class LoginForm extends Component {
               pattern="[^\n]*"
             />
             <input
-              className="inputText"
+              className="inputText password"
               defaultValue={password}
               onInput={event => this.setState({password: event.target.value})}
               placeholder="Password"
@@ -52,7 +56,7 @@ export default class LoginForm extends Component {
             />
             {isSignUp ? (
               <input
-                className="inputText"
+                className="inputText password"
                 value={reEnteredPassword}
                 onChange={this.onChangeReEnteredPassword}
                 placeholder="Re-enter password"
@@ -60,8 +64,12 @@ export default class LoginForm extends Component {
                 pattern="[^\n]*"
               />
             ) : null}
-            {isInvalidLogin && !isSignUp ? (<span>Invalid login</span>) : null}
-            {isInvalidSignUp && isSignUp ? (<span>Invalid signup</span>) : null}
+            {isSignUp && signUpFailure ? (<span className="failure">Failed to create account</span>) : null}
+            {isSignUp && accountAlreadyExists ? (<span className="failure">Account already exists</span>) : null}
+            {isSignUp && !doPasswordsMatch ? (<span className="failure">Passwords don't match</span>) : null}
+            {!isSignUp && loginFailure ? (<span className="failure">Failed to login</span>) : null}
+            {!isSignUp && isWrongPassword ? (<span className="failure">Incorrect password</span>) : null}
+            {!isSignUp && isInvalidAccount ? (<span className="failure">Account doesn't exist</span>) : null}
             <Button className="loginButton" isPrimary onClick={() => {
               if (isSignUp) {
                 onSignUp(email, password, reEnteredPassword);

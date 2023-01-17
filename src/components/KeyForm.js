@@ -32,7 +32,7 @@ export default class KeyForm extends Component {
           <div className="popupForm">
             <div className="inputField">
               <textarea
-                className="inputText"
+                id="apiKeyInput"
                 ref={ref => this.input = ref}
                 value={value}
                 onChange={this.onChange}

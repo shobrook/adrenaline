@@ -23,8 +23,12 @@ class Landing extends Component {
 
 		this.state = {
 			displayPopup: false,
-			isInvalidLogin: false,
-			isInvalidSignUp: false,
+			loginFailure: false,
+			isWrongPassword: false,
+			isInvalidAccount: false,
+			doPasswordsMatch: true,
+			signUpFailure: false,
+			accountAlreadyExists: false,
 			isLoggedIn: false
 		};
 
@@ -46,7 +50,7 @@ class Landing extends Component {
 		const { navigate } = this.props.router;
 
 		if (password !== reEnteredPassword) {
-			this.setState({ displayPopup: true, isInvalidSignUp: true});
+			this.setState({ displayPopup: true, doPasswordsMatch: false});
 			return;
 		}
 
@@ -57,27 +61,25 @@ class Landing extends Component {
     })
     .then(res => res.json())
     .then(data => {
-      if (data.message === 'Registration successful') {
+			const { success, accountAlreadyExists } = data;
+
+      if (success) {
 				window.gtag("event", "submit_signup_success");
 
 				navigate("/playground");
 				localStorage.setItem("isLoggedIn", JSON.stringify(true));
-				this.setState({ displayPopup: false, isInvalidSignUp: false, isLoggedIn: true });
+				this.setState({ displayPopup: false, isLoggedIn: true });
+      } else if (accountAlreadyExists) {
+				window.gtag("event", "submit_signup_failure");
+				this.setState({ accountAlreadyExists: true });
       } else {
 				window.gtag("event", "submit_signup_failure");
-				console.log("onSubmit fail: ", data.message)
-
-				this.setState({ displayPopup: true, isInvalidSignUp: true });
-      }
+				this.setState({ signUpFailure: true });
+			}
     })
     .catch(error => {
 			window.gtag("event", "submit_signup_failure");
-
-			console.log(error);
-
-			// TEMP: Testing only
-			// localStorage.setItem("isLoggedIn", JSON.stringify(true));
-			// this.setState({ displayPopup: true, isInvalidSignUp: true });
+			this.setState({ signUpFailure: true })
     });
 	}
 
@@ -91,29 +93,29 @@ class Landing extends Component {
     })
     .then(res => res.json())
     .then(data => {
-      if (data.message == 'Login successful') {
+			const { success, isWrongPassword, isInvalidAccount } = data;
+
+      if (success) {
 				window.gtag("event", "submit_login_success");
 
-				localStorage.setItem("isLoggedIn", JSON.stringify(true));
 				navigate("/playground");
-				this.setState({ displayPopup: false, isInvalidLogin: false, isLoggedIn: true });
-      } else {
+				localStorage.setItem("isLoggedIn", JSON.stringify(true));
+				this.setState({ displayPopup: false, isLoggedIn: true });
+      } else if (isWrongPassword) {
 				window.gtag("event", "submit_login_failure");
-				console.log("onSubmit fail: ", data.message)
-
-				this.setState({ displayPopup: true, isInvalidLogin: true });
-      }
+				this.setState({ displayPopup: true, isWrongPassword: true });
+      } else if (isInvalidAccount) {
+				window.gtag("event", "submit_login_failure");
+				this.setState({ displayPopup: true, isInvalidAccount: true });
+			} else {
+				window.gtag("event", "submit_login_failure");
+				this.setState({ displayPopup: true, loginFailure: true });
+			}
     })
     .catch(error => {
 			window.gtag("event", "submit_login_failure");
-
 			console.log(error);
-			// this.setState({ displayPopup: true, isInvalidLogin: true });
-
-			// TEMP: Testing only
-			// localStorage.setItem("isLoggedIn", JSON.stringify(true));
-			// navigate("/playground");
-			// this.setState({ displayPopup: false, isInvalidLogin: false, isLoggedIn: true });
+			this.setState({ loginFailure: true });
     });
 	}
 
@@ -131,8 +133,12 @@ class Landing extends Component {
 		const { location } = this.props.router;
 		const {
 			displayPopup,
-			isInvalidLogin,
-			isInvalidSignUp,
+			loginFailure,
+			signUpFailure,
+			accountAlreadyExists,
+			doPasswordsMatch,
+			isWrongPassword,
+			isInvalidAccount,
 			isLoggedIn
 		} = this.state;
 
@@ -148,8 +154,12 @@ class Landing extends Component {
 							onLogIn={this.onLogIn}
 							onSignUp={this.onSignUp}
               setRef={this.onSetPopupRef}
-							isInvalidLogin={isInvalidLogin}
-							isInvalidSignUp={isInvalidSignUp}
+							loginFailure={loginFailure}
+							signUpFailure={signUpFailure}
+							accountAlreadyExists={accountAlreadyExists}
+							doPasswordsMatch={doPasswordsMatch}
+							isInvalidAccount={isInvalidAccount}
+							isWrongPassword={isWrongPassword}
             />
           </div>
         ) : null}
