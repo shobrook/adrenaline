@@ -44,10 +44,10 @@ app.post('/api/register', [
 
         await newAccount.save();
 
-        res.status(200).json({ message: 'Registration successful\n'});
+        res.status(200).json({ message: 'Registration successful'});
     } catch (err) {
         console.log(err);
-        res.status(500).json({ message: 'Error registering new account\n'});
+        res.status(500).json({ message: 'Error registering new account'});
     }
 });
 

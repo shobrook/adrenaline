@@ -37,6 +37,7 @@ export default class KeyForm extends Component {
                 value={value}
                 onChange={this.onChange}
                 placeholder="Enter your OpenAI API key"
+                pattern="[^\n]*"
               />
               <Button className="popupSubmit" isPrimary onClick={() => {
                 window.gtag("event", "submit_api_key");

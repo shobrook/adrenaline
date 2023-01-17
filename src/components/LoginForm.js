@@ -40,19 +40,24 @@ export default class LoginForm extends Component {
               value={email}
               onChange={this.onChangeEmail}
               placeholder="Email"
+              pattern="[^\n]*"
             />
-            <textarea
+            <input
               className="inputText"
-              value={password}
-              onChange={this.onChangePassword}
+              defaultValue={password}
+              onInput={event => this.setState({password: event.target.value})}
               placeholder="Password"
+              type="password"
+              pattern="[^\n]*"
             />
             {isSignUp ? (
-              <textarea
+              <input
                 className="inputText"
                 value={reEnteredPassword}
                 onChange={this.onChangeReEnteredPassword}
                 placeholder="Re-enter password"
+                type="password"
+                pattern="[^\n]*"
               />
             ) : null}
             {isInvalidLogin && !isSignUp ? (<span>Invalid login</span>) : null}

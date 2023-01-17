@@ -57,7 +57,7 @@ class Landing extends Component {
     })
     .then(res => res.json())
     .then(data => {
-      if (data.message == 'Signup successful') {
+      if (data.message === 'Registration successful') {
 				window.gtag("event", "submit_signup_success");
 
 				navigate("/playground");
