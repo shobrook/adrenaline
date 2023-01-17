@@ -57,7 +57,7 @@ class Landing extends Component {
     })
     .then(res => res.json())
     .then(data => {
-      if (data.message === 'Signup successful') {
+      if (data.message == 'Signup successful') {
 				window.gtag("event", "submit_signup_success");
 
 				navigate("/playground");
@@ -76,8 +76,8 @@ class Landing extends Component {
 			console.log(error);
 
 			// TEMP: Testing only
-			localStorage.setItem("isLoggedIn", JSON.stringify(true));
-			this.setState({ displayPopup: true, isInvalidSignUp: true });
+			// localStorage.setItem("isLoggedIn", JSON.stringify(true));
+			// this.setState({ displayPopup: true, isInvalidSignUp: true });
     });
 	}
 
@@ -91,7 +91,7 @@ class Landing extends Component {
     })
     .then(res => res.json())
     .then(data => {
-      if (data.message === 'Login successful') {
+      if (data.message == 'Login successful') {
 				window.gtag("event", "submit_login_success");
 
 				localStorage.setItem("isLoggedIn", JSON.stringify(true));
@@ -111,9 +111,9 @@ class Landing extends Component {
 			// this.setState({ displayPopup: true, isInvalidLogin: true });
 
 			// TEMP: Testing only
-			localStorage.setItem("isLoggedIn", JSON.stringify(true));
-			navigate("/playground");
-			this.setState({ displayPopup: false, isInvalidLogin: false, isLoggedIn: true });
+			// localStorage.setItem("isLoggedIn", JSON.stringify(true));
+			// navigate("/playground");
+			// this.setState({ displayPopup: false, isInvalidLogin: false, isLoggedIn: true });
     });
 	}
 

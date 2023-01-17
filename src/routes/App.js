@@ -416,8 +416,8 @@ class App extends Component {
 			console.log(error);
 
       // TEMP: Testing only
-      localStorage.setItem("isLoggedIn", true);
-			this.setState({ displayPopup: true, isInvalidSignUp: true });
+      // localStorage.setItem("isLoggedIn", true);
+			// this.setState({ displayPopup: true, isInvalidSignUp: true });
     });
 	}
 
@@ -449,8 +449,8 @@ class App extends Component {
 			console.log(error);
 
       // TEMP: Testing only
-      localStorage.setItem("isLoggedIn", true);
-			this.setState({ displayPopup: true, isInvalidLogin: true });
+      // localStorage.setItem("isLoggedIn", true);
+			// this.setState({ displayPopup: true, isInvalidLogin: true });
     });
 	}
 
