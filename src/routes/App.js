@@ -9,7 +9,8 @@ import {
   withRouter
 } from "../utilities";
 
-import Popup from "../components/Popup";
+import LoginForm from "../components/LoginForm";
+import KeyForm from "../components/KeyForm";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
@@ -17,6 +18,25 @@ import ErrorExplanation from "../containers/ErrorExplanation";
 
 import './App.css';
 
+const FIXED_CODE = [
+  "import numpy as np",
+  "import pandas as pd",
+  "",
+  "from statsmodels.tsa.stattools import grangercausalitytests",
+  "",
+  "n = 1000",
+  "ls = np.linspace(0, 2*np.pi, n)",
+  "",
+  "df1 = pd.DataFrame(np.sin(ls))",
+  "df2 = pd.DataFrame(2*np.sin(1+ls))",
+  "noise = 0.0001 * np.random.rand(n, 2)",
+  "df2 += noise",
+  "df = pd.concat([df1, df2], axis=1)",
+  "",
+  "df.plot()",
+  "",
+  "grangercausalitytests(df, maxlag=20)"
+]
 const DEFAULT_CODE = [
   "#################",
   "### DEMO CODE ###",
@@ -61,9 +81,11 @@ class App extends Component {
     this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onOpenPopup = this.onOpenPopup.bind(this);
-    this.onSetAPIKey = this.onSetAPIKey.bind(this);
+    this.onLogIn = this.onLogIn.bind(this);
+    this.onSignUp = this.onSignUp.bind(this);
     this.onClosePopup = this.onClosePopup.bind(this);
     this.onSetPopupRef = this.onSetPopupRef.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
 
 		this.state = {
       language: {label: "Python", value: "python"},
@@ -74,16 +96,30 @@ class App extends Component {
       apiKey: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
-      askForAPIKey: false
+      displayPopup: false,
+      loginFailure: false,
+			isWrongPassword: false,
+			isInvalidAccount: false,
+			doPasswordsMatch: true,
+			signUpFailure: false,
+			accountAlreadyExists: false,
+      isLoggedIn: false
     };
 
     const apiKey = localStorage.getItem("openAiApiKey");
     if (apiKey) {
       this.state.apiKey = JSON.parse(apiKey);
     }
+
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+		if (isLoggedIn) {
+			this.state.isLoggedIn = JSON.parse(isLoggedIn);
+		}
 	}
 
   /* Event Handlers */
+
+  onSubmit() { this.setState({ displayPopup: false }); }
 
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
@@ -188,6 +224,8 @@ class App extends Component {
   }
 
   onResolveDiff(diff, linesToDelete, indicatorLineNum) {
+    window.gtag("event", "click_use_me");
+
     const { code, diffs } = this.state;
     const { id: diffId, oldCodeWidget, newCodeWidget } = diff;
 
@@ -230,16 +268,34 @@ class App extends Component {
   }
 
   onDebug(errorMessage) {
-    const { code, language, apiKey } = this.state;
+    window.gtag("event", "click_debug");
 
-    if (apiKey === "") {
-      this.setState({ askForAPIKey: true });
+    const { code, language, apiKey, isLoggedIn } = this.state;
+
+    if (!isLoggedIn || apiKey === "") {
+      this.setState({ displayPopup: true });
       return;
     } else if (errorMessage === "") {
       return;
     } else {
       this.setState({ waitingForCodeFix: true });
     }
+
+    // function sleep(ms) {
+    //   return new Promise(resolve => setTimeout(resolve, ms));
+    // }
+    //
+    // let inputCode = code.join("\n").trim().split("\n");
+    // let gptCode = FIXED_CODE;
+    // let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+    //
+    // sleep(3000).then(() => this.setState({
+    //   waitingForCodeFix: false,
+    //   code: mergedCode,
+    //   diffs,
+    //   errorMessage,
+    //   errorExplanation: "This error message means that the Granger causality test statistic cannot be computed because the VAR (Vector Autoregression) model has a perfect fit of the data. This means that the data is too predictable and the VAR model is not able to find any meaningful relationships between the variables. To fix this, you can try using a different model or adjusting the parameters of the VAR model."
+    // }));
 
     const apiConfig = new Configuration({ apiKey });
     const api = new OpenAIApi(apiConfig);
@@ -252,9 +308,11 @@ class App extends Component {
   	  .then(data => {
         let inputCode = code.join("\n").trim().split("\n");
   			let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
+
         let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
 
-        let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+        // let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+        let prompt = `Explain what this error message means and how to fix it:\n\`\`\`\n${errorMessage}\n\`\`\``;
         api
           .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
           .then(data => {
@@ -273,10 +331,12 @@ class App extends Component {
   };
 
   onLint() {
-    const { code, language, apiKey } = this.state;
+    window.gtag("event", "click_lint");
 
-    if (apiKey === "") {
-      this.setState({ askForAPIKey: true });
+    const { code, language, apiKey, isLoggedIn } = this.state;
+
+    if (!isLoggedIn || apiKey === "") {
+      this.setState({ displayPopup: true });
       return;
     } else {
       this.setState({ waitingForCodeLint: true });
@@ -307,21 +367,100 @@ class App extends Component {
       });
   }
 
-  onSelectLanguage(language) { this.setState({ language }); }
+  onSelectLanguage(language) {
+    window.gtag("event", "select_language", { language });
 
-  onOpenPopup() { this.setState({ askForAPIKey: true }); }
+    this.setState({ language });
+  }
 
-  onSetAPIKey(apiKey) { this.setState({ apiKey, askForAPIKey: false }); }
+  onOpenPopup() {
+    window.gtag("event", "click_login");
+
+    this.setState({ displayPopup: true });
+  }
 
   onClosePopup(event) {
     if (this.popupRef && this.popupRef.contains(event.target)) {
       return;
     }
 
-    this.setState({ askForAPIKey: false });
+    this.setState({ displayPopup: false });
   }
 
   onSetPopupRef(ref) { this.popupRef = ref; }
+
+  onSignUp(email, password, reEnteredPassword) {
+		const { navigate } = this.props.router;
+
+		if (password !== reEnteredPassword) {
+			this.setState({ displayPopup: true, doPasswordsMatch: false});
+			return;
+		}
+
+		fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+			const { success, accountAlreadyExists } = data;
+
+      if (success) {
+				window.gtag("event", "submit_signup_success");
+
+				navigate("/playground");
+				localStorage.setItem("isLoggedIn", JSON.stringify(true));
+				this.setState({ displayPopup: false, isLoggedIn: true });
+      } else if (accountAlreadyExists) {
+				window.gtag("event", "submit_signup_failure");
+				this.setState({ accountAlreadyExists: true });
+      } else {
+				window.gtag("event", "submit_signup_failure");
+				this.setState({ signUpFailure: true });
+			}
+    })
+    .catch(error => {
+			window.gtag("event", "submit_signup_failure");
+			this.setState({ signUpFailure: true })
+    });
+	}
+
+  onLogIn(email, password) {
+		const { navigate } = this.props.router;
+
+    fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+			const { success, isWrongPassword, isInvalidAccount } = data;
+
+      if (success) {
+				window.gtag("event", "submit_login_success");
+
+				navigate("/playground");
+				localStorage.setItem("isLoggedIn", JSON.stringify(true));
+				this.setState({ displayPopup: false, isLoggedIn: true });
+      } else if (isWrongPassword) {
+				window.gtag("event", "submit_login_failure");
+				this.setState({ displayPopup: true, isWrongPassword: true });
+      } else if (isInvalidAccount) {
+				window.gtag("event", "submit_login_failure");
+				this.setState({ displayPopup: true, isInvalidAccount: true });
+			} else {
+				window.gtag("event", "submit_login_failure");
+				this.setState({ displayPopup: true, loginFailure: true });
+			}
+    })
+    .catch(error => {
+			window.gtag("event", "submit_login_failure");
+			console.log(error);
+			this.setState({ loginFailure: true });
+    });
+	}
 
 	render() {
     const { location } = this.props.router;
@@ -332,9 +471,23 @@ class App extends Component {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
-      askForAPIKey,
-      apiKey
+      displayPopup,
+      apiKey,
+      loginFailure,
+			signUpFailure,
+			accountAlreadyExists,
+			doPasswordsMatch,
+			isWrongPassword,
+			isInvalidAccount,
+      isLoggedIn
     } = this.state;
+
+    // let isLoggedIn = localStorage.getItem("isLoggedIn");
+		// if (isLoggedIn) {
+		// 	isLoggedIn = JSON.parse(isLoggedIn);
+		// } else {
+    //   isLoggedIn = false;
+    // }
 
     window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
@@ -342,16 +495,31 @@ class App extends Component {
 
     return (
       <Fragment>
-        {askForAPIKey ? (
+        {displayPopup & !isLoggedIn ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
-            <Popup
-              onSubmit={this.onSetAPIKey}
+            <LoginForm
+              onLogIn={this.onLogIn}
+              onSignUp={this.onSignUp}
               setRef={this.onSetPopupRef}
+              loginFailure={loginFailure}
+              signUpFailure={signUpFailure}
+              accountAlreadyExists={accountAlreadyExists}
+              doPasswordsMatch={doPasswordsMatch}
+              isInvalidAccount={isInvalidAccount}
+              isWrongPassword={isWrongPassword}
+            />
+          </div>
+        ) : null}
+        {displayPopup && isLoggedIn ? (
+          <div className="popupLayer" onClick={this.onClosePopup}>
+            <KeyForm
+							onSubmit={this.onSubmit}
+							setRef={this.onSetPopupRef}
             />
           </div>
         ) : null}
         <div className="app">
-          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} />
+          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} isLoggedIn={isLoggedIn} />
           <div className="body">
             <div className="lhs">
               <CodeEditor

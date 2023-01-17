@@ -8,7 +8,7 @@ import "./Header.css";
 
 export default class Header extends Component {
 	render() {
-		const { isPlaygroundActive, onClick } = this.props;
+		const { isPlaygroundActive, onClick, isLoggedIn } = this.props;
 
     return (
       <div className="header">
@@ -18,10 +18,14 @@ export default class Header extends Component {
 					</Link>
 				</div>
 				<div className="buttons">
-					<Button className="headerGithubButton" isPrimary={false}>
+					<Button className="LogInButton" isPrimary onClick={onClick}>{isLoggedIn ? "Set API key" : "Log In"}</Button>
+					<Button
+						className="headerGithubButton"
+						isPrimary={false}
+						onClick={() => window.gtag("event", "click_view_on_github")}
+					>
 						<a href="https://github.com/shobrook/adrenaline/" target="_blank">View on GitHub</a>
 					</Button>
-					<Button className="apiKeyButton" isPrimary onClick={onClick}>Set API key</Button>
 				</div>
 				<div className="compactButtons">
 					<a className="githubIcon" href="https://github.com/shobrook/adrenaline/" target="_blank">
