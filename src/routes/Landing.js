@@ -18,56 +18,30 @@ class Landing extends Component {
 		this.onClosePopup = this.onClosePopup.bind(this);
 		this.onSetPopupRef = this.onSetPopupRef.bind(this);
 
-		this.state = { askForLogIn: false };
+		this.state = { askForAPIKey: false };
 	}
 
 	onOpenPopup() {
-		window.gtag("event", "click_login");
+		window.gtag("event", "click_set_api_key");
 
-		this.setState({ askForLogIn: true });
+		this.setState({ askForAPIKey: true });
 	}
 
-	onSubmit(email, password) {
-		console.log("onSubmit test")
-	    fetch('/login', {
-	        method: 'POST',
-	        headers: { 'Content-Type': 'application/json' },
-	        body: JSON.stringify({ email: email, password: password })
-	    })
-	    .then(res => res.json())
-	    .then(data => {
-	        if (data.message === 'Login successful') {
-	            // Handle successful login
-	            // e.g. redirect to a new page, display a message, etc.
-							console.log("onSubmit successful")
-							return;
-	        } else {
-	            // Handle unsuccessful login
-	            // e.g. display an error message, etc.
-							console.log("onSubmit fail: ", data.message)
-							return;
-	        }
-	    })
-	    .catch(error => {
-	        // Handle any errors that may occur during the login process
-					console.log("testing onsubmit error")
-	    });
-	    this.setState({ askForLogIn: false });
-	}
+	onSubmit() { this.setState({ askForAPIKey: false }); }
 
 	onClosePopup(event) {
     if (this.popupRef && this.popupRef.contains(event.target)) {
       return;
     }
 
-    this.setState({ askForLogIn: false });
+    this.setState({ askForAPIKey: false });
   }
 
 	onSetPopupRef(ref) { this.popupRef = ref; }
 
 	render() {
 		const { location } = this.props.router;
-		const { askForLogIn } = this.state;
+		const { askForAPIKey } = this.state;
 
 		window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
@@ -75,7 +49,7 @@ class Landing extends Component {
 
     return (
 			<Fragment>
-				{askForLogIn ? (
+				{askForAPIKey ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
             <Popup
               onSubmit={this.onSubmit}

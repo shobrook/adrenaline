@@ -17,8 +17,6 @@ import ErrorExplanation from "../containers/ErrorExplanation";
 
 import './App.css';
 
-const Account = require('../models/account');
-
 const FIXED_CODE = [
   "import numpy as np",
   "import pandas as pd",
@@ -82,7 +80,7 @@ class App extends Component {
     this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onOpenPopup = this.onOpenPopup.bind(this);
-    this.onLogIn = this.onLogIn.bind(this);
+    this.onSetAPIKey = this.onSetAPIKey.bind(this);
     this.onClosePopup = this.onClosePopup.bind(this);
     this.onSetPopupRef = this.onSetPopupRef.bind(this);
 
@@ -95,7 +93,7 @@ class App extends Component {
       apiKey: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
-      askForLogIn: false
+      askForAPIKey: false
     };
 
     const apiKey = localStorage.getItem("openAiApiKey");
@@ -258,7 +256,7 @@ class App extends Component {
     const { code, language, apiKey } = this.state;
 
     if (apiKey === "") {
-      this.setState({ askForLogIn: true });
+      this.setState({ askForAPIKey: true });
       return;
     } else if (errorMessage === "") {
       return;
@@ -321,7 +319,7 @@ class App extends Component {
     const { code, language, apiKey } = this.state;
 
     if (apiKey === "") {
-      this.setState({ askForLogIn: true });
+      this.setState({ askForAPIKey: true });
       return;
     } else {
       this.setState({ waitingForCodeLint: true });
@@ -359,41 +357,19 @@ class App extends Component {
   }
 
   onOpenPopup() {
-    window.gtag("event", "click_login");
+    window.gtag("event", "click_set_api_key");
 
-    this.setState({ askForLogIn: true });
+    this.setState({ askForAPIKey: true });
   }
-  onLogIn(email, password) {
-      fetch('/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, password: password })
-      })
-      .then(res => res.json())
-      .then(data => {
-          if (data.message === 'Login successful') {
-              // Handle successful login
-              // e.g. redirect to a new page, display a message, etc.
-              console.log("onLogin success")
-          } else {
-              // Handle unsuccessful login
-              // e.g. display an error message, etc.
-              console.log("onLogin fail")
-          }
-      })
-      .catch(error => {
-          // Handle any errors that may occur during the login process
-          console.log("onLogin error: ", error)
-      });
-      //this.setState({ askForLogIn: false }
-  }
+
+  onSetAPIKey(apiKey) { this.setState({ apiKey, askForAPIKey: false }); }
 
   onClosePopup(event) {
     if (this.popupRef && this.popupRef.contains(event.target)) {
       return;
     }
 
-    this.setState({ askForLogIn: false });
+    this.setState({ askForAPIKey: false });
   }
 
   onSetPopupRef(ref) { this.popupRef = ref; }
@@ -407,7 +383,7 @@ class App extends Component {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
-      askForLogIn,
+      askForAPIKey,
       apiKey
     } = this.state;
 
@@ -417,10 +393,10 @@ class App extends Component {
 
     return (
       <Fragment>
-        {askForLogIn ? (
+        {askForAPIKey ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
             <Popup
-              onSubmit={this.onLogIn}
+              onSubmit={this.onSetAPIKey}
               setRef={this.onSetPopupRef}
             />
           </div>
