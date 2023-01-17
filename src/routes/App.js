@@ -17,25 +17,6 @@ import ErrorExplanation from "../containers/ErrorExplanation";
 
 import './App.css';
 
-const FIXED_CODE = [
-  "import numpy as np",
-  "import pandas as pd",
-  "",
-  "from statsmodels.tsa.stattools import grangercausalitytests",
-  "",
-  "n = 1000",
-  "ls = np.linspace(0, 2*np.pi, n)",
-  "",
-  "df1 = pd.DataFrame(np.sin(ls))",
-  "df2 = pd.DataFrame(2*np.sin(1+ls))",
-  "noise = 0.0001 * np.random.rand(n, 2)",
-  "df2 += noise",
-  "df = pd.concat([df1, df2], axis=1)",
-  "",
-  "df.plot()",
-  "",
-  "grangercausalitytests(df, maxlag=20)"
-]
 const DEFAULT_CODE = [
   "#################",
   "### DEMO CODE ###",
@@ -207,8 +188,6 @@ class App extends Component {
   }
 
   onResolveDiff(diff, linesToDelete, indicatorLineNum) {
-    window.gtag("event", "click_use_me");
-
     const { code, diffs } = this.state;
     const { id: diffId, oldCodeWidget, newCodeWidget } = diff;
 
@@ -251,8 +230,6 @@ class App extends Component {
   }
 
   onDebug(errorMessage) {
-    window.gtag("event", "click_debug");
-
     const { code, language, apiKey } = this.state;
 
     if (apiKey === "") {
@@ -263,22 +240,6 @@ class App extends Component {
     } else {
       this.setState({ waitingForCodeFix: true });
     }
-
-    // function sleep(ms) {
-    //   return new Promise(resolve => setTimeout(resolve, ms));
-    // }
-    //
-    // let inputCode = code.join("\n").trim().split("\n");
-    // let gptCode = FIXED_CODE;
-    // let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
-    //
-    // sleep(3000).then(() => this.setState({
-    //   waitingForCodeFix: false,
-    //   code: mergedCode,
-    //   diffs,
-    //   errorMessage,
-    //   errorExplanation: "This error message means that the Granger causality test statistic cannot be computed because the VAR (Vector Autoregression) model has a perfect fit of the data. This means that the data is too predictable and the VAR model is not able to find any meaningful relationships between the variables. To fix this, you can try using a different model or adjusting the parameters of the VAR model."
-    // }));
 
     const apiConfig = new Configuration({ apiKey });
     const api = new OpenAIApi(apiConfig);
@@ -291,11 +252,9 @@ class App extends Component {
   	  .then(data => {
         let inputCode = code.join("\n").trim().split("\n");
   			let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
-
         let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
 
-        // let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
-        let prompt = `Explain what this error message means and how to fix it:\n\`\`\`\n${errorMessage}\n\`\`\``;
+        let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
         api
           .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
           .then(data => {
@@ -314,8 +273,6 @@ class App extends Component {
   };
 
   onLint() {
-    window.gtag("event", "click_lint");
-
     const { code, language, apiKey } = this.state;
 
     if (apiKey === "") {
@@ -350,17 +307,9 @@ class App extends Component {
       });
   }
 
-  onSelectLanguage(language) {
-    window.gtag("event", "select_language", { language });
+  onSelectLanguage(language) { this.setState({ language }); }
 
-    this.setState({ language });
-  }
-
-  onOpenPopup() {
-    window.gtag("event", "click_set_api_key");
-
-    this.setState({ askForAPIKey: true });
-  }
+  onOpenPopup() { this.setState({ askForAPIKey: true }); }
 
   onSetAPIKey(apiKey) { this.setState({ apiKey, askForAPIKey: false }); }
 

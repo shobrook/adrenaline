@@ -39,8 +39,6 @@ export default class Popup extends Component {
                 placeholder="Enter your OpenAI API key"
               />
               <Button className="popupSubmit" isPrimary onClick={() => {
-                window.gtag("event", "submit_api_key");
-
                 localStorage.setItem("openAiApiKey", JSON.stringify(value));
                 onSubmit(value);
               }}>

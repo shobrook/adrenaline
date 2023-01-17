@@ -18,11 +18,7 @@ export default class Header extends Component {
 					</Link>
 				</div>
 				<div className="buttons">
-					<Button
-						className="headerGithubButton"
-						isPrimary={false}
-						onClick={() => window.gtag("event", "click_view_on_github")}
-					>
+					<Button className="headerGithubButton" isPrimary={false}>
 						<a href="https://github.com/shobrook/adrenaline/" target="_blank">View on GitHub</a>
 					</Button>
 					<Button className="apiKeyButton" isPrimary onClick={onClick}>Set API key</Button>
