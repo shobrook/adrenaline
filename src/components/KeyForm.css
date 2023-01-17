@@ -61,7 +61,7 @@
   align-items: center;
 }
 
-.inputText {
+#apiKeyInput {
   border: 2px solid rgba(255, 255, 255, 0.65);
   box-sizing: border-box;
   outline: none;
@@ -80,7 +80,7 @@
   margin-right: 15px;
 }
 
-.inputText:placeholder {
+#apiKeyInput:placeholder {
   color: rgba(255, 255, 255, 0.35);
 }
 
