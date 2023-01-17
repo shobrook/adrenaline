@@ -8,7 +8,7 @@ import "./Header.css";
 
 export default class Header extends Component {
 	render() {
-		const { isPlaygroundActive, onClick } = this.props;
+		const { isPlaygroundActive, onClick, isLoggedIn } = this.props;
 
     return (
       <div className="header">
@@ -18,7 +18,7 @@ export default class Header extends Component {
 					</Link>
 				</div>
 				<div className="buttons">
-					<Button className="LogInButton" isPrimary onClick={onClick}>Log In</Button>
+					<Button className="LogInButton" isPrimary onClick={onClick}>{isLoggedIn ? "Set API key" : "Log In"}</Button>
 					<Button
 						className="headerGithubButton"
 						isPrimary={false}

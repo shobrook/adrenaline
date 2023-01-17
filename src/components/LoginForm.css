@@ -1,0 +1,128 @@
+@media (max-width: 1130px) {
+  #loginFormContainer {
+    width: 75% !important;
+  }
+}
+
+#loginFormContainer {
+  width: 40%;
+  max-width: 500px;
+  height: fit-content;
+  background-color: #373751;
+  box-shadow: 0px 2px 8px 2px rgba(32, 32, 48, 0.5);
+  border-radius: 10px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+#loginForm {
+  display: flex;
+  flex-direction: column;
+  width: 85%;
+  height: 72%;
+  justify-content: space-between;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+#heading {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding-bottom: 15px;
+}
+
+#title {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 1.25px;
+}
+
+.popupSubheading {
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.65);
+  width: 75%;
+  letter-spacing: 0.5px;
+  padding-top: 15px;
+}
+
+#loginInputFields {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputField {
+  display: flex;
+  flex-direction: row;
+  height: 45px;
+  align-items: center;
+}
+
+.inputText {
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  box-sizing: border-box;
+  outline: none;
+  color: white;
+  background-color: transparent;
+  border-radius: 5px;
+  resize: none;
+  height: 45px;
+  width: 100%;
+  padding-top: 9px;
+  font-size: 18px;
+  font-family: "Helvetica Neue";
+  padding-left: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-right: 15px;
+  margin-top: 15px;
+}
+
+.inputText:placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.password {
+  padding-top: 0px !important;
+}
+
+.loginButton {
+  height: 45px !important;
+  /* margin-top: 15px; */
+  color: white;
+  text-decoration: none;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+.instructions {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  padding-top: 10px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.instructions a {
+  color: #279AF1;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.instructions a:hover {
+  text-decoration: underline;
+}
+
+.lastStep {
+  padding-top: 3px;
+}
+
+.failure {
+  padding-top: 10px;
+  color: #FB4D3D;
+  font-size: 14px;
+}
