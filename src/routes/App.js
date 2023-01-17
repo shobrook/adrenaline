@@ -9,7 +9,8 @@ import {
   withRouter
 } from "../utilities";
 
-import Popup from "../components/Popup";
+import LoginForm from "../components/LoginForm";
+import KeyForm from "../components/KeyForm";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
@@ -80,9 +81,11 @@ class App extends Component {
     this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onOpenPopup = this.onOpenPopup.bind(this);
-    this.onSetAPIKey = this.onSetAPIKey.bind(this);
+    this.onLogIn = this.onLogIn.bind(this);
+    this.onSignUp = this.onSignUp.bind(this);
     this.onClosePopup = this.onClosePopup.bind(this);
     this.onSetPopupRef = this.onSetPopupRef.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
 
 		this.state = {
       language: {label: "Python", value: "python"},
@@ -93,16 +96,30 @@ class App extends Component {
       apiKey: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
-      askForAPIKey: false
+      displayPopup: false,
+      loginFailure: false,
+			isWrongPassword: false,
+			isInvalidAccount: false,
+			doPasswordsMatch: true,
+			signUpFailure: false,
+			accountAlreadyExists: false,
+      isLoggedIn: false
     };
 
     const apiKey = localStorage.getItem("openAiApiKey");
     if (apiKey) {
       this.state.apiKey = JSON.parse(apiKey);
     }
+
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+		if (isLoggedIn) {
+			this.state.isLoggedIn = JSON.parse(isLoggedIn);
+		}
 	}
 
   /* Event Handlers */
+
+  onSubmit() { this.setState({ displayPopup: false }); }
 
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
@@ -253,10 +270,10 @@ class App extends Component {
   onDebug(errorMessage) {
     window.gtag("event", "click_debug");
 
-    const { code, language, apiKey } = this.state;
+    const { code, language, apiKey, isLoggedIn } = this.state;
 
-    if (apiKey === "") {
-      this.setState({ askForAPIKey: true });
+    if (!isLoggedIn || apiKey === "") {
+      this.setState({ displayPopup: true });
       return;
     } else if (errorMessage === "") {
       return;
@@ -316,10 +333,10 @@ class App extends Component {
   onLint() {
     window.gtag("event", "click_lint");
 
-    const { code, language, apiKey } = this.state;
+    const { code, language, apiKey, isLoggedIn } = this.state;
 
-    if (apiKey === "") {
-      this.setState({ askForAPIKey: true });
+    if (!isLoggedIn || apiKey === "") {
+      this.setState({ displayPopup: true });
       return;
     } else {
       this.setState({ waitingForCodeLint: true });
@@ -357,22 +374,93 @@ class App extends Component {
   }
 
   onOpenPopup() {
-    window.gtag("event", "click_set_api_key");
+    window.gtag("event", "click_login");
 
-    this.setState({ askForAPIKey: true });
+    this.setState({ displayPopup: true });
   }
-
-  onSetAPIKey(apiKey) { this.setState({ apiKey, askForAPIKey: false }); }
 
   onClosePopup(event) {
     if (this.popupRef && this.popupRef.contains(event.target)) {
       return;
     }
 
-    this.setState({ askForAPIKey: false });
+    this.setState({ displayPopup: false });
   }
 
   onSetPopupRef(ref) { this.popupRef = ref; }
+
+  onSignUp(email, password, reEnteredPassword) {
+		const { navigate } = this.props.router;
+
+		if (password !== reEnteredPassword) {
+			this.setState({ displayPopup: true, doPasswordsMatch: false});
+			return;
+		}
+
+		fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+			const { success, accountAlreadyExists } = data;
+
+      if (success) {
+				window.gtag("event", "submit_signup_success");
+
+				navigate("/playground");
+				localStorage.setItem("isLoggedIn", JSON.stringify(true));
+				this.setState({ displayPopup: false, isLoggedIn: true });
+      } else if (accountAlreadyExists) {
+				window.gtag("event", "submit_signup_failure");
+				this.setState({ accountAlreadyExists: true });
+      } else {
+				window.gtag("event", "submit_signup_failure");
+				this.setState({ signUpFailure: true });
+			}
+    })
+    .catch(error => {
+			window.gtag("event", "submit_signup_failure");
+			this.setState({ signUpFailure: true })
+    });
+	}
+
+  onLogIn(email, password) {
+		const { navigate } = this.props.router;
+
+    fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+			const { success, isWrongPassword, isInvalidAccount } = data;
+
+      if (success) {
+				window.gtag("event", "submit_login_success");
+
+				navigate("/playground");
+				localStorage.setItem("isLoggedIn", JSON.stringify(true));
+				this.setState({ displayPopup: false, isLoggedIn: true });
+      } else if (isWrongPassword) {
+				window.gtag("event", "submit_login_failure");
+				this.setState({ displayPopup: true, isWrongPassword: true });
+      } else if (isInvalidAccount) {
+				window.gtag("event", "submit_login_failure");
+				this.setState({ displayPopup: true, isInvalidAccount: true });
+			} else {
+				window.gtag("event", "submit_login_failure");
+				this.setState({ displayPopup: true, loginFailure: true });
+			}
+    })
+    .catch(error => {
+			window.gtag("event", "submit_login_failure");
+			console.log(error);
+			this.setState({ loginFailure: true });
+    });
+	}
 
 	render() {
     const { location } = this.props.router;
@@ -383,9 +471,23 @@ class App extends Component {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
-      askForAPIKey,
-      apiKey
+      displayPopup,
+      apiKey,
+      loginFailure,
+			signUpFailure,
+			accountAlreadyExists,
+			doPasswordsMatch,
+			isWrongPassword,
+			isInvalidAccount,
+      isLoggedIn
     } = this.state;
+
+    // let isLoggedIn = localStorage.getItem("isLoggedIn");
+		// if (isLoggedIn) {
+		// 	isLoggedIn = JSON.parse(isLoggedIn);
+		// } else {
+    //   isLoggedIn = false;
+    // }
 
     window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
@@ -393,16 +495,31 @@ class App extends Component {
 
     return (
       <Fragment>
-        {askForAPIKey ? (
+        {displayPopup & !isLoggedIn ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
-            <Popup
-              onSubmit={this.onSetAPIKey}
+            <LoginForm
+              onLogIn={this.onLogIn}
+              onSignUp={this.onSignUp}
               setRef={this.onSetPopupRef}
+              loginFailure={loginFailure}
+              signUpFailure={signUpFailure}
+              accountAlreadyExists={accountAlreadyExists}
+              doPasswordsMatch={doPasswordsMatch}
+              isInvalidAccount={isInvalidAccount}
+              isWrongPassword={isWrongPassword}
+            />
+          </div>
+        ) : null}
+        {displayPopup && isLoggedIn ? (
+          <div className="popupLayer" onClick={this.onClosePopup}>
+            <KeyForm
+							onSubmit={this.onSubmit}
+							setRef={this.onSetPopupRef}
             />
           </div>
         ) : null}
         <div className="app">
-          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} />
+          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} isLoggedIn={isLoggedIn} />
           <div className="body">
             <div className="lhs">
               <CodeEditor

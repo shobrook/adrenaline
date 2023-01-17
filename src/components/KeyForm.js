@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 
 import Button from "./Button";
 
-import "./Popup.css";
+import "./KeyForm.css";
 
-export default class Popup extends Component {
+export default class KeyForm extends Component {
   constructor(props) {
     super(props);
 
@@ -32,11 +32,12 @@ export default class Popup extends Component {
           <div className="popupForm">
             <div className="inputField">
               <textarea
-                className="inputText"
+                id="apiKeyInput"
                 ref={ref => this.input = ref}
                 value={value}
                 onChange={this.onChange}
                 placeholder="Enter your OpenAI API key"
+                pattern="[^\n]*"
               />
               <Button className="popupSubmit" isPrimary onClick={() => {
                 window.gtag("event", "submit_api_key");
