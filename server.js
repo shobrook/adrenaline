@@ -9,7 +9,8 @@ const app = express();
 const publicPath = path.join(__dirname, 'build');
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({ origin: "https://useadrenaline.com"}));
+app.use(cors({ origin: "https://www.useadrenaline.com"}));
 app.use(express.static(publicPath));
 
 app.get("/", (req, res) => {
