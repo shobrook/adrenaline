@@ -3,11 +3,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
+const cors = require('cors');
 
 const app = express();
 const publicPath = path.join(__dirname, 'build');
 const port = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.static(publicPath));
 
 app.get('*', (req, res) => {
@@ -62,7 +64,7 @@ app.post('/api/register', [
 });
 
 app.post('/api/login', [
-    check('email').isEmail().withMessage('Invalid email\n'),
+    check('email').isEmail().withMessage('Invalid email'),
     check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
 ], async (req, res) => {
     const errors = validationResult(req);
