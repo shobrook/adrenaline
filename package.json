@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.1.5",
     "bcryptjs": "^2.4.3",
     "codemirror": "^5.65.10",
+    "cors": "^2.8.5",
     "create-react-app": "^5.0.1",
     "diff": "^5.1.0",
     "express-validator": "^6.14.2",
