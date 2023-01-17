@@ -34,7 +34,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .catch(err => console.log('MongoDB error: ', err));
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 
 app.post('/api/register', [
     check('email').isEmail().withMessage('Invalid email'),
