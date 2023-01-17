@@ -21,10 +21,6 @@ app.get("/playground", (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-app.listen(port, () => {
-  console.log(`Server is up on port ${port}!`);
-});
-
 const Account = require('./src/models/account');
 
 const uri = process.env.MONGODB_URI;
@@ -92,4 +88,8 @@ app.post('/api/login', [
         console.log(err);
         res.status(500).json({ success: false, isWrongPassword: false, isInvalidAccount: false });
 }
+});
+
+app.listen(port, () => {
+  console.log(`Server is up on port ${port}!`);
 });
