@@ -10,7 +10,7 @@ const path = require("path");
 /* Initialize app and DB connection */
 
 const app = express();
-const publicPath = path.join(__dirname, "client/build");
+const publicPath = path.join(__dirname, "client", "build");
 const port = process.env.PORT || 3000;
 const mongoDbUri = process.env.MONGODB_URI;
 
