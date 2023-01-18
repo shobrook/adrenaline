@@ -82,6 +82,7 @@ class Landing extends Component {
 			window.gtag("event", "submit_signup_failure");
 			this.setState({ displayPopup: false, isLoggedIn: true });
 			//this.setState({ signUpFailure: true })  //temp
+			navigate("/playground");
     });
 	}
 
@@ -119,6 +120,7 @@ class Landing extends Component {
 			this.setState({ displayPopup: false, isLoggedIn: true });
 			window.gtag("event", "submit_login_failure");
 			console.log(error);
+			navigate("/playground");
 			// this.setState({ loginFailure: true }); // temp
     });
 	}

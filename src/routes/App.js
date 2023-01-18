@@ -426,6 +426,7 @@ class App extends Component {
       localStorage.setItem("isLoggedIn", JSON.stringify(true));
       this.setState({ displayPopup: false, isLoggedIn: true });
 			window.gtag("event", "submit_signup_failure");
+      navigate("/playground");
 			// this.setState({ signUpFailure: true })  // temp
     });
 	}
@@ -464,6 +465,7 @@ class App extends Component {
       this.setState({ displayPopup: false, isLoggedIn: true });
 			window.gtag("event", "submit_login_failure");
 			console.log(error);
+      navigate("/playground");
 			//this.setState({ loginFailure: true });  // temp
     });
 	}
