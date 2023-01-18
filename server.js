@@ -10,7 +10,7 @@ const path = require("path");
 /* Initialize app and DB connection */
 
 const app = express();
-const publicPath = path.join(__dirname, "client", "build");
+const publicPath = path.resolve(__dirname, "./client/build");
 const port = process.env.PORT || 3000;
 const mongoDbUri = process.env.MONGODB_URI;
 
@@ -20,12 +20,14 @@ mongoose.connect(mongoDbUri, { useNewUrlParser: true, useUnifiedTopology: true }
     .catch(err => console.log('MongoDB error: ', err));
 
 // Initialize middleware
+/*
 const corsOptions = {
   origin: 'https://useadrenaline.com',
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   methods: ['POST']
 }
 app.use(cors(corsOptions));
+*/
 app.use(express.static(publicPath));
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
