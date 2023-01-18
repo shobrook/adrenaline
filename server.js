@@ -20,7 +20,13 @@ mongoose.connect(mongoDbUri, { useNewUrlParser: true, useUnifiedTopology: true }
     .catch(err => console.log('MongoDB error: ', err));
 
 // Initialize middleware
-app.use(cors());
+const cors = require('cors');
+const corsOptions = {
+  origin: 'https://useadrenaline.com',
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  methods: ['POST']
+}
+app.use(cors(corsOptions));
 app.use(express.static(publicPath));
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
