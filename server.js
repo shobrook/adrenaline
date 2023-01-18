@@ -1,30 +1,12 @@
-<<<<<<< HEAD
 const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 const cors = require('cors');
-=======
-/* Third-party packages */
 
-const express = require("express");
-const { check, validationResult } = require("express-validator");
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-//const cors = require("cors");
-const path = require("path");
-
-/* Initialize app and DB connection */
->>>>>>> d34e65bf00ee043097a3bb8192f8faaf40b61179
-
- 
 const app = express();
-<<<<<<< HEAD
 const publicPath = path.join(__dirname, 'build');
-=======
-const publicPath = path.resolve(__dirname, "./client/build");
->>>>>>> d34e65bf00ee043097a3bb8192f8faaf40b61179
 const port = process.env.PORT || 3000;
 
 app.use(cors({ origin: "https://useadrenaline.com"}));
@@ -47,19 +29,6 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected...'))
     .catch(err => console.log('MongoDB error: ', err));
 
-<<<<<<< HEAD
-=======
-// Initialize middleware
-/*
-const corsOptions = {
-  origin: 'https://useadrenaline.com',
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-  methods: ['POST']
-}
-app.use(cors(corsOptions));
-*/
-app.use(express.static(publicPath));
->>>>>>> d34e65bf00ee043097a3bb8192f8faaf40b61179
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 

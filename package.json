@@ -23,7 +23,6 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-<<<<<<< HEAD
     "start-local": "react-scripts start",
     "start": "node server.js",
     "build": "react-scripts build",
@@ -50,9 +49,6 @@
   },
   "devDependencies": {
     "gh-pages": "^4.0.0"
-=======
-    "start": "node server.js"
->>>>>>> d34e65bf00ee043097a3bb8192f8faaf40b61179
   },
   "engines": {
     "npm": "8.6.0",

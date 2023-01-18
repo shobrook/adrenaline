@@ -78,7 +78,6 @@ class Landing extends Component {
 			}
     })
     .catch(error => {
-			localStorage.setItem("isLoggedIn", JSON.stringify(true));
 			window.gtag("event", "submit_signup_failure");
 			this.setState({ signUpFailure: true })
     });
@@ -114,7 +113,6 @@ class Landing extends Component {
 			}
     })
     .catch(error => {
-			localStorage.setItem("isLoggedIn", JSON.stringify(true));
 			window.gtag("event", "submit_login_failure");
 			console.log(error);
 			this.setState({ loginFailure: true });
