@@ -29,7 +29,7 @@ class Landing extends Component {
 			doPasswordsMatch: true,
 			signUpFailure: false,
 			accountAlreadyExists: false,
-			isLoggedIn: true
+			isLoggedIn: false
 		};
 
 		const isLoggedIn = localStorage.getItem("isLoggedIn");

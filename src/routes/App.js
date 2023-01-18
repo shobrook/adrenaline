@@ -103,7 +103,7 @@ class App extends Component {
 			doPasswordsMatch: true,
 			signUpFailure: false,
 			accountAlreadyExists: false,
-      isLoggedIn: true  // temp
+      isLoggedIn: false  // temp
     };
 
     const apiKey = localStorage.getItem("openAiApiKey");
