@@ -24,7 +24,6 @@ app.use(cors());
 app.use(express.static(publicPath));
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
-app.listen(port, () => { console.log(`Server is up on port ${port}!`); });
 
 /* DB models */
 
