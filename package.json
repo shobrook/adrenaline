@@ -1,7 +1,7 @@
 {
   "name": "adrenaline",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -11,7 +11,7 @@
     "mongoose": "^6.8.4"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "node server.js",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "engines": {
