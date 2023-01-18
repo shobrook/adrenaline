@@ -4,7 +4,7 @@ const express = require("express");
 const { check, validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const cors = require("cors");
+//const cors = require("cors");
 const path = require("path");
 
 /* Initialize app and DB connection */
