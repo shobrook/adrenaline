@@ -1,18 +1,14 @@
 {
   "name": "adrenaline",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^12.1.5",
-    "bcryptjs": "^2.4.3",
     "codemirror": "^5.65.10",
-    "cors": "^2.8.5",
     "create-react-app": "^5.0.1",
     "diff": "^5.1.0",
-    "express-validator": "^6.14.2",
-    "mongoose": "^6.8.3",
     "openai": "^3.1.0",
     "react": "^16.13.0",
     "react-codemirror2": "^7.2.1",
@@ -23,18 +19,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-<<<<<<< HEAD
-    "start-local": "react-scripts start",
-    "start": "node server.js",
+    "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -47,15 +35,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "gh-pages": "^4.0.0"
-=======
-    "start": "node server.js"
->>>>>>> d34e65bf00ee043097a3bb8192f8faaf40b61179
-  },
-  "engines": {
-    "npm": "8.6.0",
-    "node": "18.0.0"
   }
 }
