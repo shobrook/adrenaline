@@ -11,8 +11,7 @@
     "mongoose": "^6.8.4"
   },
   "scripts": {
-    "start": "node server.js",
-    "heroku-postbuild": "cd client && npm install && npm run build"
+    "start": "node server.js"
   },
   "engines": {
     "npm": "8.6.0",
