@@ -103,7 +103,7 @@ class App extends Component {
 			doPasswordsMatch: true,
 			signUpFailure: false,
 			accountAlreadyExists: false,
-      isLoggedIn: false
+      isLoggedIn: true  // temp
     };
 
     const apiKey = localStorage.getItem("openAiApiKey");
@@ -415,14 +415,17 @@ class App extends Component {
       } else if (accountAlreadyExists) {
 				window.gtag("event", "submit_signup_failure");
 				this.setState({ accountAlreadyExists: true });
+        localStorage.setItem("isLoggedIn", JSON.stringify(true));  // temp
       } else {
 				window.gtag("event", "submit_signup_failure");
 				this.setState({ signUpFailure: true });
+        localStorage.setItem("isLoggedIn", JSON.stringify(true));  // temp
 			}
     })
     .catch(error => {
+      localStorage.setItem("isLoggedIn", JSON.stringify(true));
 			window.gtag("event", "submit_signup_failure");
-			this.setState({ signUpFailure: true })
+			// this.setState({ signUpFailure: true })  // temp
     });
 	}
 
@@ -456,13 +459,15 @@ class App extends Component {
 			}
     })
     .catch(error => {
+      localStorage.setItem("isLoggedIn", JSON.stringify(true));
 			window.gtag("event", "submit_login_failure");
 			console.log(error);
-			this.setState({ loginFailure: true });
+			//this.setState({ loginFailure: true });  // temp
     });
 	}
 
 	render() {
+    localStorage.setItem("isLoggedIn", JSON.stringify(true));  // temp
     const { location } = this.props.router;
     const {
       language,

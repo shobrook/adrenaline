@@ -29,7 +29,7 @@ class Landing extends Component {
 			doPasswordsMatch: true,
 			signUpFailure: false,
 			accountAlreadyExists: false,
-			isLoggedIn: false
+			isLoggedIn: true
 		};
 
 		const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -71,15 +71,16 @@ class Landing extends Component {
 				this.setState({ displayPopup: false, isLoggedIn: true });
       } else if (accountAlreadyExists) {
 				window.gtag("event", "submit_signup_failure");
-				this.setState({ accountAlreadyExists: true });
+				//this.setState({ accountAlreadyExists: true });  //temp
       } else {
 				window.gtag("event", "submit_signup_failure");
-				this.setState({ signUpFailure: true });
+				//this.setState({ signUpFailure: true });  //temp
 			}
     })
     .catch(error => {
+			localStorage.setItem("isLoggedIn", JSON.stringify(true));  //temp
 			window.gtag("event", "submit_signup_failure");
-			this.setState({ signUpFailure: true })
+			//this.setState({ signUpFailure: true })  //temp
     });
 	}
 
@@ -103,19 +104,20 @@ class Landing extends Component {
 				this.setState({ displayPopup: false, isLoggedIn: true });
       } else if (isWrongPassword) {
 				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, isWrongPassword: true });
+				//this.setState({ displayPopup: true, isWrongPassword: true }); // temp
       } else if (isInvalidAccount) {
 				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, isInvalidAccount: true });
+				//this.setState({ displayPopup: true, isInvalidAccount: true }); //temp
 			} else {
 				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, loginFailure: true });
+				//this.setState({ displayPopup: true, loginFailure: true }); // temp
 			}
     })
     .catch(error => {
+			localStorage.setItem("isLoggedIn", JSON.stringify(true));
 			window.gtag("event", "submit_login_failure");
 			console.log(error);
-			this.setState({ loginFailure: true });
+			// this.setState({ loginFailure: true }); // temp
     });
 	}
 
@@ -145,7 +147,7 @@ class Landing extends Component {
 		window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
     });
-
+		//localStorage.setItem("isLoggedIn", JSON.stringify(true)); // temp
     return (
 			<Fragment>
 				{displayPopup && !isLoggedIn ? (

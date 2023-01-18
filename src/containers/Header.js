@@ -6,7 +6,14 @@ import Button from "../components/Button";
 
 import "./Header.css";
 
-export default class Header extends Component {
+import { useEffect } from 'react';
+
+function Header({ isLoggedIn, onClick }) {
+  useEffect(() => {
+    if (isLoggedIn !== prevIsLoggedIn) {
+      window.location.reload();
+    }
+  }, [isLoggedIn]);
 	render() {
 		const { isPlaygroundActive, onClick, isLoggedIn } = this.props;
 
