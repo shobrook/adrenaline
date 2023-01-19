@@ -162,7 +162,7 @@ class Landing extends Component {
 		window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
     });
-		//localStorage.setItem("isLoggedIn", JSON.stringify(true)); // temp
+
     return (
 			<Fragment>
 				{displayPopup && !isLoggedIn ? (

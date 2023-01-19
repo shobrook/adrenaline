@@ -62,7 +62,15 @@
   align-items: center;
 }
 
-.inputText {
+.mc-field-group {
+  width: 75%;
+}
+
+#mc-embedded-subscribe-form{
+  padding-top: 25px;
+}
+
+.emailInputField {
   border: 2px solid rgba(255, 255, 255, 0.65);
   box-sizing: border-box;
   outline: none;
@@ -72,14 +80,26 @@
   resize: none;
   height: 45px;
   width: 100%;
-  padding-top: 9px;
   font-size: 18px;
   font-family: "Helvetica Neue";
   padding-left: 15px;
   white-space: nowrap;
   overflow: hidden;
   margin-right: 15px;
-  margin-top: 15px;
+}
+
+#mc-embedded-subscribe {
+  height: 45px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: "Helvetica neue";
+  color: white;
+  outline: none;
+  border: none;
+  margin-left: 15px;
+  width: 100px;
+  font-size: 16px;
 }
 
 .inputText:placeholder {
