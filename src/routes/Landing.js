@@ -168,15 +168,7 @@ class Landing extends Component {
 				{displayPopup && !isLoggedIn ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
             <LoginForm
-							onLogIn={this.onLogIn}
-							onSignUp={this.onSignUp}
               setRef={this.onSetPopupRef}
-							loginFailure={loginFailure}
-							signUpFailure={signUpFailure}
-							accountAlreadyExists={accountAlreadyExists}
-							doPasswordsMatch={doPasswordsMatch}
-							isInvalidAccount={isInvalidAccount}
-							isWrongPassword={isWrongPassword}
 							onSubmitEmail={this.onSubmitEmail}
             />
           </div>

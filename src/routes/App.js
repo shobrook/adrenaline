@@ -86,6 +86,7 @@ class App extends Component {
     this.onClosePopup = this.onClosePopup.bind(this);
     this.onSetPopupRef = this.onSetPopupRef.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.onSubmitEmail = this.onSubmitEmail.bind(this);
 
 		this.state = {
       language: {label: "Python", value: "python"},
@@ -389,6 +390,16 @@ class App extends Component {
 
   onSetPopupRef(ref) { this.popupRef = ref; }
 
+  onSubmitEmail() {
+		const { navigate } = this.props.router;
+
+		localStorage.setItem("isLoggedIn", JSON.stringify(true));  //temp
+		window.gtag("event", "submit_email_success");
+		this.setState({ displayPopup: false, isLoggedIn: true });
+		//this.setState({ signUpFailure: true })  //temp
+		navigate("/playground");
+	}
+
   onSignUp(email, password, reEnteredPassword) {
 		const { navigate } = this.props.router;
 
@@ -491,13 +502,6 @@ class App extends Component {
       isLoggedIn
     } = this.state;
 
-    // let isLoggedIn = localStorage.getItem("isLoggedIn");
-		// if (isLoggedIn) {
-		// 	isLoggedIn = JSON.parse(isLoggedIn);
-		// } else {
-    //   isLoggedIn = false;
-    // }
-
     window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
     });
@@ -507,15 +511,8 @@ class App extends Component {
         {displayPopup & !isLoggedIn ? (
           <div className="popupLayer" onClick={this.onClosePopup}>
             <LoginForm
-              onLogIn={this.onLogIn}
-              onSignUp={this.onSignUp}
               setRef={this.onSetPopupRef}
-              loginFailure={loginFailure}
-              signUpFailure={signUpFailure}
-              accountAlreadyExists={accountAlreadyExists}
-              doPasswordsMatch={doPasswordsMatch}
-              isInvalidAccount={isInvalidAccount}
-              isWrongPassword={isWrongPassword}
+              onSubmitEmail={this.onSubmitEmail}
             />
           </div>
         ) : null}
