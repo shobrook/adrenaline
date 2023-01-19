@@ -126,3 +126,12 @@
   color: #FB4D3D;
   font-size: 14px;
 }
+
+#subTitle {
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.65);
+  width: 75%;
+  letter-spacing: 0.5px;
+  padding-top: 15px;
+}

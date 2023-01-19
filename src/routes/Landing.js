@@ -20,6 +20,7 @@ class Landing extends Component {
 		this.onSignUp = this.onSignUp.bind(this);
 		this.onClosePopup = this.onClosePopup.bind(this);
 		this.onSetPopupRef = this.onSetPopupRef.bind(this);
+		this.onSubmitEmail = this.onSubmitEmail.bind(this);
 
 		this.state = {
 			displayPopup: false,
@@ -44,6 +45,16 @@ class Landing extends Component {
 		window.gtag("event", "click_login");
 
 		this.setState({ displayPopup: true });
+	}
+
+	onSubmitEmail() {
+		const { navigate } = this.props.router;
+
+		localStorage.setItem("isLoggedIn", JSON.stringify(true));  //temp
+		window.gtag("event", "submit_email_success");
+		this.setState({ displayPopup: false, isLoggedIn: true });
+		//this.setState({ signUpFailure: true })  //temp
+		navigate("/playground");
 	}
 
 	onSignUp(email, password, reEnteredPassword) {
@@ -166,6 +177,7 @@ class Landing extends Component {
 							doPasswordsMatch={doPasswordsMatch}
 							isInvalidAccount={isInvalidAccount}
 							isWrongPassword={isWrongPassword}
+							onSubmitEmail={this.onSubmitEmail}
             />
           </div>
         ) : null}

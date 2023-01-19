@@ -17,6 +17,7 @@
     "react": "^16.13.0",
     "react-codemirror2": "^7.2.1",
     "react-dom": "^16.13.0",
+    "react-mailchimp-subscribe": "^2.1.3",
     "react-router-dom": "^6.6.1",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.0",
