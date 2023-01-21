@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:19
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -13,7 +13,7 @@ RUN npm install
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY . .
+# COPY . .
 
 EXPOSE 3000
 CMD [ "node", "server.js" ]
