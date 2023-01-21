@@ -146,4 +146,5 @@
   width: 62.5%;
   /* padding-right: 60px; */
   padding-right: 5%;
+  max-width: 600px;
 }

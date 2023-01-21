@@ -155,6 +155,10 @@
   cursor: pointer;
 }
 
+.useMeButton:hover {
+  opacity: 0.75;
+}
+
 .newCodeButton {
   background-color: rgb(217, 60, 255, 1.0);
 }
