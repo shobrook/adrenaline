@@ -21,6 +21,7 @@ $ npm run start-local
 > Quick deployment 
 
 ``` $ docker run -d -p 3000:3000 firstboss/ai-debugger ```
+> access via ```http://<yourip>:3000```
 
 ## Features
 
