@@ -16,6 +16,11 @@ To run locally, clone the repository and run the following:
 $ npm install
 $ npm run start-local
 ```
+# Using Docker 
+
+> Quick deployment 
+
+'''$ docker run -d -p 3000:3000 firstboss/ai-debugger'''
 
 ## Features
 
