@@ -20,7 +20,7 @@ $ npm run start-local
 
 > Quick deployment 
 
-'''$ docker run -d -p 3000:3000 firstboss/ai-debugger'''
+``` $ docker run -d -p 3000:3000 firstboss/ai-debugger ```
 
 ## Features
 
