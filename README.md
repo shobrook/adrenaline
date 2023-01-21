@@ -19,6 +19,13 @@ $ npm install
 $ npm run start-local
 ```
 
+or via docker
+
+```bash
+$ docker build -t adrenaline .
+$ docker run --rm -p 3000:3000 -d adrenaline
+```
+
 ## Features
 
 ### Debugging
