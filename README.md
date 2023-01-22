@@ -20,14 +20,9 @@ $ npm run start-local
 ```
 # Using Docker 
 
-> Quick deployment 
-
-``` $ docker run -d -p 3000:3000 firstboss/ai-debugger ```
-> access via ```http://<yourip>:3000```
-
-+Build from source
-``` $ docker build -t adrenaline ```
-``` $ docker run -rm -d -p 3000:3000 adrenaline```
+```bash
+$ docker build -t adrenaline .
+$ docker run --rm -d -p 3000:3000 adrenaline
 
 ## Features
 
