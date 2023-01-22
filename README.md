@@ -18,7 +18,7 @@ To run locally, clone the repository and run the following:
 $ npm install
 $ npm run start-local
 ```
-# Using Docker 
+### Running with Docker
 
 ```bash
 $ docker build -t adrenaline .
