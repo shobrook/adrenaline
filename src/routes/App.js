@@ -9,14 +9,14 @@ import {
   withRouter
 } from "../utilities";
 
-import LoginForm from "../components/LoginForm";
-import KeyForm from "../components/KeyForm";
+import AuthenticationComponent from "../components/AuthenticationComponent";
+import RegistrationForm from '../containers/RegistrationForm';
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
 import ErrorExplanation from "../containers/ErrorExplanation";
 
-import './App.css';
+import '../styles/App.css';
 
 const FIXED_CODE = [
   "import numpy as np",
@@ -71,7 +71,7 @@ const COMPLETION_PROMPT_PARAMS = {
   stream: false
 };
 
-class App extends Component {
+class App extends AuthenticationComponent {
 	constructor(props) {
 		super(props);
 
@@ -80,13 +80,6 @@ class App extends Component {
     this.onDebug = this.onDebug.bind(this);
     this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
-    this.onOpenPopup = this.onOpenPopup.bind(this);
-    this.onLogIn = this.onLogIn.bind(this);
-    this.onSignUp = this.onSignUp.bind(this);
-    this.onClosePopup = this.onClosePopup.bind(this);
-    this.onSetPopupRef = this.onSetPopupRef.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onSubmitEmail = this.onSubmitEmail.bind(this);
 
 		this.state = {
       language: {label: "Python", value: "python"},
@@ -94,33 +87,12 @@ class App extends Component {
       errorMessage: "",
       diffs: [],
       errorExplanation: "",
-      apiKey: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
-      displayPopup: false,
-      loginFailure: false,
-			isWrongPassword: false,
-			isInvalidAccount: false,
-			doPasswordsMatch: true,
-			signUpFailure: false,
-			accountAlreadyExists: false,
-      isLoggedIn: false  // temp
     };
-
-    const apiKey = localStorage.getItem("openAiApiKey");
-    if (apiKey) {
-      this.state.apiKey = JSON.parse(apiKey);
-    }
-
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-		if (isLoggedIn) {
-			this.state.isLoggedIn = JSON.parse(isLoggedIn);
-		}
 	}
 
   /* Event Handlers */
-
-  onSubmit() { this.setState({ displayPopup: false }); }
 
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
@@ -269,12 +241,14 @@ class App extends Component {
   }
 
   onDebug(errorMessage) {
+    // TODO: Make this request in the backend
+
     window.gtag("event", "click_debug");
 
-    const { code, language, apiKey, isLoggedIn } = this.state;
+    const { code, isLoggedIn } = this.state;
 
-    if (!isLoggedIn || apiKey === "") {
-      this.setState({ displayPopup: true });
+    if (!isLoggedIn) {
+      this.setState({ isRegistering: true });
       return;
     } else if (errorMessage === "") {
       return;
@@ -282,90 +256,74 @@ class App extends Component {
       this.setState({ waitingForCodeFix: true });
     }
 
-    // function sleep(ms) {
-    //   return new Promise(resolve => setTimeout(resolve, ms));
-    // }
-    //
-    // let inputCode = code.join("\n").trim().split("\n");
-    // let gptCode = FIXED_CODE;
-    // let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
-    //
-    // sleep(3000).then(() => this.setState({
-    //   waitingForCodeFix: false,
-    //   code: mergedCode,
-    //   diffs,
-    //   errorMessage,
-    //   errorExplanation: "This error message means that the Granger causality test statistic cannot be computed because the VAR (Vector Autoregression) model has a perfect fit of the data. This means that the data is too predictable and the VAR model is not able to find any meaningful relationships between the variables. To fix this, you can try using a different model or adjusting the parameters of the VAR model."
-    // }));
+    // const apiConfig = new Configuration({ apiKey });
+    // const api = new OpenAIApi(apiConfig);
 
-    const apiConfig = new Configuration({ apiKey });
-    const api = new OpenAIApi(apiConfig);
+    // let instruction = `Fix this error: ${errorMessage}`;
+    // api
+  	// 	.createEdit({
+  	//     ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
+  	//   })
+  	//   .then(data => {
+    //     let inputCode = code.join("\n").trim().split("\n");
+  	// 		let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
 
-    let instruction = `Fix this error: ${errorMessage}`;
-    api
-  		.createEdit({
-  	    ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
-  	  })
-  	  .then(data => {
-        let inputCode = code.join("\n").trim().split("\n");
-  			let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
+    //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
 
-        let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
-
-        // let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
-        let prompt = `Explain what this error message means and how to fix it:\n\`\`\`\n${errorMessage}\n\`\`\``;
-        api
-          .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
-          .then(data => {
-            let errorExplanation = data.data.choices[0].text;
-            this.setState({
-              waitingForCodeFix: false,
-              code: mergedCode,
-              diffs,
-              errorMessage,
-              errorExplanation
-            });
-          }).
-          catch(error => console.log(error.response));
-  		})
-  		.catch(error => console.log(error.response));
+    //     // let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
+    //     let prompt = `Explain what this error message means and how to fix it:\n\`\`\`\n${errorMessage}\n\`\`\``;
+    //     api
+    //       .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
+    //       .then(data => {
+    //         let errorExplanation = data.data.choices[0].text;
+    //         this.setState({
+    //           waitingForCodeFix: false,
+    //           code: mergedCode,
+    //           diffs,
+    //           errorMessage,
+    //           errorExplanation
+    //         });
+    //       }).
+    //       catch(error => console.log(error.response));
+  	// 	})
+  	// 	.catch(error => console.log(error.response));
   };
 
   onLint() {
     window.gtag("event", "click_lint");
 
-    const { code, language, apiKey, isLoggedIn } = this.state;
+    const { code, language, isLoggedIn } = this.state;
 
-    if (!isLoggedIn || apiKey === "") {
-      this.setState({ displayPopup: true });
+    if (!isLoggedIn) {
+      this.setState({ isRegistering: true });
       return;
     } else {
       this.setState({ waitingForCodeLint: true });
     }
 
-    const apiConfig = new Configuration({ apiKey });
-    const api = new OpenAIApi(apiConfig);
+    // const apiConfig = new Configuration({ apiKey });
+    // const api = new OpenAIApi(apiConfig);
 
-    let instruction = `Identify and fix all bugs in this ${language.label} code.`;
+    // let instruction = `Identify and fix all bugs in this ${language.label} code.`;
 
-    api
-      .createEdit({
-        ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
-      })
-      .then(data => {
-        let inputCode = code.join("\n").trim().split("\n");
-        let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
-        let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+    // api
+    //   .createEdit({
+    //     ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
+    //   })
+    //   .then(data => {
+    //     let inputCode = code.join("\n").trim().split("\n");
+    //     let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
+    //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
 
-        this.setState({
-          waitingForCodeLint: false,
-          code: mergedCode,
-          diffs
-        });
-      })
-      .catch(error => {
-        this.setState({ waitingForCodeLint: false });
-      });
+    //     this.setState({
+    //       waitingForCodeLint: false,
+    //       code: mergedCode,
+    //       diffs
+    //     });
+    //   })
+    //   .catch(error => {
+    //     this.setState({ waitingForCodeLint: false });
+    //   });
   }
 
   onSelectLanguage(language) {
@@ -374,115 +332,7 @@ class App extends Component {
     this.setState({ language });
   }
 
-  onOpenPopup() {
-    window.gtag("event", "click_login");
-
-    this.setState({ displayPopup: true });
-  }
-
-  onClosePopup(event) {
-    if (this.popupRef && this.popupRef.contains(event.target)) {
-      return;
-    }
-
-    this.setState({ displayPopup: false });
-  }
-
-  onSetPopupRef(ref) { this.popupRef = ref; }
-
-  onSubmitEmail() {
-		const { navigate } = this.props.router;
-
-		localStorage.setItem("isLoggedIn", JSON.stringify(true));  //temp
-		window.gtag("event", "submit_email_success");
-		this.setState({ displayPopup: false, isLoggedIn: true });
-		//this.setState({ signUpFailure: true })  //temp
-		navigate("/playground");
-	}
-
-  onSignUp(email, password, reEnteredPassword) {
-		const { navigate } = this.props.router;
-
-		if (password !== reEnteredPassword) {
-			this.setState({ displayPopup: true, doPasswordsMatch: false});
-			return;
-		}
-
-		fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, password: password })
-    })
-    .then(res => res.json())
-    .then(data => {
-			const { success, accountAlreadyExists } = data;
-
-      if (success) {
-				window.gtag("event", "submit_signup_success");
-
-				navigate("/playground");
-				localStorage.setItem("isLoggedIn", JSON.stringify(true));
-				this.setState({ displayPopup: false, isLoggedIn: true });
-      } else if (accountAlreadyExists) {
-				window.gtag("event", "submit_signup_failure");
-				this.setState({ accountAlreadyExists: true });
-        localStorage.setItem("isLoggedIn", JSON.stringify(true));  // temp
-      } else {
-				window.gtag("event", "submit_signup_failure");
-				this.setState({ signUpFailure: true });
-        localStorage.setItem("isLoggedIn", JSON.stringify(true));  // temp
-			}
-    })
-    .catch(error => {
-      localStorage.setItem("isLoggedIn", JSON.stringify(true));
-      this.setState({ displayPopup: false, isLoggedIn: true });
-			window.gtag("event", "submit_signup_failure");
-      navigate("/playground");
-			// this.setState({ signUpFailure: true })  // temp
-    });
-	}
-
-  onLogIn(email, password) {
-		const { navigate } = this.props.router;
-
-    fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, password: password })
-    })
-    .then(res => res.json())
-    .then(data => {
-			const { success, isWrongPassword, isInvalidAccount } = data;
-
-      if (success) {
-				window.gtag("event", "submit_login_success");
-
-				navigate("/playground");
-				localStorage.setItem("isLoggedIn", JSON.stringify(true));
-				this.setState({ displayPopup: false, isLoggedIn: true });
-      } else if (isWrongPassword) {
-				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, isWrongPassword: true });
-      } else if (isInvalidAccount) {
-				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, isInvalidAccount: true });
-			} else {
-				window.gtag("event", "submit_login_failure");
-				this.setState({ displayPopup: true, loginFailure: true });
-			}
-    })
-    .catch(error => {
-      localStorage.setItem("isLoggedIn", JSON.stringify(true));
-      this.setState({ displayPopup: false, isLoggedIn: true });
-			window.gtag("event", "submit_login_failure");
-			console.log(error);
-      navigate("/playground");
-			//this.setState({ loginFailure: true });  // temp
-    });
-	}
-
 	render() {
-    localStorage.setItem("isLoggedIn", JSON.stringify(true));  // temp
     const { location } = this.props.router;
     const {
       language,
@@ -491,14 +341,7 @@ class App extends Component {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
-      displayPopup,
-      apiKey,
-      loginFailure,
-			signUpFailure,
-			accountAlreadyExists,
-			doPasswordsMatch,
-			isWrongPassword,
-			isInvalidAccount,
+      isRegistering,
       isLoggedIn
     } = this.state;
 
@@ -507,25 +350,22 @@ class App extends Component {
     });
 
     return (
-      <Fragment>
-        {displayPopup & !isLoggedIn ? (
-          <div className="popupLayer" onClick={this.onClosePopup}>
-            <LoginForm
-              setRef={this.onSetPopupRef}
-              onSubmitEmail={this.onSubmitEmail}
+      <>
+        {isRegistering ? (
+            <RegistrationForm 
+              setRef={this.onSetRegistrationRef} 
+              onLogIn={this.onLogIn}
+              onSignUp={this.onSignUp}
+              onCloseForm={this.onCloseForm}
             />
-          </div>
-        ) : null}
-        {displayPopup && isLoggedIn ? (
-          <div className="popupLayer" onClick={this.onClosePopup}>
-            <KeyForm
-							onSubmit={this.onSubmit}
-							setRef={this.onSetPopupRef}
-            />
-          </div>
-        ) : null}
+          ) : null}
+
         <div className="app">
-          <Header onClick={this.onOpenPopup} isPlaygroundActive={true} isLoggedIn={isLoggedIn} />
+          <Header 
+            onClick={isLoggedIn ? this.onLogOut : this.onOpenRegistrationForm} 
+            isLoggedIn={isLoggedIn} 
+          />
+
           <div className="body">
             <div className="lhs">
               <CodeEditor
@@ -543,7 +383,7 @@ class App extends Component {
             <ErrorExplanation errorExplanation={errorExplanation} />
           </div>
         </div>
-      </Fragment>
+      </>
     );
 	}
 }

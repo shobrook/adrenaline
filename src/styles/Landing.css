@@ -3,7 +3,7 @@
   src: url("../styles/fonts/Gilroy-ExtraBold.otf") format("opentype");
 }
 
-.landing {
+#landing {
   position: absolute;
   background-color: #373751;
   height: 100%;
