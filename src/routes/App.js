@@ -245,7 +245,9 @@ class App extends AuthenticationComponent {
 
     window.gtag("event", "click_debug");
 
-    const { code, isLoggedIn } = this.state;
+    // const { code, isLoggedIn } = this.state;
+    let isLoggedIn = localStorage.getItem("isLoggedIn");
+    isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
 
     if (!isLoggedIn) {
       this.setState({ isRegistering: true });
@@ -292,7 +294,9 @@ class App extends AuthenticationComponent {
   onLint() {
     window.gtag("event", "click_lint");
 
-    const { code, language, isLoggedIn } = this.state;
+    // const { code, language, isLoggedIn } = this.state;
+    let isLoggedIn = localStorage.getItem("isLoggedIn");
+    isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
 
     if (!isLoggedIn) {
       this.setState({ isRegistering: true });
@@ -341,10 +345,14 @@ class App extends AuthenticationComponent {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
-      isRegistering,
-      isLoggedIn
+      isRegistering
     } = this.state;
 
+    let isLoggedIn = localStorage.getItem("isLoggedIn");
+    isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
+
+    console.log(isLoggedIn);
+    
     window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
     });

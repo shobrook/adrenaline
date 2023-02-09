@@ -41,7 +41,7 @@ class AuthenticationComponent extends Component {
 	onLogIn(email, password) {
 		const { navigate } = this.props.router;
 
-		fetch("/api/login", {
+		fetch("https://rubrick-api-production.up.railway.app/api/login", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email: email, password: password })
@@ -53,9 +53,9 @@ class AuthenticationComponent extends Component {
 			if (success) {
 				window.gtag("event", "submit_login_success");
 
-				navigate("/playground");
 				localStorage.setItem("isLoggedIn", JSON.stringify(true));
 				this.setState({ isRegistering: false, isLoggedIn: true });
+				navigate("/playground");
 			} else {
 				window.gtag("event", "submit_login_failure");
 				// TODO: Store failure status code in state, pass to RegistrationForm component
@@ -82,7 +82,7 @@ class AuthenticationComponent extends Component {
 			return;
 		}
 
-		fetch("/api/register", {
+		fetch("https://rubrick-api-production.up.railway.app/api/register", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email: email, password: password })
@@ -94,9 +94,9 @@ class AuthenticationComponent extends Component {
 			if (success) {
 				window.gtag("event", "submit_signup_success");
 
-				navigate("/playground");
 				localStorage.setItem("isLoggedIn", JSON.stringify(true));
 				this.setState({ isRegistering: false, isLoggedIn: true });
+				navigate("/playground");
 			} else {
 				window.gtag("event", "submit_signup_failure");
 				// TODO: Store failure status code in state, pass to RegistrationForm component
