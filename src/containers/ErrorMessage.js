@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 
 import Button from "../components/Button";
 
-import "./ErrorMessage.css";
+import "../styles/ErrorMessage.css";
 
 export default class ErrorMessage extends Component {
 	constructor(props) {

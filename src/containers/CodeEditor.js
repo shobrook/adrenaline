@@ -4,9 +4,8 @@ import Select from 'react-select';
 
 import Button from "../components/Button";
 
-import "./CodeEditor.css";
+import "../styles/CodeEditor.css";
 import 'codemirror/lib/codemirror.css';
-import "./theme.css"; // TODO: Move to CodeEditor.css
 
 require('codemirror/mode/python/python');
 require('codemirror/mode/javascript/javascript');

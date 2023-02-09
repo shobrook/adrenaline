@@ -127,7 +127,8 @@
 
 .getStartedButton {
   color: white;
-  height: 45px;
+  height: 45px !important;
+  font-weight: 600 !important;
 }
 
 .githubButton {

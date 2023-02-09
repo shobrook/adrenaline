@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import Button from "../components/Button";
 
-import "./Header.css";
+import "../styles/Header.css";
 
 export default class Header extends Component {
 	render() {

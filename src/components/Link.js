@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import "./Link.css";
+import "../styles/Link.css";
 
 export default class Link extends Component {
 	render() {

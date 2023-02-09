@@ -1,6 +1,6 @@
 import React, { Component, useState, useEffect } from 'react';
 
-import "./ErrorExplanation.css";
+import "../styles/ErrorExplanation.css";
 
 export default class ErrorExplanation extends Component {
 	constructor(props) {

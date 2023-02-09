@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import Spinner from "./Spinner";
 
-import "./Button.css";
+import "../styles/Button.css";
 
 export default class Button extends Component {
 	render() {

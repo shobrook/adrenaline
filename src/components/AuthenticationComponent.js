@@ -1,7 +1,4 @@
-import React, { Component, Fragment } from "react";
-import { Link } from "react-router-dom";
-
-import { withRouter } from "../utilities";
+import { Component } from "react";
 
 class AuthenticationComponent extends Component {
 	constructor(props) {
