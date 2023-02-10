@@ -4,7 +4,7 @@ class AuthenticationComponent extends Component {
 	constructor(props) {
 		super(props);
 
-		this.onSetRegistrationRef = this.onSetRegistrationRef.bind(this);
+		this.onSetModalRef = this.onSetModalRef.bind(this);
 		this.onOpenRegistrationForm = this.onOpenRegistrationForm.bind(this);
 		this.onCloseForm = this.onCloseForm.bind(this);
 		this.onLogIn = this.onLogIn.bind(this);
@@ -13,7 +13,9 @@ class AuthenticationComponent extends Component {
 
 		this.state = {
 			isRegistering: false,
-			isLoggedIn: false
+			isLoggedIn: false,
+			isRateLimited: false,
+			registrationError: ""
 		};
 
 		const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -22,8 +24,18 @@ class AuthenticationComponent extends Component {
 		}
 	}
 
-	onSetRegistrationRef(ref) {
-		this.registrationRef = ref;
+	getEmailAddress() {
+		let email = localStorage.getItem("email");
+		return email ? JSON.parse(email) : "";
+	}
+
+	getLoginStatus() {
+		let isLoggedIn = localStorage.getItem("isLoggedIn");
+		return isLoggedIn ? JSON.parse(isLoggedIn) : false;
+	}
+
+	onSetModalRef(ref) {
+		this.modalRef = ref;
 	}
 
 	onOpenRegistrationForm() {
@@ -31,42 +43,45 @@ class AuthenticationComponent extends Component {
 	}
 
 	onCloseForm(event) {
-		if (this.registrationRef && this.registrationRef.contains(event.target)) {
+		if (this.modalRef && this.modalRef.contains(event.target)) {
 			return;
 		}
 
 		this.setState({ isRegistering: false });
 	}
 
-	onLogIn(email, password) {
+	async onLogIn(email, password) {
 		const { navigate } = this.props.router;
 
-		fetch("https://rubrick-api-production.up.railway.app/api/login", {
+		return await fetch("https://rubrick-api-production.up.railway.app/api/login", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email: email, password: password })
 		})
 		.then(res => res.json())
 		.then(data => {
-			const { success } = data;
+			const { success, message } = data;
 
 			if (success) {
 				window.gtag("event", "submit_login_success");
 
 				localStorage.setItem("isLoggedIn", JSON.stringify(true));
+				localStorage.setItem("email", JSON.stringify(email));
 				this.setState({ isRegistering: false, isLoggedIn: true });
 				navigate("/playground");
+
+				return "";
 			} else {
 				window.gtag("event", "submit_login_failure");
-				// TODO: Store failure status code in state, pass to RegistrationForm component
+				return message;
 			}
 		})
 		.catch(error => {
 			window.gtag("event", "submit_login_failure");
 			console.log(error);
 
-			// TODO: Store failure in state, pass to RegistrationForm component
-		});
+			return "An unexpected error occurred";
+		})
 	}
 
 	onLogOut() {
@@ -74,39 +89,41 @@ class AuthenticationComponent extends Component {
 		this.setState({ isLoggedIn: false });
 	}
 
-	onSignUp(email, password, reEnteredPassword) {
+	async onSignUp(email, password, reEnteredPassword) {
 		const { navigate } = this.props.router;
 
 		if (password !== reEnteredPassword) {
-			// TODO: Return error
-			return;
+			return "Passwords do not match";
 		}
 
-		fetch("https://rubrick-api-production.up.railway.app/api/register", {
+		await fetch("https://rubrick-api-production.up.railway.app/api/register", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email: email, password: password })
 		})
 		.then(res => res.json())
 		.then(data => {
-			const { success } = data;
+			const { success, message } = data;
 
 			if (success) {
 				window.gtag("event", "submit_signup_success");
 
 				localStorage.setItem("isLoggedIn", JSON.stringify(true));
+				localStorage.setItem("email", JSON.stringify(email));
 				this.setState({ isRegistering: false, isLoggedIn: true });
 				navigate("/playground");
+
+				return "";
 			} else {
 				window.gtag("event", "submit_signup_failure");
-				// TODO: Store failure status code in state, pass to RegistrationForm component
+				return message;
 			}
 		})
 		.catch(error => {
 			window.gtag("event", "submit_signup_failure");
 			console.log(error);
 
-			// TODO: Store failure status code in state, pass to RegistrationForm component
+			return "An unexpected error occurred";
 		});
 	}
 }

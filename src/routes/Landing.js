@@ -26,7 +26,7 @@ class Landing extends AuthenticationComponent {
 			<>
 				{isRegistering ? (
 					<RegistrationForm 
-						setRef={this.onSetRegistrationRef} 
+						setRef={this.onSetModalRef} 
 						onLogIn={this.onLogIn}
 						onSignUp={this.onSignUp}
 						onCloseForm={this.onCloseForm}

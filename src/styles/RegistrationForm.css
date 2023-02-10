@@ -109,7 +109,7 @@
     font-weight: 600;
 }
 
-.failure {
+#registrationError {
     padding-top: 10px;
     color: #FB4D3D;
     font-size: 14px;

@@ -14,7 +14,13 @@ export default class RegistrationForm extends Component {
         this.onClickPrimary = this.onClickPrimary.bind(this);
         this.onClickSecondary = this.onClickSecondary.bind(this);
 
-        this.state = { isLoggingIn: true, email: "", password: "", reEnteredPassword: "" };
+        this.state = { 
+            isLoggingIn: true,
+             email: "", 
+             password: "", 
+             reEnteredPassword: "",
+             registrationError: ""
+        };
     }
 
     onEmailChange(event) {
@@ -29,25 +35,34 @@ export default class RegistrationForm extends Component {
         this.setState({ reEnteredPassword: event.target.value });
     }
 
-    onClickPrimary() {
+    async onClickPrimary() {
         const { isLoggingIn, email, password, reEnteredPassword } = this.state;
         const { onLogIn, onSignUp } = this.props;
 
+        let registrationError;
         if (isLoggingIn) {
-            onLogIn(email, password);
+            registrationError = await onLogIn(email, password);
         } else {
-            onSignUp(email, password, reEnteredPassword);
+            registrationError = await onSignUp(email, password, reEnteredPassword);
         }
+
+        this.setState({ registrationError });
     }
 
     onClickSecondary() {
         const { isLoggingIn } = this.state;
 
-        this.setState({ isLoggingIn: !isLoggingIn, email: "", password: "", reEnteredPassword: "" });
+        this.setState({ 
+            isLoggingIn: !isLoggingIn, 
+            email: "", 
+            password: "", 
+            reEnteredPassword: "",
+            registrationError: ""
+        });
     }
 
     render() {
-        const { isLoggingIn, email, password, reEnteredPassword } = this.state;
+        const { isLoggingIn, email, password, reEnteredPassword, registrationError } = this.state;
         const { setRef, onCloseForm } = this.props;
 
         return (
@@ -82,13 +97,13 @@ export default class RegistrationForm extends Component {
                                 pattern="[^\n]*"
                             />
                         ) : null}
+                        <span id="registrationError">{registrationError}</span>
                         <Button className="loginButton" isPrimary onClick={this.onClickPrimary}>
                             {isLoggingIn ? "Log in" : "Create an account"}
                         </Button>
                         <Button className="loginButton" isPrimary={false} onClick={this.onClickSecondary}>
                             {isLoggingIn ? "Create an account" : "Log in"}
                         </Button>
-                        {/* Render failures */}
                     </div>
                 </div>
             </div>

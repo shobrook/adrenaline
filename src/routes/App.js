@@ -11,6 +11,7 @@ import {
 
 import AuthenticationComponent from "../components/AuthenticationComponent";
 import RegistrationForm from '../containers/RegistrationForm';
+import RateLimitNotification from "../containers/RateLimitNotification";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
@@ -89,6 +90,7 @@ class App extends AuthenticationComponent {
       errorExplanation: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
+      isRateLimited: false
     };
 	}
 
@@ -241,13 +243,11 @@ class App extends AuthenticationComponent {
   }
 
   onDebug(errorMessage) {
-    // TODO: Make this request in the backend
-
     window.gtag("event", "click_debug");
 
-    // const { code, isLoggedIn } = this.state;
-    let isLoggedIn = localStorage.getItem("isLoggedIn");
-    isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
+    const { code } = this.state;
+    const isLoggedIn = this.getLoginStatus();
+    const email = this.getEmailAddress();
 
     if (!isLoggedIn) {
       this.setState({ isRegistering: true });
@@ -258,45 +258,51 @@ class App extends AuthenticationComponent {
       this.setState({ waitingForCodeFix: true });
     }
 
-    // const apiConfig = new Configuration({ apiKey });
-    // const api = new OpenAIApi(apiConfig);
+    fetch("https://rubrick-api-production.up.railway.app/api/debug", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ email, code: code.join("\n"), error: errorMessage })
+		})
+		.then(res => {
+      if (!res.ok) {
+        if (res.status === 429) { // Rate limit
+          window.gtag("event", "rate_limit_hit");
+          this.setState({ isRateLimited: true });
+        }
 
-    // let instruction = `Fix this error: ${errorMessage}`;
-    // api
-  	// 	.createEdit({
-  	//     ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
-  	//   })
-  	//   .then(data => {
-    //     let inputCode = code.join("\n").trim().split("\n");
-  	// 		let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
+        throw new Error(`HTTP status ${res.status}`);
+      }
 
-    //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+      return res.json()
+    })
+		.then(data => {
+      window.gtag("event", "click_debug_success");
+      const { error_explanation, fixed_code } = data.data;
+      let fixedCode = fixed_code.trim().replace("    ", "\t").split("\n");
+      let { mergedCode, diffs } = diffGPTOutput(code, fixedCode);
 
-    //     // let prompt = `Explain the following error message:\n\`\`\`\n${errorMessage}\n\`\`\``;
-    //     let prompt = `Explain what this error message means and how to fix it:\n\`\`\`\n${errorMessage}\n\`\`\``;
-    //     api
-    //       .createCompletion({ ...COMPLETION_PROMPT_PARAMS, prompt })
-    //       .then(data => {
-    //         let errorExplanation = data.data.choices[0].text;
-    //         this.setState({
-    //           waitingForCodeFix: false,
-    //           code: mergedCode,
-    //           diffs,
-    //           errorMessage,
-    //           errorExplanation
-    //         });
-    //       }).
-    //       catch(error => console.log(error.response));
-  	// 	})
-  	// 	.catch(error => console.log(error.response));
+      this.setState({
+        waitingForCodeFix: false,
+        code: mergedCode,
+        diffs,
+        errorMessage,
+        errorExplanation: error_explanation
+      });
+		})
+		.catch(error => {
+			window.gtag("event", "click_debug_failure");
+      this.setState({ waitingForCodeFix: false });
+			console.log(error);
+		});
   };
 
   onLint() {
     window.gtag("event", "click_lint");
 
-    // const { code, language, isLoggedIn } = this.state;
+    const { code } = this.state;
     let isLoggedIn = localStorage.getItem("isLoggedIn");
     isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
+    const email = this.getEmailAddress();
 
     if (!isLoggedIn) {
       this.setState({ isRegistering: true });
@@ -305,34 +311,45 @@ class App extends AuthenticationComponent {
       this.setState({ waitingForCodeLint: true });
     }
 
-    // const apiConfig = new Configuration({ apiKey });
-    // const api = new OpenAIApi(apiConfig);
+    fetch("https://rubrick-api-production.up.railway.app/api/lint", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ email, code: code.join("\n") })
+		})
+		.then(res => {
+      if (!res.ok) {
+        if (res.status === 429) { // Rate limit
+          window.gtag("event", "rate_limit_hit");
+          this.setState({ isRateLimited: true });
+        }
 
-    // let instruction = `Identify and fix all bugs in this ${language.label} code.`;
+        throw new Error(`HTTP status ${res.status}`);
+      }
 
-    // api
-    //   .createEdit({
-    //     ...EDIT_PROMPT_PARAMS, input: code.join("\n"), instruction
-    //   })
-    //   .then(data => {
-    //     let inputCode = code.join("\n").trim().split("\n");
-    //     let gptCode = data.data.choices[0].text.trim().replace("    ", "\t").split("\n");
-    //     let { mergedCode, diffs } = diffGPTOutput(inputCode, gptCode);
+      return res.json()
+    })
+		.then(data => {
+      window.gtag("event", "click_lint_success");
+      const { improved_code } = data.data;
+      let improvedCode = improved_code.trim().replace("    ", "\t").split("\n");
+      let { mergedCode, diffs } = diffGPTOutput(code, improvedCode);
 
-    //     this.setState({
-    //       waitingForCodeLint: false,
-    //       code: mergedCode,
-    //       diffs
-    //     });
-    //   })
-    //   .catch(error => {
-    //     this.setState({ waitingForCodeLint: false });
-    //   });
+      this.setState({
+        waitingForCodeLint: false,
+        code: mergedCode,
+        diffs
+      });
+		})
+		.catch(error => {
+			window.gtag("event", "click_lint_failure");
+      this.setState({ waitingForCodeLint: false });
+
+			console.log(error);
+		});
   }
 
   onSelectLanguage(language) {
     window.gtag("event", "select_language", { language });
-
     this.setState({ language });
   }
 
@@ -345,13 +362,12 @@ class App extends AuthenticationComponent {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
-      isRegistering
+      isRegistering,
+      isRateLimited
     } = this.state;
 
     let isLoggedIn = localStorage.getItem("isLoggedIn");
     isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
-
-    console.log(isLoggedIn);
     
     window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
@@ -360,13 +376,20 @@ class App extends AuthenticationComponent {
     return (
       <>
         {isRegistering ? (
-            <RegistrationForm 
-              setRef={this.onSetRegistrationRef} 
-              onLogIn={this.onLogIn}
-              onSignUp={this.onSignUp}
-              onCloseForm={this.onCloseForm}
-            />
-          ) : null}
+          <RegistrationForm 
+            setRef={this.onSetModalRef} 
+            onLogIn={this.onLogIn}
+            onSignUp={this.onSignUp}
+            onCloseForm={this.onCloseForm}
+          />
+        ) : null}
+
+        {isRateLimited ? ( 
+          <RateLimitNotification 
+            setRef={this.onSetModalRef} 
+            onCloseModal={event => { this.onCloseForm(event); this.setState({ isRateLimited: false })}} 
+          />
+        ) : null}
 
         <div className="app">
           <Header 
