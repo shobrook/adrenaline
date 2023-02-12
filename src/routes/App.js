@@ -16,6 +16,7 @@ import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
 import ErrorExplanation from "../containers/ErrorExplanation";
+import WaitingForDiffResolutionNotification from "../containers/WaitingForDiffResolutionNotification";
 
 import '../styles/App.css';
 
@@ -90,6 +91,7 @@ class App extends AuthenticationComponent {
       errorExplanation: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
+      waitingForDiffResolution: false,
       isRateLimited: false
     };
 	}
@@ -245,9 +247,17 @@ class App extends AuthenticationComponent {
   onDebug(errorMessage) {
     window.gtag("event", "click_debug");
 
-    const { code } = this.state;
+    const { code, diffs } = this.state;
     const isLoggedIn = this.getLoginStatus();
     const email = this.getEmailAddress();
+
+
+    if (diffs.length != 0) {
+      this.setState({ waitingForDiffResolution: true, waitingForCodeFix: false})
+      return;
+    } else {
+      this.setState({ waitingForDiffResolution: false})
+    }
 
     if (!isLoggedIn) {
       this.setState({ isRegistering: true });
@@ -299,10 +309,17 @@ class App extends AuthenticationComponent {
   onLint() {
     window.gtag("event", "click_lint");
 
-    const { code } = this.state;
+    const { code, diffs } = this.state;
     let isLoggedIn = localStorage.getItem("isLoggedIn");
     isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
     const email = this.getEmailAddress();
+    
+    if (diffs.length != 0) {
+      this.setState({ waitingForDiffResolution: true, waitingForCodeFix: false})
+      return;
+    } else {
+      this.setState({ waitingForDiffResolution: false})
+    }
 
     if (!isLoggedIn) {
       this.setState({ isRegistering: true });
@@ -349,11 +366,13 @@ class App extends AuthenticationComponent {
   }
 
   onSelectLanguage(language) {
+    console.log("test language onclick")
     window.gtag("event", "select_language", { language });
     this.setState({ language });
   }
 
 	render() {
+
     const { location } = this.props.router;
     const {
       language,
@@ -362,6 +381,7 @@ class App extends AuthenticationComponent {
       errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
+      waitingForDiffResolution,
       isRegistering,
       isRateLimited
     } = this.state;
@@ -381,6 +401,13 @@ class App extends AuthenticationComponent {
             onLogIn={this.onLogIn}
             onSignUp={this.onSignUp}
             onCloseForm={this.onCloseForm}
+          />
+        ) : null}
+
+        {waitingForDiffResolution ? ( 
+          <WaitingForDiffResolutionNotification 
+            setRef={this.onSetModalRef} 
+            onCloseModal={event => { this.onCloseForm(event); this.setState({ waitingForDiffResolution: false })}} 
           />
         ) : null}
 
