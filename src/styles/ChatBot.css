@@ -1,0 +1,17 @@
+#chatBot {
+    width: 33%;
+    padding-left: 30px;
+    padding-right: 30px;
+    border-left: 2px solid #54546A;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#messages {
+    margin-top: calc(20px - 15px);
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    margin-bottom: 30px;
+}

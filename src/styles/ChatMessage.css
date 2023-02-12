@@ -1,0 +1,31 @@
+.chatMessage {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-radius: 5px;
+    color: white;
+    margin-top: 15px;
+    background-color: #D93CFF;
+    align-self: flex-end;
+    max-width: 66%;
+    width: fit-content;
+}
+
+.aiResponse {
+    background-color: #535379 !important;
+    align-self: flex-start !important;
+}
+
+.aiSenderId {
+    background-color: #FFFFFF !important;
+    color: #101018 !important;
+}
+
+.messageContent {
+    font-weight: 400;
+    padding-left: 15px;
+}

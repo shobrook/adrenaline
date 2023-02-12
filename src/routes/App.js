@@ -15,7 +15,7 @@ import RateLimitNotification from "../containers/RateLimitNotification";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
-import ErrorExplanation from "../containers/ErrorExplanation";
+import ChatBot from "../containers/ChatBot";
 
 import '../styles/App.css';
 
@@ -90,7 +90,8 @@ class App extends AuthenticationComponent {
       errorExplanation: "",
       waitingForCodeFix: false,
       waitingForCodeLint: false,
-      isRateLimited: false
+      isRateLimited: false,
+      suggestedMessage: null
     };
 	}
 
@@ -359,11 +360,11 @@ class App extends AuthenticationComponent {
       language,
       code,
       diffs,
-      errorExplanation,
       waitingForCodeFix,
       waitingForCodeLint,
       isRegistering,
-      isRateLimited
+      isRateLimited,
+      suggestedMessage
     } = this.state;
 
     let isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -411,7 +412,7 @@ class App extends AuthenticationComponent {
               />
               <ErrorMessage onDebug={this.onDebug} isLoading={waitingForCodeFix} />
             </div>
-            <ErrorExplanation errorExplanation={errorExplanation} />
+            <ChatBot suggestedMessage={suggestedMessage} />
           </div>
         </div>
       </>

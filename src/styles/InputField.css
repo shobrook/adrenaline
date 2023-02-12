@@ -1,0 +1,111 @@
+#inputField {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    /* justify-content: space-between; */
+}
+
+#inputFieldArea {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #29293D;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 5px;
+}
+
+#inputFieldValue {
+    border: 0;
+    box-sizing: border-box;
+    outline: none;
+    color: white;
+    background: none;
+    padding-top: 20px;
+    /* padding-left: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-right: 15px; */
+    width: 100%;
+    resize: none;
+    font-size: 16px;
+    font-family: "Helvetica Neue";
+}
+
+#sendInputButton {
+    color: #FFFFFF;
+}
+
+#suggestedMessage {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-radius: 5px;
+    color: white;
+    /* margin-top: 15px; */
+    background-color: #D64045;
+    /* align-self: flex-end; */
+    /* max-width: 75%; */
+    /* width: fit-content; */
+    margin-bottom: 15px;
+    box-shadow: 0px 1px 6px #101018b8;
+    cursor: pointer;
+
+    -webkit-animation: breathing 5s ease-out infinite normal;
+    animation: breathing 5s ease-out infinite normal;
+    -webkit-font-smoothing: antialiased;
+}
+
+@-webkit-keyframes breathing {
+    0% {
+        -webkit-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+
+    25% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+
+    60% {
+        -webkit-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+
+    100% {
+        -webkit-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+}
+  
+@keyframes breathing {
+    0% {
+        -webkit-transform: scale(0.95);
+        -ms-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+
+    25% {
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+    }
+
+    60% {
+        -webkit-transform: scale(0.95);
+        -ms-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+
+    100% {
+        -webkit-transform: scale(0.95);
+        -ms-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+}
