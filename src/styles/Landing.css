@@ -25,6 +25,12 @@
   padding-top: 125px;
 }
 
+@media (max-width: 1500px) {
+  .landingHeading {
+    width: 80%;
+  }
+}
+
 @media (max-width: 1130px) {
   .landingLHS {
     display: flex;
@@ -105,7 +111,7 @@
 
 .landingSubtitle {
   color: rgba(255, 255, 255, 0.65);
-  font-family: "Helvetica Neue";
+  /* font-family: "Helvetica Neue"; */
   /* font-size: 22px; */
   font-size: 1.375vw;
   font-weight: 400;

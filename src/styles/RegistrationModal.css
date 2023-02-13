@@ -26,7 +26,7 @@
     width: 100%;
     padding-top: 9px;
     font-size: 18px;
-    font-family: "Helvetica Neue";
+    /* font-family: "Helvetica Neue"; */
     padding-left: 15px;
     white-space: nowrap;
     overflow: hidden;
@@ -49,7 +49,7 @@
     height: 45px;
     width: 100%;
     font-size: 18px;
-    font-family: "Helvetica Neue";
+    /* font-family: "Helvetica Neue"; */
     padding-left: 15px;
     white-space: nowrap;
     overflow: hidden;
