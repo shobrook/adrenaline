@@ -211,12 +211,13 @@ export default class CodeEditor extends Component {
 							control: (provided, state) => ({
 								...provided,
 								boxShadow: "none",
-								cursor: "pointer"
+								cursor: "pointer",
+								borderRadius: "5px !important"
 							}),
-				      menu: (provided, state) => ({
-				        ...provided,
-				        backgroundColor: "#202030"
-				      }),
+							menu: (provided, state) => ({
+								...provided,
+								backgroundColor: "#202030"
+							}),
 							option: (provided, state) => ({
 								...provided,
 								fontFamily: "Helvetica Neue",
@@ -225,7 +226,7 @@ export default class CodeEditor extends Component {
 								backgroundColor: state.isFocused ? "#279AF1" : "transparent",
 								cursor: "pointer"
 							})
-				    }}
+				    	}}
 					/>
 					<Button
 						className="lintButton"
@@ -238,17 +239,17 @@ export default class CodeEditor extends Component {
 				</div>
 				<CodeMirror
 					className="codeEditor"
-				  value={code.join("\n")}
-				  options={{
+					value={code.join("\n")}
+					options={{
 						mode: language.value,
 						theme: "dracula",
-				    lineNumbers: true
-				  }}
-				  onBeforeChange={onChange}
+					lineNumbers: true
+					}}
+					onBeforeChange={onChange}
 					onChange={onChange}
 					editorDidMount={editor => this.codeMirrorRef = editor}
 				/>
 			</div>
-	  );
+		);
 	}
 }
