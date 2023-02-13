@@ -32,7 +32,7 @@
 .codeEditorContainer {
   display: flex;
   flex-direction: column;
-  height: 66%;
+  height: 67%;
   overflow: auto;
   padding-left: 11px;
   padding-right: 24px;
