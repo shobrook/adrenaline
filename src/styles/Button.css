@@ -10,6 +10,7 @@
   height: 35px;
   padding-left: 15px;
   padding-right: 15px;
+  text-align: center;
 }
 
 .primaryButton:hover {
@@ -30,6 +31,7 @@
   height: 35px;
   color: white;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .secondaryButton:hover {

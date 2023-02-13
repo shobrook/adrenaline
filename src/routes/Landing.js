@@ -1,22 +1,18 @@
-import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
 
 import AuthenticationComponent from "../components/AuthenticationComponent";
-import RegistrationForm from "../containers/RegistrationForm";
+import RegistrationModal from "../containers/RegistrationModal";
 import Button from "../components/Button";
 import Header from "../containers/Header";
 
-import "../styles/Landing.css";
+import { withRouter } from "../library/utilities";
 
-import { withRouter } from "../utilities";
+import "../styles/Landing.css";
 
 class Landing extends AuthenticationComponent {
 	render() {
 		const { location } = this.props.router;
-		const {
-			isRegistering,
-			isLoggedIn
-		} = this.state;
+		const { isRegistering, isLoggedIn } = this.state;
 
 		window.gtag("event", "page_view", {
 			page_path: location.pathname + location.search,
@@ -25,11 +21,11 @@ class Landing extends AuthenticationComponent {
 		return (
 			<>
 				{isRegistering ? (
-					<RegistrationForm 
-						setRef={this.onSetModalRef} 
+					<RegistrationModal 
+						setModalRef={this.onSetModalRef} 
 						onLogIn={this.onLogIn}
 						onSignUp={this.onSignUp}
-						onCloseForm={this.onCloseForm}
+						onCloseModal={this.onCloseModal}
 					/>
 				) : null
 				}

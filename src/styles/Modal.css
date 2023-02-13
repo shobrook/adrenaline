@@ -1,4 +1,4 @@
-#notificationBackground {
+#modalBackground {
     height: 100%;
     width: 100%;
     position: absolute;
@@ -9,7 +9,7 @@
     justify-content: center;
 }
 
-#notificationModal {
+#modal {
     width: 40%;
     max-width: 500px;
     height: fit-content;
@@ -22,9 +22,11 @@
     justify-content: center;
     z-index: 2;
     flex-direction: column;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
-#modalHeading {
+#header {
     display: flex;
     flex-direction: column;
     text-align: center;
@@ -35,7 +37,8 @@
     letter-spacing: 1.25px;
 }
 
-#modalSubHeading {
+#subHeader {
     opacity: 0.75;
     padding-bottom: 30px;
+    text-align: center;
 }

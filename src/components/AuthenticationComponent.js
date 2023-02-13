@@ -6,7 +6,7 @@ class AuthenticationComponent extends Component {
 
 		this.onSetModalRef = this.onSetModalRef.bind(this);
 		this.onOpenRegistrationForm = this.onOpenRegistrationForm.bind(this);
-		this.onCloseForm = this.onCloseForm.bind(this);
+		this.onCloseModal = this.onCloseModal.bind(this);
 		this.onLogIn = this.onLogIn.bind(this);
 		this.onLogOut = this.onLogOut.bind(this);
 		this.onSignUp = this.onSignUp.bind(this);
@@ -42,7 +42,7 @@ class AuthenticationComponent extends Component {
 		this.setState({ isRegistering: true });
 	}
 
-	onCloseForm(event) {
+	onCloseModal(event) {
 		if (this.modalRef && this.modalRef.contains(event.target)) {
 			return;
 		}
