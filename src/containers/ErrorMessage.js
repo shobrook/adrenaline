@@ -15,13 +15,13 @@ export default class ErrorMessage extends Component {
 
 	render() {
 		const { value } = this.state;
-    const { onDebug, isLoading } = this.props;
+		const { onDebug, isLoading } = this.props;
 
-    return (
-      <div className="errorMessage">
-        <div className="errorMessageHeader">
-          <span>Error Message</span>
-          <Button
+		return (
+			<div className="errorMessage">
+				<div className="errorMessageHeader">
+					<span>Problem Statement</span>
+					<Button
 						className="debugButton"
 						onClick={() => onDebug(value)}
 						isPrimary
@@ -29,7 +29,7 @@ export default class ErrorMessage extends Component {
 					>
 						Debug
 					</Button>
-        </div>
+				</div>
 				<textarea
 					className="errorMessageInput"
 					ref={ref => this.input = ref}
@@ -37,7 +37,7 @@ export default class ErrorMessage extends Component {
 					onChange={this.onChange}
 					placeholder="Describe your error in simple terms. Or paste an error message / stack trace."
 				/>
-      </div>
-    );
+			</div>
+		);
 	}
 }

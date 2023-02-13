@@ -45,14 +45,12 @@ export default class InputField extends Component {
                     </div>
                 ) : null}
                 <div id="inputFieldArea">
-                    <textarea 
+                    <input 
                         id="inputFieldValue" 
                         placeholder={placeholder}
                         onChange={this.onChange}
                         value={value}
-                    >
-                        {value}
-                    </textarea>
+                    />
                     <Button 
                         id="sendInputButton" 
                         isPrimary 

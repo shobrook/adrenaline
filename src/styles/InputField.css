@@ -23,7 +23,6 @@
     outline: none;
     color: white;
     background: none;
-    padding-top: 20px;
     /* padding-left: 20px;
     padding-top: 15px;
     padding-bottom: 15px;
@@ -32,6 +31,12 @@
     resize: none;
     font-size: 16px;
     font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif !important;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-right: 15px;
 }
 
 #sendInputButton {
