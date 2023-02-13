@@ -22,16 +22,16 @@
     justify-content: center;
     z-index: 2;
     flex-direction: column;
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 #header {
     display: flex;
     flex-direction: column;
     text-align: center;
-    padding-bottom: 15px;
-    margin-top: 30px;
+    padding-bottom: 30px;
+    padding-top: 30px;
     font-size: 26px;
     font-weight: 900;
     letter-spacing: 1.25px;

@@ -8,14 +8,21 @@ export default class ErrorMessage extends Component {
 	constructor(props) {
 		super(props);
 
+		this.onChangeErrorMessage = this.onChangeErrorMessage.bind(this);
+
 		this.state = { value: "" };
 	}
 
-	onChange = event => this.setState({ value: event.target.value });
+	onChangeErrorMessage(event) {
+		const { onChange } = this.props;
+
+		this.setState({ value: event.target.value });
+		onChange(event.target.value);
+	}
 
 	render() {
 		const { value } = this.state;
-		const { onDebug, isLoading } = this.props;
+		const { onDebug, isLoading, onChange } = this.props;
 
 		return (
 			<div className="errorMessage">
@@ -34,7 +41,7 @@ export default class ErrorMessage extends Component {
 					className="errorMessageInput"
 					ref={ref => this.input = ref}
 					value={value}
-					onChange={this.onChange}
+					onChange={this.onChangeErrorMessage}
 					placeholder="Describe your error in simple terms. Or paste an error message / stack trace."
 				/>
 			</div>

@@ -16,6 +16,7 @@ class App extends AuthenticationComponent {
 	constructor(props) {
 		super(props);
 
+    this.onUpdateErrorMessage = this.onUpdateErrorMessage.bind(this);
     this.processResponse = this.processResponse.bind(this);
     this.onCodeChange = this.onCodeChange.bind(this);
     this.onResolveDiff = this.onResolveDiff.bind(this);
@@ -210,6 +211,18 @@ class App extends AuthenticationComponent {
     this.setState({ language });
   }
 
+  onUpdateErrorMessage(errorMessage) {
+    let suggestedMessage = null;
+    if (errorMessage != "") {
+      suggestedMessage = {
+        preview: "Explain this error and how to fix it.",
+        prompt: `Explain the following error and how to fix it: ${errorMessage}`
+      };
+    } 
+
+    this.setState({ suggestedMessage });
+  }
+
 	render() {
     const { location } = this.props.router;
     const {
@@ -274,7 +287,11 @@ class App extends AuthenticationComponent {
                 isLoading={waitingForLint}
                 onLint={this.onLint}
               />
-              <ErrorMessage onDebug={this.onDebug} isLoading={waitingForDebug} />
+              <ErrorMessage 
+                onDebug={this.onDebug} 
+                isLoading={waitingForDebug} 
+                onChange={this.onUpdateErrorMessage} 
+              />
             </div>
             <ChatBot suggestedMessage={suggestedMessage} />
           </div>

@@ -10,7 +10,6 @@
     width: 85%;
     height: 72%;
     justify-content: space-between;
-    padding-top: 20px;
     padding-bottom: 40px;
 }
 
@@ -26,7 +25,7 @@
     width: 100%;
     padding-top: 9px;
     font-size: 18px;
-    /* font-family: "Helvetica Neue"; */
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
     padding-left: 15px;
     white-space: nowrap;
     overflow: hidden;
