@@ -108,6 +108,10 @@
   height: 100% !important;
 }
 
+.CodeMirror-scroll {
+  margin-right: 0px !important;
+}
+
 .CodeMirror-lines {
   padding-left: 20px !important;
 }
