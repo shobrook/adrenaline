@@ -2,7 +2,7 @@ import { Component } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import InputField from '../components/InputField';
+import InputField from './InputField';
 import ChatMessage from '../components/ChatMessage';
 
 import '../styles/ChatBot.css';
@@ -41,11 +41,13 @@ export default class ChatBot extends Component {
     }
 
     onSendSuggestedMessage() {
+        const { resetSuggestedMessage } = this.props;
         const { preview, prompt } = this.props.suggestedMessage;
         const { messages } = this.state;
 
         this.ws.send(JSON.stringify({ query: prompt, context: "" }));
         this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true }] });
+        resetSuggestedMessage()
     }
 
     /* Lifecycle Methods */

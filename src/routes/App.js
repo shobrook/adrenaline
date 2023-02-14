@@ -293,7 +293,10 @@ class App extends AuthenticationComponent {
                 onChange={this.onUpdateErrorMessage} 
               />
             </div>
-            <ChatBot suggestedMessage={suggestedMessage} />
+            <ChatBot 
+              suggestedMessage={suggestedMessage} 
+              resetSuggestedMessage={() => this.setState({ suggestedMessage: null })} 
+            />
           </div>
         </div>
       </>

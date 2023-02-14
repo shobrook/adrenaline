@@ -1,6 +1,6 @@
 import { Component } from 'react';
 
-import Button from './Button';
+import Button from '../components/Button';
 
 import '../styles/InputField.css';
 
@@ -10,6 +10,7 @@ export default class InputField extends Component {
 
         this.onChange = this.onChange.bind(this);
         this.onSubmitInput = this.onSubmitInput.bind(this);
+        this.onKeyPress = this.onKeyPress.bind(this);
 
         this.state = { value: "", displaySuggestedMessage: true };
     }
@@ -30,16 +31,24 @@ export default class InputField extends Component {
         this.setState({ value: "" });
     }
 
+    onKeyPress(event) {
+        const code = event.keyCode || event.which;
+
+        if (code === 13) {
+            this.onSubmitInput();
+        }
+    }
+
 	render() {
         const { placeholder, submitLabel, onSubmitSuggested, suggestedMessage } = this.props;
         const { value, displaySuggestedMessage } = this.state;
 
 		return (
 			<div id="inputField">
-                {suggestedMessage && Object.keys(suggestedMessage).length !== 0 && displaySuggestedMessage ? (
+                {suggestedMessage && displaySuggestedMessage ? (
                     <div 
                         id="suggestedMessage" 
-                        onClick={() => { onSubmitSuggested(); this.setState({ displaySuggestedMessage: false }); }}
+                        onClick={onSubmitSuggested}
                     >
                         {suggestedMessage.preview}
                     </div>
@@ -50,6 +59,7 @@ export default class InputField extends Component {
                         placeholder={placeholder}
                         onChange={this.onChange}
                         value={value}
+                        onKeyPress={this.onKeyPress}
                     />
                     <Button 
                         id="sendInputButton" 
