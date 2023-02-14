@@ -1,6 +1,4 @@
 import { Component } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import InputField from './InputField';
 import ChatMessage from '../components/ChatMessage';
@@ -18,7 +16,7 @@ export default class ChatBot extends Component {
             messages: [
                 { 
                     isUserSubmitted: false, 
-                    message: "Hello! Ask me anything about your project –– I'm here to help." 
+                    message: "Hello! Ask me anything about your project –– I'm here to help.\n```x = 10\nfor i in range(10):\n\tcallback(i)```" 
                 }
             ]
         }

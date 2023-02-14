@@ -1,6 +1,6 @@
 .chatMessage {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: flex-start;
     padding-left: 15px;
     padding-right: 15px;
@@ -13,6 +13,13 @@
     align-self: flex-end;
     max-width: 66%;
     width: fit-content;
+    overflow-wrap: break-word;
+}
+
+.chatMessage > pre {
+    background-color: #29293d !important;
+    font-size: 14px !important;
+    margin-top: 15px !important;
 }
 
 .aiResponse {
