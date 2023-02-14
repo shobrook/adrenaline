@@ -37,3 +37,12 @@
 .secondaryButton:hover {
   border: solid 2px rgba(255, 255, 255, 1.0);
 }
+
+.disabled {
+  opacity: 0.5;
+  cursor: auto;
+}
+
+.disabled:hover {
+  opacity: 0.5 !important;
+}

@@ -198,6 +198,8 @@ export default class CodeEditor extends Component {
 			onLint
 		} = this.props;
 
+		console.log(code);
+
 		return (
 			<div className="codeEditorContainer">
 				<div className="codeEditorHeader">
@@ -233,6 +235,7 @@ export default class CodeEditor extends Component {
 						onClick={onLint}
 						isLoading={isLoading}
 						isPrimary
+						isDisabled={code.length == 1 && code[0] == ""}
 					>
 						Lint
 					</Button>
@@ -243,7 +246,7 @@ export default class CodeEditor extends Component {
 					options={{
 						mode: language.value,
 						theme: "dracula",
-					lineNumbers: true
+						lineNumbers: true
 					}}
 					onBeforeChange={onChange}
 					onChange={onChange}
