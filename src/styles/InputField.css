@@ -7,6 +7,7 @@
 }
 
 #inputFieldArea {
+    z-index: 3;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -58,13 +59,17 @@
     border-radius: 7px;
     color: white;
     /* margin-top: 15px; */
-    background-color: #54546A;
+    background-color: #535379;
     /* align-self: flex-end; */
     /* max-width: 75%; */
     /* width: fit-content; */
     margin-bottom: 15px;
     box-shadow: 0px 1px 6px #101018b8;
     cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 
     /* -webkit-animation: breathing 5s ease-out infinite normal; */
     /* animation: breathing 5s ease-out infinite normal; */
@@ -72,14 +77,17 @@
 }
 
 .suggestedMessage:hover {
-    opacity: 0.75;
+    opacity: 0.75 !important;
 }
 
-@keyframes popup {
-    from {background-color: red;}
-    to {background-color: yellow;}
-  }
+.suggestedMessage > span {
+    width: 95%;
+}
 
+.sendMessageIcon {
+    height: 20px;
+    fill: #FFFFFF;
+}
 
 @-webkit-keyframes breathing {
     0% {
