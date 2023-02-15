@@ -32,7 +32,7 @@ class App extends AuthenticationComponent {
       waitingForDebug: false,
       waitingForLint: false,
       isRateLimited: false,
-      suggestedMessage: null,
+      suggestedMessages: [],
       waitingForDiffResolution: false,
     };
 	}
@@ -156,6 +156,25 @@ class App extends AuthenticationComponent {
 
 			console.log(error);
 		});
+    fetch("http://127.0.0.1:5000/api/generate_suggested_questions", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ email, code: code.join("\n"), error: errorMessage })
+		})
+		.then(this.processResponse)
+		.then(data => {
+      window.gtag("event", "generate_suggested_messages_success");
+
+      const { suggested_questions } = data;
+      const suggestedMessages = suggested_questions.map(question => ({ preview: question, prompt: question }));
+      this.setState({ suggestedMessages: suggestedMessages.slice(0, 3) });
+		})
+		.catch(error => {
+			window.gtag("event", "generate_suggested_messages_failure");
+      this.setState({ waitingForDebug: false });
+
+			console.log(error);
+		});
   };
 
   onLint() {
@@ -234,7 +253,7 @@ class App extends AuthenticationComponent {
       waitingForDiffResolution,
       isRegistering,
       isRateLimited,
-      suggestedMessage
+      suggestedMessages
     } = this.state;
 
     let isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -294,8 +313,8 @@ class App extends AuthenticationComponent {
               />
             </div>
             <ChatBot 
-              suggestedMessage={suggestedMessage} 
-              resetSuggestedMessage={() => this.setState({ suggestedMessage: null })} 
+              suggestedMessages={suggestedMessages} 
+              resetSuggestedMessages={() => this.setState({ suggestedMessages: [] })} 
             />
           </div>
         </div>

@@ -12,7 +12,7 @@ export default class InputField extends Component {
         this.onSubmitInput = this.onSubmitInput.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
 
-        this.state = { value: "", displaySuggestedMessage: true };
+        this.state = { value: "", displaySuggestedMessages: true };
     }
 
     onChange(event) {
@@ -28,7 +28,7 @@ export default class InputField extends Component {
         }
         
         onSubmit(value);
-        this.setState({ value: "" });
+        this.setState({ value: "", displaySuggestedMessages: false });
     }
 
     onKeyPress(event) {
@@ -40,17 +40,23 @@ export default class InputField extends Component {
     }
 
 	render() {
-        const { placeholder, submitLabel, onSubmitSuggested, suggestedMessage } = this.props;
-        const { value, displaySuggestedMessage } = this.state;
+        const { placeholder, submitLabel, onSubmitSuggested, suggestedMessages } = this.props;
+        const { value, displaySuggestedMessages } = this.state;
 
 		return (
 			<div id="inputField">
-                {suggestedMessage && displaySuggestedMessage ? (
-                    <div 
-                        id="suggestedMessage" 
-                        onClick={onSubmitSuggested}
-                    >
-                        {suggestedMessage.preview}
+                {suggestedMessages.length != 0 && displaySuggestedMessages ? (
+                    <div id="suggestedMessages">
+                        {suggestedMessages.map(suggestedMessage => {
+                            return (
+                                <div 
+                                    className="suggestedMessage" 
+                                    onClick={() => onSubmitSuggested(suggestedMessage)}
+                                >
+                                    {suggestedMessage.preview}
+                                </div>
+                            );
+                        })}
                     </div>
                 ) : null}
                 <div id="inputFieldArea">

@@ -198,8 +198,6 @@ export default class CodeEditor extends Component {
 			onLint
 		} = this.props;
 
-		console.log(code);
-
 		return (
 			<div className="codeEditorContainer">
 				<div className="codeEditorHeader">

@@ -43,7 +43,11 @@
     color: #FFFFFF;
 }
 
-#suggestedMessage {
+#suggestedHeader {
+    padding-bottom: 15px;
+}
+
+.suggestedMessage {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -54,7 +58,7 @@
     border-radius: 7px;
     color: white;
     /* margin-top: 15px; */
-    background-color: #D93CFF;
+    background-color: #54546A;
     /* align-self: flex-end; */
     /* max-width: 75%; */
     /* width: fit-content; */
@@ -62,10 +66,20 @@
     box-shadow: 0px 1px 6px #101018b8;
     cursor: pointer;
 
-    -webkit-animation: breathing 5s ease-out infinite normal;
-    animation: breathing 5s ease-out infinite normal;
-    -webkit-font-smoothing: antialiased;
+    /* -webkit-animation: breathing 5s ease-out infinite normal; */
+    /* animation: breathing 5s ease-out infinite normal; */
+    /* -webkit-font-smoothing: antialiased; */
 }
+
+.suggestedMessage:hover {
+    opacity: 0.75;
+}
+
+@keyframes popup {
+    from {background-color: red;}
+    to {background-color: yellow;}
+  }
+
 
 @-webkit-keyframes breathing {
     0% {

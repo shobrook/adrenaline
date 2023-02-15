@@ -12,14 +12,7 @@ export default class ChatBot extends Component {
         this.onSendMessage = this.onSendMessage.bind(this);
         this.onSendSuggestedMessage = this.onSendSuggestedMessage.bind(this);
 
-        this.state = {
-            messages: [
-                { 
-                    isUserSubmitted: false, 
-                    message: "Hello! Ask me anything about your project –– I'm here to help.\n```x = 10\nfor i in range(10):\n\tcallback(i)```" 
-                }
-            ]
-        }
+        this.state = { messages: [] };
     }
 
     onSendMessage(message) {
@@ -38,36 +31,34 @@ export default class ChatBot extends Component {
         this.setState({ messages: [...messages, { message, isUserSubmitted: true }] });
     }
 
-    onSendSuggestedMessage() {
-        const { resetSuggestedMessage } = this.props;
-        const { preview, prompt } = this.props.suggestedMessage;
+    onSendSuggestedMessage(message) {
+        const { resetSuggestedMessages } = this.props;
+        const { preview, prompt } = message;
         const { messages } = this.state;
 
         this.ws.send(JSON.stringify({ query: prompt, context: "" }));
         this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true }] });
-        resetSuggestedMessage()
+        resetSuggestedMessages()
     }
 
     /* Lifecycle Methods */
 
     componentDidMount() {
         this.ws = new WebSocket("ws://127.0.0.1:5000/generate_chat_response");
-        
+
         this.ws.onopen = event => {
-            // const query = localStorage.getItem("prompt");
-            // const firstStep = localStorage.getItem("firstStep");
-
-            // const payload = JSON.stringify({ query, step_title: firstStep, prev_step_titles: "" });
-
-            // ws.send(payload);
+            this.ws.send("START");
         };
-
         this.ws.onmessage = event => {
             const { data } = event;
             const { messages } = this.state;
 
+            if (messages.length == 0) {
+                this.setState({ messages: [ { message: data, isUserSubmitted: false } ] });
+                return;
+            }
+
             const lastMessage = messages[messages.length - 1];
-            
             if (!lastMessage.isUserSubmitted) {
                 this.setState({ messages: [...messages.splice(0, messages.length - 1), { message: lastMessage.message + data, isUserSubmitted: false }] });
             } else {
@@ -78,7 +69,7 @@ export default class ChatBot extends Component {
 
     render() {
         const { messages } = this.state;
-        const { suggestedMessage } = this.props;
+        const { suggestedMessages } = this.props;
 
         return (
             <div id="chatBot">
@@ -92,7 +83,7 @@ export default class ChatBot extends Component {
                 <InputField 
                     onSubmit={this.onSendMessage}
                     onSubmitSuggested={this.onSendSuggestedMessage}
-                    suggestedMessage={suggestedMessage}
+                    suggestedMessages={suggestedMessages}
                     placeholder="Ask me a question"
                     submitLabel="Send"
                 />

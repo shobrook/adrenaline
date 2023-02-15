@@ -112,6 +112,10 @@
   margin-right: 0px !important;
 }
 
+.CodeMirror-sizer {
+  border-right: 0px !important;
+}
+
 .CodeMirror-lines {
   padding-left: 20px !important;
 }
