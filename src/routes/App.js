@@ -253,9 +253,11 @@ class App extends AuthenticationComponent {
       waitingForDiffResolution,
       isRegistering,
       isRateLimited,
-      suggestedMessages
+      suggestedMessages,
+      errorMessage
     } = this.state;
 
+    const email = this.getEmailAddress();
     let isLoggedIn = localStorage.getItem("isLoggedIn");
     isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
     
@@ -315,6 +317,9 @@ class App extends AuthenticationComponent {
             <ChatBot 
               suggestedMessages={suggestedMessages} 
               resetSuggestedMessages={() => this.setState({ suggestedMessages: [] })} 
+              errorMessage={errorMessage}
+              code={code.join("\n")}
+              email={email}
             />
           </div>
         </div>

@@ -9,36 +9,65 @@ export default class ChatBot extends Component {
     constructor(props) {
         super(props);
 
+        this.consolidateChatHistory = this.consolidateChatHistory.bind(this);
         this.onSendMessage = this.onSendMessage.bind(this);
         this.onSendSuggestedMessage = this.onSendSuggestedMessage.bind(this);
 
         this.state = { messages: [] };
     }
 
-    onSendMessage(message) {
+    consolidateChatHistory() {
         const { messages } = this.state;
 
-        const context = messages.map(priorMessage => {
-            const { isUserSubmitted, message } = priorMessage;
-
-            if (isUserSubmitted) {
-                return `Human: ${message}`;
+        if (messages.length <= 1) {
+            return [];
+        }
+        
+        const chatHistory = messages.slice(1, messages.length).reduce((r, m, i) => {
+            const { message } = m;
+            if (i % 2) {
+                r[r.length - 1].push(message);
+            } else {
+                r.push([message]);
             }
 
-            return `AI: ${message}`;
-        }).join("\n");
-        this.ws.send(JSON.stringify({ query: message, context  }));
+            return r;
+        }, []);
+
+        console.log(chatHistory);
+        return chatHistory;
+    }
+
+    onSendMessage(message) {
+        const { email, code, errorMessage } = this.props;
+        const { messages } = this.state;
+
+        this.ws.send(JSON.stringify({
+            email, 
+            query: message,
+            chat_history: this.consolidateChatHistory(),
+            error_message: errorMessage,
+            is_suggested: false,
+            code
+        }));
         this.setState({ messages: [...messages, { message, isUserSubmitted: true }] });
     }
 
     onSendSuggestedMessage(message) {
-        const { resetSuggestedMessages } = this.props;
+        const { resetSuggestedMessages, email, code, errorMessage } = this.props;
         const { preview, prompt } = message;
         const { messages } = this.state;
 
-        this.ws.send(JSON.stringify({ query: prompt, context: "" }));
+        this.ws.send(JSON.stringify({
+            email, 
+            query: prompt, 
+            chat_history: this.consolidateChatHistory(),
+            code,
+            error_message: errorMessage,
+            is_suggested: true
+        }));
         this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true }] });
-        resetSuggestedMessages()
+        resetSuggestedMessages();
     }
 
     /* Lifecycle Methods */
@@ -80,7 +109,7 @@ export default class ChatBot extends Component {
                         return ( <ChatMessage isUserSubmitted={isUserSubmitted}>{message}</ChatMessage> );
                     })}
                 </div>
-                <InputField 
+                <InputField
                     onSubmit={this.onSendMessage}
                     onSubmitSuggested={this.onSendSuggestedMessage}
                     suggestedMessages={suggestedMessages}
