@@ -16,6 +16,12 @@ export default class ChatBot extends Component {
         this.state = { messages: [] };
     }
 
+    /* Utilities */
+
+    scrollToBottom = () => {
+        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    }
+
     consolidateChatHistory() {
         const { messages } = this.state;
 
@@ -37,6 +43,8 @@ export default class ChatBot extends Component {
         console.log(chatHistory);
         return chatHistory;
     }
+
+    /* Event Handlers */
 
     onSendMessage(message) {
         const { email, code, errorMessage } = this.props;
@@ -94,6 +102,12 @@ export default class ChatBot extends Component {
                 this.setState({ messages: [...messages, { message: data, isUserSubmitted: false }] });
             }
         };
+
+        this.scrollToBottom();
+    }
+
+    componentDidUpdate() {
+        this.scrollToBottom();
     }
 
     render() {
@@ -108,6 +122,9 @@ export default class ChatBot extends Component {
 
                         return ( <ChatMessage isUserSubmitted={isUserSubmitted}>{message}</ChatMessage> );
                     })}
+                    <div style={{ float:"left", clear: "both" }}
+                        ref={(el) => { this.messagesEnd = el; }}>
+                    </div>
                 </div>
                 <InputField
                     onSubmit={this.onSendMessage}
