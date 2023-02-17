@@ -239,7 +239,7 @@ class App extends AuthenticationComponent {
       };
     } 
 
-    this.setState({ suggestedMessage });
+    this.setState({ suggestedMessage, errorMessage });
   }
 
 	render() {
