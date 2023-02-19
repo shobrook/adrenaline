@@ -23,4 +23,10 @@
     flex-direction: column;
     overflow-y: scroll;
     margin-bottom: 30px;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
+
+#messages::-webkit-scrollbar {
+    display: none;
+} 
