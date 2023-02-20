@@ -22,7 +22,7 @@ export default class ErrorMessage extends Component {
 
 	render() {
 		const { value } = this.state;
-		const { onDebug, isLoading, onChange } = this.props;
+		const { onDebug, isLoading } = this.props;
 
 		return (
 			<div className="errorMessage">

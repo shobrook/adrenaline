@@ -16,6 +16,7 @@ class App extends AuthenticationComponent {
 	constructor(props) {
 		super(props);
 
+    this.setCachedDocumentIds = this.setCachedDocumentIds.bind(this);
     this.onUpdateErrorMessage = this.onUpdateErrorMessage.bind(this);
     this.processResponse = this.processResponse.bind(this);
     this.onCodeChange = this.onCodeChange.bind(this);
@@ -34,10 +35,19 @@ class App extends AuthenticationComponent {
       isRateLimited: false,
       suggestedMessages: [],
       waitingForDiffResolution: false,
+      shouldUpdateContext: true
     };
 	}
 
   /* Event Handlers */
+  
+  setCachedDocumentIds(documentIds) {
+    if (documentIds.length != 0) {
+      localStorage.setItem("cachedDocumentIds", JSON.stringify(documentIds))
+    }
+
+    this.setState({ shouldUpdateContext: false });
+  }
   
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
@@ -48,7 +58,8 @@ class App extends AuthenticationComponent {
       updateDiffIndexing(diffs, data);
     }
 
-    this.setState({ code: newCode, diffs });
+    // TODO: Find a more intelligent way to determine whether we should update context (e.g. threshold for % of code changed?)
+    this.setState({ code: newCode, diffs, shouldUpdateContext: true });
   }
 
   onResolveDiff(diff, linesToDelete, indicatorLineNum) {
@@ -231,15 +242,7 @@ class App extends AuthenticationComponent {
   }
 
   onUpdateErrorMessage(errorMessage) {
-    let suggestedMessage = null;
-    if (errorMessage != "") {
-      suggestedMessage = {
-        preview: "Explain this error and how to fix it.",
-        prompt: `Explain the following error and how to fix it: ${errorMessage}`
-      };
-    } 
-
-    this.setState({ suggestedMessage, errorMessage });
+    this.setState({ errorMessage, shouldUpdateContext: true });
   }
 
 	render() {
@@ -254,7 +257,8 @@ class App extends AuthenticationComponent {
       isRegistering,
       isRateLimited,
       suggestedMessages,
-      errorMessage
+      errorMessage,
+      shouldUpdateContext
     } = this.state;
 
     const email = this.getEmailAddress();
@@ -320,6 +324,8 @@ class App extends AuthenticationComponent {
               errorMessage={errorMessage}
               code={code.join("\n")}
               email={email}
+              shouldUpdateContext={shouldUpdateContext}
+              setCachedDocumentIds={this.setCachedDocumentIds}
             />
           </div>
         </div>
