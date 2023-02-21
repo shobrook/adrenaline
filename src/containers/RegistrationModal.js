@@ -2,6 +2,7 @@ import { Component } from "react";
 
 import Modal from "../components/Modal";
 import Button from "../components/Button";
+import { useAuth0 } from '@auth0/auth0-react';
 
 import "../styles/RegistrationModal.css";
 
@@ -15,10 +16,10 @@ export default class RegistrationModal extends Component {
         this.onClickPrimary = this.onClickPrimary.bind(this);
         this.onClickSecondary = this.onClickSecondary.bind(this);
 
-        this.state = { 
+        this.state = {
             isLoggingIn: true,
-            email: "", 
-            password: "", 
+            email: "",
+            password: "",
             reEnteredPassword: "",
             registrationError: ""
         };
@@ -53,21 +54,22 @@ export default class RegistrationModal extends Component {
     onClickSecondary() {
         const { isLoggingIn } = this.state;
 
-        this.setState({ 
-            isLoggingIn: !isLoggingIn, 
-            email: "", 
-            password: "", 
+        this.setState({
+            isLoggingIn: !isLoggingIn,
+            email: "",
+            password: "",
             reEnteredPassword: "",
             registrationError: ""
         });
     }
 
     render() {
+
         const { isLoggingIn, email, password, reEnteredPassword, registrationError } = this.state;
         const { setModalRef, onCloseModal } = this.props;
 
         return (
-            <Modal 
+            <Modal
                 setModalRef={setModalRef}
                 onCloseModal={onCloseModal}
                 header={isLoggingIn ? "Log in" : "Create an account"}
