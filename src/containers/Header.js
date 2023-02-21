@@ -1,14 +1,11 @@
-import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
+import { useAuth0 } from '@auth0/auth0-react';
 
 import Button from "../components/Button";
 
 import "../styles/Header.css";
-import { useAuth0 } from '@auth0/auth0-react';
 
-function Header({ onClick, isLoggedIn }) {
-
-
+function Header({ onClick }) {
 	const {
 		isLoading,
 		isAuthenticated,
@@ -17,8 +14,6 @@ function Header({ onClick, isLoggedIn }) {
 		loginWithRedirect,
 		logout,
 	} = useAuth0();
-
-	console.log({ error })
 
 	return (
 		<div className="header">
@@ -31,7 +26,7 @@ function Header({ onClick, isLoggedIn }) {
 				{user?.name}
 			</div>
 			<div className="buttons">
-				<Button className="LogInButton" isPrimary onClick={isAuthenticated ? logout : loginWithRedirect}>{isAuthenticated ? "Log out" : "Log in"}</Button>
+				<Button className="LogInButton" isPrimary onClick={isAuthenticated ? logout : loginWithRedirect}>{isAuthenticated ? "Log out" : "Sign up"}</Button>
 				<Button
 					className="headerGithubButton"
 					isPrimary={false}

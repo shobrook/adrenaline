@@ -1,5 +1,6 @@
-import AuthenticationComponent from "../components/AuthenticationComponent";
-import RegistrationModal from "../containers/RegistrationModal";
+import { Component } from "react";
+import { withAuth0 } from "@auth0/auth0-react";
+
 import RateLimitModal from "../containers/RateLimitModal";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
@@ -12,9 +13,9 @@ import { withRouter, updateDiffIndexing, diffCode } from "../library/utilities";
 
 import "../styles/App.css";
 
-class App extends AuthenticationComponent {
-	constructor(props) {
-		super(props);
+class App extends Component {
+  constructor(props) {
+    super(props);
 
     this.setCachedDocumentIds = this.setCachedDocumentIds.bind(this);
     this.onUpdateErrorMessage = this.onUpdateErrorMessage.bind(this);
@@ -25,7 +26,7 @@ class App extends AuthenticationComponent {
     this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
 
-		this.state = {
+    this.state = {
       language: DEFAULT_LANGUAGE,
       code: DEMO_CODE,
       errorMessage: "",
@@ -37,10 +38,10 @@ class App extends AuthenticationComponent {
       waitingForDiffResolution: false,
       shouldUpdateContext: true
     };
-	}
+  }
 
   /* Event Handlers */
-  
+
   setCachedDocumentIds(documentIds) {
     if (documentIds.length != 0) {
       localStorage.setItem("cachedDocumentIds", JSON.stringify(documentIds))
@@ -48,7 +49,7 @@ class App extends AuthenticationComponent {
 
     this.setState({ shouldUpdateContext: false });
   }
-  
+
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
     newCode = newCode.split("\n")
@@ -122,118 +123,114 @@ class App extends AuthenticationComponent {
   onDebug(errorMessage) {
     window.gtag("event", "click_debug");
 
+    const { isAuthenticated, loginWithRedirect } = this.props.auth0;
     const { code, diffs } = this.state;
-    const isLoggedIn = this.getLoginStatus();
-    const email = this.getEmailAddress();
 
     if (diffs.length !== 0) { // Can't debug code if diffs aren't resolved
-      this.setState({ waitingForDiffResolution: true, waitingForDebug: false})
+      this.setState({ waitingForDiffResolution: true, waitingForDebug: false })
       return;
     }
 
-    if (!isLoggedIn) {
-      this.setState({ isRegistering: true }); // QUESTION: Necessary?
+    if (!isAuthenticated) {
+      loginWithRedirect();
       return;
     } else if (errorMessage === "") {
-      // TODO: Make debug button unclickable if empty error message
       return;
     } else {
       this.setState({ waitingForDebug: true });
     }
 
     fetch("https://rubrick-api-production.up.railway.app/api/debug", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email, code: code.join("\n"), error: errorMessage })
-		})
-		.then(this.processResponse)
-		.then(data => {
-      window.gtag("event", "click_debug_success");
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: code.join("\n"), error: errorMessage }) // TODO: Authenticate
+    })
+      .then(this.processResponse)
+      .then(data => {
+        window.gtag("event", "click_debug_success");
 
-      const { fixed_code } = data.data;
-      let fixedCode = fixed_code.trim().replace("    ", "\t").split("\n");
-      let { mergedCode, diffs } = diffCode(code, fixedCode);
+        const { fixed_code } = data.data;
+        let fixedCode = fixed_code.trim().replace("    ", "\t").split("\n");
+        let { mergedCode, diffs } = diffCode(code, fixedCode);
 
-      this.setState({
-        waitingForDebug: false,
-        code: mergedCode,
-        diffs,
-        errorMessage
+        this.setState({
+          waitingForDebug: false,
+          code: mergedCode,
+          diffs,
+          errorMessage
+        });
+      })
+      .catch(error => {
+        window.gtag("event", "click_debug_failure");
+        this.setState({ waitingForDebug: false });
+
+        console.log(error);
       });
-		})
-		.catch(error => {
-			window.gtag("event", "click_debug_failure");
-      this.setState({ waitingForDebug: false });
-
-			console.log(error);
-		});
     fetch("http://127.0.0.1:5000/api/generate_suggested_questions", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email, code: code.join("\n"), error: errorMessage })
-		})
-		.then(this.processResponse)
-		.then(data => {
-      window.gtag("event", "generate_suggested_messages_success");
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: code.join("\n"), error: errorMessage }) // TODO: Authenticate
+    })
+      .then(this.processResponse)
+      .then(data => {
+        window.gtag("event", "generate_suggested_messages_success");
 
-      const { suggested_questions } = data;
-      const suggestedMessages = suggested_questions.map(question => ({ preview: question, prompt: question }));
-      this.setState({ suggestedMessages: suggestedMessages.slice(0, 3) });
-		})
-		.catch(error => {
-			window.gtag("event", "generate_suggested_messages_failure");
-      this.setState({ waitingForDebug: false });
+        const { suggested_questions } = data;
+        const suggestedMessages = suggested_questions.map(question => ({ preview: question, prompt: question }));
+        this.setState({ suggestedMessages: suggestedMessages.slice(0, 3) });
+      })
+      .catch(error => {
+        window.gtag("event", "generate_suggested_messages_failure");
+        this.setState({ waitingForDebug: false });
 
-			console.log(error);
-		});
+        console.log(error);
+      });
   };
 
   onLint() {
     window.gtag("event", "click_lint");
 
+    const { isAuthenticated, loginWithRedirect } = this.props.auth0;
     const { code, diffs } = this.state;
-    let isLoggedIn = localStorage.getItem("isLoggedIn");
-    isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
-    const email = this.getEmailAddress();
-    
+
     if (diffs.length != 0) {
-      this.setState({ waitingForDiffResolution: true, waitingForDebug: false})
+      this.setState({ waitingForDiffResolution: true, waitingForDebug: false })
       return;
     } else {
-      this.setState({ waitingForDiffResolution: false})
+      this.setState({ waitingForDiffResolution: false })
     }
 
-    if (!isLoggedIn) {
-      this.setState({ isRegistering: true });
+    if (!isAuthenticated) {
+      loginWithRedirect();
       return;
     } else {
       this.setState({ waitingForLint: true });
     }
 
     fetch("https://rubrick-api-production.up.railway.app/api/lint", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email, code: code.join("\n") })
-		})
-		.then(this.processResponse)
-		.then(data => {
-      window.gtag("event", "click_lint_success");
-      const { improved_code } = data.data;
-      let improvedCode = improved_code.trim().replace("    ", "\t").split("\n");
-      let { mergedCode, diffs } = diffCode(code, improvedCode);
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: code.join("\n") }) // TODO: Authenticate
+    })
+      .then(this.processResponse)
+      .then(data => {
+        window.gtag("event", "click_lint_success");
+        const { improved_code } = data.data;
+        let improvedCode = improved_code.trim().replace("    ", "\t").split("\n");
+        let { mergedCode, diffs } = diffCode(code, improvedCode);
 
-      this.setState({
-        waitingForLint: false,
-        code: mergedCode,
-        diffs
+        this.setState({
+          waitingForLint: false,
+          code: mergedCode,
+          diffs
+        });
+      })
+      .catch(error => {
+        window.gtag("event", "click_lint_failure");
+        this.setState({ waitingForLint: false });
+
+        console.log(error);
       });
-		})
-		.catch(error => {
-			window.gtag("event", "click_lint_failure");
-      this.setState({ waitingForLint: false });
-
-			console.log(error);
-		});
   }
 
   onSelectLanguage(language) {
@@ -245,7 +242,7 @@ class App extends AuthenticationComponent {
     this.setState({ errorMessage, shouldUpdateContext: true });
   }
 
-	render() {
+  render() {
     const { location } = this.props.router;
     const {
       language,
@@ -254,51 +251,34 @@ class App extends AuthenticationComponent {
       waitingForDebug,
       waitingForLint,
       waitingForDiffResolution,
-      isRegistering,
       isRateLimited,
       suggestedMessages,
       errorMessage,
       shouldUpdateContext
     } = this.state;
 
-    const email = this.getEmailAddress();
-    let isLoggedIn = localStorage.getItem("isLoggedIn");
-    isLoggedIn = isLoggedIn ? JSON.parse(isLoggedIn) : false;
-    
     window.gtag("event", "page_view", {
       page_path: location.pathname + location.search,
     });
 
     return (
       <>
-        {isRegistering ? (
-          <RegistrationModal 
-            setModalRef={this.onSetModalRef} 
-            onLogIn={this.onLogIn}
-            onSignUp={this.onSignUp}
-            onCloseModal={this.onCloseModal}
+        {waitingForDiffResolution ? (
+          <UnresolvedDiffModal
+            setModalRef={this.onSetModalRef}
+            onCloseModal={event => { this.onCloseModal(event); this.setState({ waitingForDiffResolution: false }) }}
           />
         ) : null}
 
-        {waitingForDiffResolution ? ( 
-          <UnresolvedDiffModal 
-            setModalRef={this.onSetModalRef} 
-            onCloseModal={event => { this.onCloseModal(event); this.setState({ waitingForDiffResolution: false })}} 
-          />
-        ) : null}
-
-        {isRateLimited ? ( 
-          <RateLimitModal 
-            setModalRef={this.onSetModalRef} 
-            onCloseModal={event => { this.onCloseModal(event); this.setState({ isRateLimited: false })}} 
+        {isRateLimited ? (
+          <RateLimitModal
+            setModalRef={this.onSetModalRef}
+            onCloseModal={event => { this.onCloseModal(event); this.setState({ isRateLimited: false }) }}
           />
         ) : null}
 
         <div className="app">
-          <Header 
-            onClick={isLoggedIn ? this.onLogOut : this.onOpenRegistrationForm} 
-            isLoggedIn={isLoggedIn} 
-          />
+          <Header />
 
           <div className="body">
             <div className="lhs">
@@ -312,18 +292,17 @@ class App extends AuthenticationComponent {
                 isLoading={waitingForLint}
                 onLint={this.onLint}
               />
-              <ErrorMessage 
-                onDebug={this.onDebug} 
-                isLoading={waitingForDebug} 
-                onChange={this.onUpdateErrorMessage} 
+              <ErrorMessage
+                onDebug={this.onDebug}
+                isLoading={waitingForDebug}
+                onChange={this.onUpdateErrorMessage}
               />
             </div>
-            <ChatBot 
-              suggestedMessages={suggestedMessages} 
-              resetSuggestedMessages={() => this.setState({ suggestedMessages: [] })} 
+            <ChatBot
+              suggestedMessages={suggestedMessages}
+              resetSuggestedMessages={() => this.setState({ suggestedMessages: [] })}
               errorMessage={errorMessage}
               code={code.join("\n")}
-              email={email}
               shouldUpdateContext={shouldUpdateContext}
               setCachedDocumentIds={this.setCachedDocumentIds}
             />
@@ -331,7 +310,7 @@ class App extends AuthenticationComponent {
         </div>
       </>
     );
-	}
+  }
 }
 
-export default withRouter(App);
+export default withRouter(withAuth0(App));

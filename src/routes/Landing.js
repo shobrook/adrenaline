@@ -1,7 +1,6 @@
+import { Component } from "react";
 import { Link } from "react-router-dom";
 
-import AuthenticationComponent from "../components/AuthenticationComponent";
-import RegistrationModal from "../containers/RegistrationModal";
 import Button from "../components/Button";
 import Header from "../containers/Header";
 
@@ -9,10 +8,9 @@ import { withRouter } from "../library/utilities";
 
 import "../styles/Landing.css";
 
-class Landing extends AuthenticationComponent {
+class Landing extends Component {
 	render() {
 		const { location } = this.props.router;
-		const { isRegistering, isLoggedIn } = this.state;
 
 		window.gtag("event", "page_view", {
 			page_path: location.pathname + location.search,
@@ -20,21 +18,8 @@ class Landing extends AuthenticationComponent {
 
 		return (
 			<>
-				{isRegistering ? (
-					<RegistrationModal 
-						setModalRef={this.onSetModalRef} 
-						onLogIn={this.onLogIn}
-						onSignUp={this.onSignUp}
-						onCloseModal={this.onCloseModal}
-					/>
-				) : null
-				}
-
 				<div id="landing">
-					<Header 
-						onClick={isLoggedIn ? this.onLogOut : this.onOpenRegistrationForm} 
-						isLoggedIn={isLoggedIn}
-					/>
+					<Header />
 
 					<div className="landingBody">
 						<div className="landingLHS">
