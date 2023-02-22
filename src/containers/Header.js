@@ -22,9 +22,6 @@ function Header({ onClick }) {
 					<img src="./logo.png" />
 				</Link>
 			</div>
-			<div>
-				{user?.name}
-			</div>
 			<div className="buttons">
 				<Button className="LogInButton" isPrimary onClick={isAuthenticated ? logout : loginWithRedirect}>{isAuthenticated ? "Log out" : "Sign up"}</Button>
 				<Button

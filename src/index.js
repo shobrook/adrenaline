@@ -26,9 +26,9 @@ ReactDOM.render(
       domain="dev-0c5k2o4ad10lniwe.us.auth0.com"
       clientId="9JZ9notgpzW8BhCo5HMsv6h2HVUbdYhu"
       authorizationParams={{
-        redirect_uri: window.location.origin
+        redirect_uri: window.location.origin,
+        audience: "rubrick-api-production.up.railway.app"
       }}
-
     >
       <RouterProvider router={router} />
     </Auth0Provider>

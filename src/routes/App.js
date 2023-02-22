@@ -123,7 +123,7 @@ class App extends Component {
   onDebug(errorMessage) {
     window.gtag("event", "click_debug");
 
-    const { isAuthenticated, loginWithRedirect } = this.props.auth0;
+    const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
     const { code, diffs } = this.state;
 
     if (diffs.length !== 0) { // Can't debug code if diffs aren't resolved
@@ -140,64 +140,66 @@ class App extends Component {
       this.setState({ waitingForDebug: true });
     }
 
-    fetch("https://rubrick-api-production.up.railway.app/api/debug", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: code.join("\n"), error: errorMessage }) // TODO: Authenticate
-    })
-      .then(this.processResponse)
-      .then(data => {
-        window.gtag("event", "click_debug_success");
+    getAccessTokenSilently()
+      .then(token => {
+        fetch("http://127.0.0.1:5000/api/debug", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ user_id: user.sub, code: code.join("\n"), error: errorMessage })
+        })
+          .then(res => res.json())
+          .then(data => {
+            const { new_code } = data;
+            let newCode = new_code.split("\n");
+            let { mergedCode, diffs } = diffCode(code, newCode);
 
-        const { fixed_code } = data.data;
-        let fixedCode = fixed_code.trim().replace("    ", "\t").split("\n");
-        let { mergedCode, diffs } = diffCode(code, fixedCode);
+            fetch("http://127.0.0.1:5000/api/generate_suggested_questions", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+              },
+              body: JSON.stringify({ user_id: user.sub, code: code.join("\n"), error: errorMessage })
+            })
+              .then(res => res.json())
+              .then(data => {
+                window.gtag("event", "click_debug_success");
 
-        this.setState({
-          waitingForDebug: false,
-          code: mergedCode,
-          diffs,
-          errorMessage
-        });
-      })
-      .catch(error => {
-        window.gtag("event", "click_debug_failure");
-        this.setState({ waitingForDebug: false });
+                const { suggested_questions } = data;
+                const suggestedMessages = suggested_questions.map(question => ({ preview: question, prompt: question }));
 
-        console.log(error);
-      });
-    fetch("http://127.0.0.1:5000/api/generate_suggested_questions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: code.join("\n"), error: errorMessage }) // TODO: Authenticate
-    })
-      .then(this.processResponse)
-      .then(data => {
-        window.gtag("event", "generate_suggested_messages_success");
+                this.setState({
+                  waitingForDebug: false,
+                  suggestedMessages: suggestedMessages.slice(0, 3),
+                  code: mergedCode,
+                  diffs,
+                  errorMessage
+                });
+              })
+          })
+          .catch(error => {
+            window.gtag("event", "click_debug_failure");
+            this.setState({ waitingForDebug: false });
 
-        const { suggested_questions } = data;
-        const suggestedMessages = suggested_questions.map(question => ({ preview: question, prompt: question }));
-        this.setState({ suggestedMessages: suggestedMessages.slice(0, 3) });
-      })
-      .catch(error => {
-        window.gtag("event", "generate_suggested_messages_failure");
-        this.setState({ waitingForDebug: false });
+            console.log(error);
+          });
 
-        console.log(error);
+        // TODO: Run these API calls in parallel and block state update until both complete
       });
   };
 
   onLint() {
     window.gtag("event", "click_lint");
 
-    const { isAuthenticated, loginWithRedirect } = this.props.auth0;
+    const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
     const { code, diffs } = this.state;
 
     if (diffs.length != 0) {
       this.setState({ waitingForDiffResolution: true, waitingForDebug: false })
       return;
-    } else {
-      this.setState({ waitingForDiffResolution: false })
     }
 
     if (!isAuthenticated) {
@@ -207,29 +209,36 @@ class App extends Component {
       this.setState({ waitingForLint: true });
     }
 
-    fetch("https://rubrick-api-production.up.railway.app/api/lint", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: code.join("\n") }) // TODO: Authenticate
-    })
-      .then(this.processResponse)
-      .then(data => {
-        window.gtag("event", "click_lint_success");
-        const { improved_code } = data.data;
-        let improvedCode = improved_code.trim().replace("    ", "\t").split("\n");
-        let { mergedCode, diffs } = diffCode(code, improvedCode);
+    getAccessTokenSilently()
+      .then(token => {
+        fetch("http://127.0.0.1:5000/api/lint", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ user_id: user.sub, code: code.join("\n") })
+        })
+          .then(res => res.json())
+          .then(data => {
+            window.gtag("event", "click_lint_success");
 
-        this.setState({
-          waitingForLint: false,
-          code: mergedCode,
-          diffs
-        });
-      })
-      .catch(error => {
-        window.gtag("event", "click_lint_failure");
-        this.setState({ waitingForLint: false });
+            const { new_code } = data;
+            let newCode = new_code.split("\n");
+            let { mergedCode, diffs } = diffCode(code, newCode);
 
-        console.log(error);
+            this.setState({
+              waitingForLint: false,
+              code: mergedCode,
+              diffs
+            });
+          })
+          .catch(error => {
+            window.gtag("event", "click_lint_failure");
+            this.setState({ waitingForLint: false });
+
+            console.log(error);
+          });
       });
   }
 
