@@ -116,7 +116,11 @@ class ChatBot extends Component {
     componentDidMount() {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
 
-        this.ws = new WebSocket("ws://staging-rubrick-api-production.up.railway.app/generate_chat_response");
+        if (window.location.protocol === "https:") {
+            this.ws = new WebSocket("wss://staging-rubrick-api-production.up.railway.app/generate_chat_response");
+        } else {
+            this.ws = new WebSocket("ws://staging-rubrick-api-production.up.railway.app/generate_chat_response");
+        }
 
         this.ws.onopen = event => {
             if (!isAuthenticated) {
