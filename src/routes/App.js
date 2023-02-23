@@ -13,6 +13,8 @@ import { withRouter, updateDiffIndexing, diffCode } from "../library/utilities";
 
 import "../styles/App.css";
 
+const API = process.env.REACT_APP_API || '';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -144,7 +146,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/debug", {
+        fetch(`${API}/api/debug`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -163,7 +165,7 @@ class App extends Component {
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
 
-            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
+            fetch(`${API}/api/generate_suggested_questions`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -223,7 +225,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/lint", {
+        fetch(`${API}/api/lint`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -278,7 +280,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://localhost:5000/api/suggest_changes", {
+        fetch(`${API}/api/suggest_changes`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
