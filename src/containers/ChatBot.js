@@ -14,6 +14,7 @@ class ChatBot extends Component {
         this.onSendMessage = this.onSendMessage.bind(this);
         this.onSendSuggestedMessage = this.onSendSuggestedMessage.bind(this);
         this.renderChatMessages = this.renderChatMessages.bind(this);
+        this.onRegenerateResponse = this.onRegenerateResponse.bind(this);
 
         this.state = { messages: [] };
     }
@@ -47,7 +48,7 @@ class ChatBot extends Component {
 
     /* Event Handlers */
 
-    onSendMessage(message) {
+    onSendMessage(message, isRegeneration = false) {
         const { isAuthenticated, getAccessTokenSilently, user } = this.props.auth0;
         const { code, errorMessage, shouldUpdateContext } = this.props;
         const { messages } = this.state;
@@ -55,7 +56,7 @@ class ChatBot extends Component {
 
         if (!isAuthenticated) {
             this.ws.send(JSON.stringify({ is_init: false, token: null }));
-            this.setState({ messages: [...messages, { message, isUserSubmitted: true }] });
+            this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }] });
 
             return;
         }
@@ -75,7 +76,10 @@ class ChatBot extends Component {
                     cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
                     should_update_context: shouldUpdateContext
                 }));
-                this.setState({ messages: [...messages, { message, isUserSubmitted: true }] });
+
+                if (!isRegeneration) {
+                    this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }] });
+                }
             })
     }
 
@@ -88,7 +92,7 @@ class ChatBot extends Component {
 
         if (!isAuthenticated) {
             this.ws.send(JSON.stringify({ is_init: false, token: null }));
-            this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true }] });
+            this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }] });
             resetSuggestedMessages();
 
             return;
@@ -109,9 +113,19 @@ class ChatBot extends Component {
                     cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
                     should_update_context: shouldUpdateContext
                 }));
-                this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true }] });
+                this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }] });
                 resetSuggestedMessages();
             })
+    }
+
+    onRegenerateResponse() {
+        // NOTE: Only available for the latest response
+
+        const { messages } = this.state;
+        const lastQuery = messages[messages.length - 2].message;
+
+        this.setState({ messages: [...messages.slice(0, messages.length - 1), { message: "", isUserSubmitted: false }] })
+        this.onSendMessage(lastQuery, true);
     }
 
     renderChatMessages() {
@@ -119,14 +133,16 @@ class ChatBot extends Component {
         const { onSuggestChanges, waitingForSuggestedChanges } = this.props;
 
         return messages.map((messagePayload, index) => {
-            const { isUserSubmitted, message } = messagePayload;
+            const { isUserSubmitted, message, isComplete } = messagePayload;
 
             return (
                 <ChatMessage
                     isUserSubmitted={isUserSubmitted}
-                    isLatestMessage={index === messages.length - 1}
                     onSuggestChanges={onSuggestChanges}
                     waitingForSuggestedChanges={waitingForSuggestedChanges}
+                    onRegenerateResponse={this.onRegenerateResponse}
+                    isComplete={isComplete}
+                    isLastMessage={index == messages.length - 1}
                 >
                     {message}
                 </ChatMessage>
@@ -165,20 +181,29 @@ class ChatBot extends Component {
             const { messages } = this.state;
             const { shouldUpdateContext, setCachedDocumentIds } = this.props;
 
+            let response = { message, isUserSubmitted: false, isComplete: false };
+
             if (messages.length == 0) {
-                this.setState({ messages: [{ message, isUserSubmitted: false }] });
+                this.setState({ messages: [response] });
                 return;
             }
 
-            if (message != "STOP") {
-                const lastMessage = messages[messages.length - 1];
+            const lastMessage = messages[messages.length - 1];
+            if (message !== "STOP") {
                 if (!lastMessage.isUserSubmitted) {
-                    this.setState({ messages: [...messages.splice(0, messages.length - 1), { message: lastMessage.message + message, isUserSubmitted: false }] });
+                    response.message = lastMessage.message + message;
+                    this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
                 } else {
-                    this.setState({ messages: [...messages, { message, isUserSubmitted: false }] });
+                    this.setState({ messages: [...messages, response] });
                 }
-            } else if (shouldUpdateContext) {
-                setCachedDocumentIds(document_ids);
+            } else {
+                response = lastMessage;
+                response.isComplete = true;
+                this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
+
+                if (shouldUpdateContext) {
+                    setCachedDocumentIds(document_ids);
+                }
             }
         };
 

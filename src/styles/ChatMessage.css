@@ -64,4 +64,20 @@
     font-size: 14px;
     margin-top: 10px !important;
     margin-bottom: 10px !important;
+    border-radius: 7px !important;
+}
+
+#regenerateResponse {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    cursor: pointer;
+}
+
+#regenerateResponse:hover {
+    opacity: 0.75;
+}
+
+#regenerateResponse > img {
+    height: 15px;
 }

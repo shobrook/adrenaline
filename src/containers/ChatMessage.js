@@ -12,6 +12,7 @@ export default class ChatMessage extends Component {
 
 		this.renderMessage = this.renderMessage.bind(this);
 		this.renderSuggestChangesButton = this.renderSuggestChangesButton.bind(this);
+		this.renderRegenerateButton = this.renderRegenerateButton.bind(this);
 	}
 
 	/* Utilities */
@@ -48,11 +49,12 @@ export default class ChatMessage extends Component {
 			isUserSubmitted,
 			onSuggestChanges,
 			waitingForSuggestedChanges,
-			children
+			children,
+			isComplete
 		} = this.props;
-		const containsCode = children.includes("```");
+		const containsCode = children.includes("```"); // QUESTION: What about in-line code?
 
-		if (!isUserSubmitted && containsCode) {
+		if (!isUserSubmitted && isComplete && containsCode) {
 			return (
 				<Button
 					className="suggestChangesButton"
@@ -67,6 +69,18 @@ export default class ChatMessage extends Component {
 		}
 	}
 
+	renderRegenerateButton() {
+		const { isComplete, isLastMessage, isUserSubmitted, onRegenerateResponse } = this.props;
+
+		if (!isUserSubmitted && isComplete && isLastMessage) {
+			return (
+				<div id="regenerateResponse" onClick={onRegenerateResponse}>
+					<img src="./regenerate_icon.png" />
+				</div>
+			)
+		}
+	}
+
 	/* Lifecycle Methods */
 
 	render() {
@@ -76,6 +90,7 @@ export default class ChatMessage extends Component {
 			<div className={`chatMessage ${!isUserSubmitted ? "aiResponse" : ""}`}>
 				{this.renderMessage()}
 				{this.renderSuggestChangesButton()}
+				{this.renderRegenerateButton()}
 			</div>
 		);
 	}
