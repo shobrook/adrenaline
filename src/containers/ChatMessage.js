@@ -21,16 +21,23 @@ export default class ChatMessage extends Component {
 
 		const messageContent = children.split("```").map((text, index) => {
 			// TODO: Remove trailing newlines
+			// TODO: Language is hardcoded as Python right now –– pass it in from parent component
 
 			if (index % 2) { // Code block
 				return (
-					<SyntaxHighlighter language="python" style={dracula}>
+					<SyntaxHighlighter className="codeBlock" language="python" style={dracula}>
 						{text.trim()}
 					</SyntaxHighlighter>
 				);
 			}
 
-			return text;
+			return text.split("`").map((otherText, otherIndex) => {
+				if (otherIndex % 2) { // In-line code
+					return (<b>{`\`${otherText}\``}</b>);
+				}
+
+				return otherText;
+			});
 		});
 
 		return (<div className="messageContent">{messageContent}</div>);

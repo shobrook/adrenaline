@@ -204,7 +204,7 @@ class ChatBot extends Component {
                     onSubmit={this.onSendMessage}
                     onSubmitSuggested={this.onSendSuggestedMessage}
                     suggestedMessages={suggestedMessages}
-                    placeholder="Ask me a question"
+                    placeholder="Ask a question"
                     submitLabel="Send"
                 />
             </div>

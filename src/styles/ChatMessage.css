@@ -59,3 +59,9 @@
     height: 20px;
     padding-right: 10px;
 }
+
+.codeBlock {
+    font-size: 14px;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+}
