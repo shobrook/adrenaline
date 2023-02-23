@@ -148,7 +148,12 @@ class App extends Component {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           },
-          body: JSON.stringify({ user_id: user.sub, code: code.join("\n"), error: errorMessage })
+          body: JSON.stringify({
+            user_id: user.sub,
+            email: user.email,
+            code: code.join("\n"),
+            error: errorMessage
+          })
         })
           .then(res => res.json())
           .then(data => {
@@ -162,7 +167,12 @@ class App extends Component {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
               },
-              body: JSON.stringify({ user_id: user.sub, code: code.join("\n"), error: errorMessage })
+              body: JSON.stringify({
+                user_id: user.sub,
+                email: user.email,
+                code: code.join("\n"),
+                error: errorMessage
+              })
             })
               .then(res => res.json())
               .then(data => {
@@ -217,7 +227,11 @@ class App extends Component {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           },
-          body: JSON.stringify({ user_id: user.sub, code: code.join("\n") })
+          body: JSON.stringify({
+            user_id: user.sub,
+            email: user.email,
+            code: code.join("\n")
+          })
         })
           .then(res => res.json())
           .then(data => {
