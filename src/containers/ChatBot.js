@@ -2,7 +2,7 @@ import { Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 
 import InputField from './InputField';
-import ChatMessage from '../components/ChatMessage';
+import ChatMessage from './ChatMessage';
 
 import '../styles/ChatBot.css';
 
@@ -13,6 +13,7 @@ class ChatBot extends Component {
         this.consolidateChatHistory = this.consolidateChatHistory.bind(this);
         this.onSendMessage = this.onSendMessage.bind(this);
         this.onSendSuggestedMessage = this.onSendSuggestedMessage.bind(this);
+        this.renderChatMessages = this.renderChatMessages.bind(this);
 
         this.state = { messages: [] };
     }
@@ -113,15 +114,35 @@ class ChatBot extends Component {
             })
     }
 
+    renderChatMessages() {
+        const { messages } = this.state;
+        const { onSuggestChanges, waitingForSuggestedChanges } = this.props;
+
+        return messages.map((messagePayload, index) => {
+            const { isUserSubmitted, message } = messagePayload;
+
+            return (
+                <ChatMessage
+                    isUserSubmitted={isUserSubmitted}
+                    isLatestMessage={index === messages.length - 1}
+                    onSuggestChanges={onSuggestChanges}
+                    waitingForSuggestedChanges={waitingForSuggestedChanges}
+                >
+                    {message}
+                </ChatMessage>
+            );
+        });
+    }
+
     /* Lifecycle Methods */
 
     componentDidMount() {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
 
         if (window.location.protocol === "https:") {
-            this.ws = new WebSocket("wss://staging-rubrick-api-production.up.railway.app/generate_chat_response");
+            this.ws = new WebSocket("wss://localhost:5000/generate_chat_response");
         } else {
-            this.ws = new WebSocket("ws://staging-rubrick-api-production.up.railway.app/generate_chat_response");
+            this.ws = new WebSocket("ws://localhost:5000/generate_chat_response");
         }
 
         this.ws.onopen = event => {
@@ -169,17 +190,12 @@ class ChatBot extends Component {
     }
 
     render() {
-        const { messages } = this.state;
         const { suggestedMessages } = this.props;
 
         return (
             <div id="chatBot">
                 <div id="messages">
-                    {messages.map(messagePayload => {
-                        const { isUserSubmitted, message } = messagePayload;
-
-                        return (<ChatMessage isUserSubmitted={isUserSubmitted}>{message}</ChatMessage>);
-                    })}
+                    {this.renderChatMessages()}
                     <div style={{ float: "left", clear: "both" }}
                         ref={(el) => { this.messagesEnd = el; }}>
                     </div>

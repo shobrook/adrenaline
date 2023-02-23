@@ -25,6 +25,7 @@ class App extends Component {
     this.onDebug = this.onDebug.bind(this);
     this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
+    this.onSuggestChanges = this.onSuggestChanges.bind(this);
 
     this.state = {
       language: DEFAULT_LANGUAGE,
@@ -33,6 +34,7 @@ class App extends Component {
       diffs: [],
       waitingForDebug: false,
       waitingForLint: false,
+      waitingForSuggestedChanges: false,
       isRateLimited: false,
       suggestedMessages: [],
       waitingForDiffResolution: false,
@@ -256,6 +258,62 @@ class App extends Component {
       });
   }
 
+  onSuggestChanges(message) {
+    window.gtag("event", "click_suggest_changes");
+
+    const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
+    const { code, diffs } = this.state;
+
+    if (diffs.length != 0) {
+      this.setState({ waitingForDiffResolution: true })
+      return;
+    }
+
+    if (!isAuthenticated) {
+      loginWithRedirect();
+      return;
+    } else {
+      this.setState({ waitingForSuggestedChanges: true });
+    }
+
+    getAccessTokenSilently()
+      .then(token => {
+        fetch("http://localhost:5000/api/suggest_changes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            user_id: user.sub,
+            email: user.email,
+            code: code.join("\n"),
+            message
+          })
+        })
+          .then(res => res.json())
+          .then(data => {
+            window.gtag("event", "click_suggest_changes_success");
+
+            const { new_code } = data;
+            let newCode = new_code.split("\n");
+            let { mergedCode, diffs } = diffCode(code, newCode);
+
+            this.setState({
+              waitingForSuggestedChanges: false,
+              code: mergedCode,
+              diffs
+            });
+          })
+          .catch(error => {
+            window.gtag("event", "click_suggest_changes_failure");
+            this.setState({ waitingForSuggestedChanges: false });
+
+            console.log(error);
+          });
+      });
+  }
+
   onSelectLanguage(language) {
     window.gtag("event", "select_language", { language });
     this.setState({ language });
@@ -274,6 +332,7 @@ class App extends Component {
       waitingForDebug,
       waitingForLint,
       waitingForDiffResolution,
+      waitingForSuggestedChanges,
       isRateLimited,
       suggestedMessages,
       errorMessage,
@@ -328,6 +387,8 @@ class App extends Component {
               code={code.join("\n")}
               shouldUpdateContext={shouldUpdateContext}
               setCachedDocumentIds={this.setCachedDocumentIds}
+              onSuggestChanges={this.onSuggestChanges}
+              waitingForSuggestedChanges={waitingForSuggestedChanges}
             />
           </div>
         </div>

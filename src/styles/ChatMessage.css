@@ -1,7 +1,7 @@
 .chatMessage {
-    display: flex;
+    /* display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: flex-start; */
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 15px;
@@ -34,5 +34,28 @@
 
 .messageContent {
     font-weight: 400;
-    padding-left: 15px;
+    /* padding-left: 15px; */
+}
+
+.suggestChangesButton {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-weight: 600;
+    font-size: 14px;
+    justify-content: center;
+    background-color: #d93cff;
+    height: 35px;
+    border-radius: 7px;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.suggestChangesButton:hover {
+    opacity: 0.75;
+}
+
+.suggestChangesButton > img {
+    height: 20px;
+    padding-right: 10px;
 }
