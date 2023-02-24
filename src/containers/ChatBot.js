@@ -157,15 +157,9 @@ class ChatBot extends Component {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
         console.log(WS)
         if (window.location.protocol === "https:") {
-<<<<<<< HEAD
-            this.ws = new WebSocket("wss://localhost:5000/generate_chat_response");
-        } else {
-            this.ws = new WebSocket("ws://localhost:5000/generate_chat_response");
-=======
             this.ws = new WebSocket(`wss://${WS}/generate_chat_response`);
         } else {
             this.ws = new WebSocket(`ws://${WS}/generate_chat_response`);
->>>>>>> 63daeda6935d7e1d13a73ee3e15954461ce9b564
         }
 
         this.ws.onopen = event => {

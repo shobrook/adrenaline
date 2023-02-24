@@ -149,11 +149,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-<<<<<<< HEAD
-        fetch("http://localhost:5000/api/debug", {
-=======
         fetch(`${API}/api/debug`, {
->>>>>>> 63daeda6935d7e1d13a73ee3e15954461ce9b564
           method: "POST",
           headers: {
             "Content-Type": "application/json",
