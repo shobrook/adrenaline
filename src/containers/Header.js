@@ -5,38 +5,49 @@ import Button from "../components/Button";
 
 import "../styles/Header.css";
 
-function Header({ onClick }) {
+function Header({ onClick, isTransparent }) {
 	const {
-		isLoading,
 		isAuthenticated,
-		error,
-		user,
 		loginWithRedirect,
 		logout,
 	} = useAuth0();
 
 	return (
-		<div className="header">
+		<div className={isTransparent ? "header transparent" : "header"}>
 			<div className="logo">
 				<Link to="/">
 					<img src="./logo.png" />
 				</Link>
 			</div>
 			<div className="buttons">
-				<Button className="LogInButton" isPrimary onClick={isAuthenticated ? logout : loginWithRedirect}>{isAuthenticated ? "Log out" : "Sign up"}</Button>
-				<Button
-					className="headerGithubButton"
-					isPrimary={false}
-					onClick={() => window.gtag("event", "click_view_on_github")}
-				>
-					<a href="https://github.com/shobrook/adrenaline/" target="_blank">View on GitHub</a>
-				</Button>
+				<div className="linkButtons">
+					<a className="discordIcon" href="https://discord.com/" target="_blank">
+						Discord
+					</a>
+					<a className="githubIcon" href="https://github.com/shobrook/adrenaline/" target="_blank">
+						Github
+					</a>
+				</div>
+				<div className="ctaButtons">
+					{isAuthenticated ? (
+						<Button isPrimary onClick={logout}>Logout</Button>
+					) : (
+						<>
+							<Button id="signUpButton" isPrimary onClick={loginWithRedirect}>Sign up</Button>
+							<Button isPrimary={false} onClick={loginWithRedirect}>Log in</Button>
+						</>
+					)}
+				</div>
 			</div>
 			<div className="compactButtons">
-				<a className="githubIcon" href="https://github.com/shobrook/adrenaline/" target="_blank">
-					<img src="./github.png" />
-				</a>
-				<img className="keyIcon" src="./key.png" onClick={onClick} />
+				{isAuthenticated ? (
+					<Button isPrimary onClick={logout}>Logout</Button>
+				) : (
+					<>
+						<Button id="signUpButton" isPrimary onClick={loginWithRedirect}>Sign up</Button>
+						<Button isPrimary={false} onClick={loginWithRedirect}>Log in</Button>
+					</>
+				)}
 			</div>
 		</div>
 

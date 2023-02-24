@@ -12,6 +12,7 @@ export default class ChatMessage extends Component {
 
 		this.renderMessage = this.renderMessage.bind(this);
 		this.renderSuggestChangesButton = this.renderSuggestChangesButton.bind(this);
+		this.renderRegenerateButton = this.renderRegenerateButton.bind(this);
 	}
 
 	/* Utilities */
@@ -21,16 +22,23 @@ export default class ChatMessage extends Component {
 
 		const messageContent = children.split("```").map((text, index) => {
 			// TODO: Remove trailing newlines
+			// TODO: Language is hardcoded as Python right now –– pass it in from parent component
 
 			if (index % 2) { // Code block
 				return (
-					<SyntaxHighlighter language="python" style={dracula}>
+					<SyntaxHighlighter className="codeBlock" language="python" style={dracula}>
 						{text.trim()}
 					</SyntaxHighlighter>
 				);
 			}
 
-			return text;
+			return text.split("`").map((otherText, otherIndex) => {
+				if (otherIndex % 2) { // In-line code
+					return (<b>{`\`${otherText}\``}</b>);
+				}
+
+				return otherText;
+			});
 		});
 
 		return (<div className="messageContent">{messageContent}</div>);
@@ -41,11 +49,12 @@ export default class ChatMessage extends Component {
 			isUserSubmitted,
 			onSuggestChanges,
 			waitingForSuggestedChanges,
-			children
+			children,
+			isComplete
 		} = this.props;
-		const containsCode = children.includes("```");
+		const containsCode = children.includes("```"); // QUESTION: What about in-line code?
 
-		if (!isUserSubmitted && containsCode) {
+		if (!isUserSubmitted && isComplete && containsCode) {
 			return (
 				<Button
 					className="suggestChangesButton"
@@ -60,15 +69,34 @@ export default class ChatMessage extends Component {
 		}
 	}
 
+	renderRegenerateButton() {
+		const { isComplete, isLastMessage, isUserSubmitted, onRegenerateResponse } = this.props;
+
+		if (!isUserSubmitted && isComplete && isLastMessage) {
+			return (
+				<div id="regenerateResponse" onClick={onRegenerateResponse}>
+					<img src="./regenerate_icon.png" />
+				</div>
+			)
+		}
+	}
+
 	/* Lifecycle Methods */
 
 	render() {
-		const { isUserSubmitted } = this.props;
+		const { isUserSubmitted, isComplete, children } = this.props;
+		const containsCode = children.includes("```");
+		const shouldRenderSuggestChanges = !isUserSubmitted && isComplete && containsCode;
 
 		return (
 			<div className={`chatMessage ${!isUserSubmitted ? "aiResponse" : ""}`}>
 				{this.renderMessage()}
-				{this.renderSuggestChangesButton()}
+				{shouldRenderSuggestChanges ? (
+					<div className="chatMessageOptions">
+						{this.renderSuggestChangesButton()}
+						{this.renderRegenerateButton()}
+					</div>
+				) : this.renderRegenerateButton()}
 			</div>
 		);
 	}

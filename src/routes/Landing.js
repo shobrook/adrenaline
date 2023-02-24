@@ -9,6 +9,19 @@ import { withRouter } from "../library/utilities";
 import "../styles/Landing.css";
 
 class Landing extends Component {
+	constructor(props) {
+		super(props);
+
+		this.onGetStarted = this.onGetStarted.bind(this);
+	}
+
+	onGetStarted() {
+		window.gtag("event", "click_get_started");
+
+		const { navigate } = this.props.router;
+		navigate("/playground");
+	}
+
 	render() {
 		const { location } = this.props.router;
 
@@ -19,35 +32,20 @@ class Landing extends Component {
 		return (
 			<>
 				<div id="landing">
-					<Header />
+					<Header isTransparent />
 
-					<div className="landingBody">
-						<div className="landingLHS">
-							<div className="landingHeading">
-								<span className="landingTitle">Stop plugging your errors into StackOverflow</span>
-								<p className="landingSubtitle">Adrenaline is a debugging assistant powered by the OpenAI Codex. It can fix and explain your broken code in seconds.</p>
-							</div>
-							<div className="ctaButtons">
-								<Link to="/playground">
-									<Button
-										className="getStartedButton"
-										isPrimary
-										onClick={() => window.gtag("event", "click_get_started")}
-									>
-										Fix your code
-									</Button>
-								</Link>
-								<Button
-									className="githubButton"
-									isPrimary={false}
-									onClick={() => window.gtag("event", "click_view_on_github")}
-								>
-									<a href="https://github.com/shobrook/adrenaline/" target="_blank">View on Github</a>
-								</Button>
-							</div>
+					<div id="landingBody">
+						<div id="landingHeading">
+							<span id="landingTitle">Fix your broken code <span>in seconds</span></span>
+							<p id="landingSubtitle">Stop pasting error messages into Google. Use AI to debug your code and teach you along the way.</p>
 						</div>
-
-						<img className="demoImage" src="demo.png" />
+						<Button
+							id="getStartedButton"
+							isPrimary
+							onClick={this.onGetStarted}
+						>
+							Get started
+						</Button>
 					</div>
 				</div>
 			</>

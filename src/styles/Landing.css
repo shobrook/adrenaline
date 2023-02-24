@@ -5,153 +5,77 @@
 
 #landing {
   position: absolute;
-  background-color: #373751;
+  /* background-color: #373751; */
+  background-image: url("../../public/cyberpunk_background.png");
+  background-position-y: center;
+  background-size: 100% auto;
   height: 100%;
   width: 100%;
   overflow: scroll;
 }
 
-.landingLHS {
-  /* padding-left: 60px; */
-  padding-left: 5%;
-  margin-top: -80px;
-}
-
-.landingBody {
+#landingBody {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding-top: 125px;
+  justify-content: center;
+  height: 100%;
+  margin-top: -100px;
 }
 
-@media (max-width: 1500px) {
-  .landingHeading {
-    width: 80%;
-  }
+#landingHeading {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-@media (max-width: 1130px) {
-  .landingLHS {
-    display: flex;
-    flex-direction: column;
-    width: 65%;
-    padding: 0 !important;
-    align-items: center;
-  }
+#landingTitle {
+  color: white;
+  font-size: 58px;
+  font-weight: 900;
+  font-family: "Gilroy";
+  width: 500px;
+}
 
-  .landingBody {
-    flex-direction: column;
-  }
+#landingTitle > span {
+  color: #d93cff;
+}
 
-  .landingHeading {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+#landingSubtitle {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 20px;
+  width: 490px;
+  font-weight: 400;
+}
 
-  .landingTitle {
-    font-size: 42px !important;
-  }
+#getStartedButton {
+  text-decoration: none;
+  color: white !important;
+  margin-top: 10px;
+  height: 55px !important;
+  width: 150px !important;
+  font-size: 20px;
+  box-shadow: 0px 0px 25px #d93cff;
+  opacity: 0.8;
+  transition: all .3s ease;
+  -webkit-transition: all .3s ease;
+  border-radius: 10px !important;
+}
 
-  .landingSubtitle {
-    font-size: 18px !important;
-  }
-
-  .demoImage {
-    padding-top: 60px !important;
-    width: 50% !important;
-  }
+#getStartedButton:hover {
+  opacity: 1.0;
+  box-shadow: 0px 0px 45px #d93cff !important;
+  transition: all .3s ease;
+  -webkit-transition: all .3s ease;
 }
 
 @media (max-width: 700px) {
-  .landingLHS {
-    width: 85%;
+  #landingTitle {
+    font-size: 50px;
   }
 
-  .landingHeading {
-    width: 100% !important;
+  #landingSubtitle {
+    width: 400px;
   }
-
-  .landingTitle {
-    font-size: 32px !important;
-  }
-
-  .landingSubtitle {
-    font-size: 16px !important;
-  }
-
-  .ctaButtons {
-    flex-direction: column !important;
-  }
-
-  .githubButton {
-    margin-left: 0px !important;
-    margin-top: 15px;
-  }
-
-  .demoImage {
-    padding-top: 40px !important;
-    width: 85% !important;
-  }
-}
-
-.landingHeading {
-  /* width: 650px; */
-  width: 85%;
-}
-
-.landingTitle {
-  color: white;
-  font-size: 3.25vw;
-  font-weight: 900;
-  font-family: "Gilroy";
-}
-
-.landingSubtitle {
-  color: rgba(255, 255, 255, 0.65);
-  /* font-family: "Helvetica Neue"; */
-  /* font-size: 22px; */
-  font-size: 1.375vw;
-  font-weight: 400;
-  width: 85%;
-}
-
-.ctaButtons {
-  display: flex;
-  flex-direction: row;
-  width: fit-content;
-  padding-top: 15px;
-  font-weight: 600;
-  /* font-size: 1.125vw !important; */
-}
-
-.ctaButtons a {
-  text-decoration: none;
-}
-
-.getStartedButton {
-  color: white;
-  height: 45px !important;
-  font-weight: 600 !important;
-}
-
-.githubButton {
-  height: 45px !important;
-  /* background-color: white; */
-  margin-left: 15px;
-}
-
-.githubButton a {
-  text-decoration: none;
-  color: white;
-}
-
-.demoImage {
-  /* width: 600px; */
-  width: 62.5%;
-  /* padding-right: 60px; */
-  padding-right: 5%;
-  max-width: 600px;
 }

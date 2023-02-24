@@ -49,6 +49,7 @@
     border-radius: 7px;
     margin-top: 15px;
     cursor: pointer;
+    width: 100%;
 }
 
 .suggestChangesButton:hover {
@@ -58,4 +59,35 @@
 .suggestChangesButton > img {
     height: 20px;
     padding-right: 10px;
+}
+
+.codeBlock {
+    font-size: 14px;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    border-radius: 7px !important;
+}
+
+#regenerateResponse {
+    margin-top: 15px;
+    padding-left: 15px;
+    display: flex;
+    justify-content: flex-end;
+    cursor: pointer;
+    /* width: 100%; */
+}
+
+#regenerateResponse:hover {
+    opacity: 0.75;
+}
+
+#regenerateResponse > img {
+    height: 15px;
+}
+
+.chatMessageOptions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
