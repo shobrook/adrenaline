@@ -5,6 +5,7 @@ import InputField from './InputField';
 import ChatMessage from './ChatMessage';
 
 import '../styles/ChatBot.css';
+const WS = process.env.REACT_APP_WS || ''
 
 class ChatBot extends Component {
     constructor(props) {
@@ -89,7 +90,7 @@ class ChatBot extends Component {
         const { preview, prompt } = message;
         const { messages } = this.state;
         const cachedDocumentIds = localStorage.getItem("cachedDocumentIds");
-
+        console.log(isAuthenticated)
         if (!isAuthenticated) {
             this.ws.send(JSON.stringify({ is_init: false, token: null }));
             this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }] });
@@ -154,11 +155,11 @@ class ChatBot extends Component {
 
     componentDidMount() {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
-
+        console.log(WS)
         if (window.location.protocol === "https:") {
-            this.ws = new WebSocket("wss://staging-rubrick-api-production.up.railway.app/generate_chat_response");
+            this.ws = new WebSocket(`wss://${WS}/generate_chat_response`);
         } else {
-            this.ws = new WebSocket("ws://staging-rubrick-api-production.up.railway.app/generate_chat_response");
+            this.ws = new WebSocket(`ws://${WS}/generate_chat_response`);
         }
 
         this.ws.onopen = event => {

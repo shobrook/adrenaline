@@ -1,0 +1,204 @@
+.paymentBody {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 125px;
+    padding-left: 5%;
+    padding-right: 5%;
+    align-items: center;
+}
+
+.paymentContainer {
+    width: 50%;
+    padding: 16px;
+}
+
+.paymentTitle {
+    color: white;
+    font-size: 3.25vw;
+    font-weight: 900;
+    font-family: "Gilroy";
+    margin: 0;
+}
+
+.paymentSubtitle {
+    margin-top: 1em;
+    color: rgba(255, 255, 255, 0.65);
+    /* font-family: "Helvetica Neue"; */
+    /* font-size: 22px; */
+    font-size: 1.375vw;
+    font-weight: 400;
+    width: 85%;
+}
+
+.demoImage {
+    /* width: 600px; */
+    width: 100%;
+    margin-top: 5%;
+    /* padding-right: 60px; */
+    max-width: 600px;
+}
+
+.subscriptionTitle {
+    color: white;
+    font-size: 2.5vw;
+    font-weight: 900;
+    font-family: "Gilroy";
+    margin: 0;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.planList {
+    display: flex;
+    gap: 1em;
+    width: 100%;
+    flex: 1;
+    align-items: stretch;
+}
+
+.planList > div {
+    width: 33%;
+    display: flex;
+    flex-direction: column;
+    flex:1;
+    align-items: stretch;
+    background-color: #202030;
+    border-radius: 8px;
+    padding: 16px;
+    height: auto;
+}
+
+.planTitle {
+    font-size: 24px;
+    font-family: "Gilroy";
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+}
+
+.planDescription {
+    color: #fff;
+    text-align: center;
+}
+
+.planCurrent {
+    color: white;
+    margin: 0; 
+    margin-top: 8px;
+    font-size: 18px;
+    font-family: "Gilroy";
+    text-align: center;
+}
+
+.checkoutBody input,
+.StripeElement {
+    display: block;
+    margin: 10px 0 20px 0;
+    width: 100%;
+    max-width: 500px;
+    font-size: 1em;
+    font-family: "Source Code Pro", monospace;
+    box-shadow: rgba(50, 50, 93, 0.14902) 0px 1px 3px, rgba(0, 0, 0, 0.0196078) 0px 1px 0px;
+    border: 0;
+    outline: 0;
+    border-radius: 4px;
+}
+.checkoutBody, .customerBody {
+    width: 100%;
+    max-width: 500px;
+    margin: auto;
+    background-color: #202030;
+    padding: 32px;
+    border-radius: 8px;
+}
+
+.checkoutLabel {
+    font-size: 32px;
+    color: #fff;
+    font-weight: 900;
+    text-align: center;
+    margin: 0;
+    font-family: "Gilroy";
+}
+
+.checkoutButton {
+    margin-top: 16px;
+    padding: 10px 0;
+    color: #fff;
+    font-weight: 600;
+}
+.StripeElement {
+    margin: auto;
+}
+
+.checkoutBody label {
+    color: #fff;
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: 0.025em;
+}
+
+.inputField {
+    display: flex;
+    flex-direction: row;
+    height: 45px;
+    padding-top: 0px;
+    align-items: center;
+    border: 1px solid #fff;
+    box-sizing: border-box;
+    outline: none;
+    color: white;
+    background-color: transparent;
+    border-radius: 7px;
+    resize: none;
+    height: 50px;
+    width: 100%;
+    font-size: 18px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-weight: 700;
+    background-color: #373751;
+    /* font-family: "Helvetica Neue"; */
+    padding-left: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.inputLabel {
+    font-size: 20px;
+    margin-bottom: 8px;
+    margin-top: 16px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.checkBoxContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.checkBoxContainer input {
+   transform: scale(1.5);
+}
+
+.inlineLabel {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-left: 8px;
+}
+
+.inputField:placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.checkoutMessage {
+    color: red;
+    font-size: 16px;
+    margin-top: 8px;
+    text-align: center;
+}
