@@ -13,6 +13,8 @@ import { withRouter, updateDiffIndexing, diffCode } from "../library/utilities";
 
 import "../styles/App.css";
 
+const API = process.env.REACT_APP_API || '';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -147,7 +149,11 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
+<<<<<<< HEAD
         fetch("http://localhost:5000/api/debug", {
+=======
+        fetch(`${API}/api/debug`, {
+>>>>>>> 63daeda6935d7e1d13a73ee3e15954461ce9b564
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -167,7 +173,7 @@ class App extends Component {
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
 
-            fetch("http://localhost:5000/api/generate_suggested_questions", {
+            fetch(`${API}/api/generate_suggested_questions`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -227,7 +233,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://localhost:5000/api/lint", {
+        fetch(`${API}/api/lint`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -282,7 +288,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://localhost:5000/api/suggest_changes", {
+        fetch(`${API}/api/suggest_changes`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

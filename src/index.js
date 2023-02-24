@@ -8,6 +8,7 @@ import './index.css';
 
 import Landing from "./routes/Landing";
 import App from "./routes/App";
+import Subscription from './routes/Subscription';
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
   {
     path: "/playground",
     element: <App />
+  },
+  {
+    path: "/subscription",
+    element: <Subscription />
   }
 ]);
 
