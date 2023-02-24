@@ -49,6 +49,7 @@
     border-radius: 7px;
     margin-top: 15px;
     cursor: pointer;
+    width: 100%;
 }
 
 .suggestChangesButton:hover {
@@ -69,9 +70,11 @@
 
 #regenerateResponse {
     margin-top: 15px;
+    padding-left: 15px;
     display: flex;
     justify-content: flex-end;
     cursor: pointer;
+    /* width: 100%; */
 }
 
 #regenerateResponse:hover {
@@ -80,4 +83,11 @@
 
 #regenerateResponse > img {
     height: 15px;
+}
+
+.chatMessageOptions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }

@@ -84,13 +84,19 @@ export default class ChatMessage extends Component {
 	/* Lifecycle Methods */
 
 	render() {
-		const { isUserSubmitted } = this.props;
+		const { isUserSubmitted, isComplete, children } = this.props;
+		const containsCode = children.includes("```");
+		const shouldRenderSuggestChanges = !isUserSubmitted && isComplete && containsCode;
 
 		return (
 			<div className={`chatMessage ${!isUserSubmitted ? "aiResponse" : ""}`}>
 				{this.renderMessage()}
-				{this.renderSuggestChangesButton()}
-				{this.renderRegenerateButton()}
+				{shouldRenderSuggestChanges ? (
+					<div className="chatMessageOptions">
+						{this.renderSuggestChangesButton()}
+						{this.renderRegenerateButton()}
+					</div>
+				) : this.renderRegenerateButton()}
 			</div>
 		);
 	}
