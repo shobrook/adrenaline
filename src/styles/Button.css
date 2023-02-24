@@ -11,13 +11,15 @@
   padding-left: 15px;
   padding-right: 15px;
   text-align: center;
+  opacity: 0.9;
 }
 
 .primaryButton:hover {
-  opacity: 0.75;
+  opacity: 1.0;
 }
 
 .secondaryButton {
+  font-weight: 500;
   display: flex;
   flex-direction: row;
   align-items: center;

@@ -22,11 +22,12 @@ export default class Button extends Component {
 	}
 
 	render() {
-		const { className, isPrimary, children, isLoading, isDisabled } = this.props;
+		const { id, className, isPrimary, children, isLoading, isDisabled } = this.props;
 
 		return (
 			<div
-				className={`${className} ${isPrimary ? "primaryButton" : "secondaryButton"} ${isDisabled ? "disabled": ""}`}
+				id={id}
+				className={`${className} ${isPrimary ? "primaryButton" : "secondaryButton"} ${isDisabled ? "disabled" : ""}`}
 				onClick={this.onClickButton}
 			>
 				{isLoading ? (<Spinner />) : children}

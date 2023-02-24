@@ -16,6 +16,41 @@
   color: white;
 }
 
+.transparent {
+  background-color: transparent !important;
+  border-bottom: none;
+  border-top: none;
+}
+
+#signUpButton {
+  margin-right: 10px;
+}
+
+.linkButtons {
+  margin-right: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-top: 5px;
+}
+
+.discordIcon {
+  margin-right: 15px;
+}
+
+.linkButtons > a > img {
+  height: 25px;
+} 
+
+.ctaButtons {
+  display: flex;
+  flex-direction: row;
+}
+
+.discordIcon:hover, .githubIcon:hover {
+  opacity: 0.75;
+}
+
 .header .compactButtons {
   display: none;
   position: absolute;
