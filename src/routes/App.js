@@ -278,7 +278,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://localhost:5000/api/suggest_changes", {
+        fetch("http://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
