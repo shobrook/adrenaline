@@ -19,7 +19,7 @@ class App extends Component {
 
     this.setCachedDocumentIds = this.setCachedDocumentIds.bind(this);
     this.onUpdateErrorMessage = this.onUpdateErrorMessage.bind(this);
-    this.processResponse = this.processResponse.bind(this);
+    this.handleRateLimitErrors = this.handleRateLimitErrors.bind(this);
     this.onCodeChange = this.onCodeChange.bind(this);
     this.onResolveDiff = this.onResolveDiff.bind(this);
     this.onDebug = this.onDebug.bind(this);
@@ -42,7 +42,7 @@ class App extends Component {
     };
   }
 
-  /* Event Handlers */
+  /* Utilities */
 
   setCachedDocumentIds(documentIds) {
     if (documentIds.length != 0) {
@@ -51,6 +51,22 @@ class App extends Component {
 
     this.setState({ shouldUpdateContext: false });
   }
+
+  handleRateLimitErrors(res) {
+    if (!res.ok) {
+      console.log(res);
+      if (res.status === 429) { // Rate limit
+        window.gtag("event", "rate_limit_hit");
+        this.setState({ isRateLimited: true });
+      }
+
+      throw new Error(`HTTP status ${res.status}`);
+    }
+
+    return res.json()
+  }
+
+  /* Event Handlers */
 
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
@@ -109,19 +125,6 @@ class App extends Component {
     this.setState({ code: updatedCode, diffs: updatedDiffs });
   }
 
-  processResponse(res) {
-    if (!res.ok) {
-      if (res.status === 429) { // Rate limit
-        window.gtag("event", "rate_limit_hit");
-        this.setState({ isRateLimited: true });
-      }
-
-      throw new Error(`HTTP status ${res.status}`);
-    }
-
-    return res.json()
-  }
-
   onDebug(errorMessage) {
     window.gtag("event", "click_debug");
 
@@ -144,7 +147,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/debug", {
+        fetch("http://localhost:5000/api/debug", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -157,13 +160,14 @@ class App extends Component {
             error: errorMessage
           })
         })
-          .then(res => res.json())
+          .then(this.handleRateLimitErrors)
           .then(data => {
+            console.log(data);
             const { new_code } = data;
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
 
-            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
+            fetch("http://localhost:5000/api/generate_suggested_questions", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -176,7 +180,7 @@ class App extends Component {
                 error: errorMessage
               })
             })
-              .then(res => res.json())
+              .then(this.handleRateLimitErrors)
               .then(data => {
                 window.gtag("event", "click_debug_success");
 
@@ -223,7 +227,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/lint", {
+        fetch("http://localhost:5000/api/lint", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -235,7 +239,7 @@ class App extends Component {
             code: code.join("\n")
           })
         })
-          .then(res => res.json())
+          .then(this.handleRateLimitErrors)
           .then(data => {
             window.gtag("event", "click_lint_success");
 
@@ -278,7 +282,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
+        fetch("http://localhost:5000/api/suggest_changes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -291,7 +295,7 @@ class App extends Component {
             message
           })
         })
-          .then(res => res.json())
+          .then(this.handleRateLimitErrors)
           .then(data => {
             window.gtag("event", "click_suggest_changes_success");
 
@@ -322,6 +326,8 @@ class App extends Component {
   onUpdateErrorMessage(errorMessage) {
     this.setState({ errorMessage, shouldUpdateContext: true });
   }
+
+  /* Lifecycle Methods */
 
   render() {
     const { location } = this.props.router;
