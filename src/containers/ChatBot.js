@@ -64,8 +64,6 @@ class ChatBot extends Component {
             return;
         }
 
-        console.log(code == DEMO_CODE.join("\n"))
-
         getAccessTokenSilently()
             .then(token => {
                 this.ws.send(JSON.stringify({
@@ -161,11 +159,11 @@ class ChatBot extends Component {
 
     componentDidMount() {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
-        console.log(WS)
+
         if (window.location.protocol === "https:") {
-            this.ws = new WebSocket(`wss://${WS}/generate_chat_response`);
+            this.ws = new WebSocket(`wss://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
         } else {
-            this.ws = new WebSocket(`ws://${WS}/generate_chat_response`);
+            this.ws = new WebSocket(`ws://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
         }
 
         this.ws.onopen = event => {
