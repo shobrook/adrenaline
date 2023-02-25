@@ -1,7 +1,6 @@
 import { Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 
-import RateLimitModal from "../containers/RateLimitModal";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
@@ -37,7 +36,6 @@ class App extends Component {
       waitingForDebug: false,
       waitingForLint: false,
       waitingForSuggestedChanges: false,
-      isRateLimited: false,
       suggestedMessages: [],
       waitingForDiffResolution: false,
       shouldUpdateContext: true
@@ -59,7 +57,7 @@ class App extends Component {
       console.log(res);
       if (res.status === 429) { // Rate limit
         window.gtag("event", "rate_limit_hit");
-        this.setState({ isRateLimited: true });
+        this.setState({ isRateLimited: true }); // TODO: Specify which component got rate limited
       }
 
       throw new Error(`HTTP status ${res.status}`);
@@ -149,7 +147,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://staging-rubrick-api-production.up.railway.app/api/debug", {
+        fetch("https://staging-rubrick-api-production.up.railway.app/api/debug", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -170,7 +168,7 @@ class App extends Component {
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
 
-            fetch("http://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
+            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -231,7 +229,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://staging-rubrick-api-production.up.railway.app/api/lint", {
+        fetch("https://staging-rubrick-api-production.up.railway.app/api/lint", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -287,7 +285,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
+        fetch("https://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -345,7 +343,6 @@ class App extends Component {
       waitingForLint,
       waitingForDiffResolution,
       waitingForSuggestedChanges,
-      isRateLimited,
       suggestedMessages,
       errorMessage,
       shouldUpdateContext
@@ -361,13 +358,6 @@ class App extends Component {
           <UnresolvedDiffModal
             setModalRef={this.onSetModalRef}
             onCloseModal={event => { this.onCloseModal(event); this.setState({ waitingForDiffResolution: false }) }}
-          />
-        ) : null}
-
-        {isRateLimited ? (
-          <RateLimitModal
-            setModalRef={this.onSetModalRef}
-            onCloseModal={event => { this.onCloseModal(event); this.setState({ isRateLimited: false }) }}
           />
         ) : null}
 
