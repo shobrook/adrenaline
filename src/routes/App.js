@@ -159,7 +159,8 @@ class App extends Component {
             user_id: user.sub,
             email: user.email,
             code: code.join("\n"),
-            error: errorMessage
+            error: errorMessage,
+            is_demo_code: code == DEMO_CODE
           })
         })
           .then(this.handleRateLimitErrors)
@@ -179,7 +180,8 @@ class App extends Component {
                 user_id: user.sub,
                 email: user.email,
                 code: code.join("\n"),
-                error: errorMessage
+                error: errorMessage,
+                is_demo_code: code == DEMO_CODE
               })
             })
               .then(this.handleRateLimitErrors)
@@ -238,7 +240,8 @@ class App extends Component {
           body: JSON.stringify({
             user_id: user.sub,
             email: user.email,
-            code: code.join("\n")
+            code: code.join("\n"),
+            is_demo_code: code == DEMO_CODE
           })
         })
           .then(this.handleRateLimitErrors)
@@ -294,7 +297,8 @@ class App extends Component {
             user_id: user.sub,
             email: user.email,
             code: code.join("\n"),
-            message
+            message,
+            is_demo_code: code == DEMO_CODE
           })
         })
           .then(this.handleRateLimitErrors)
