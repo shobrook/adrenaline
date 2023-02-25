@@ -44,7 +44,6 @@ function Header({ onClick, isTransparent }) {
 					<Button isPrimary onClick={logout}>Logout</Button>
 				) : (
 					<>
-						<Button id="signUpButton" isPrimary onClick={loginWithRedirect}>Sign up</Button>
 						<Button isPrimary={false} onClick={loginWithRedirect}>Log in</Button>
 					</>
 				)}
