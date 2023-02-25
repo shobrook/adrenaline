@@ -100,6 +100,15 @@
   margin-right: 6px;
 }
 
+#codeMirrorContainer {
+  position: relative;
+}
+
+#rateLimitedCodeMirrorContainer {
+  position: relative;
+  overflow: hidden;
+}
+
 .codeEditor {
   padding-top: 20px;
 }

@@ -38,7 +38,8 @@ class App extends Component {
       waitingForSuggestedChanges: false,
       suggestedMessages: [],
       waitingForDiffResolution: false,
-      shouldUpdateContext: true
+      shouldUpdateContext: true,
+      isRateLimited: false
     };
   }
 
@@ -54,10 +55,9 @@ class App extends Component {
 
   handleRateLimitErrors(res) {
     if (!res.ok) {
-      console.log(res);
       if (res.status === 429) { // Rate limit
         window.gtag("event", "rate_limit_hit");
-        this.setState({ isRateLimited: true }); // TODO: Specify which component got rate limited
+        this.setState({ isRateLimited: true });
       }
 
       throw new Error(`HTTP status ${res.status}`);
@@ -345,7 +345,8 @@ class App extends Component {
       waitingForSuggestedChanges,
       suggestedMessages,
       errorMessage,
-      shouldUpdateContext
+      shouldUpdateContext,
+      isRateLimited
     } = this.state;
 
     window.gtag("event", "page_view", {
@@ -375,6 +376,7 @@ class App extends Component {
                 onSelectLanguage={this.onSelectLanguage}
                 isLoading={waitingForLint}
                 onLint={this.onLint}
+                isRateLimited={isRateLimited}
               />
               <ErrorMessage
                 onDebug={this.onDebug}

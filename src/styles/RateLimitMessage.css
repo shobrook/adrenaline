@@ -11,6 +11,14 @@
     text-align: center;
 }
 
+.debugPaywall {
+    font-family: "Helvetica Neue";
+    font-size: 16px;
+
+    height: 100% !important;
+    width: 100% !important;
+}
+
 .rateLimitMessage > span {
     padding-bottom: 15px;
 }
