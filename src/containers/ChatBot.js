@@ -135,10 +135,14 @@ class ChatBot extends Component {
 
     renderChatMessages() {
         const { messages } = this.state;
-        const { onSuggestChanges, waitingForSuggestedChanges } = this.props;
+        const {
+            onSuggestChanges,
+            waitingForSuggestedChanges, // TODO: This is being applied to every chat message, need to restrict to just the one clicked
+            onUpgradePlan
+        } = this.props;
 
         return messages.map((messagePayload, index) => {
-            const { isUserSubmitted, message, isComplete } = messagePayload;
+            const { isUserSubmitted, message, isComplete, isBlocked } = messagePayload;
 
             return (
                 <ChatMessage
@@ -148,6 +152,8 @@ class ChatBot extends Component {
                     onRegenerateResponse={this.onRegenerateResponse}
                     isComplete={isComplete}
                     isLastMessage={index == messages.length - 1}
+                    isBlocked={isBlocked}
+                    onUpgradePlan={onUpgradePlan}
                 >
                     {message}
                 </ChatMessage>
@@ -161,9 +167,9 @@ class ChatBot extends Component {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
 
         if (window.location.protocol === "https:") {
-            this.ws = new WebSocket(`wss://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
+            this.ws = new WebSocket(`wss://localhost:5000/generate_chat_response`);
         } else {
-            this.ws = new WebSocket(`ws://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
+            this.ws = new WebSocket(`ws://localhost:5000/generate_chat_response`);
         }
 
         this.ws.onopen = event => {
@@ -182,11 +188,16 @@ class ChatBot extends Component {
             }
         };
         this.ws.onmessage = event => {
-            const { message, document_ids } = JSON.parse(event.data);
+            const { message, document_ids, is_rate_limit_error } = JSON.parse(event.data);
             const { messages } = this.state;
             const { shouldUpdateContext, setCachedDocumentIds } = this.props;
 
-            let response = { message, isUserSubmitted: false, isComplete: false };
+            let response = {
+                message,
+                isUserSubmitted: false,
+                isComplete: false,
+                isBlocked: is_rate_limit_error
+            };
 
             if (messages.length == 0) {
                 this.setState({ messages: [response] });
