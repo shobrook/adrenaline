@@ -19,5 +19,9 @@ export const DEMO_CODE = [
     "",
     "\tprint(my_data)",
     "",
-    "main()"
+    "main()",
+    ""
 ];
+
+export const DEMO_CODE_JS = []
+
