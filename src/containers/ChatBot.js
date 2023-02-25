@@ -3,8 +3,10 @@ import { withAuth0 } from "@auth0/auth0-react";
 
 import InputField from './InputField';
 import ChatMessage from './ChatMessage';
+import { DEMO_CODE } from "../library/constants";
 
 import '../styles/ChatBot.css';
+
 const WS = process.env.REACT_APP_WS || ''
 
 class ChatBot extends Component {
@@ -62,6 +64,8 @@ class ChatBot extends Component {
             return;
         }
 
+        console.log(code == DEMO_CODE.join("\n"))
+
         getAccessTokenSilently()
             .then(token => {
                 this.ws.send(JSON.stringify({
@@ -75,7 +79,8 @@ class ChatBot extends Component {
                     is_suggested: false,
                     code,
                     cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                    should_update_context: shouldUpdateContext
+                    should_update_context: shouldUpdateContext,
+                    is_demo_code: code == DEMO_CODE.join("\n")
                 }));
 
                 if (!isRegeneration) {
@@ -112,7 +117,8 @@ class ChatBot extends Component {
                     error_message: errorMessage,
                     is_suggested: true,
                     cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                    should_update_context: shouldUpdateContext
+                    should_update_context: shouldUpdateContext,
+                    is_demo_code: code == DEMO_CODE.join("\n")
                 }));
                 this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }] });
                 resetSuggestedMessages();
