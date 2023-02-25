@@ -15,18 +15,17 @@
 
 .paymentTitle {
     color: white;
-    font-size: 3.25vw;
+    font-size: 58px;
     font-weight: 900;
     font-family: "Gilroy";
     margin: 0;
 }
-
 .paymentSubtitle {
     margin-top: 1em;
     color: rgba(255, 255, 255, 0.65);
     /* font-family: "Helvetica Neue"; */
     /* font-size: 22px; */
-    font-size: 1.375vw;
+    font-size: 28px;
     font-weight: 400;
     width: 85%;
 }
@@ -39,9 +38,10 @@
     max-width: 600px;
 }
 
+
 .subscriptionTitle {
     color: white;
-    font-size: 2.5vw;
+    font-size: 32px;
     font-weight: 900;
     font-family: "Gilroy";
     margin: 0;
@@ -61,7 +61,7 @@
     width: 33%;
     display: flex;
     flex-direction: column;
-    flex:1;
+    flex: 1;
     align-items: stretch;
     background-color: #202030;
     border-radius: 8px;
@@ -84,7 +84,7 @@
 
 .planCurrent {
     color: white;
-    margin: 0; 
+    margin: 0;
     margin-top: 8px;
     font-size: 18px;
     font-family: "Gilroy";
@@ -104,7 +104,8 @@
     outline: 0;
     border-radius: 4px;
 }
-.checkoutBody, .customerBody {
+.checkoutBody,
+.customerBody {
     width: 100%;
     max-width: 500px;
     margin: auto;
@@ -125,7 +126,7 @@
 .checkoutButton {
     margin-top: 16px;
     padding: 10px 0;
-    color: #fff;
+    color: #fff !important;
     font-weight: 600;
 }
 .StripeElement {
@@ -182,7 +183,7 @@
 }
 
 .checkBoxContainer input {
-   transform: scale(1.5);
+    transform: scale(1.5);
 }
 
 .inlineLabel {
@@ -201,4 +202,34 @@
     font-size: 16px;
     margin-top: 8px;
     text-align: center;
+}
+
+
+@media (max-width: 1200px) {
+    .paymentBody {
+        flex-direction: column;
+        padding-left: 1%;
+        padding-right: 1%;
+    }
+    .paymentContainer {
+        width: 90%;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .paymentTitle {
+        text-align: center;
+        font-size: 50px;
+    }
+    .paymentSubtitle {
+        text-align: center;
+        margin: auto;
+        margin-bottom: 16px;
+        font-size: 20px;
+    }
+    .demoImage {
+        margin: auto;
+        max-width: 400px;
+    }
 }

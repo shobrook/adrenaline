@@ -7,13 +7,34 @@ import '../styles/Subscription.css';
 import CheckoutContainer from '../containers/Checkout';
 const API = process.env.REACT_APP_API || '';
 
+const Success = () => {
+
+    const goToPlayground = () => {
+        window.location = '/playground'
+    }
+
+    return (
+        <div>
+            <p className="subscriptionTitle">
+                You are now successfully subscribed to Paid Tier
+            </p>
+            <Button
+                onClick={goToPlayground}
+                className="checkoutButton" isPrimary>
+                Get started
+            </Button>
+        </div>
+    )
+}
 
 const ChoosePlan = ({
     onChoosePlan,
     list,
     currentPlan,
     isLoading,
-    removeSubscription
+    removeSubscription,
+    isAuthenticated,
+    loginWithRedirect,
 }) => {
     return (
         <div>
@@ -21,6 +42,11 @@ const ChoosePlan = ({
             {isLoading && <div>
                 <Spinner />
             </div>}
+            {
+                isAuthenticated && <div>
+                    You are not
+                </div>
+            }
             {!isLoading && <div className='planList'>
                 {list && list.map((data) => {
                     return <div>
@@ -33,7 +59,10 @@ const ChoosePlan = ({
                             </p>
                         </div>
                         {
-                            data?.lookup_key !== 'free_tier' && data?.lookup_key !== currentPlan &&
+                             data?.lookup_key !== 'free_tier' && !isAuthenticated && <Button  className="checkoutButton" isPrimary onClick={loginWithRedirect}>Login</Button>
+                        }
+                        {
+                            data?.lookup_key !== 'free_tier' && data?.lookup_key !== currentPlan && isAuthenticated &&
                             <Button
                                 onClick={() => onChoosePlan(data?.id, data?.unit_amount)}
                                 className="checkoutButton" isPrimary>
@@ -136,7 +165,8 @@ const Subscription = () => {
         isLoading,
         isAuthenticated,
         user,
-        getAccessTokenSilently
+        getAccessTokenSilently,
+        loginWithRedirect
     } = useAuth0();
     const [step, setStep] = useState("choose_plan")
     const [secret, setSecret] = useState(null)
@@ -184,39 +214,39 @@ const Subscription = () => {
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
             getUserConfig()
+        }
+        if (!isLoading) {
             getSubscriptionList()
         }
     }, [isLoading, isAuthenticated])
 
     const getSubscriptionList = async () => {
-        getAccessTokenSilently()
-            .then(token => {
-                fetch(`${API}/api/subscription/list`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
+        fetch(`${API}/api/subscription/list`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
 
-                })
-                    .then((res) => res.json())
-                    .then((data) => {
-                        const list = data?.data
-                        if (list) {
-                            setPlanList((el) => [...el, ...list])
-                            setListLoading(false)
-                        }
-                        if (data?.error) {
-                            console.log("SHOW ERROR", data?.error)
-                        }
-                    }
-                    );
-            });
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                const list = data?.data
+                if (list) {
+                    setPlanList((el) => [...el, ...list])
+                    setListLoading(false)
+                }
+                if (data?.error) {
+                    console.log("SHOW ERROR", data?.error)
+                }
+            }
+            );
+
     }
 
     const getUserConfig = async () => {
         getAccessTokenSilently()
             .then(token => {
+                console.log(token)
                 fetch(`${API}/api/subscription/user?user_id=${user.sub}`, {
                     method: "GET",
                     headers: {
@@ -352,7 +382,7 @@ const Subscription = () => {
                 })
                     .then((res) => res.json())
                     .then((data) => {
-                        if (data?.Subscription) {
+                        if (data?.subscription) {
                             window.location = '/subscription'
                         }
                         if (data?.error) {
@@ -392,12 +422,6 @@ const Subscription = () => {
         </div>
     }
 
-    if (!isLoading && !isAuthenticated) {
-        window.location = '/'
-    }
-
-
-
     return (
         <div id="landing">
             <Header />
@@ -416,6 +440,8 @@ const Subscription = () => {
                             removeSubscription={removeSubscription}
                             currentPlan={currentPlan}
                             isLoading={listLoading}
+                            isAuthenticated={isAuthenticated}
+                            loginWithRedirect={loginWithRedirect}
                         />
                     }
 
@@ -443,6 +469,9 @@ const Subscription = () => {
                             setIsCustomerLoading={setIsCustomerLoading}
                             setStep={setStep}
                         />
+                    }
+                    {
+                        step === "success" && <Success />
                     }
                 </div>
             </div>

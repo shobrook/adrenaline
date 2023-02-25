@@ -15,7 +15,8 @@ function CheckoutForm({
     secret,
     email,
     firstName,
-    lastName
+    lastName,
+    setStep
 }) {
     const stripe = useStripe();
     const elements = useElements();
@@ -75,16 +76,14 @@ function CheckoutForm({
         });
         if (result?.error) {
             if (result?.error?.type === "card_error" || result?.error?.type === "validation_error") {
-                alert(result?.error?.message)
                 setMessage(result?.error?.message);
             } else {
                 setMessage("An unexpected error occurred.");
             }
         }
 
-        console.log(result)
         if (result?.paymentIntent?.status === 'succeeded') {
-            alert("You are now subscribed")
+            setStep("success")
         }
         setIsLoading(false);
     };
@@ -123,7 +122,8 @@ export default function CheckoutContainer({
     email,
     firstName,
     lastName,
-    setIsCustomerLoading
+    setIsCustomerLoading,
+    setStep
 }) {
 
     useEffect(() => {
@@ -179,6 +179,7 @@ export default function CheckoutContainer({
                 email={email}
                 firstName={firstName}
                 lastName={lastName}
+                setStep={setStep}
                 />
             </Elements>}
         </div>
