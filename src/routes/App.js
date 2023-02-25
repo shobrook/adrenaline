@@ -149,7 +149,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/debug", {
+        fetch("http://staging-rubrick-api-production.up.railway.app/api/debug", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -170,7 +170,7 @@ class App extends Component {
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
 
-            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
+            fetch("http://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -231,7 +231,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/lint", {
+        fetch("http://staging-rubrick-api-production.up.railway.app/api/lint", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -287,7 +287,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
+        fetch("http://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
