@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import Button from "../components/Button";
+import Spinner from "../components/Spinner";
 import RateLimitMessage from "./RateLimitMessage";
 
 import '../styles/ChatMessage.css';
@@ -19,7 +20,11 @@ export default class ChatMessage extends Component {
 	/* Utilities */
 
 	renderMessage() {
-		const { children } = this.props;
+		const { isLoading, children } = this.props;
+
+		if (isLoading) {
+			return (<Spinner />);
+		}
 
 		const messageContent = children.split("```").map((text, index) => {
 			// TODO: Remove trailing newlines

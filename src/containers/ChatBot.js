@@ -101,9 +101,9 @@ class ChatBot extends Component {
             this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }, { message: "You must be logged in to use the chatbot.", isUserSubmitted: false, isComplete: false }] });
             return;
         } else if (!isRegeneration) {
-            this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }, { message: "...", isUserSubmitted: false, isComplete: false }] });
+            this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }, { message: "...", isUserSubmitted: false, isComplete: false, isLoading: true }] });
         } else {
-            this.setState({ messages: [...messages.slice(0, messages.length - 1), { message: "...", isUserSubmitted: false, isComplete: false }] });
+            this.setState({ messages: [...messages.slice(0, messages.length - 1), { message: "...", isUserSubmitted: false, isComplete: false, isLoading: true }] });
         }
 
         getAccessTokenSilently()
@@ -155,7 +155,7 @@ class ChatBot extends Component {
             this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }, { message: "You must be logged in to use the chatbot.", isUserSubmitted: false, isComplete: false }] });
             return;
         } else {
-            this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }, { message: "...", isUserSubmitted: false, isComplete: false }] });
+            this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }, { message: "...", isUserSubmitted: false, isComplete: false, isLoading: true }] });
             resetSuggestedMessages();
         }
 
@@ -216,7 +216,7 @@ class ChatBot extends Component {
         } = this.props;
 
         return messages.map((messagePayload, index) => {
-            const { isUserSubmitted, message, isComplete, isBlocked } = messagePayload;
+            const { isUserSubmitted, message, isComplete, isBlocked, isLoading } = messagePayload;
 
             return (
                 <ChatMessage
@@ -228,6 +228,7 @@ class ChatBot extends Component {
                     isLastMessage={index == messages.length - 1}
                     isBlocked={isBlocked}
                     onUpgradePlan={onUpgradePlan}
+                    isLoading={isLoading}
                 >
                     {message}
                 </ChatMessage>
