@@ -357,8 +357,14 @@ class App extends Component {
       <>
         {waitingForDiffResolution ? (
           <UnresolvedDiffModal
-            setModalRef={this.onSetModalRef}
-            onCloseModal={event => { this.onCloseModal(event); this.setState({ waitingForDiffResolution: false }) }}
+            setModalRef={ref => this.modalRef = ref}
+            onCloseModal={event => {
+              if (this.modalRef && this.modalRef.contains(event.target)) {
+                return;
+              }
+
+              this.setState({ waitingForDiffResolution: false });
+            }}
           />
         ) : null}
 
