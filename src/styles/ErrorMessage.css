@@ -8,7 +8,7 @@
   height: 33%;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .errorMessageHeader {
