@@ -166,11 +166,16 @@ class ChatBot extends Component {
     componentDidMount() {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
 
+        console.log("Initializing websocket connection")
         if (window.location.protocol === "https:") {
             this.ws = new WebSocket(`wss://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
         } else {
             this.ws = new WebSocket(`ws://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
         }
+
+        console.log("Connection created")
+        console.log(this.ws)
+        console.log()
 
         this.ws.onopen = event => {
             if (!isAuthenticated) {
@@ -226,6 +231,8 @@ class ChatBot extends Component {
             console.log("ERROR WITH WEBSOCKET")
             console.log(event)
         }
+
+        console.log("Event handlers set")
 
         this.scrollToBottom();
     }
