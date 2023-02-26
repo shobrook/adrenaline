@@ -1,39 +1,40 @@
 import React, { Component } from "react";
-import { Controlled as CodeMirror } from 'react-codemirror2';
+import { Controlled as CodeMirror } from 'react-codemirror2';
 import Select from 'react-select';
 
 import Button from "../components/Button";
+import RateLimitMessage from "./RateLimitMessage";
 
 import "../styles/CodeEditor.css";
-import 'codemirror/lib/codemirror.css';
+import 'codemirror/lib/codemirror.css';
 
 require('codemirror/mode/python/python');
 require('codemirror/mode/javascript/javascript');
 require('codemirror/mode/clike/clike');
 
 const LANGUAGES = [
-	{label: "Python", value: "python"},
-	{label: "JavaScript", value: "javascript"},
-	{label: "Java", value: "clike"},
-	{label: "Ruby", value: "ruby"},
-	{label: "PHP", value: "php"},
-	{label: "C++", value: "clike"},
-	{label: "C", value: "clike"},
-	{label: "Shell", value: "shell"},
-	{label: "C#", value: "clike"},
-	{label: "Objective-C", value: "clike"},
-	{label: "R", value: "r"},
-	{label: "Go", value: "go"},
-	{label: "Perl", value: "perl"},
-	{label: "CoffeeScript", value: "coffeescript"},
-	{label: "Scala", value: "clike"},
-	{label: "Haskell", value: "haskell"},
-	{label: "HTML", value: "htmlmixed"},
-	{label: "CSS", value: "css"},
-	{label: "Kotlin", value: "clike"},
-	{label: "Rust", value: "rust"},
-	{label: "SQL", value: "sql"},
-	{label: "Swift", value: "swift"}
+	{ label: "Python", value: "python" },
+	{ label: "JavaScript", value: "javascript" },
+	{ label: "Java", value: "clike" },
+	{ label: "Ruby", value: "ruby" },
+	{ label: "PHP", value: "php" },
+	{ label: "C++", value: "clike" },
+	{ label: "C", value: "clike" },
+	{ label: "Shell", value: "shell" },
+	{ label: "C#", value: "clike" },
+	{ label: "Objective-C", value: "clike" },
+	{ label: "R", value: "r" },
+	{ label: "Go", value: "go" },
+	{ label: "Perl", value: "perl" },
+	{ label: "CoffeeScript", value: "coffeescript" },
+	{ label: "Scala", value: "clike" },
+	{ label: "Haskell", value: "haskell" },
+	{ label: "HTML", value: "htmlmixed" },
+	{ label: "CSS", value: "css" },
+	{ label: "Kotlin", value: "clike" },
+	{ label: "Rust", value: "rust" },
+	{ label: "SQL", value: "sql" },
+	{ label: "Swift", value: "swift" }
 ];
 
 export default class CodeEditor extends Component {
@@ -47,9 +48,10 @@ export default class CodeEditor extends Component {
 		this.deleteLineHighlights = this.deleteLineHighlights.bind(this);
 		this.addDiffsToEditor = this.addDiffsToEditor.bind(this);
 		this.deleteDiffsFromEditor = this.deleteDiffsFromEditor.bind(this);
+		this.renderPaywall = this.renderPaywall.bind(this);
 	}
 
-	/* Diff Utilities */
+	/* Utilities */
 
 	createWidget(insertLineNum, isAboveLine, onClickUseMe) {
 		let widget = document.createElement("div");
@@ -171,6 +173,16 @@ export default class CodeEditor extends Component {
 		});
 	}
 
+	renderPaywall() {
+		const { isRateLimited } = this.props;
+
+		if (isRateLimited) {
+			return (
+				<RateLimitMessage className="debugPaywall" />
+			)
+		}
+	}
+
 	/* Lifecycle Methods */
 
 	componentDidUpdate(prevProps) {
@@ -195,7 +207,8 @@ export default class CodeEditor extends Component {
 			onChange,
 			onSelectLanguage,
 			isLoading,
-			onLint
+			onLint,
+			isRateLimited
 		} = this.props;
 
 		return (
@@ -226,7 +239,7 @@ export default class CodeEditor extends Component {
 								backgroundColor: state.isFocused ? "#279AF1" : "transparent",
 								cursor: "pointer"
 							})
-				    	}}
+						}}
 					/>
 					<Button
 						className="lintButton"
@@ -238,18 +251,21 @@ export default class CodeEditor extends Component {
 						Lint
 					</Button>
 				</div>
-				<CodeMirror
-					className="codeEditor"
-					value={code.join("\n")}
-					options={{
-						mode: language.value,
-						theme: "dracula",
-						lineNumbers: true
-					}}
-					onBeforeChange={onChange}
-					onChange={onChange}
-					editorDidMount={editor => this.codeMirrorRef = editor}
-				/>
+				<div id={!isRateLimited ? "codeMirrorContainer" : "rateLimitedCodeMirrorContainer"}>
+					{this.renderPaywall()}
+					<CodeMirror
+						className={`codeEditor ${isRateLimited ? "blocked" : ""}`}
+						value={code.join("\n")}
+						options={{
+							mode: language.value,
+							theme: "dracula",
+							lineNumbers: true
+						}}
+						onBeforeChange={onChange}
+						onChange={onChange}
+						editorDidMount={editor => this.codeMirrorRef = editor}
+					/>
+				</div>
 			</div>
 		);
 	}

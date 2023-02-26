@@ -2,6 +2,7 @@
     /* display: flex;
     flex-direction: column;
     justify-content: flex-start; */
+    position: relative;
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 15px;
@@ -90,4 +91,13 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+}
+
+.blockedMessage {
+    background-color: #202030 !important;
+}
+
+.blocked {
+    filter: blur(4px);
+    opacity: 0.4;
 }

@@ -3,8 +3,10 @@ import { withAuth0 } from "@auth0/auth0-react";
 
 import InputField from './InputField';
 import ChatMessage from './ChatMessage';
+import { DEMO_CODE } from "../library/constants";
 
 import '../styles/ChatBot.css';
+
 const WS = process.env.REACT_APP_WS || ''
 
 class ChatBot extends Component {
@@ -75,7 +77,8 @@ class ChatBot extends Component {
                     is_suggested: false,
                     code,
                     cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                    should_update_context: shouldUpdateContext
+                    should_update_context: shouldUpdateContext,
+                    is_demo_code: code == DEMO_CODE.join("\n")
                 }));
 
                 if (!isRegeneration) {
@@ -112,7 +115,8 @@ class ChatBot extends Component {
                     error_message: errorMessage,
                     is_suggested: true,
                     cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                    should_update_context: shouldUpdateContext
+                    should_update_context: shouldUpdateContext,
+                    is_demo_code: code == DEMO_CODE.join("\n")
                 }));
                 this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }] });
                 resetSuggestedMessages();
@@ -131,10 +135,14 @@ class ChatBot extends Component {
 
     renderChatMessages() {
         const { messages } = this.state;
-        const { onSuggestChanges, waitingForSuggestedChanges } = this.props;
+        const {
+            onSuggestChanges,
+            waitingForSuggestedChanges, // TODO: This is being applied to every chat message, need to restrict to just the one clicked
+            onUpgradePlan
+        } = this.props;
 
         return messages.map((messagePayload, index) => {
-            const { isUserSubmitted, message, isComplete } = messagePayload;
+            const { isUserSubmitted, message, isComplete, isBlocked } = messagePayload;
 
             return (
                 <ChatMessage
@@ -144,6 +152,8 @@ class ChatBot extends Component {
                     onRegenerateResponse={this.onRegenerateResponse}
                     isComplete={isComplete}
                     isLastMessage={index == messages.length - 1}
+                    isBlocked={isBlocked}
+                    onUpgradePlan={onUpgradePlan}
                 >
                     {message}
                 </ChatMessage>
@@ -155,11 +165,11 @@ class ChatBot extends Component {
 
     componentDidMount() {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
-        console.log(WS)
+
         if (window.location.protocol === "https:") {
-            this.ws = new WebSocket(`wss://${WS}/generate_chat_response`);
+            this.ws = new WebSocket(`wss://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
         } else {
-            this.ws = new WebSocket(`ws://${WS}/generate_chat_response`);
+            this.ws = new WebSocket(`ws://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
         }
 
         this.ws.onopen = event => {
@@ -178,11 +188,16 @@ class ChatBot extends Component {
             }
         };
         this.ws.onmessage = event => {
-            const { message, document_ids } = JSON.parse(event.data);
+            const { message, document_ids, is_rate_limit_error } = JSON.parse(event.data);
             const { messages } = this.state;
             const { shouldUpdateContext, setCachedDocumentIds } = this.props;
 
-            let response = { message, isUserSubmitted: false, isComplete: false };
+            let response = {
+                message,
+                isUserSubmitted: false,
+                isComplete: false,
+                isBlocked: is_rate_limit_error
+            };
 
             if (messages.length == 0) {
                 this.setState({ messages: [response] });

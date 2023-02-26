@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import Button from "../components/Button";
+import RateLimitMessage from "./RateLimitMessage";
 
 import '../styles/ChatMessage.css';
 
@@ -65,7 +66,7 @@ export default class ChatMessage extends Component {
 					<img src="./integrate_icon.png" />
 					Suggest changes
 				</Button>
-			)
+			);
 		}
 	}
 
@@ -77,26 +78,39 @@ export default class ChatMessage extends Component {
 				<div id="regenerateResponse" onClick={onRegenerateResponse}>
 					<img src="./regenerate_icon.png" />
 				</div>
-			)
+			);
+		}
+	}
+
+	renderPaywall() {
+		const { isBlocked, isComplete } = this.props;
+
+		if (isBlocked && isComplete) {
+			return (
+				<RateLimitMessage />
+			);
 		}
 	}
 
 	/* Lifecycle Methods */
 
 	render() {
-		const { isUserSubmitted, isComplete, children } = this.props;
+		const { isUserSubmitted, isComplete, isBlocked, onUpgradePlan, children } = this.props;
 		const containsCode = children.includes("```");
 		const shouldRenderSuggestChanges = !isUserSubmitted && isComplete && containsCode;
 
 		return (
-			<div className={`chatMessage ${!isUserSubmitted ? "aiResponse" : ""}`}>
-				{this.renderMessage()}
-				{shouldRenderSuggestChanges ? (
-					<div className="chatMessageOptions">
-						{this.renderSuggestChangesButton()}
-						{this.renderRegenerateButton()}
-					</div>
-				) : this.renderRegenerateButton()}
+			<div className={`chatMessage ${!isUserSubmitted ? "aiResponse" : ""} ${isBlocked ? "blockedMessage" : ""}`}>
+				{this.renderPaywall()}
+				<div className={`messageContainer ${isBlocked ? "blocked" : ""}`}>
+					{this.renderMessage()}
+					{shouldRenderSuggestChanges ? (
+						<div className="chatMessageOptions">
+							{this.renderSuggestChangesButton()}
+							{this.renderRegenerateButton()}
+						</div>
+					) : this.renderRegenerateButton()}
+				</div>
 			</div>
 		);
 	}

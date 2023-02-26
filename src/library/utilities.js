@@ -73,8 +73,8 @@ export function diffCode(oldCode, newCode) {
     const trimmedOldLines = oldLines.join("\n").trim().replace("    ", "\t");
     const trimmedNewLines = newLines.join("\n").trim().replace("    ", "\t");
 
-    return trimmedOldLines != trimmedNewLines;
-  })
+    return trimmedOldLines !== trimmedNewLines;
+  });
 
   return {
     diffs,

@@ -1,7 +1,6 @@
 import { Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 
-import RateLimitModal from "../containers/RateLimitModal";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
@@ -37,10 +36,10 @@ class App extends Component {
       waitingForDebug: false,
       waitingForLint: false,
       waitingForSuggestedChanges: false,
-      isRateLimited: false,
       suggestedMessages: [],
       waitingForDiffResolution: false,
-      shouldUpdateContext: true
+      shouldUpdateContext: true,
+      isRateLimited: false
     };
   }
 
@@ -56,7 +55,6 @@ class App extends Component {
 
   handleRateLimitErrors(res) {
     if (!res.ok) {
-      console.log(res);
       if (res.status === 429) { // Rate limit
         window.gtag("event", "rate_limit_hit");
         this.setState({ isRateLimited: true });
@@ -149,7 +147,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch(`${API}/api/debug`, {
+        fetch("https://staging-rubrick-api-production.up.railway.app/api/debug", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -159,7 +157,8 @@ class App extends Component {
             user_id: user.sub,
             email: user.email,
             code: code.join("\n"),
-            error: errorMessage
+            error: errorMessage,
+            is_demo_code: code == DEMO_CODE
           })
         })
           .then(this.handleRateLimitErrors)
@@ -169,7 +168,7 @@ class App extends Component {
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
 
-            fetch(`${API}/api/generate_suggested_questions`, {
+            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -179,7 +178,8 @@ class App extends Component {
                 user_id: user.sub,
                 email: user.email,
                 code: code.join("\n"),
-                error: errorMessage
+                error: errorMessage,
+                is_demo_code: code == DEMO_CODE
               })
             })
               .then(this.handleRateLimitErrors)
@@ -229,7 +229,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch(`${API}/api/lint`, {
+        fetch("https://staging-rubrick-api-production.up.railway.app/api/lint", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -238,7 +238,8 @@ class App extends Component {
           body: JSON.stringify({
             user_id: user.sub,
             email: user.email,
-            code: code.join("\n")
+            code: code.join("\n"),
+            is_demo_code: code == DEMO_CODE
           })
         })
           .then(this.handleRateLimitErrors)
@@ -284,7 +285,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch(`${API}/api/suggest_changes`, {
+        fetch("https://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -294,7 +295,8 @@ class App extends Component {
             user_id: user.sub,
             email: user.email,
             code: code.join("\n"),
-            message
+            message,
+            is_demo_code: code == DEMO_CODE
           })
         })
           .then(this.handleRateLimitErrors)
@@ -341,10 +343,10 @@ class App extends Component {
       waitingForLint,
       waitingForDiffResolution,
       waitingForSuggestedChanges,
-      isRateLimited,
       suggestedMessages,
       errorMessage,
-      shouldUpdateContext
+      shouldUpdateContext,
+      isRateLimited
     } = this.state;
 
     window.gtag("event", "page_view", {
@@ -357,13 +359,6 @@ class App extends Component {
           <UnresolvedDiffModal
             setModalRef={this.onSetModalRef}
             onCloseModal={event => { this.onCloseModal(event); this.setState({ waitingForDiffResolution: false }) }}
-          />
-        ) : null}
-
-        {isRateLimited ? (
-          <RateLimitModal
-            setModalRef={this.onSetModalRef}
-            onCloseModal={event => { this.onCloseModal(event); this.setState({ isRateLimited: false }) }}
           />
         ) : null}
 
@@ -381,6 +376,7 @@ class App extends Component {
                 onSelectLanguage={this.onSelectLanguage}
                 isLoading={waitingForLint}
                 onLint={this.onLint}
+                isRateLimited={isRateLimited}
               />
               <ErrorMessage
                 onDebug={this.onDebug}
