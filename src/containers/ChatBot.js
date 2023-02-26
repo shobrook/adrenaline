@@ -58,13 +58,7 @@ class ChatBot extends Component {
         const cachedDocumentIds = localStorage.getItem("cachedDocumentIds");
 
         if (!isAuthenticated) {
-            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ is_init: false, token: null })
-            });
+            this.ws.send(JSON.stringify({ is_init: false, token: null }));
             this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }] });
 
             return;
@@ -72,31 +66,25 @@ class ChatBot extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        is_init: false,
-                        token,
-                        user_id: user.sub,
-                        email: user.email,
-                        query: message,
-                        chat_history: this.consolidateChatHistory(),
-                        error_message: errorMessage,
-                        is_suggested: false,
-                        code,
-                        cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                        should_update_context: shouldUpdateContext,
-                        is_demo_code: code == DEMO_CODE.join("\n")
-                    })
-                });
+                this.ws.send(JSON.stringify({
+                    is_init: false,
+                    token,
+                    user_id: user.sub,
+                    email: user.email,
+                    query: message,
+                    chat_history: this.consolidateChatHistory(),
+                    error_message: errorMessage,
+                    is_suggested: false,
+                    code,
+                    cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
+                    should_update_context: shouldUpdateContext,
+                    is_demo_code: code == DEMO_CODE.join("\n")
+                }));
 
                 if (!isRegeneration) {
                     this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }] });
                 }
-            });
+            })
     }
 
     onSendSuggestedMessage(message) {
@@ -105,15 +93,9 @@ class ChatBot extends Component {
         const { preview, prompt } = message;
         const { messages } = this.state;
         const cachedDocumentIds = localStorage.getItem("cachedDocumentIds");
-
+        console.log(isAuthenticated)
         if (!isAuthenticated) {
-            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ is_init: false, token: null })
-            });
+            this.ws.send(JSON.stringify({ is_init: false, token: null }));
             this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }] });
             resetSuggestedMessages();
 
@@ -122,30 +104,23 @@ class ChatBot extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        is_init: false,
-                        token,
-                        user_id: user.sub,
-                        email: user.email,
-                        query: prompt,
-                        chat_history: this.consolidateChatHistory(),
-                        code,
-                        error_message: errorMessage,
-                        is_suggested: true,
-                        cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                        should_update_context: shouldUpdateContext,
-                        is_demo_code: code == DEMO_CODE.join("\n")
-                    })
-                });
-
+                this.ws.send(JSON.stringify({
+                    is_init: false,
+                    token,
+                    user_id: user.sub,
+                    email: user.email,
+                    query: prompt,
+                    chat_history: this.consolidateChatHistory(),
+                    code,
+                    error_message: errorMessage,
+                    is_suggested: true,
+                    cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
+                    should_update_context: shouldUpdateContext,
+                    is_demo_code: code == DEMO_CODE.join("\n")
+                }));
                 this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }] });
                 resetSuggestedMessages();
-            });
+            })
     }
 
     onRegenerateResponse() {
@@ -191,8 +166,28 @@ class ChatBot extends Component {
     componentDidMount() {
         const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
 
-        this.sse = new EventSource("https://staging-rubrick-api-production.up.railway.app/stream");
-        this.sse.onmessage = event => {
+        if (window.location.protocol === "https:") {
+            this.ws = new WebSocket(`wss://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
+        } else {
+            this.ws = new WebSocket(`ws://staging-rubrick-api-production.up.railway.app/generate_chat_response`);
+        }
+
+        this.ws.onopen = event => {
+            if (!isAuthenticated) {
+                this.ws.send(JSON.stringify({ is_init: true, token: null }));
+                localStorage.removeItem("cachedDocumentIds")
+            } else {
+                getAccessTokenSilently()
+                    .then(token => {
+                        this.ws.send(JSON.stringify({
+                            is_init: true,
+                            token: token
+                        }));
+                        localStorage.removeItem("cachedDocumentIds")
+                    });
+            }
+        };
+        this.ws.onmessage = event => {
             const { message, document_ids, is_rate_limit_error } = JSON.parse(event.data);
             const { messages } = this.state;
             const { shouldUpdateContext, setCachedDocumentIds } = this.props;
@@ -227,30 +222,6 @@ class ChatBot extends Component {
                 }
             }
         };
-
-        if (!isAuthenticated) {
-            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ is_init: true, token: null })
-            });
-        } else {
-            getAccessTokenSilently()
-                .then(token => {
-                    fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            is_init: true,
-                            token: token
-                        })
-                    });
-                });
-        }
 
         this.scrollToBottom();
     }
