@@ -164,7 +164,6 @@ class App extends Component {
         })
           .then(this.handleRateLimitErrors)
           .then(data => {
-            console.log(data);
             const { new_code } = data;
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
