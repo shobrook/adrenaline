@@ -222,6 +222,10 @@ class ChatBot extends Component {
                 }
             }
         };
+        this.ws.onerror = event => {
+            console.log("ERROR WITH WEBSOCKET")
+            console.log(event)
+        }
 
         this.scrollToBottom();
     }
