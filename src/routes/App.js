@@ -54,7 +54,7 @@ class App extends Component {
   }
 
   handleRateLimitErrors(res) {
-    this.setState({ isRateLimited: true });
+    console.log(res)
     if (!res.ok) {
       if (res.status === 429) { // Rate limit
         window.gtag("event", "rate_limit_hit");
