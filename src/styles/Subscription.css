@@ -129,6 +129,10 @@
     color: #fff !important;
     font-weight: 600;
 }
+
+
+
+
 .StripeElement {
     margin: auto;
 }
@@ -197,11 +201,23 @@
     color: rgba(255, 255, 255, 0.35);
 }
 
+.inputError {
+    border-color: red;
+}
+
 .checkoutMessage {
     color: red;
     font-size: 16px;
     margin-top: 8px;
-    text-align: center;
+}
+
+
+.goBack {
+    color: #fff;
+    cursor: pointer;
+}
+.goBack:hover {
+    color: #D93CFF;
 }
 
 

@@ -11,6 +11,14 @@ import Spinner from "../components/Spinner";
 const STRIP_PK = process.env.REACT_APP_STRIPE_PK || ''
 const stripePromise = loadStripe(STRIP_PK);
 
+const STEPS =[
+    'choose_plan',
+    'create_customer',
+    'check_out',
+    'success'
+]
+
+
 function CheckoutForm({
     secret,
     email,
@@ -169,6 +177,7 @@ export default function CheckoutContainer({
 
     return (
         <div className='checkoutBody'>
+            <p className='goBack' onClick={() => setStep(STEPS[1])}>&#8592; Go Back</p>
             <p className="checkoutLabel">Total amount ${amount / 100}</p>
             {secret && stripePromise && <Elements options={{
                 clientSecret: secret,

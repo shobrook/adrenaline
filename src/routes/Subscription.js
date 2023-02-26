@@ -7,6 +7,20 @@ import '../styles/Subscription.css';
 import CheckoutContainer from '../containers/Checkout';
 const API = process.env.REACT_APP_API || '';
 
+
+const STEPS = [
+    'choose_plan',
+    'create_customer',
+    'check_out',
+    'success'
+]
+
+const validateEmail = (email) => {
+    return email.match(
+        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+
 const Success = () => {
 
     const goToPlayground = () => {
@@ -35,6 +49,8 @@ const ChoosePlan = ({
     removeSubscription,
     isAuthenticated,
     loginWithRedirect,
+    setStep,
+    setUpdateBilling
 }) => {
     return (
         <div>
@@ -42,11 +58,6 @@ const ChoosePlan = ({
             {isLoading && <div>
                 <Spinner />
             </div>}
-            {
-                isAuthenticated && <div>
-                    You are not
-                </div>
-            }
             {!isLoading && <div className='planList'>
                 {list && list.map((data) => {
                     return <div>
@@ -59,7 +70,10 @@ const ChoosePlan = ({
                             </p>
                         </div>
                         {
-                             data?.lookup_key !== 'free_tier' && !isAuthenticated && <Button  className="checkoutButton" isPrimary onClick={loginWithRedirect}>Login</Button>
+                            data?.lookup_key === currentPlan && <p className='planCurrent'>Current Plan</p>
+                        }
+                        {
+                            data?.lookup_key !== 'free_tier' && !isAuthenticated && <Button className="checkoutButton" isPrimary onClick={loginWithRedirect}>Login</Button>
                         }
                         {
                             data?.lookup_key !== 'free_tier' && data?.lookup_key !== currentPlan && isAuthenticated &&
@@ -69,6 +83,20 @@ const ChoosePlan = ({
                                 {data?.unit_amount ? `$${data?.unit_amount / 100}` : 'Free'}
                             </Button>
                         }
+
+                        {
+                            data?.lookup_key !== 'free_tier' && data?.lookup_key === currentPlan &&
+                            <Button
+                                isPrimary
+                                onClick={() => {
+                                    setUpdateBilling(true)
+                                    setStep(STEPS[1])
+                                }}
+                                className="checkoutButton">
+                                Update Billing Information
+                            </Button>
+                        }
+
                         {
                             data?.lookup_key !== 'free_tier' && data?.lookup_key === currentPlan &&
                             <Button
@@ -77,9 +105,7 @@ const ChoosePlan = ({
                                 Unsubscribe
                             </Button>
                         }
-                        {
-                            data?.lookup_key === currentPlan && <p className='planCurrent'>Current Plan</p>
-                        }
+
                     </div>
                 })}
             </div>}
@@ -87,78 +113,271 @@ const ChoosePlan = ({
     )
 }
 
+
+
 const CreateCustomer = ({
-    firstName,
-    lastName,
-    billingEmail,
-    onInputChange,
-    createCustomer,
+    setCustomerId,
+    createSubscription,
+    setBillingDetails,
+    billingDetails,
+    isCustomerLoading,
+    setIsCustomerLoading,
+    setStep,
     updateCustomer,
     setUpdateCustomer,
-    customerError,
-    isCustomerLoading
+    updateBilling
 }) => {
+    const {
+        user,
+        getAccessTokenSilently,
+    } = useAuth0();
+
+    const [firstName, setFirstName] = useState()
+    const [lastName, setLastName] = useState()
+    const [billingEmail, setBillingEmail] = useState()
+
+    const [fnError, setFnError] = useState('')
+    const [lnError, setLnError] = useState('')
+    const [beError, setbeError] = useState('')
+
+    const [customerError, setCustomerError] = useState('')
+
+
+    useEffect(() => {
+        if (billingDetails) {
+            setFirstName(billingDetails?.first_name)
+            setLastName(billingDetails?.last_name)
+            setBillingEmail(billingDetails?.email)
+
+        }
+    }, [updateCustomer])
+
+
+    const onInputChange = (event, key) => {
+        const value = event.target.value
+        setCustomerError("")
+        if (key === 'fn') {
+            setFirstName(value)
+            setBillingDetails({ ...billingDetails, first_name: value })
+            if (value.trim !== "") {
+                setFnError("")
+            }
+        } else if (key === 'ln') {
+            setLastName(value)
+            setBillingDetails({ ...billingDetails, last_name: value })
+            if (value.trim !== "") {
+                setLnError("")
+            }
+        } else if (key === 'be') {
+            setBillingEmail(value)
+            setBillingDetails({ ...billingDetails, email: value })
+            if (value.trim !== "") {
+                setbeError("")
+            }
+        }
+    }
+
+
+    const createCustomer = async () => {
+        if (updateCustomer) {
+            let isReturn = false
+            if (billingEmail.trim() === '') {
+                setbeError("Billing email is required.")
+                isReturn = true
+            }
+
+            if (billingEmail.trim() !== '') {
+                const valid = validateEmail(billingEmail)
+                if (!valid) {
+                    setbeError("Enter a proper email address.")
+                    isReturn = true
+                }
+            }
+
+            if (firstName.trim() === '') {
+                setFnError("First name is required.")
+                isReturn = true
+            }
+            if (lastName.trim() === '') {
+                setLnError("Last name is required.")
+                isReturn = true
+            }
+
+            if (isReturn) {
+                return
+            }
+        }
+
+        setIsCustomerLoading(true)
+        getAccessTokenSilently()
+            .then(token => {
+                fetch(`${API}/api/subscription/create_customer`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        user_id: user.sub,
+                        email: billingEmail,
+                        first_name: firstName,
+                        last_name: lastName,
+                        update: updateCustomer
+                    }),
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data) {
+                            setCustomerId(data?.id)
+                            createSubscription(data?.id)
+                        } else {
+                            setCustomerError("Something went wrong. Please try again later.")
+                            setIsCustomerLoading(false)
+                        }
+                        if (data?.error) {
+                            console.log("SHOW ERROR", data?.error)
+                            setIsCustomerLoading(false)
+                        }
+                        // setClientSecret(data.clientSecret)
+                    }
+                    );
+
+                // TODO: Run these API calls in parallel and block state update until both complete
+            });
+
+    }
+
+    const modifyCustomer = async () => {
+        let isReturn = false
+        if (billingEmail.trim() === '') {
+            setbeError("Billing email is required.")
+            isReturn = true
+        }
+
+        if (billingEmail.trim() !== '') {
+            const valid = validateEmail(billingEmail)
+            if (!valid) {
+                setbeError("Enter a proper email address.")
+                isReturn = true
+            }
+        }
+
+        if (firstName.trim() === '') {
+            setFnError("First name is required.")
+            isReturn = true
+        }
+        if (lastName.trim() === '') {
+            setLnError("Last name is required.")
+            isReturn = true
+        }
+
+        if (isReturn) {
+            return
+        }
+
+        setIsCustomerLoading(true)
+        getAccessTokenSilently()
+            .then(token => {
+                fetch(`${API}/api/subscription/update_customer`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        user_id: user.sub,
+                        email: billingEmail,
+                        first_name: firstName,
+                        last_name: lastName,
+                    }),
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        console.log(data)
+                        if (data?.status === 'success') {
+                            setCustomerError("Something went wrong. Please try again later.")
+                        } else {
+                            setCustomerError("Something went wrong. Please try again later.")
+                        }
+                        setIsCustomerLoading(false)
+                        // setClientSecret(data.clientSecret)
+                    }
+                    );
+
+                // TODO: Run these API calls in parallel and block state update until both complete
+            });
+
+    }
+
     return (
         <div className='customerBody'>
+            <p className='goBack' onClick={() => setStep(STEPS[0])}>&#8592; Go Back</p>
             <p className="subscriptionTitle">Billing Information</p>
-
-            <div className='checkBoxContainer'>
+            {!updateBilling && <div className='checkBoxContainer'>
                 <input
-                    checked={!updateCustomer}
+                    checked={(!updateCustomer)}
                     onClick={() => setUpdateCustomer((o) => !o)}
                     type='checkbox' className='' />
                 <label className='inlineLabel'>Use the same billing information.</label>
-            </div>
+            </div>}
+
 
             <div className=''>
                 <label className='inputLabel'>
                     First name
                 </label>
                 <input
-                    disabled={!updateCustomer}
-                    className="inputField"
+                    disabled={!updateCustomer && !updateBilling}
+                    className={`inputField ${fnError !== '' ? 'inputError' : ''}`}
                     value={firstName}
                     onInput={(e) => { onInputChange(e, 'fn') }}
                     placeholder="First name"
                     pattern="[^\n]*"
                 />
+                <p className='checkoutMessage'>{fnError}</p>
                 <label className='inputLabel'>
                     Last name
                 </label>
                 <input
-                    disabled={!updateCustomer}
-                    className="inputField"
+                    disabled={!updateCustomer && !updateBilling}
+                    className={`inputField ${lnError !== '' ? 'inputError' : ''}`}
                     value={lastName}
                     onInput={(e) => { onInputChange(e, 'ln') }}
                     placeholder="Last name"
                     pattern="[^\n]*"
                 />
+                <p className='checkoutMessage'>{lnError}</p>
                 <label className='inputLabel'>
                     Billing Email
                 </label>
                 <input
-                    disabled={!updateCustomer}
-                    className="inputField"
+                    disabled={!updateCustomer && !updateBilling}
+                    className={`inputField ${beError !== '' ? 'inputError' : ''}`}
                     value={billingEmail}
                     onInput={(e) => { onInputChange(e, 'be') }}
                     placeholder="Email"
                     pattern="[^\n]*"
                 />
+                <p className='checkoutMessage'>{beError}</p>
             </div>
             <Button
                 id="submit"
                 className='checkoutButton'
                 isPrimary
                 isDisabled={isCustomerLoading}
-                onClick={createCustomer} >
-                {isCustomerLoading ? <Spinner /> : 'Proceed to Checkout'}
+                onClick={() => {
+                    if (updateBilling) {
+                        modifyCustomer()
+                    } else {
+                        createCustomer()
+                    }
+                }} >
+                {isCustomerLoading ? <Spinner /> : updateBilling ? 'Update Information' : 'Proceed to Checkout'}
             </Button>
             {customerError && <p className='checkoutMessage'>{customerError}</p>}
         </div>
     )
 }
-
-
 
 const Subscription = () => {
     const {
@@ -168,7 +387,7 @@ const Subscription = () => {
         getAccessTokenSilently,
         loginWithRedirect
     } = useAuth0();
-    const [step, setStep] = useState("choose_plan")
+    const [step, setStep] = useState(STEPS[0])
     const [secret, setSecret] = useState(null)
     const [priceId, setPriceId] = useState(null)
     const [amount, setAmount] = useState(0)
@@ -176,23 +395,12 @@ const Subscription = () => {
     const [customerId, setCustomerId] = useState(null)
     const [subscriptionId, setSubscriptionId] = useState(null)
     // Customer Info
-    const [firstName, setFirstName] = useState()
-    const [lastName, setLastName] = useState()
-    const [billingEmail, setBillingEmail] = useState()
-    const [customerError, setCustomerError] = useState('')
     const [billingDetails, setBillingDetails] = useState({})
     const [isCustomerLoading, setIsCustomerLoading] = useState(false)
     const [listLoading, setListLoading] = useState(true)
     const [updateCustomer, setUpdateCustomer] = useState(false)
 
-    useEffect(() => {
-        if (!updateCustomer && billingDetails) {
-            setFirstName(billingDetails?.first_name)
-            setLastName(billingDetails?.last_name)
-            setBillingEmail(billingDetails?.email)
-
-        }
-    }, [updateCustomer])
+    const [updateBilling, setUpdateBilling] = useState(false)
 
     const [planList, setPlanList] = useState([
         {
@@ -208,7 +416,6 @@ const Subscription = () => {
             }
         }
     ])
-
 
 
     useEffect(() => {
@@ -246,7 +453,6 @@ const Subscription = () => {
     const getUserConfig = async () => {
         getAccessTokenSilently()
             .then(token => {
-                console.log(token)
                 fetch(`${API}/api/subscription/user?user_id=${user.sub}`, {
                     method: "GET",
                     headers: {
@@ -264,10 +470,6 @@ const Subscription = () => {
                         }
                         if (data?.billing_details) {
                             setBillingDetails(data?.billing_details)
-                            setFirstName(data?.billing_details?.first_name)
-                            setLastName(data?.billing_details?.last_name)
-                            setBillingEmail(data?.billing_details?.email)
-
                             if (data?.billing_details?.first_name === '' ||
                                 data?.billing_details?.last_name === '' ||
                                 data?.billing_details?.email === ''
@@ -284,50 +486,6 @@ const Subscription = () => {
 
                 // TODO: Run these API calls in parallel and block state update until both complete
             });
-    }
-
-    const createCustomer = async () => {
-        if (updateCustomer) {
-            if (billingEmail.trim() === '' || firstName.trim() === '' || lastName.trim() === '') {
-                setCustomerError("All fields are required.")
-                return
-            }
-        }
-
-        setIsCustomerLoading(true)
-        getAccessTokenSilently()
-            .then(token => {
-                fetch(`${API}/api/subscription/create_customer`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        user_id: user.sub,
-                        email: billingEmail,
-                        first_name: firstName,
-                        last_name: lastName,
-                        update: updateCustomer
-                    }),
-                })
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (data) {
-                            setCustomerId(data?.id)
-                            createSubscription(data?.id)
-                        }
-                        if (data?.error) {
-                            console.log("SHOW ERROR", data?.error)
-                            setIsCustomerLoading(false)
-                        }
-                        // setClientSecret(data.clientSecret)
-                    }
-                    );
-
-                // TODO: Run these API calls in parallel and block state update until both complete
-            });
-
     }
 
 
@@ -356,7 +514,7 @@ const Subscription = () => {
                         const secret = data?.client_secret
                         if (secret) {
                             setSecret(secret)
-                            setStep("check_out")
+                            setStep(STEPS[2])
                         }
                         if (data?.error) {
                             console.log("SHOW ERROR", data?.error)
@@ -367,6 +525,7 @@ const Subscription = () => {
                 // TODO: Run these API calls in parallel and block state update until both complete
             });
     }
+
     const removeSubscription = async () => {
         getAccessTokenSilently()
             .then(token => {
@@ -382,6 +541,7 @@ const Subscription = () => {
                 })
                     .then((res) => res.json())
                     .then((data) => {
+                        console.log(data)
                         if (data?.subscription) {
                             window.location = '/subscription'
                         }
@@ -395,23 +555,13 @@ const Subscription = () => {
             });
     }
 
-    const onInputChange = (event, key) => {
-        setCustomerError("")
-        if (key === 'fn') {
-            setFirstName(event.target.value)
-        } else if (key === 'ln') {
-            setLastName(event.target.value)
-        } else if (key === 'be') {
-            setBillingEmail(event.target.value)
-        }
-    }
 
 
     const onChoosePlan = (id, amount) => {
         if (id !== 'free_tier') {
             setPriceId(id)
             setAmount(amount)
-            setStep("create_customer")
+            setStep(STEPS[1])
         }
     }
 
@@ -434,44 +584,43 @@ const Subscription = () => {
                 </div>
                 <div className="paymentContainer">
                     {
-                        step === "choose_plan" && <ChoosePlan
+                        step === STEPS[0] && <ChoosePlan
                             list={planList}
                             onChoosePlan={onChoosePlan}
                             removeSubscription={removeSubscription}
                             currentPlan={currentPlan}
                             isLoading={listLoading}
                             isAuthenticated={isAuthenticated}
+                            setStep={setStep}
+                            setUpdateBilling={setUpdateBilling}
                             loginWithRedirect={loginWithRedirect}
                         />
                     }
 
                     {
-                        step === "create_customer" && <CreateCustomer
-                            onInputChange={onInputChange}
-                            firstName={firstName}
-                            lastName={lastName}
-                            billingEmail={billingEmail}
-                            createCustomer={createCustomer}
+                        step === STEPS[1] && <CreateCustomer
+                            setCustomerId={setCustomerId}
+                            createSubscription={createSubscription}
+                            setBillingDetails={setBillingDetails}
+                            billingDetails={billingDetails}
+                            isCustomerLoading={isCustomerLoading}
+                            setIsCustomerLoading={setIsCustomerLoading}
+                            setStep={setStep}
                             updateCustomer={updateCustomer}
                             setUpdateCustomer={setUpdateCustomer}
-                            customerError={customerError}
-                            isCustomerLoading={isCustomerLoading}
-                            setStep={setStep}
+                            updateBilling={updateBilling}
                         />
                     }
                     {
-                        step === "check_out" && secret && <CheckoutContainer
+                        step === STEPS[2] && secret && <CheckoutContainer
                             amount={amount}
                             secret={secret}
-                            email={billingEmail}
-                            firstName={firstName}
-                            lastName={lastName}
                             setIsCustomerLoading={setIsCustomerLoading}
                             setStep={setStep}
                         />
                     }
                     {
-                        step === "success" && <Success />
+                        step === STEPS[3] && <Success />
                     }
                 </div>
             </div>
@@ -479,5 +628,6 @@ const Subscription = () => {
         </div>
     );
 };
+
 
 export default Subscription;
