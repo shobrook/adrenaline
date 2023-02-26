@@ -54,6 +54,7 @@ class App extends Component {
   }
 
   handleRateLimitErrors(res) {
+    this.setState({ isRateLimited: true });
     if (!res.ok) {
       if (res.status === 429) { // Rate limit
         window.gtag("event", "rate_limit_hit");
@@ -147,7 +148,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/debug", {
+        fetch("https://rubrick-api-production.up.railway.app/api/debug", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -168,7 +169,7 @@ class App extends Component {
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
 
-            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
+            fetch("https://rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -229,7 +230,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/lint", {
+        fetch("https://rubrick-api-production.up.railway.app/api/lint", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -285,7 +286,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
+        fetch("https://rubrick-api-production.up.railway.app/api/suggest_changes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
