@@ -29,11 +29,12 @@ export default class PaymentPlan extends Component {
             label,
             price,
             isSelected,
-            onClick
+            onClick,
+            planKey
         } = this.props;
 
         return (
-            <div className={`paymentPlan ${isSelected ? "isSelected" : ""}`}>
+            <div key={planKey} className={`paymentPlan ${isSelected ? "isSelected" : ""}`}>
                 <span className={`planLabel ${isSelected ? "isSelected" : ""}`}>{`${label} PLAN`}</span>
                 <span className="planPrice">{`$${price}/month`}</span>
                 <Button
@@ -41,7 +42,9 @@ export default class PaymentPlan extends Component {
                     isPrimary={isSelected}
                     onClick={onClick}
                 >
-                    Get started
+                    {
+                        isSelected && planKey !== 'free_tier' ? 'Unsubscribe' : planKey === 'free_tier' ? 'Try it!' : 'Get Started'
+                    }
                 </Button>
                 <div className={`planFeatures ${isSelected ? "isSelected" : ""}`}>
                     {this.renderFeatures()}

@@ -11,11 +11,22 @@ import Spinner from "../components/Spinner";
 const STRIP_PK = process.env.REACT_APP_STRIPE_PK || ''
 const stripePromise = loadStripe(STRIP_PK);
 
+const STEPS =[
+    'choose_plan',
+    'create_customer',
+    'check_out',
+    'success'
+]
+
+
 function CheckoutForm({
     secret,
     email,
     firstName,
-    lastName
+    lastName,
+    setStep,
+    setCurrentPlan,
+    priceKey
 }) {
     const stripe = useStripe();
     const elements = useElements();
@@ -44,6 +55,9 @@ function CheckoutForm({
                 case "requires_payment_method":
                     setMessage("");
                     break;
+                case "requires_confirmation":
+                        setMessage("");
+                        break;
                 default:
                     setMessage("Something went wrong.");
                     break;
@@ -75,16 +89,15 @@ function CheckoutForm({
         });
         if (result?.error) {
             if (result?.error?.type === "card_error" || result?.error?.type === "validation_error") {
-                alert(result?.error?.message)
                 setMessage(result?.error?.message);
             } else {
                 setMessage("An unexpected error occurred.");
             }
         }
 
-        console.log(result)
         if (result?.paymentIntent?.status === 'succeeded') {
-            alert("You are now subscribed")
+            setCurrentPlan(priceKey)
+            setStep("success")
         }
         setIsLoading(false);
     };
@@ -123,7 +136,10 @@ export default function CheckoutContainer({
     email,
     firstName,
     lastName,
-    setIsCustomerLoading
+    setIsCustomerLoading,
+    setStep,
+    priceKey,
+    setCurrentPlan
 }) {
 
     useEffect(() => {
@@ -169,6 +185,7 @@ export default function CheckoutContainer({
 
     return (
         <div className='checkoutBody'>
+            <p className='goBack' onClick={() => setStep(STEPS[1])}>&#8592; Go Back</p>
             <p className="checkoutLabel">Total amount ${amount / 100}</p>
             {secret && stripePromise && <Elements options={{
                 clientSecret: secret,
@@ -179,6 +196,9 @@ export default function CheckoutContainer({
                 email={email}
                 firstName={firstName}
                 lastName={lastName}
+                setStep={setStep}
+                priceKey={priceKey}
+                setCurrentPlan={setCurrentPlan}
                 />
             </Elements>}
         </div>

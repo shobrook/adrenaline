@@ -88,18 +88,17 @@
 
 .paymentTitle {
     color: white;
-    font-size: 3.25vw;
+    font-size: 58px;
     font-weight: 900;
     font-family: "Gilroy";
     margin: 0;
 }
-
 .paymentSubtitle {
     margin-top: 1em;
     color: rgba(255, 255, 255, 0.65);
     /* font-family: "Helvetica Neue"; */
     /* font-size: 22px; */
-    font-size: 1.375vw;
+    font-size: 28px;
     font-weight: 400;
     width: 85%;
 }
@@ -112,9 +111,10 @@
     max-width: 600px;
 }
 
+
 .subscriptionTitle {
     color: white;
-    font-size: 2.5vw;
+    font-size: 32px;
     font-weight: 900;
     font-family: "Gilroy";
     margin: 0;
@@ -134,7 +134,7 @@
     width: 33%;
     display: flex;
     flex-direction: column;
-    flex:1;
+    flex: 1;
     align-items: stretch;
     background-color: #202030;
     border-radius: 8px;
@@ -157,7 +157,7 @@
 
 .planCurrent {
     color: white;
-    margin: 0; 
+    margin: 0;
     margin-top: 8px;
     font-size: 18px;
     font-family: "Gilroy";
@@ -177,13 +177,16 @@
     outline: 0;
     border-radius: 4px;
 }
-.checkoutBody, .customerBody {
+.checkoutBody,
+.customerBody {
     width: 100%;
     max-width: 500px;
     margin: auto;
     background-color: #202030;
     padding: 32px;
     border-radius: 8px;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 .checkoutLabel {
@@ -193,14 +196,19 @@
     text-align: center;
     margin: 0;
     font-family: "Gilroy";
+    padding-bottom: 20px;
 }
 
 .checkoutButton {
     margin-top: 16px;
     padding: 10px 0;
-    color: #fff;
+    color: #fff !important;
     font-weight: 600;
 }
+
+
+
+
 .StripeElement {
     margin: auto;
 }
@@ -255,7 +263,7 @@
 }
 
 .checkBoxContainer input {
-   transform: scale(1.5);
+    transform: scale(1.5);
 }
 
 .inlineLabel {
@@ -269,9 +277,125 @@
     color: rgba(255, 255, 255, 0.35);
 }
 
+.inputError {
+    border-color: red;
+}
+
 .checkoutMessage {
     color: red;
     font-size: 16px;
     margin-top: 8px;
-    text-align: center;
+}
+.checkoutGood {
+    color: #D93CFF;
+    font-size: 16px;
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+
+.goBack {
+    color: #fff;
+    cursor: pointer;
+}
+.goBack:hover {
+    color: #D93CFF;
+}
+
+
+.userButtonGroup  {
+    display: flex;
+    gap: 1em;
+    margin: 1em 0;
+}
+@media (max-width: 1200px) {
+    .paymentBody {
+        flex-direction: column;
+        padding-left: 1%;
+        padding-right: 1%;
+    }
+    .paymentContainer {
+        width: 90%;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .paymentTitle {
+        text-align: center;
+        font-size: 50px;
+    }
+    .paymentSubtitle {
+        text-align: center;
+        margin: auto;
+        margin-bottom: 16px;
+        font-size: 20px;
+    }
+    .demoImage {
+        margin: auto;
+        max-width: 400px;
+    }
+    .userButtonGroup {
+        flex-wrap: wrap;
+    }
+}
+
+.sucessContainer {
+    margin-top: 16px;
+}
+
+
+.paymentListContainer {
+    margin: 1em 0;
+}
+
+
+
+.paymentListItem {
+    color: #fff;
+    padding: 16px;
+    border: 1px solid #D93CFF;
+    border-radius: 5px;
+    margin-bottom: 16px;
+    min-width: 500px;
+}
+.paymentListItemContainer > div {
+    width: 50%;
+}
+
+.paymentListItemContainer {
+    display: flex;
+    gap: 8px;
+}
+
+.paymentListItemButtonGroup {
+    display: flex;
+    gap: 8px;
+}
+
+.paymentListItem p {
+    font-size: 20px;
+}
+
+.paymentListItem p span {
+    margin-left: 8px;
+    font-weight: 600;
+}
+
+.paymentTagsContainer {
+    display: flex;
+    justify-content: flex-end;
+    height: fit-content;
+}
+
+.paymentDefault {
+    background-color: #D93CFF;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 8px;
+}
+
+.paymentNew {
+    margin: 16px 0;
+    color: white;
 }
