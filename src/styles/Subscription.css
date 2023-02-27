@@ -185,6 +185,8 @@
     background-color: #202030;
     padding: 32px;
     border-radius: 8px;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 .checkoutLabel {
@@ -194,6 +196,7 @@
     text-align: center;
     margin: 0;
     font-family: "Gilroy";
+    padding-bottom: 20px;
 }
 
 .checkoutButton {
