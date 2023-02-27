@@ -24,7 +24,9 @@ function CheckoutForm({
     email,
     firstName,
     lastName,
-    setStep
+    setStep,
+    setCurrentPlan,
+    priceKey
 }) {
     const stripe = useStripe();
     const elements = useElements();
@@ -53,6 +55,9 @@ function CheckoutForm({
                 case "requires_payment_method":
                     setMessage("");
                     break;
+                case "requires_confirmation":
+                        setMessage("");
+                        break;
                 default:
                     setMessage("Something went wrong.");
                     break;
@@ -91,6 +96,7 @@ function CheckoutForm({
         }
 
         if (result?.paymentIntent?.status === 'succeeded') {
+            setCurrentPlan(priceKey)
             setStep("success")
         }
         setIsLoading(false);
@@ -131,7 +137,9 @@ export default function CheckoutContainer({
     firstName,
     lastName,
     setIsCustomerLoading,
-    setStep
+    setStep,
+    priceKey,
+    setCurrentPlan
 }) {
 
     useEffect(() => {
@@ -189,6 +197,8 @@ export default function CheckoutContainer({
                 firstName={firstName}
                 lastName={lastName}
                 setStep={setStep}
+                priceKey={priceKey}
+                setCurrentPlan={setCurrentPlan}
                 />
             </Elements>}
         </div>

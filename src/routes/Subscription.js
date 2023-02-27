@@ -6,7 +6,7 @@ import Header from '../containers/Header';
 import Button from '../components/Button';
 import PaymentPlan from "../containers/PaymentPlan";
 import CheckoutContainer from '../containers/Checkout';
-
+import PaymentCard from '../containers/PaymentCard';
 import '../styles/Subscription.css';
 
 const API = process.env.REACT_APP_API || '';
@@ -15,7 +15,8 @@ const STEPS = [
     'choose_plan',
     'create_customer',
     'check_out',
-    'success'
+    'success',
+    'payment_card'
 ]
 
 const PLANS = [
@@ -161,7 +162,8 @@ const CreateCustomer = ({
     setStep,
     updateCustomer,
     setUpdateCustomer,
-    updateBilling
+    updateBilling,
+    setUpdateBilling
 }) => {
     const {
         user,
@@ -346,7 +348,10 @@ const CreateCustomer = ({
 
     return (
         <div className='customerBody'>
-            <p className='goBack' onClick={() => setStep(STEPS[0])}>&#8592; Go Back</p>
+            <p className='goBack' onClick={() => {
+                setStep(STEPS[0])
+                setUpdateBilling(false)
+            }}>&#8592; Go Back</p>
             <p className="subscriptionTitle">Billing Information</p>
             {!updateBilling && <div className='checkBoxContainer'>
                 <input
@@ -591,9 +596,12 @@ const Subscription = () => {
             });
     }
 
-    const onChoosePlan = (id, amount) => {
+    const [priceKey, setPriceKey] = useState(null)
+
+    const onChoosePlan = (id, amount, priceKey) => {
         if (id !== 'free_tier') {
             setPriceId(id)
+            setPriceKey(priceKey)
             setAmount(amount)
             setStep(STEPS[1])
         }
@@ -627,18 +635,30 @@ const Subscription = () => {
                             isPrimary={false}
                             onClick={() => {
                                 setUpdateBilling(true)
+                                setStep(STEPS[0])
+                            }}
+                        >
+                            Show Plan
+                        </Button>
+                        <Button
+                            className="selectPlan"
+                            isPrimary={false}
+                            onClick={() => {
+                                setUpdateBilling(true)
                                 setStep(STEPS[1])
                             }}
                         >
                             Update Billing Information
                         </Button>
-                        {/* <Button
+                        <Button
                             className="selectPlan"
                             isPrimary={false}
-                            onClick={() => { }}
+                            onClick={() => {
+                                setStep(STEPS[4])
+                            }}
                         >
                             Update Payment Card
-                        </Button> */}
+                        </Button>
                         <Button
                             className="selectPlan"
                             isPrimary={false}
@@ -660,7 +680,7 @@ const Subscription = () => {
                                     if (plan.key === currentPlan || plan.key === 'free_tier') {
                                         window.location = '/playground'
                                     } else {
-                                        onChoosePlan(plan?.id, plan?.unit_amount)
+                                        onChoosePlan(plan?.id, plan?.unit_amount, plan.key)
                                     }
                                 }}
                                 features={plan.features}
@@ -681,6 +701,7 @@ const Subscription = () => {
                         updateCustomer={updateCustomer}
                         setUpdateCustomer={setUpdateCustomer}
                         updateBilling={updateBilling}
+                        setUpdateBilling={setUpdateBilling}
                     />
                 }
 
@@ -691,11 +712,16 @@ const Subscription = () => {
                         secret={secret}
                         setIsCustomerLoading={setIsCustomerLoading}
                         setStep={setStep}
+                        setCurrentPlan={setCurrentPlan}
+                        priceKey={priceKey}
                     />
                 }
 
                 {
                     step === STEPS[3] && <Success />
+                }
+                {
+                    step === STEPS[4] && <PaymentCard />
                 }
 
             </div>
