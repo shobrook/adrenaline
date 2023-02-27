@@ -21,7 +21,7 @@ function Header({ onClick, isTransparent }) {
 			</div>
 			<div className="buttons">
 				<div className="linkButtons">
-					<a className="discordIcon" href="https://discord.com/" target="_blank">
+					<a className="discordIcon" href="https://discord.gg/jPaJY4Uffb" target="_blank">
 						Discord
 					</a>
 					<a className="githubIcon" href="https://github.com/shobrook/adrenaline/" target="_blank">
