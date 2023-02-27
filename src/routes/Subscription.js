@@ -44,6 +44,7 @@ const PLANS = [
     {
         title: 'POWER',
         key: 'power',
+        displayPrice: 15,
         features: [
             "Unlimited everything",
             "Import from Github",
@@ -677,7 +678,9 @@ const Subscription = () => {
                                 price={plan?.displayPrice}
                                 isSelected={plan.key === currentPlan}
                                 onClick={() => {
-                                    if (plan.key === currentPlan || plan.key === 'free_tier') {
+                                    if (plan.key === 'power') {
+                                        return
+                                    } else if (plan.key === currentPlan || plan.key === 'free_tier') {
                                         window.location = '/playground'
                                     } else {
                                         onChoosePlan(plan?.id, plan?.unit_amount, plan.key)
