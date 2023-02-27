@@ -1,18 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+
 import Spinner from '../components/Spinner';
 import Header from '../containers/Header';
 import Button from '../components/Button';
-import '../styles/Subscription.css';
+import PaymentPlan from "../containers/PaymentPlan";
 import CheckoutContainer from '../containers/Checkout';
-const API = process.env.REACT_APP_API || '';
 
+import '../styles/Subscription.css';
+
+const API = process.env.REACT_APP_API || '';
 
 const STEPS = [
     'choose_plan',
     'create_customer',
     'check_out',
     'success'
+]
+
+const PLANS = [
+    {
+        id: 'free_tier',
+        title: "FREE",
+        key: 'free_tier',
+        amount: 'free',
+        displayPrice: 0,
+        features: [
+            "50 code fixes",
+            "50 code scans",
+            "50 chatbot messages"
+        ]
+    },
+    {
+        title: 'UNLIMITED',
+        key: 'unlimited',
+        features: [
+            "Unlimited code fixes",
+            "Unlimited code scans",
+            "Unlimited chatbot messages"
+        ]
+    },
+    {
+        title: 'POWER',
+        key: 'power',
+        features: [
+            "Unlimited everything",
+            "Import from Github",
+            "Run your code in-app"
+        ]
+    }
 ]
 
 const validateEmail = (email) => {
@@ -28,7 +64,7 @@ const Success = () => {
     }
 
     return (
-        <div>
+        <div className='sucessContainer'>
             <p className="subscriptionTitle">
                 You are now successfully subscribed to Paid Tier
             </p>
@@ -293,9 +329,8 @@ const CreateCustomer = ({
                 })
                     .then((res) => res.json())
                     .then((data) => {
-                        console.log(data)
                         if (data?.status === 'success') {
-                            setCustomerError("Something went wrong. Please try again later.")
+                            setCustomerError("Billing information updated!")
                         } else {
                             setCustomerError("Something went wrong. Please try again later.")
                         }
@@ -374,7 +409,7 @@ const CreateCustomer = ({
                 }} >
                 {isCustomerLoading ? <Spinner /> : updateBilling ? 'Update Information' : 'Proceed to Checkout'}
             </Button>
-            {customerError && <p className='checkoutMessage'>{customerError}</p>}
+            {customerError && <p className={customerError === 'Billing information updated!' ? 'checkoutGood' : 'checkoutMessage'}>{customerError}</p>}
         </div>
     )
 }
@@ -402,20 +437,7 @@ const Subscription = () => {
 
     const [updateBilling, setUpdateBilling] = useState(false)
 
-    const [planList, setPlanList] = useState([
-        {
-            id: "free_tier",
-            unit_amount: null,
-            lookup_key: 'free_tier',
-            metadata: {
-                display_name: "Free Tier",
-                description: "You will get 50 debugs, 50 lints and 50 chat bot message for free.",
-                lint: '50',
-                debug: '50',
-                message: '50'
-            }
-        }
-    ])
+    const [planList, setPlanList] = useState([])
 
 
     useEffect(() => {
@@ -439,7 +461,21 @@ const Subscription = () => {
             .then((data) => {
                 const list = data?.data
                 if (list) {
-                    setPlanList((el) => [...el, ...list])
+                    const newPlanList = PLANS.map((plan) => {
+                        const stripePlan = list.filter((_plan) => _plan.lookup_key === plan.key)
+                        let newPlan = plan
+                        if (stripePlan && stripePlan.length > 0) {
+                            newPlan = {
+                                ...plan,
+                                displayPrice: stripePlan[0]?.unit_amount / 100,
+                                ...stripePlan[0]
+                            }
+                        }
+                        return newPlan
+                    })
+
+                    setPlanList(newPlanList)
+                    // setPlanList((el) => [...el, ...list])
                     setListLoading(false)
                 }
                 if (data?.error) {
@@ -555,8 +591,6 @@ const Subscription = () => {
             });
     }
 
-
-
     const onChoosePlan = (id, amount) => {
         if (id !== 'free_tier') {
             setPriceId(id)
@@ -565,18 +599,113 @@ const Subscription = () => {
         }
     }
 
-
     if (isLoading) {
         return <div>
             <Spinner />
         </div>
     }
 
-    return (
-        <div id="landing">
-            <Header />
+    if (!isLoading && !isAuthenticated) {
+        window.location = '/'
+    }
 
-            <div className="paymentBody">
+    return (
+        <div id="subscription">
+            <Header isTransparent />
+
+            <div id="subscriptionBody">
+                <div id="subscriptionHeading">
+                    <span id="subscriptionParent">PRICING</span>
+                    <span id="subscriptionTitle">Supercharge your workflow</span>
+                    <p id="subscriptionSubtitle">Cut StackOverflow out of the loop. Harness the power of ChatGPT to debug your code. Get started for free.</p>
+                </div>
+
+                {
+                    currentPlan && currentPlan !== 'free_tier' && <div className='userButtonGroup'>
+                        <Button
+                            className="selectPlan"
+                            isPrimary={false}
+                            onClick={() => {
+                                setUpdateBilling(true)
+                                setStep(STEPS[1])
+                            }}
+                        >
+                            Update Billing Information
+                        </Button>
+                        {/* <Button
+                            className="selectPlan"
+                            isPrimary={false}
+                            onClick={() => { }}
+                        >
+                            Update Payment Card
+                        </Button> */}
+                        <Button
+                            className="selectPlan"
+                            isPrimary={false}
+                            onClick={() => { removeSubscription() }}
+                        >
+                            Unsubscribe
+                        </Button>
+                    </div>
+                }
+                {step === STEPS[0] && <div id="subscriptionContainer">
+                    {
+                        planList && planList.length > 0 && planList.map((plan) => {
+                            return <PaymentPlan
+                                label={plan?.title}
+                                key={plan?.key}
+                                price={plan?.displayPrice}
+                                isSelected={plan.key === currentPlan}
+                                onClick={() => {
+                                    if (plan.key === currentPlan || plan.key === 'free_tier') {
+                                        window.location = '/playground'
+                                    } else {
+                                        onChoosePlan(plan?.id, plan?.unit_amount)
+                                    }
+                                }}
+                                features={plan.features}
+                            />
+                        })
+                    }
+                </div>}
+
+                {
+                    step === STEPS[1] && <CreateCustomer
+                        setCustomerId={setCustomerId}
+                        createSubscription={createSubscription}
+                        setBillingDetails={setBillingDetails}
+                        billingDetails={billingDetails}
+                        isCustomerLoading={isCustomerLoading}
+                        setIsCustomerLoading={setIsCustomerLoading}
+                        setStep={setStep}
+                        updateCustomer={updateCustomer}
+                        setUpdateCustomer={setUpdateCustomer}
+                        updateBilling={updateBilling}
+                    />
+                }
+
+
+                {
+                    step === STEPS[2] && secret && <CheckoutContainer
+                        amount={amount}
+                        secret={secret}
+                        setIsCustomerLoading={setIsCustomerLoading}
+                        setStep={setStep}
+                    />
+                }
+
+                {
+                    step === STEPS[3] && <Success />
+                }
+
+            </div>
+        </div>
+    );
+};
+
+export default Subscription;
+
+{/* <div className="subscriptionBody">
                 <div className="paymentContainer">
                     <p className="paymentTitle">Increase your request count</p>
                     <p className="paymentSubtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
@@ -598,20 +727,6 @@ const Subscription = () => {
                     }
 
                     {
-                        step === STEPS[1] && <CreateCustomer
-                            setCustomerId={setCustomerId}
-                            createSubscription={createSubscription}
-                            setBillingDetails={setBillingDetails}
-                            billingDetails={billingDetails}
-                            isCustomerLoading={isCustomerLoading}
-                            setIsCustomerLoading={setIsCustomerLoading}
-                            setStep={setStep}
-                            updateCustomer={updateCustomer}
-                            setUpdateCustomer={setUpdateCustomer}
-                            updateBilling={updateBilling}
-                        />
-                    }
-                    {
                         step === STEPS[2] && secret && <CheckoutContainer
                             amount={amount}
                             secret={secret}
@@ -623,11 +738,4 @@ const Subscription = () => {
                         step === STEPS[3] && <Success />
                     }
                 </div>
-            </div>
-
-        </div>
-    );
-};
-
-
-export default Subscription;
+            </div> */}

@@ -101,3 +101,7 @@
     filter: blur(4px);
     opacity: 0.4;
 }
+
+.messageContainer .spinner {
+    margin: 0 !important;
+}

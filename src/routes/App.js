@@ -54,6 +54,7 @@ class App extends Component {
   }
 
   handleRateLimitErrors(res) {
+    console.log(res)
     if (!res.ok) {
       if (res.status === 429) { // Rate limit
         window.gtag("event", "rate_limit_hit");
@@ -147,7 +148,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/debug", {
+        fetch("https://rubrick-api-production.up.railway.app/api/debug", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -163,12 +164,11 @@ class App extends Component {
         })
           .then(this.handleRateLimitErrors)
           .then(data => {
-            console.log(data);
             const { new_code } = data;
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
 
-            fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
+            fetch("https://rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -229,7 +229,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/lint", {
+        fetch("https://rubrick-api-production.up.railway.app/api/lint", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -285,7 +285,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://staging-rubrick-api-production.up.railway.app/api/suggest_changes", {
+        fetch("https://rubrick-api-production.up.railway.app/api/suggest_changes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -357,8 +357,14 @@ class App extends Component {
       <>
         {waitingForDiffResolution ? (
           <UnresolvedDiffModal
-            setModalRef={this.onSetModalRef}
-            onCloseModal={event => { this.onCloseModal(event); this.setState({ waitingForDiffResolution: false }) }}
+            setModalRef={ref => this.modalRef = ref}
+            onCloseModal={event => {
+              if (this.modalRef && this.modalRef.contains(event.target)) {
+                return;
+              }
+
+              this.setState({ waitingForDiffResolution: false });
+            }}
           />
         ) : null}
 
