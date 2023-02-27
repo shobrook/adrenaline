@@ -108,6 +108,15 @@ class ChatBot extends Component {
 
         getAccessTokenSilently()
             .then(token => {
+                const { messages } = this.state;
+            
+                const message = "Sorry, this might take a while.. we are under a very heavy load right now. Come chat with us in the discord, in the meantime! -->";
+
+                // this.renderResponseWordByWord(message, is_rate_limit_error);
+                this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: false }] })
+            })
+                /*
+            .then(token => {
                 fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
                     method: "POST",
                     headers: {
@@ -127,17 +136,7 @@ class ChatBot extends Component {
                         is_suggested: false
                     })
                 })
-                .then(data => {
-                    const { messages } = this.state;
-                    const message = "Sorry, this might take a while.. we are under a very heavy load right now. Come chat with us in the discord, in the meantime! -->";
 
-                    // this.renderResponseWordByWord(message, is_rate_limit_error);
-                    this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: false }] })
-                })
-                .catch(error => {
-                    console.log(error);
-                });
-                /*
                 .then(res => {res.json();
                     console.log(res)})
                 .then(data => {
@@ -153,8 +152,8 @@ class ChatBot extends Component {
                 .catch(error => {
                     console.log(error);
                 });
-                */
             })
+            */
     }
 
     onSendSuggestedMessage(message) {
