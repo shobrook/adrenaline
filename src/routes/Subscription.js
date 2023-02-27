@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+
 import Spinner from '../components/Spinner';
 import Header from '../containers/Header';
 import Button from '../components/Button';
-import '../styles/Subscription.css';
+import PaymentPlan from "../containers/PaymentPlan";
 import CheckoutContainer from '../containers/Checkout';
-const API = process.env.REACT_APP_API || '';
 
+import '../styles/Subscription.css';
+
+const API = process.env.REACT_APP_API || '';
 
 const ChoosePlan = ({
     onChoosePlan,
@@ -385,7 +388,6 @@ const Subscription = () => {
         }
     }
 
-
     if (isLoading) {
         return <div>
             <Spinner />
@@ -396,13 +398,58 @@ const Subscription = () => {
         window.location = '/'
     }
 
-
-
     return (
-        <div id="landing">
-            <Header />
+        <div id="subscription">
+            <Header isTransparent />
 
-            <div className="paymentBody">
+            <div id="subscriptionBody">
+                <div id="subscriptionHeading">
+                    <span id="subscriptionParent">PRICING</span>
+                    <span id="subscriptionTitle">Supercharge your workflow</span>
+                    <p id="subscriptionSubtitle">Cut StackOverflow out of the loop. Harness the power of ChatGPT to debug your code. Get started for free.</p>
+                </div>
+
+                <div id="subscriptionContainer">
+                    <PaymentPlan
+                        label="FREE"
+                        price={0}
+                        isSelected
+                        onClick={() => { }}
+                        features={[
+                            "50 code fixes",
+                            "50 code scans",
+                            "50 chatbot messages"
+                        ]}
+                    />
+                    <PaymentPlan
+                        label="UNLIMITED"
+                        price={5}
+                        onClick={() => { }}
+                        features={[
+                            "Unlimited code fixes",
+                            "Unlimited code scans",
+                            "Unlimited chatbot messages"
+                        ]}
+                    />
+                    <PaymentPlan
+                        label="POWER"
+                        price={15}
+                        onClick={() => { }}
+                        features={[
+                            "Unlimited everything",
+                            "Import from Github",
+                            "Run your code in-app"
+                        ]}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Subscription;
+
+{/* <div className="subscriptionBody">
                 <div className="paymentContainer">
                     <p className="paymentTitle">Increase your request count</p>
                     <p className="paymentSubtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
@@ -445,10 +492,4 @@ const Subscription = () => {
                         />
                     }
                 </div>
-            </div>
-
-        </div>
-    );
-};
-
-export default Subscription;
+            </div> */}
