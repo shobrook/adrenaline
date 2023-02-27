@@ -80,9 +80,11 @@ export default class ChatMessage extends Component {
 
 		if (!isUserSubmitted && isComplete && isLastMessage) {
 			return (
-				<div id="regenerateResponse" onClick={onRegenerateResponse}>
-					<img src="./regenerate_icon.png" />
-				</div>
+				<a href="https://discord.gg/jPaJY4Uffb">
+					<div id="regenerateResponse">
+						<img src="./discord_icon.png" />
+					</div>
+				</a>
 			);
 		}
 	}

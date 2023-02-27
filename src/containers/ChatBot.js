@@ -127,20 +127,33 @@ class ChatBot extends Component {
                         is_suggested: false
                     })
                 })
-                    .then(res => res.json())
-                    .then(data => {
-                        const { messages } = this.state;
-                        const { message, document_ids, is_rate_limit_error } = data;
-                        // this.renderResponseWordByWord(message, is_rate_limit_error);
-                        this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: is_rate_limit_error }] })
+                .then(data => {
+                    const { messages } = this.state;
+                    const message = "Sorry, this might take a while.. we are under a very heavy load right now. Come chat with us in the discord, in the meantime! -->";
 
-                        if (shouldUpdateContext) {
-                            setCachedDocumentIds(document_ids);
-                        }
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    });
+                    // this.renderResponseWordByWord(message, is_rate_limit_error);
+                    this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: false }] })
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+                /*
+                .then(res => {res.json();
+                    console.log(res)})
+                .then(data => {
+                    const { messages } = this.state;
+                    const { message, document_ids, is_rate_limit_error } = data;
+                    // this.renderResponseWordByWord(message, is_rate_limit_error);
+                    this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: is_rate_limit_error }] })
+
+                    if (shouldUpdateContext) {
+                        setCachedDocumentIds(document_ids);
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+                */
             })
     }
 
