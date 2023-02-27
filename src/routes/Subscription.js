@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth0, withAuth0 } from '@auth0/auth0-react';
 
 import Spinner from '../components/Spinner';
 import Header from '../containers/Header';
@@ -7,6 +7,7 @@ import Button from '../components/Button';
 import PaymentPlan from "../containers/PaymentPlan";
 import CheckoutContainer from '../containers/Checkout';
 import PaymentCard from '../containers/PaymentCard';
+import { withRouter } from '../library/utilities';
 import '../styles/Subscription.css';
 
 const API = process.env.REACT_APP_API || '';
@@ -332,8 +333,11 @@ const CreateCustomer = ({
                 })
                     .then((res) => res.json())
                     .then((data) => {
-                        if (data?.status === 'success') {
+                        if (data?.id) {
                             setCustomerError("Billing information updated!")
+                            if (!updateBilling) {
+                            createSubscription(data?.id)
+                            }
                         } else {
                             setCustomerError("Something went wrong. Please try again later.")
                         }
@@ -351,16 +355,16 @@ const CreateCustomer = ({
         <div className='customerBody'>
             <p className='goBack' onClick={() => {
                 setStep(STEPS[0])
-                setUpdateBilling(false)
+                // setUpdateBilling(false)
             }}>&#8592; Go Back</p>
             <p className="subscriptionTitle">Billing Information</p>
-            {!updateBilling && <div className='checkBoxContainer'>
+            {/* {!updateBilling && <div className='checkBoxContainer'>
                 <input
                     checked={(!updateCustomer)}
                     onClick={() => setUpdateCustomer((o) => !o)}
                     type='checkbox' className='' />
                 <label className='inlineLabel'>Use the same billing information.</label>
-            </div>}
+            </div>} */}
 
 
             <div className=''>
@@ -368,7 +372,6 @@ const CreateCustomer = ({
                     First name
                 </label>
                 <input
-                    disabled={!updateCustomer && !updateBilling}
                     className={`inputField ${fnError !== '' ? 'inputError' : ''}`}
                     value={firstName}
                     onInput={(e) => { onInputChange(e, 'fn') }}
@@ -380,7 +383,6 @@ const CreateCustomer = ({
                     Last name
                 </label>
                 <input
-                    disabled={!updateCustomer && !updateBilling}
                     className={`inputField ${lnError !== '' ? 'inputError' : ''}`}
                     value={lastName}
                     onInput={(e) => { onInputChange(e, 'ln') }}
@@ -392,7 +394,6 @@ const CreateCustomer = ({
                     Billing Email
                 </label>
                 <input
-                    disabled={!updateCustomer && !updateBilling}
                     className={`inputField ${beError !== '' ? 'inputError' : ''}`}
                     value={billingEmail}
                     onInput={(e) => { onInputChange(e, 'be') }}
@@ -407,11 +408,12 @@ const CreateCustomer = ({
                 isPrimary
                 isDisabled={isCustomerLoading}
                 onClick={() => {
-                    if (updateBilling) {
-                        modifyCustomer()
-                    } else {
-                        createCustomer()
-                    }
+                    modifyCustomer()
+                    // if (updateBilling) {
+                    //     modifyCustomer()
+                    // } else {
+                    //     createCustomer()
+                    // }
                 }} >
                 {isCustomerLoading ? <Spinner /> : updateBilling ? 'Update Information' : 'Proceed to Checkout'}
             </Button>
@@ -615,6 +617,7 @@ const Subscription = () => {
     }
 
     if (!isLoading && !isAuthenticated) {
+        console.log(isLoading, isAuthenticated)
         window.location = '/'
     }
 
@@ -672,17 +675,21 @@ const Subscription = () => {
                 {step === STEPS[0] && <div id="subscriptionContainer">
                     {
                         planList && planList.length > 0 && planList.map((plan) => {
+                            console.log(plan)
                             return <PaymentPlan
                                 label={plan?.title}
-                                key={plan?.key}
+                                planKey={plan?.key}
                                 price={plan?.displayPrice}
                                 isSelected={plan.key === currentPlan}
                                 onClick={() => {
                                     if (plan.key === 'power') {
                                         return
-                                    } else if (plan.key === currentPlan || plan.key === 'free_tier') {
+                                    } else if (plan.key === 'free_tier') {
                                         window.location = '/playground'
-                                    } else {
+                                    } else if (plan.key === currentPlan) {
+                                        removeSubscription()
+                                    }
+                                     else {
                                         onChoosePlan(plan?.id, plan?.unit_amount, plan.key)
                                     }
                                 }}
@@ -732,7 +739,7 @@ const Subscription = () => {
     );
 };
 
-export default Subscription;
+export default withRouter(withAuth0(Subscription));
 
 {/* <div className="subscriptionBody">
                 <div className="paymentContainer">
