@@ -106,17 +106,15 @@ class ChatBot extends Component {
             this.setState({ messages: [...messages.slice(0, messages.length - 1), { message: "...", isUserSubmitted: false, isComplete: false, isLoading: true }] });
         }
 
-        setTimeout(() => {
-            getAccessTokenSilently()
-              .then(token => {
-                    const { messages } = this.state;
-                
-                    const message = "Sorry, this might take a while.. we are under a very heavy load right now. Come chat with us in the discord, in the meantime! -->";
+        getAccessTokenSilently()
+            .then(token => {
+                const { messages } = this.state;
+            
+                const message = "Sorry, this might take a while.. we are under a very heavy load right now. Come chat with us in the discord, in the meantime! -->";
 
-                    // this.renderResponseWordByWord(message, is_rate_limit_error);
-                    this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: false }] });
-                })
-            }, 2000);
+                // this.renderResponseWordByWord(message, is_rate_limit_error);
+                this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: false }] })
+            })
                 /*
             .then(token => {
                 fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
