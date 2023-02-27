@@ -108,7 +108,7 @@ class ChatBot extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
+                fetch("https://rubrick-api-production.up.railway.app/api/generate_chat_response", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -161,7 +161,7 @@ class ChatBot extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://staging-rubrick-api-production.up.railway.app/api/generate_chat_response", {
+                fetch("https://rubrick-api-production.up.railway.app/api/generate_chat_response", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
