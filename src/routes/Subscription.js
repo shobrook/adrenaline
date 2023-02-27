@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth0, withAuth0 } from '@auth0/auth0-react';
-
 import Spinner from '../components/Spinner';
 import Header from '../containers/Header';
 import Button from '../components/Button';
@@ -8,6 +7,9 @@ import PaymentPlan from "../containers/PaymentPlan";
 import CheckoutContainer from '../containers/Checkout';
 import PaymentCard from '../containers/PaymentCard';
 import { withRouter } from '../library/utilities';
+import {
+    useNavigate,
+  } from "react-router-dom";
 import '../styles/Subscription.css';
 
 const API = process.env.REACT_APP_API || '';
@@ -171,6 +173,7 @@ const CreateCustomer = ({
         user,
         getAccessTokenSilently,
     } = useAuth0();
+
 
     const [firstName, setFirstName] = useState()
     const [lastName, setLastName] = useState()
@@ -430,6 +433,7 @@ const Subscription = () => {
         getAccessTokenSilently,
         loginWithRedirect
     } = useAuth0();
+    let navigate = useNavigate();
     const [step, setStep] = useState(STEPS[0])
     const [secret, setSecret] = useState(null)
     const [priceId, setPriceId] = useState(null)
@@ -585,7 +589,6 @@ const Subscription = () => {
                 })
                     .then((res) => res.json())
                     .then((data) => {
-                        console.log(data)
                         if (data?.subscription) {
                             window.location = '/subscription'
                         }
@@ -617,7 +620,6 @@ const Subscription = () => {
     }
 
     if (!isLoading && !isAuthenticated) {
-        console.log(isLoading, isAuthenticated)
         window.location = '/'
     }
 
@@ -675,7 +677,6 @@ const Subscription = () => {
                 {step === STEPS[0] && <div id="subscriptionContainer">
                     {
                         planList && planList.length > 0 && planList.map((plan) => {
-                            console.log(plan)
                             return <PaymentPlan
                                 label={plan?.title}
                                 planKey={plan?.key}
@@ -685,7 +686,7 @@ const Subscription = () => {
                                     if (plan.key === 'power') {
                                         return
                                     } else if (plan.key === 'free_tier') {
-                                        window.location = '/playground'
+                                        navigate('/playground')
                                     } else if (plan.key === currentPlan) {
                                         removeSubscription()
                                     }
