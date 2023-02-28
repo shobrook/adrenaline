@@ -33,8 +33,8 @@ function Header({ onClick, isTransparent }) {
 						<Button isPrimary onClick={logout}>Logout</Button>
 					) : (
 						<>
-							<Button id="signUpButton" isPrimary onClick={loginWithRedirect}>Sign up</Button>
-							<Button isPrimary={false} onClick={loginWithRedirect}>Log in</Button>
+							<Button id="signUpButton" isPrimary onClick={() => loginWithRedirect({ screen_hint: "signup" })}>Sign up</Button>
+							<Button isPrimary={false} onClick={() => loginWithRedirect()}>Log in</Button>
 						</>
 					)}
 				</div>
@@ -48,7 +48,7 @@ function Header({ onClick, isTransparent }) {
 					</>
 				)}
 			</div>
-		</div>
+		</div >
 
 	);
 }

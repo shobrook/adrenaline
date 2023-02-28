@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth0, withAuth0 } from '@auth0/auth0-react';
+import { useAuth0, withAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
 import Spinner from '../components/Spinner';
 import Header from '../containers/Header';
 import Button from '../components/Button';
@@ -618,9 +618,9 @@ const Subscription = () => {
         </div>
     }
 
-    if (!isLoading && !isAuthenticated) {
-        window.location = '/'
-    }
+    // if (!isLoading && !isAuthenticated) {
+    //     window.location = '/'
+    // }
 
     return (
         <div id="subscription">
@@ -739,4 +739,4 @@ const Subscription = () => {
     );
 };
 
-export default withRouter(withAuth0(Subscription));
+export default withRouter(withAuth0(withAuthenticationRequired(Subscription)));

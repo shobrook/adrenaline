@@ -23,7 +23,7 @@ class Landing extends Component {
 	}
 
 	render() {
-		const { location } = this.props.router;
+		const { location, navigate } = this.props.router;
 
 		window.gtag("event", "page_view", {
 			page_path: location.pathname + location.search,
@@ -77,6 +77,7 @@ class Landing extends Component {
 									price={0}
 									planKey="free_tier"
 									features={["50 code fixes", "50 code scans", "50 chatbot messages"]}
+									onClick={() => navigate("/subscription")}
 								/>
 								<PaymentPlan
 									isSelected
@@ -85,12 +86,14 @@ class Landing extends Component {
 									planKey="unlimited"
 									features={["Unlimited code fixes", "Unlimited code fixes", "Unlimited chatbot messages"]}
 									notActive
+									onClick={() => navigate("/subscription")}
 								/>
 								<PaymentPlan
 									label="POWER"
 									price={15}
 									planKey="power"
 									features={["Unlimited everything", "Import from Github", "Run your code on-site"]}
+									onClick={() => navigate("/subscription")}
 								/>
 							</div>
 						</div>

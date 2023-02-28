@@ -1,42 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { HashRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
 
 import './index.css';
 
+import Auth0ProviderWithHistory from "./auth/Auth0ProviderWithHistory";
 import Landing from "./routes/Landing";
 import App from "./routes/App";
 import Subscription from './routes/Subscription';
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Landing />
-  },
-  {
-    path: "/playground",
-    element: <App />
-  },
-  {
-    path: "/subscription",
-    element: <Subscription />
-  }
-]);
-
 ReactDOM.render(
   <React.StrictMode>
-    <Auth0Provider
-      domain="dev-0c5k2o4ad10lniwe.us.auth0.com"
-      clientId="9JZ9notgpzW8BhCo5HMsv6h2HVUbdYhu"
-      authorizationParams={{
-        redirect_uri: window.location.origin,
-        audience: "rubrick-api-production.up.railway.app"
-      }}
-    >
-      <RouterProvider router={router} />
-    </Auth0Provider>
+    <BrowserRouter>
+      <Auth0ProviderWithHistory>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/playground" element={<App />} />
+          <Route path="/subscription" element={<Subscription />} />
+        </Routes>
+      </Auth0ProviderWithHistory>
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById("root")
 );
