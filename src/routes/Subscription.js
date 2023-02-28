@@ -9,7 +9,7 @@ import PaymentCard from '../containers/PaymentCard';
 import { withRouter } from '../library/utilities';
 import {
     useNavigate,
-  } from "react-router-dom";
+} from "react-router-dom";
 import '../styles/Subscription.css';
 
 const API = process.env.REACT_APP_API || '';
@@ -339,7 +339,7 @@ const CreateCustomer = ({
                         if (data?.id) {
                             setCustomerError("Billing information updated!")
                             if (!updateBilling) {
-                            createSubscription(data?.id)
+                                createSubscription(data?.id)
                             }
                         } else {
                             setCustomerError("Something went wrong. Please try again later.")
@@ -495,7 +495,6 @@ const Subscription = () => {
                 }
             }
             );
-
     }
 
     const getUserConfig = async () => {
@@ -690,7 +689,7 @@ const Subscription = () => {
                                     } else if (plan.key === currentPlan) {
                                         removeSubscription()
                                     }
-                                     else {
+                                    else {
                                         onChoosePlan(plan?.id, plan?.unit_amount, plan.key)
                                     }
                                 }}
@@ -741,38 +740,3 @@ const Subscription = () => {
 };
 
 export default withRouter(withAuth0(Subscription));
-
-{/* <div className="subscriptionBody">
-                <div className="paymentContainer">
-                    <p className="paymentTitle">Increase your request count</p>
-                    <p className="paymentSubtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                    <img className="demoImage" src="demo.png" />
-                </div>
-                <div className="paymentContainer">
-                    {
-                        step === STEPS[0] && <ChoosePlan
-                            list={planList}
-                            onChoosePlan={onChoosePlan}
-                            removeSubscription={removeSubscription}
-                            currentPlan={currentPlan}
-                            isLoading={listLoading}
-                            isAuthenticated={isAuthenticated}
-                            setStep={setStep}
-                            setUpdateBilling={setUpdateBilling}
-                            loginWithRedirect={loginWithRedirect}
-                        />
-                    }
-
-                    {
-                        step === STEPS[2] && secret && <CheckoutContainer
-                            amount={amount}
-                            secret={secret}
-                            setIsCustomerLoading={setIsCustomerLoading}
-                            setStep={setStep}
-                        />
-                    }
-                    {
-                        step === STEPS[3] && <Success />
-                    }
-                </div>
-            </div> */}

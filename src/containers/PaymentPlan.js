@@ -30,7 +30,8 @@ export default class PaymentPlan extends Component {
             price,
             isSelected,
             onClick,
-            planKey
+            planKey,
+            notActive // TEMP
         } = this.props;
 
         return (
@@ -43,7 +44,7 @@ export default class PaymentPlan extends Component {
                     onClick={onClick}
                 >
                     {
-                        isSelected && planKey !== 'free_tier' ? 'Unsubscribe' : planKey === 'free_tier' ? 'Try it!' : 'Get Started'
+                        isSelected && planKey !== 'free_tier' && !notActive ? 'Unsubscribe' : (planKey === 'free_tier' ? 'Try it' : 'Get Started')
                     }
                 </Button>
                 <div className={`planFeatures ${isSelected ? "isSelected" : ""}`}>

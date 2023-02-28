@@ -14,13 +14,12 @@
   overflow: auto;
 }
 
-#landingBody {
+#overTheFold {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  margin-top: -100px;
 }
 
 #landingHeading {
@@ -28,6 +27,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: -125px;
 }
 
 #landingTitle {
@@ -70,6 +70,103 @@
   -webkit-transition: all .3s ease;
 }
 
+#underTheFold {
+  padding-top: 100px;
+  /* background-color: #020309; */
+  background-color: #202030;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#featuresSection {
+  color: white;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 50px;
+  position: relative;
+}
+
+.featureOverview {
+  width: 90%;
+  max-width: 400px;
+}
+
+.featureOverview > span {
+  font-family: "Gilroy";
+  font-size: 40px;
+}
+
+.featureOverview > p {
+  font-size: 20px;
+  opacity: 0.75;
+}
+
+#debugFeature {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 70%;
+}
+
+#debugFeature > .featureOverview {
+  padding-left: 100px;
+}
+
+#debugFeature > img {
+  max-width: 500px;
+  min-width: 300px;
+  width: 60%;
+  border: 2px solid #54546A;
+  border-radius: 10px;
+  box-shadow: 2px 0px 26px #0203097a;
+}
+
+#chatbotFeature {
+  padding-top: 100px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 70%;
+}
+
+#chatbotFeature > .featureOverview {
+  padding-right: 100px;
+}
+
+#chatbotFeature > img {
+  max-width: 500px;
+  min-width: 300px;
+  width: 60%;
+  border-radius: 15px;
+  border: 2px solid #54546A;
+  border: 2px solid #54546A;
+  border-radius: 10px;
+  box-shadow: 2px 0px 26px #0203097a;
+}
+
+#pricingSection {
+  background-color: #020309;
+  padding-top: 50px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding-bottom: 50px;
+}
+
+#pricingOptions {
+  display: flex;
+  justify-content: space-between;
+  width: 1150px;
+  padding-top: 60px;
+}
+
 @media (max-width: 700px) {
   #landingTitle {
     font-size: 50px;
@@ -77,6 +174,33 @@
 
   #landingSubtitle {
     width: 400px;
+  }
+}
+
+@media (max-width: 980px) {
+  .featureOverview {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+
+  #debugFeature {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #debugFeature > .featureOverview {
+    padding-top: 50px;
+  }
+
+  #chatbotFeature {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #chatbotFeature > .featureOverview {
+    padding-bottom: 50px;
   }
 }
 
@@ -88,5 +212,27 @@
 
   #landingSubtitle {
     width: 350px !important;
+  }
+}
+
+@media (max-width: 1250px) {
+  #pricingOptions {
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      width: fit-content;
+  }
+
+  #subscriptionTitle {
+      font-size: 40px;
+  }
+
+  #subscriptionSubtitle {
+      font-size: 16px;
+      width: 300px;
+  }
+
+  .paymentPlan {
+      margin-bottom: 30px;
   }
 }
