@@ -49,6 +49,7 @@
   padding-top: 20px;
   justify-content: space-between;
   height: 35px;
+  padding-bottom: 20px;
 }
 
 .languageDropdown__control {
@@ -102,6 +103,7 @@
 
 #codeMirrorContainer {
   position: relative;
+  overflow: auto;
 }
 
 #rateLimitedCodeMirrorContainer {
@@ -110,7 +112,8 @@
 }
 
 .codeEditor {
-  padding-top: 20px;
+  /* padding-top: 20px; */
+  overflow: auto;
 }
 
 .CodeMirror {
@@ -119,6 +122,7 @@
 
 .CodeMirror-scroll {
   margin-right: 0px !important;
+  overflow: auto !important;
 }
 
 .CodeMirror-sizer {
