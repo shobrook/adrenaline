@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Auth0Provider } from '@auth0/auth0-react';
 
 import './index.css';
 
@@ -16,7 +14,7 @@ ReactDOM.render(
     <BrowserRouter>
       <Auth0ProviderWithHistory>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" exact element={<Landing />} />
           <Route path="/playground" element={<App />} />
           <Route path="/subscription" element={<Subscription />} />
         </Routes>

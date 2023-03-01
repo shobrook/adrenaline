@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useHistory, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
 
 const Auth0ProviderWithHistory = ({ children }) => {
@@ -7,13 +7,12 @@ const Auth0ProviderWithHistory = ({ children }) => {
     const domain = "dev-0c5k2o4ad10lniwe.us.auth0.com";
     // const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
     const clientId = "9JZ9notgpzW8BhCo5HMsv6h2HVUbdYhu";
+    const audience = "rubrick-api-production.up.railway.app";
 
-    // const history = useHistory();
     const navigate = useNavigate();
 
     const onRedirectCallback = (appState) => {
         navigate(appState?.returnTo || window.location.pathname);
-        // history.push(appState?.returnTo || window.location.pathname);
     };
 
     return (
@@ -22,6 +21,7 @@ const Auth0ProviderWithHistory = ({ children }) => {
             clientId={clientId}
             redirectUri={window.location.origin}
             onRedirectCallback={onRedirectCallback}
+            audience={audience}
         >
             {children}
         </Auth0Provider>

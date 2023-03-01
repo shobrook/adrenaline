@@ -30,11 +30,11 @@ function Header({ onClick, isTransparent }) {
 				</div>
 				<div className="ctaButtons">
 					{isAuthenticated ? (
-						<Button isPrimary onClick={logout}>Logout</Button>
+						<Button isPrimary onClick={() => logout({ returnTo: window.location.origin })}>Logout</Button>
 					) : (
 						<>
 							<Button id="signUpButton" isPrimary onClick={() => loginWithRedirect({ screen_hint: "signup" })}>Sign up</Button>
-							<Button isPrimary={false} onClick={() => loginWithRedirect()}>Log in</Button>
+							<Button isPrimary={false} onClick={loginWithRedirect}>Log in</Button>
 						</>
 					)}
 				</div>
