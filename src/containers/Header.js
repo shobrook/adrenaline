@@ -33,8 +33,29 @@ function Header({ onClick, isTransparent }) {
 						<Button isPrimary onClick={() => logout({ returnTo: window.location.origin })}>Logout</Button>
 					) : (
 						<>
-							<Button id="signUpButton" isPrimary onClick={() => loginWithRedirect({ screen_hint: "signup" })}>Sign up</Button>
-							<Button isPrimary={false} onClick={loginWithRedirect}>Log in</Button>
+							<Button
+								id="signUpButton"
+								isPrimary
+								onClick={() => loginWithRedirect({
+									screen_hint: "signup",
+									appState: {
+										returnTo: window.location.pathname
+									}
+								})}
+							>
+								Sign up
+							</Button>
+							<Button
+								isPrimary={false}
+								onClick={() => loginWithRedirect({
+									screen_hint: "signup",
+									appState: {
+										returnTo: window.location.pathname
+									}
+								})}
+							>
+								Log in
+							</Button>
 						</>
 					)}
 				</div>
