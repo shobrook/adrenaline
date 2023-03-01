@@ -18,6 +18,7 @@ class Landing extends Component {
 
 	onGetStarted() {
 		Mixpanel.track("click_get_started");
+		window.gtag("event", "click_get_started");
 
 		const { navigate } = this.props.router;
 		navigate("/playground");
@@ -25,9 +26,12 @@ class Landing extends Component {
 
 	render() {
 		const { location, navigate } = this.props.router;
-
+		let loc_name = location.pathname + location.search
 		Mixpanel.track("page_view", {
-			'page_path': location.pathname + location.search,
+			'page_path': loc_name,
+		});
+		window.gtag("event", "page_view", {
+			page_path: location.pathname + location.search,
 		});
 
 		return (

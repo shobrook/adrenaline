@@ -1,6 +1,7 @@
 import mixpanel from 'mixpanel-browser';
 
-const MIXPANEL_TOKEN = process.env.MIXPANEL_TOKEN
+const MIXPANEL_TOKEN = process.env.MIXPANEL_TOKEN 
+
 mixpanel.init(MIXPANEL_TOKEN, {debug: true}); 
 
 // TODO: Setup environments (prod v. dev)
@@ -23,7 +24,7 @@ let actions = {
 		increment: (prop, inc) => {
 			mixpanel.people.increment(prop, inc)
 		}
-	},
+	}
 };
 
 export let Mixpanel = actions;
