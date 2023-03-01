@@ -81,3 +81,12 @@
 .planFeature > span {
     padding-left: 10px;
 }
+
+.referralText {
+    padding-top: 10px;
+    text-align: center;
+}
+
+.referralText > span {
+    font-weight: 900;
+}

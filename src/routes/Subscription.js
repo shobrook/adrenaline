@@ -629,8 +629,8 @@ const Subscription = () => {
             <div id="subscriptionBody">
                 <div id="subscriptionHeading">
                     <span id="subscriptionParent">PRICING</span>
-                    <span id="subscriptionTitle">Supercharge your workflow</span>
-                    <p id="subscriptionSubtitle">Cut StackOverflow out of the loop. Harness the power of ChatGPT to debug your code. Get started for free.</p>
+                    <span id="subscriptionTitle">Build more, debug less</span>
+                    <p id="subscriptionSubtitle">Upgrade your plan for unlimited use of Adrenaline. And if you refer three friends, you don't have to pay a dime.</p>
                 </div>
 
                 {

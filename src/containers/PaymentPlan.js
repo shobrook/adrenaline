@@ -1,14 +1,21 @@
 import { Component } from "react";
 
 import Button from "../components/Button";
+import { withRouter } from "../library/utilities";
 
 import "../styles/PaymentPlan.css";
 
-export default class PaymentPlan extends Component {
+class PaymentPlan extends Component {
     constructor(props) {
         super(props);
 
         this.renderFeatures = this.renderFeatures.bind(this);
+        this.onClickRefer = this.onClickRefer.bind(this);
+    }
+
+    onClickRefer() {
+        const { navigate } = this.props.router;
+        navigate("/referral");
     }
 
     renderFeatures() {
@@ -47,6 +54,11 @@ export default class PaymentPlan extends Component {
                         isSelected && planKey !== 'free_tier' && !notActive ? 'Unsubscribe' : (planKey === 'free_tier' ? 'Try it' : 'Get Started')
                     }
                 </Button>
+                {
+                    planKey === "unlimited" ? (
+                        <span className="referralText" onClick={this.onClickRefer}>Or refer 3 friends for a <span>free subscription.</span></span>
+                    ) : null
+                }
                 <div className={`planFeatures ${isSelected ? "isSelected" : ""}`}>
                     {this.renderFeatures()}
                 </div>
@@ -54,3 +66,6 @@ export default class PaymentPlan extends Component {
         );
     }
 }
+
+
+export default withRouter(PaymentPlan);

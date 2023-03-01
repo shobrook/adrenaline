@@ -39,7 +39,7 @@ class App extends Component {
       suggestedMessages: [],
       waitingForDiffResolution: false,
       shouldUpdateContext: true,
-      isRateLimited: false
+      isRateLimited: true
     };
   }
 

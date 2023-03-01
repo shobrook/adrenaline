@@ -12,7 +12,7 @@ class RateLimitMessage extends Component {
 
         return (
             <div className={`rateLimitMessage ${className ?? ""}`}>
-                <span>Out of requests! <span>Upgrade to unlimited for $5/month.</span></span>
+                <span>Out of requests! <span>Get unlimited access for $5/month or by referring friends.</span></span>
                 <Button
                     className="rateLimitButton"
                     isPrimary
