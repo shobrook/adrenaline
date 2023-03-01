@@ -107,11 +107,11 @@ export default class CodeEditor extends Component {
 		const { oldLines, newLines, mergeLine } = diff;
 
 		oldLines.forEach((lineNum, index) => {
-			let className = index === 0 ? "oldLine first" : "oldLine";
+			let className = index === 0 ? "firstOldLine" : "oldLine";
 			this.codeMirrorRef.addLineClass(lineNum, "wrap", className);
 		});
 		newLines.forEach((lineNum, index) => {
-			let className = index === newLines.length - 1 ? "newLine last" : "newLine";
+			let className = index === newLines.length - 1 ? "lastNewLine" : "newLine";
 			this.codeMirrorRef.addLineClass(lineNum, "wrap", className);
 		});
 
@@ -133,16 +133,12 @@ export default class CodeEditor extends Component {
 		const { oldLines, newLines, mergeLine } = diff;
 
 		oldLines.forEach((oldLine, index) => {
-			let className = "oldLine";
-			className += index === 0 ? " first" : "";
-
-			this.codeMirrorRef.removeLineClass(index, "wrap", className);
+			this.codeMirrorRef.removeLineClass(oldLine, "wrap", "oldLine");
+			this.codeMirrorRef.removeLineClass(oldLine, "wrap", "firstOldLine");
 		});
 		newLines.forEach((newLine, index) => {
-			let className = "newLine";
-			className += index === newLines.length - 1 ? " last" : "";
-
-			this.codeMirrorRef.removeLineClass(index, "wrap", className);
+			this.codeMirrorRef.removeLineClass(newLine, "wrap", "newLine");
+			this.codeMirrorRef.removeLineClass(newLine, "wrap", "lastNewLine");
 		});
 
 		if (mergeLine !== -1) {
@@ -188,6 +184,9 @@ export default class CodeEditor extends Component {
 	componentDidUpdate(prevProps) {
 		const { diffs: prevDiffs } = prevProps;
 		const { diffs, onResolveDiff } = this.props;
+
+		console.log(diffs);
+		console.log(prevDiffs);
 
 		this.deleteDiffsFromEditor(prevDiffs);
 		this.addDiffsToEditor(diffs, onResolveDiff);

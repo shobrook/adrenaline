@@ -145,16 +145,18 @@
   background-color: rgba(39, 154, 241, 0.25);
 }
 
-.last {
-  border-radius: 0px 0px 7px 7px;
+.firstOldLine {
+  background-color: rgba(39, 154, 241, 0.25);
+  border-radius: 7px 7px 0px 0px;
 }
 
 .newLine {
   background-color: rgb(217, 60, 255, 0.25);
 }
 
-.first {
-  border-radius: 7px 7px 0px 0px;
+.lastNewLine {
+  background-color: rgb(217, 60, 255, 0.25);
+  border-radius: 0px 0px 7px 7px;
 }
 
 .both {
