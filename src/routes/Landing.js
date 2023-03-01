@@ -1,5 +1,6 @@
 import { Component } from "react";
 
+import { Mixpanel } from '../Mixpanel';
 import Button from "../components/Button";
 import Header from "../containers/Header";
 import PaymentPlan from "../containers/PaymentPlan";
@@ -16,7 +17,7 @@ class Landing extends Component {
 	}
 
 	onGetStarted() {
-		window.gtag("event", "click_get_started");
+		Mixpanel.track("click_get_started");
 
 		const { navigate } = this.props.router;
 		navigate("/playground");
@@ -25,8 +26,8 @@ class Landing extends Component {
 	render() {
 		const { location, navigate } = this.props.router;
 
-		window.gtag("event", "page_view", {
-			page_path: location.pathname + location.search,
+		Mixpanel.track("page_view", {
+			'page_path': location.pathname + location.search,
 		});
 
 		return (

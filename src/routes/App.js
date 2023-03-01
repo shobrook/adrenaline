@@ -1,6 +1,7 @@
 import { Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 
+import { Mixpanel } from '../Mixpanel';
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
@@ -83,7 +84,7 @@ class App extends Component {
   }
 
   onResolveDiff(diff, linesToDelete, indicatorLineNum) {
-    window.gtag("event", "click_use_me");
+    Mixpanel.track("click_use_me");
 
     const { code, diffs } = this.state;
     const { id: diffId, oldCodeWidget, newCodeWidget } = diff;
@@ -127,10 +128,11 @@ class App extends Component {
   }
 
   onDebug(errorMessage) {
-    window.gtag("event", "click_debug");
-
     const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
     const { code, diffs } = this.state;
+
+    Mixpanel.identify(user.sub)
+    Mixpanel.track("click_debug");
 
     if (diffs.length !== 0) { // Can't debug code if diffs aren't resolved
       this.setState({ waitingForDiffResolution: true, waitingForDebug: false })
@@ -188,7 +190,11 @@ class App extends Component {
             })
               .then(this.handleRateLimitErrors)
               .then(data => {
-                window.gtag("event", "click_debug_success");
+                Mixpanel.identify(user.sub)
+                Mixpanel.track("click_debug_success");
+                Mixpanel.people.increment({
+                  'debug': 1,
+                });
 
                 const { suggested_questions } = data;
                 const suggestedMessages = suggested_questions.map(question => ({ preview: question, prompt: question }));
@@ -203,7 +209,7 @@ class App extends Component {
               })
           })
           .catch(error => {
-            window.gtag("event", "click_debug_failure");
+            Mixpanel.track("click_debug_failure");
             this.setState({ waitingForDebug: false });
 
             console.log(error);
@@ -214,7 +220,7 @@ class App extends Component {
   };
 
   onLint() {
-    window.gtag("event", "click_lint");
+    Mixpanel.track("click_lint");
 
     const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
     const { code, diffs } = this.state;
@@ -252,8 +258,11 @@ class App extends Component {
         })
           .then(this.handleRateLimitErrors)
           .then(data => {
-            window.gtag("event", "click_lint_success");
-
+            Mixpanel.identify(user.sub)
+            Mixpanel.track("click_lint_success");
+            Mixpanel.people.increment({
+              'lint': 1
+            });
             const { new_code } = data;
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
@@ -265,7 +274,8 @@ class App extends Component {
             });
           })
           .catch(error => {
-            window.gtag("event", "click_lint_failure");
+            Mixpanel.identify(user.sub)
+            Mixpanel.track("click_lint_failure");
             this.setState({ waitingForLint: false });
 
             console.log(error);
@@ -274,10 +284,11 @@ class App extends Component {
   }
 
   onSuggestChanges(message) {
-    window.gtag("event", "click_suggest_changes");
-
     const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
     const { code, diffs } = this.state;
+
+    Mixpanel.identify(user.sub)
+    Mixpanel.track("click_suggest_changes");
 
     if (diffs.length != 0) {
       this.setState({ waitingForDiffResolution: true })
@@ -313,7 +324,7 @@ class App extends Component {
         })
           .then(this.handleRateLimitErrors)
           .then(data => {
-            window.gtag("event", "click_suggest_changes_success");
+            Mixpanel.track("click_suggest_changes_success");
 
             const { new_code } = data;
             let newCode = new_code.split("\n");
@@ -326,7 +337,7 @@ class App extends Component {
             });
           })
           .catch(error => {
-            window.gtag("event", "click_suggest_changes_failure");
+            Mixpanel.track("click_suggest_changes_failure");
             this.setState({ waitingForSuggestedChanges: false });
 
             console.log(error);
@@ -335,7 +346,7 @@ class App extends Component {
   }
 
   onSelectLanguage(language) {
-    window.gtag("event", "select_language", { language });
+    Mixpanel.track("select_language", { language : language });
     this.setState({ language });
   }
 
@@ -361,7 +372,7 @@ class App extends Component {
       isRateLimited
     } = this.state;
 
-    window.gtag("event", "page_view", {
+    Mixpanel.track("page_view", {
       page_path: location.pathname + location.search,
     });
 
