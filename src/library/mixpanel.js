@@ -1,8 +1,8 @@
 import mixpanel from 'mixpanel-browser';
 
-const MIXPANEL_TOKEN = process.env.MIXPANEL_TOKEN 
-
-mixpanel.init(MIXPANEL_TOKEN, {debug: true}); 
+// const MIXPANEL_TOKEN = process.env.MIXPANEL_TOKEN 
+const MIXPANEL_TOKEN = "9c022fdde3d5b1415b9ddda36a8b19bd";
+mixpanel.init(MIXPANEL_TOKEN, { debug: true, ignore_dnt: true });
 
 // TODO: Setup environments (prod v. dev)
 // let env_check = process.env.NODE_ENV === 'production';
@@ -15,10 +15,7 @@ let actions = {
 		mixpanel.alias(id);
 	},
 	track: (name, props) => {
-		console.log("tracking...")
 		mixpanel.track(name, props);
-		console.log("tracked")
-		console.log(props)
 	},
 	people: {
 		set: (props) => {

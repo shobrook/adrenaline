@@ -1,10 +1,12 @@
 import { Component } from "react";
+import { withAuth0 } from "@auth0/auth0-react";
 
 import Button from "../components/Button";
 import Header from "../containers/Header";
 import PaymentPlan from "../containers/PaymentPlan";
 
 import { withRouter } from "../library/utilities";
+import { Mixpanel } from "../library/mixpanel";
 
 import "../styles/Landing.css";
 
@@ -16,17 +18,16 @@ class Landing extends Component {
 	}
 
 	onGetStarted() {
-		window.gtag("event", "click_get_started");
-
+		const { isAuthenticated } = this.props.auth0;
 		const { navigate } = this.props.router;
+
+		Mixpanel.track("click_get_started", { isAuthenticated });
 		navigate("/playground");
 	}
 
 	render() {
-		const { location, navigate } = this.props.router;
-		window.gtag("event", "page_view", {
-			page_path: location.pathname + location.search,
-		});
+		const { navigate } = this.props.router;
+		const { isAuthenticated } = this.props.auth0;
 
 		return (
 			<>
@@ -76,7 +77,10 @@ class Landing extends Component {
 									price={0}
 									planKey="free_tier"
 									features={["50 code fixes", "50 code scans", "50 chatbot messages"]}
-									onClick={() => navigate("/subscription")}
+									onClick={() => {
+										Mixpanel.track("click_free_tier", { isAuthenticated });
+										navigate("/playground");
+									}}
 								/>
 								<PaymentPlan
 									isSelected
@@ -85,14 +89,20 @@ class Landing extends Component {
 									planKey="unlimited"
 									features={["Unlimited code fixes", "Unlimited code fixes", "Unlimited chatbot messages"]}
 									notActive
-									onClick={() => navigate("/subscription")}
+									onClick={() => {
+										Mixpanel.track("click_unlimited_tier", { isAuthenticated });
+										navigate("/subscription");
+									}}
 								/>
 								<PaymentPlan
 									label="POWER"
 									price={15}
 									planKey="power"
 									features={["Unlimited everything", "Import from Github", "Run your code on-site"]}
-									onClick={() => navigate("/subscription")}
+									onClick={() => {
+										Mixpanel.track("click_power_tier", { isAuthenticated });
+										navigate("/subscription");
+									}}
 								/>
 							</div>
 						</div>
@@ -103,4 +113,4 @@ class Landing extends Component {
 	}
 }
 
-export default withRouter(Landing);
+export default withRouter(withAuth0(Landing));
