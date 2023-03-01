@@ -138,7 +138,11 @@ class App extends Component {
     }
 
     if (!isAuthenticated) {
-      loginWithRedirect();
+      loginWithRedirect({
+        appState: {
+          returnTo: window.location.pathname
+        }
+      });
       return;
     } else if (errorMessage === "") {
       return;
@@ -221,7 +225,11 @@ class App extends Component {
     }
 
     if (!isAuthenticated) {
-      loginWithRedirect();
+      loginWithRedirect({
+        appState: {
+          returnTo: window.location.pathname
+        }
+      });
       return;
     } else {
       this.setState({ waitingForLint: true });
@@ -277,7 +285,11 @@ class App extends Component {
     }
 
     if (!isAuthenticated) {
-      loginWithRedirect();
+      loginWithRedirect({
+        appState: {
+          returnTo: window.location.pathname
+        }
+      });
       return;
     } else {
       this.setState({ waitingForSuggestedChanges: true });
