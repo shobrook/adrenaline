@@ -58,7 +58,7 @@ class App extends Component {
     if (!res.ok) {
       if (res.status === 429) { // Rate limit
         window.gtag("event", "rate_limit_hit");
-        Mixpanel.track("rate_limit_hit")
+        //Mixpanel.track("rate_limit_hit")
         this.setState({ isRateLimited: true });
       }
 
