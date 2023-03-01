@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import './index.css';
 
@@ -11,7 +11,7 @@ import Subscription from './routes/Subscription';
 
 ReactDOM.render(
   <React.StrictMode>
-    <HashRouter>
+    <BrowserRouter>
       <Auth0ProviderWithHistory>
         <Routes>
           <Route path="/" exact element={<Landing />} />
@@ -19,7 +19,7 @@ ReactDOM.render(
           <Route path="/subscription" element={<Subscription />} />
         </Routes>
       </Auth0ProviderWithHistory>
-    </HashRouter>
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById("root")
 );
