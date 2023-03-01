@@ -15,7 +15,10 @@ let actions = {
 		mixpanel.alias(id);
 	},
 	track: (name, props) => {
+		console.log("tracking...")
 		mixpanel.track(name, props);
+		console.log("tracked")
+		console.log(props)
 	},
 	people: {
 		set: (props) => {
