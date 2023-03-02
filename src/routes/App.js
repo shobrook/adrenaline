@@ -9,10 +9,9 @@ import UnresolvedDiffModal from "../containers/UnresolvedDiffModal";
 
 import { OLD_CODE_LABEL, NEW_CODE_LABEL, DEMO_CODE, DEFAULT_LANGUAGE } from "../library/constants";
 import { withRouter, updateDiffIndexing, diffCode } from "../library/utilities";
+import Mixpanel from "../library/mixpanel";
 
 import "../styles/App.css";
-
-const API = process.env.REACT_APP_API || '';
 
 class App extends Component {
   constructor(props) {
@@ -54,10 +53,9 @@ class App extends Component {
   }
 
   handleRateLimitErrors(res) {
-    console.log(res)
     if (!res.ok) {
       if (res.status === 429) { // Rate limit
-        window.gtag("event", "rate_limit_hit");
+        Mixpanel.track("debug_rate_limit_reached");
         this.setState({ isRateLimited: true });
       }
 
@@ -83,7 +81,7 @@ class App extends Component {
   }
 
   onResolveDiff(diff, linesToDelete, indicatorLineNum) {
-    window.gtag("event", "click_use_me");
+    Mixpanel.track("resolve_diff"); // TODO: Indicate if its old or new code being used
 
     const { code, diffs } = this.state;
     const { id: diffId, oldCodeWidget, newCodeWidget } = diff;
@@ -127,12 +125,13 @@ class App extends Component {
   }
 
   onDebug(errorMessage) {
-    window.gtag("event", "click_debug");
+    Mixpanel.track("click_debug");
 
     const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
     const { code, diffs } = this.state;
 
     if (diffs.length !== 0) { // Can't debug code if diffs aren't resolved
+      Mixpanel.track("has_unresolved_diffs", { clickSource: "debug" });
       this.setState({ waitingForDiffResolution: true, waitingForDebug: false })
       return;
     }
@@ -188,7 +187,7 @@ class App extends Component {
             })
               .then(this.handleRateLimitErrors)
               .then(data => {
-                window.gtag("event", "click_debug_success");
+                Mixpanel.track("received_debug_response")
 
                 const { suggested_questions } = data;
                 const suggestedMessages = suggested_questions.map(question => ({ preview: question, prompt: question }));
@@ -203,7 +202,7 @@ class App extends Component {
               })
           })
           .catch(error => {
-            window.gtag("event", "click_debug_failure");
+            Mixpanel.track("click_debug_failure");
             this.setState({ waitingForDebug: false });
 
             console.log(error);
@@ -274,12 +273,13 @@ class App extends Component {
   }
 
   onSuggestChanges(message) {
-    window.gtag("event", "click_suggest_changes");
+    Mixpanel.track("click_suggest_changes");
 
     const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
     const { code, diffs } = this.state;
 
     if (diffs.length != 0) {
+      Mixpanel.track("has_unresolved_diffs", { clickSource: "suggest_changes" });
       this.setState({ waitingForDiffResolution: true })
       return;
     }
@@ -313,7 +313,7 @@ class App extends Component {
         })
           .then(this.handleRateLimitErrors)
           .then(data => {
-            window.gtag("event", "click_suggest_changes_success");
+            Mixpanel.track("received_suggest_changes_response");
 
             const { new_code } = data;
             let newCode = new_code.split("\n");
@@ -326,7 +326,7 @@ class App extends Component {
             });
           })
           .catch(error => {
-            window.gtag("event", "click_suggest_changes_failure");
+            Mixpanel.track("click_suggest_changes_failure");
             this.setState({ waitingForSuggestedChanges: false });
 
             console.log(error);
@@ -335,7 +335,7 @@ class App extends Component {
   }
 
   onSelectLanguage(language) {
-    window.gtag("event", "select_language", { language });
+    Mixpanel.track("select_language", { language: language.label });
     this.setState({ language });
   }
 
@@ -345,8 +345,18 @@ class App extends Component {
 
   /* Lifecycle Methods */
 
+  componentDidMount() {
+    const { user, isAuthenticated } = this.props.auth0;
+
+    if (isAuthenticated) {
+      Mixpanel.identify(user.sub);
+      Mixpanel.people.set({ email: user.email });
+    }
+
+    Mixpanel.track("load_playground");
+  }
+
   render() {
-    const { location } = this.props.router;
     const {
       language,
       code,
@@ -360,10 +370,6 @@ class App extends Component {
       shouldUpdateContext,
       isRateLimited
     } = this.state;
-
-    window.gtag("event", "page_view", {
-      page_path: location.pathname + location.search,
-    });
 
     return (
       <>

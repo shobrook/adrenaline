@@ -100,7 +100,7 @@ export default class ChatMessage extends Component {
 	/* Lifecycle Methods */
 
 	render() {
-		const { isUserSubmitted, isComplete, isBlocked, onUpgradePlan, children } = this.props;
+		const { isUserSubmitted, isComplete, isBlocked, children } = this.props;
 		const containsCode = children.includes("```");
 		const shouldRenderSuggestChanges = !isUserSubmitted && isComplete && containsCode;
 

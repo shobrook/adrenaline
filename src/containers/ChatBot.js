@@ -4,10 +4,9 @@ import { withAuth0 } from "@auth0/auth0-react";
 import InputField from './InputField';
 import ChatMessage from './ChatMessage';
 import { DEMO_CODE } from "../library/constants";
+import Mixpanel from "../library/mixpanel";
 
 import '../styles/ChatBot.css';
-
-const WS = process.env.REACT_APP_WS || ''
 
 class ChatBot extends Component {
     constructor(props) {
@@ -92,6 +91,8 @@ class ChatBot extends Component {
     /* Event Handlers */
 
     onSendMessage(message, isRegeneration = false) {
+        Mixpanel.track("click_send_message", { isRegeneration, isSuggested: false });
+
         const { isAuthenticated, getAccessTokenSilently, user } = this.props.auth0;
         const { code, errorMessage, shouldUpdateContext, setCachedDocumentIds } = this.props;
         let { messages } = this.state;
@@ -129,6 +130,8 @@ class ChatBot extends Component {
                 })
                     .then(res => res.json())
                     .then(data => {
+                        Mixpanel.track("received_chatbot_response", { isRegeneration, isSuggested: false });
+
                         const { messages } = this.state;
                         const { message, document_ids, is_rate_limit_error } = data;
                         // this.renderResponseWordByWord(message, is_rate_limit_error);
@@ -139,12 +142,15 @@ class ChatBot extends Component {
                         }
                     })
                     .catch(error => {
+                        Mixpanel.track("chatbot_failed_to_respond", { isRegeneration, isSuggested: false });
                         console.log(error);
                     });
             })
     }
 
     onSendSuggestedMessage(message) {
+        Mixpanel.track("click_send_message", { isRegeneration: false, isSuggested: true });
+
         const { isAuthenticated, getAccessTokenSilently, user } = this.props.auth0;
         const { resetSuggestedMessages, code, errorMessage, shouldUpdateContext, setCachedDocumentIds } = this.props;
         const { preview, prompt } = message;
@@ -182,6 +188,8 @@ class ChatBot extends Component {
                 })
                     .then(res => res.json())
                     .then(data => {
+                        Mixpanel.track("received_chatbot_response", { isRegeneration: false, isSuggested: true });
+
                         const { messages } = this.state;
                         const { message, document_ids, is_rate_limit_error } = data;
                         // this.renderResponseWordByWord(message, is_rate_limit_error);
@@ -192,6 +200,7 @@ class ChatBot extends Component {
                         }
                     })
                     .catch(error => {
+                        Mixpanel.track("chatbot_failed_to_respond", { isRegeneration: false, isSuggested: true });
                         console.log(error);
                     });
             })

@@ -2,6 +2,7 @@ import { Component } from "react";
 
 import Button from "../components/Button";
 import { withRouter } from "../library/utilities";
+import Mixpanel from "../library/mixpanel";
 
 import "../styles/RateLimitMessage.css";
 
@@ -16,7 +17,10 @@ class RateLimitMessage extends Component {
                 <Button
                     className="rateLimitButton"
                     isPrimary
-                    onClick={() => { navigate("/subscription"); }}
+                    onClick={() => {
+                        Mixpanel.track("click_upgrade_plan");
+                        navigate("/subscription");
+                    }}
                 >
                     Upgrade
                 </Button>

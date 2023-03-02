@@ -6,7 +6,7 @@ import Header from "../containers/Header";
 import PaymentPlan from "../containers/PaymentPlan";
 
 import { withRouter } from "../library/utilities";
-import { Mixpanel } from "../library/mixpanel";
+import Mixpanel from "../library/mixpanel";
 
 import "../styles/Landing.css";
 
@@ -23,6 +23,17 @@ class Landing extends Component {
 
 		Mixpanel.track("click_get_started", { isAuthenticated });
 		navigate("/playground");
+	}
+
+	componentDidMount() {
+		const { user, isAuthenticated } = this.props.auth0;
+
+		if (isAuthenticated) {
+			Mixpanel.identify(user.sub);
+			Mixpanel.people.set({ email: user.email });
+		}
+
+		Mixpanel.track("load_landing_page");
 	}
 
 	render() {

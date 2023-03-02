@@ -27,4 +27,5 @@ let actions = {
 	}
 };
 
-export let Mixpanel = actions;
+const Mixpanel = actions;
+export default Mixpanel;
