@@ -23,7 +23,6 @@ class App extends Component {
     this.onCodeChange = this.onCodeChange.bind(this);
     this.onResolveDiff = this.onResolveDiff.bind(this);
     this.onDebug = this.onDebug.bind(this);
-    this.onLint = this.onLint.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onSuggestChanges = this.onSuggestChanges.bind(this);
 
@@ -33,7 +32,6 @@ class App extends Component {
       errorMessage: "",
       diffs: [],
       waitingForDebug: false,
-      waitingForLint: false,
       waitingForSuggestedChanges: false,
       suggestedMessages: [],
       waitingForDiffResolution: false,
@@ -125,7 +123,7 @@ class App extends Component {
   }
 
   onDebug(errorMessage) {
-    Mixpanel.track("click_debug");
+    Mixpanel.track("click_debug", { isErrorMessageEmpty: errorMessage == "" });
 
     const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
     const { code, diffs } = this.state;
@@ -143,27 +141,40 @@ class App extends Component {
         }
       });
       return;
-    } else if (errorMessage === "") {
-      return;
+    }
+
+    this.setState({ waitingForDebug: true });
+
+    let requestBody;
+    let endpoint;
+    if (errorMessage != "") {
+      endpoint = "https://rubrick-api-production.up.railway.app/api/debug";
+      requestBody = JSON.stringify({
+        user_id: user.sub,
+        email: user.email,
+        code: code.join("\n"),
+        error: errorMessage,
+        is_demo_code: code == DEMO_CODE
+      });
     } else {
-      this.setState({ waitingForDebug: true });
+      endpoint = "https://rubrick-api-production.up.railway.app/api/lint";
+      requestBody = JSON.stringify({
+        user_id: user.sub,
+        email: user.email,
+        code: code.join("\n"),
+        is_demo_code: code == DEMO_CODE
+      });
     }
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://rubrick-api-production.up.railway.app/api/debug", {
+        fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           },
-          body: JSON.stringify({
-            user_id: user.sub,
-            email: user.email,
-            code: code.join("\n"),
-            error: errorMessage,
-            is_demo_code: code == DEMO_CODE
-          })
+          body: requestBody
         })
           .then(this.handleRateLimitErrors)
           .then(data => {
@@ -211,66 +222,6 @@ class App extends Component {
         // TODO: Run these API calls in parallel and block state update until both complete
       });
   };
-
-  onLint() {
-    window.gtag("event", "click_lint");
-
-    const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
-    const { code, diffs } = this.state;
-
-    if (diffs.length != 0) {
-      this.setState({ waitingForDiffResolution: true, waitingForDebug: false })
-      return;
-    }
-
-    if (!isAuthenticated) {
-      loginWithRedirect({
-        appState: {
-          returnTo: window.location.pathname
-        }
-      });
-      return;
-    } else {
-      this.setState({ waitingForLint: true });
-    }
-
-    getAccessTokenSilently()
-      .then(token => {
-        fetch("https://rubrick-api-production.up.railway.app/api/lint", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            user_id: user.sub,
-            email: user.email,
-            code: code.join("\n"),
-            is_demo_code: code == DEMO_CODE
-          })
-        })
-          .then(this.handleRateLimitErrors)
-          .then(data => {
-            window.gtag("event", "click_lint_success");
-
-            const { new_code } = data;
-            let newCode = new_code.split("\n");
-            let { mergedCode, diffs } = diffCode(code, newCode);
-
-            this.setState({
-              waitingForLint: false,
-              code: mergedCode,
-              diffs
-            });
-          })
-          .catch(error => {
-            window.gtag("event", "click_lint_failure");
-            this.setState({ waitingForLint: false });
-
-            console.log(error);
-          });
-      });
-  }
 
   onSuggestChanges(message) {
     Mixpanel.track("click_suggest_changes");
@@ -362,7 +313,6 @@ class App extends Component {
       code,
       diffs,
       waitingForDebug,
-      waitingForLint,
       waitingForDiffResolution,
       waitingForSuggestedChanges,
       suggestedMessages,
@@ -398,8 +348,6 @@ class App extends Component {
                 onChange={this.onCodeChange}
                 language={language}
                 onSelectLanguage={this.onSelectLanguage}
-                isLoading={waitingForLint}
-                onLint={this.onLint}
                 isRateLimited={isRateLimited}
               />
               <ErrorMessage

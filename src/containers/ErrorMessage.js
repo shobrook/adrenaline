@@ -33,7 +33,6 @@ export default class ErrorMessage extends Component {
 						onClick={() => onDebug(value)}
 						isPrimary
 						isLoading={isLoading}
-						isDisabled={value == ""}
 					>
 						Debug
 					</Button>

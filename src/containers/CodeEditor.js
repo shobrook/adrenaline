@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Controlled as CodeMirror } from 'react-codemirror2';
 import Select from 'react-select';
 
-import Button from "../components/Button";
 import RateLimitMessage from "./RateLimitMessage";
 
 import "../styles/CodeEditor.css";
@@ -205,8 +204,6 @@ export default class CodeEditor extends Component {
 			code,
 			onChange,
 			onSelectLanguage,
-			isLoading,
-			onLint,
 			isRateLimited
 		} = this.props;
 
@@ -240,15 +237,6 @@ export default class CodeEditor extends Component {
 							})
 						}}
 					/>
-					<Button
-						className="lintButton"
-						onClick={onLint}
-						isLoading={isLoading}
-						isPrimary
-						isDisabled={code.length == 1 && code[0] == ""}
-					>
-						Lint
-					</Button>
 				</div>
 				<div id={!isRateLimited ? "codeMirrorContainer" : "rateLimitedCodeMirrorContainer"}>
 					{this.renderPaywall()}
