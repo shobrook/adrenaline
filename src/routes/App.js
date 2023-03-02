@@ -22,6 +22,7 @@ class App extends Component {
     this.handleRateLimitErrors = this.handleRateLimitErrors.bind(this);
     this.onCodeChange = this.onCodeChange.bind(this);
     this.onResolveDiff = this.onResolveDiff.bind(this);
+    this.onResolveAllDiffs = this.onResolveAllDiffs.bind(this);
     this.onDebug = this.onDebug.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onSuggestChanges = this.onSuggestChanges.bind(this);
@@ -120,6 +121,37 @@ class App extends Component {
     let updatedCode = code.filter((_, index) => !linesToDelete.includes(index));
 
     this.setState({ code: updatedCode, diffs: updatedDiffs });
+  }
+
+  onResolveAllDiffs(accept = true) {
+    const { diffs, code } = this.state;
+
+    let linesToDelete = [];
+    diffs.forEach(diff => {
+      const { oldLines, newLines, mergeLine } = diff;
+
+      let indicatorLineNum;
+      if (accept) {
+        linesToDelete.push(...oldLines);
+        indicatorLineNum = newLines.at(-1);
+      } else {
+        linesToDelete.push(...newLines);
+        indicatorLineNum = oldLines.at(0);
+      }
+
+      linesToDelete.push(mergeLine);
+
+      if (indicatorLineNum !== undefined) {
+        let line = code[indicatorLineNum];
+
+        if (line === OLD_CODE_LABEL || line === NEW_CODE_LABEL) {
+          linesToDelete.push(indicatorLineNum);
+        }
+      }
+    });
+
+    let updatedCode = code.filter((_, index) => !linesToDelete.includes(index));
+    this.setState({ code: updatedCode, diffs: [] });
   }
 
   onDebug(errorMessage) {
@@ -329,6 +361,7 @@ class App extends Component {
                 code={code}
                 diffs={diffs}
                 onResolveDiff={this.onResolveDiff}
+                onResolveAllDiffs={this.onResolveAllDiffs}
                 onChange={this.onCodeChange}
                 language={language}
                 onSelectLanguage={this.onSelectLanguage}

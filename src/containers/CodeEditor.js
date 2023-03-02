@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Controlled as CodeMirror } from 'react-codemirror2';
 import Select from 'react-select';
 
+import Button from "../components/Button";
 import RateLimitMessage from "./RateLimitMessage";
 
 import "../styles/CodeEditor.css";
@@ -184,9 +185,6 @@ export default class CodeEditor extends Component {
 		const { diffs: prevDiffs } = prevProps;
 		const { diffs, onResolveDiff } = this.props;
 
-		console.log(diffs);
-		console.log(prevDiffs);
-
 		this.deleteDiffsFromEditor(prevDiffs);
 		this.addDiffsToEditor(diffs, onResolveDiff);
 	}
@@ -204,7 +202,9 @@ export default class CodeEditor extends Component {
 			code,
 			onChange,
 			onSelectLanguage,
-			isRateLimited
+			isRateLimited,
+			diffs,
+			onResolveAllDiffs
 		} = this.props;
 
 		return (
@@ -237,6 +237,14 @@ export default class CodeEditor extends Component {
 							})
 						}}
 					/>
+					{
+						diffs.length != 0 ? (
+							<div id="diffOptions">
+								<Button isPrimary id="acceptAllButton" onClick={onResolveAllDiffs}>Accept All</Button>
+								<Button isPrimary id="rejectAllButton" onClick={() => onResolveAllDiffs(false)}>Reject All</Button>
+							</div>
+						) : null
+					}
 				</div>
 				<div id={!isRateLimited ? "codeMirrorContainer" : "rateLimitedCodeMirrorContainer"}>
 					{this.renderPaywall()}

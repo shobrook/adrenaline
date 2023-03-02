@@ -226,3 +226,15 @@
   padding-right: 5px;
   margin-left: auto;
 }
+
+#diffOptions {
+  display: flex;
+  flex-direction: row;
+  font-family: "Helvetica Neue";
+  font-size: 16px;
+}
+
+#rejectAllButton {
+  margin-left: 15px;
+  background-color: #279AF1;
+}
