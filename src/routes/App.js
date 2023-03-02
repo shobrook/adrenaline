@@ -178,39 +178,23 @@ class App extends Component {
         })
           .then(this.handleRateLimitErrors)
           .then(data => {
+            Mixpanel.track("received_debug_response")
+
             const { new_code } = data;
             let newCode = new_code.split("\n");
             let { mergedCode, diffs } = diffCode(code, newCode);
+            const suggestedMessage = {
+              preview: "What's wrong with my code?",
+              code: code.join("\n")
+            };
 
-            fetch("https://rubrick-api-production.up.railway.app/api/generate_suggested_questions", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                user_id: user.sub,
-                email: user.email,
-                code: code.join("\n"),
-                error: errorMessage,
-                is_demo_code: code == DEMO_CODE
-              })
-            })
-              .then(this.handleRateLimitErrors)
-              .then(data => {
-                Mixpanel.track("received_debug_response")
-
-                const { suggested_questions } = data;
-                const suggestedMessages = suggested_questions.map(question => ({ preview: question, prompt: question }));
-
-                this.setState({
-                  waitingForDebug: false,
-                  suggestedMessages: suggestedMessages.slice(0, 3),
-                  code: mergedCode,
-                  diffs,
-                  errorMessage
-                });
-              })
+            this.setState({
+              waitingForDebug: false,
+              suggestedMessages: [suggestedMessage],
+              code: mergedCode,
+              diffs,
+              errorMessage
+            });
           })
           .catch(error => {
             Mixpanel.track("click_debug_failure");
@@ -358,7 +342,7 @@ class App extends Component {
             </div>
             <ChatBot
               suggestedMessages={suggestedMessages}
-              resetSuggestedMessages={() => this.setState({ suggestedMessages: [] })}
+              clearSuggestedMessages={() => this.setState({ suggestedMessages: [] })}
               errorMessage={errorMessage}
               code={code.join("\n")}
               shouldUpdateContext={shouldUpdateContext}

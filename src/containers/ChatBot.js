@@ -152,22 +152,37 @@ class ChatBot extends Component {
         Mixpanel.track("click_send_message", { isRegeneration: false, isSuggested: true });
 
         const { isAuthenticated, getAccessTokenSilently, user } = this.props.auth0;
-        const { resetSuggestedMessages, code, errorMessage, shouldUpdateContext, setCachedDocumentIds } = this.props;
-        const { preview, prompt } = message;
+        const { clearSuggestedMessages, errorMessage } = this.props;
+        const { preview, code } = message;
         const { messages } = this.state;
-        const cachedDocumentIds = localStorage.getItem("cachedDocumentIds");
 
         if (!isAuthenticated) {
-            this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }, { message: "You must be logged in to use the chatbot.", isUserSubmitted: false, isComplete: false }] });
+            this.setState({
+                messages: [
+                    ...messages,
+                    { message, isUserSubmitted: true, isComplete: true },
+                    {
+                        message: "You must be logged in to use the chatbot.",
+                        isUserSubmitted: false,
+                        isComplete: false
+                    }
+                ]
+            });
             return;
         } else {
-            this.setState({ messages: [...messages, { message: preview, isUserSubmitted: true, isComplete: true }, { message: "...", isUserSubmitted: false, isComplete: false, isLoading: true }] });
-            resetSuggestedMessages();
+            this.setState({
+                messages: [
+                    ...messages,
+                    { message: preview, isUserSubmitted: true, isComplete: true },
+                    { message: "", isUserSubmitted: false, isComplete: false, isLoading: true }
+                ]
+            });
+            clearSuggestedMessages();
         }
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://rubrick-api-production.up.railway.app/api/generate_chat_response", {
+                fetch("https://rubrick-api-production.up.railway.app/api/explain_broken_code", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -175,15 +190,9 @@ class ChatBot extends Component {
                     },
                     body: JSON.stringify({
                         user_id: user.sub,
-                        email: user.email,
-                        code: code,
-                        query: prompt,
-                        chat_history: this.consolidateChatHistory(),
+                        code,
                         is_demo_code: code == DEMO_CODE.join("\n"),
-                        cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                        should_update_context: shouldUpdateContext,
-                        error_message: errorMessage,
-                        is_suggested: true
+                        error_message: errorMessage
                     })
                 })
                     .then(res => res.json())
@@ -191,19 +200,25 @@ class ChatBot extends Component {
                         Mixpanel.track("received_chatbot_response", { isRegeneration: false, isSuggested: true });
 
                         const { messages } = this.state;
-                        const { message, document_ids, is_rate_limit_error } = data;
+                        const { explanation, is_rate_limit_error } = data;
                         // this.renderResponseWordByWord(message, is_rate_limit_error);
-                        this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: is_rate_limit_error }] })
-
-                        if (shouldUpdateContext) {
-                            setCachedDocumentIds(document_ids);
-                        }
+                        this.setState({
+                            messages: [
+                                ...messages.slice(0, messages.length - 1),
+                                {
+                                    message: explanation,
+                                    isUserSubmitted: false,
+                                    isComplete: true,
+                                    isBlocked: is_rate_limit_error
+                                }
+                            ]
+                        });
                     })
                     .catch(error => {
                         Mixpanel.track("chatbot_failed_to_respond", { isRegeneration: false, isSuggested: true });
                         console.log(error);
                     });
-            })
+            });
     }
 
     onRegenerateResponse() {
@@ -220,8 +235,7 @@ class ChatBot extends Component {
         const { messages } = this.state;
         const {
             onSuggestChanges,
-            waitingForSuggestedChanges, // TODO: This is being applied to every chat message, need to restrict to just the one clicked
-            onUpgradePlan
+            waitingForSuggestedChanges // TODO: This is being applied to every chat message, need to restrict to just the one clicked
         } = this.props;
 
         return messages.map((messagePayload, index) => {
@@ -236,7 +250,6 @@ class ChatBot extends Component {
                     isComplete={isComplete}
                     isLastMessage={index == messages.length - 1}
                     isBlocked={isBlocked}
-                    onUpgradePlan={onUpgradePlan}
                     isLoading={isLoading}
                 >
                     {message}
