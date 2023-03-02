@@ -27,7 +27,7 @@ export default class ErrorMessage extends Component {
 		return (
 			<div className="errorMessage">
 				<div className="errorMessageHeader">
-					<span>Problem Statement</span>
+					<span>Problem Description</span>
 					<Button
 						className="debugButton"
 						onClick={() => onDebug(value)}
