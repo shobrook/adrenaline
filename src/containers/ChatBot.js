@@ -64,9 +64,11 @@ class ChatBot extends Component {
         Mixpanel.track("click_send_message", { isRegeneration, isSuggested: false });
 
         const { isAuthenticated, getAccessTokenSilently, user } = this.props.auth0;
-        const { code, errorMessage, shouldUpdateContext } = this.props;
+        const { code, clearSuggestedMessages, errorMessage, shouldUpdateContext } = this.props;
         const { messages } = this.state;
         const cachedDocumentIds = localStorage.getItem("cachedDocumentIds");
+
+        clearSuggestedMessages();
 
         if (!isAuthenticated) {
             this.setState({
@@ -170,7 +172,6 @@ class ChatBot extends Component {
                     }
                 ]
             });
-            return;
         } else {
             this.setState({
                 messages: [
@@ -179,8 +180,9 @@ class ChatBot extends Component {
                     { message: "", isUserSubmitted: false, isComplete: false, isLoading: true }
                 ]
             });
-            clearSuggestedMessages();
         }
+
+        clearSuggestedMessages();
 
         getAccessTokenSilently()
             .then(token => {
@@ -203,7 +205,7 @@ class ChatBot extends Component {
 
                         const { messages } = this.state;
                         const { explanation, is_rate_limit_error } = data;
-                        // this.renderResponseWordByWord(message, is_rate_limit_error);
+
                         this.setState({
                             messages: [
                                 ...messages.slice(0, messages.length - 1),

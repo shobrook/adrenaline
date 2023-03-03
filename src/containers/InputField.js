@@ -13,7 +13,7 @@ export default class InputField extends Component {
         this.onSubmitInput = this.onSubmitInput.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
 
-        this.state = { value: "", displaySuggestedMessages: true };
+        this.state = { value: "" };
     }
 
     onChange(event) {
@@ -29,7 +29,7 @@ export default class InputField extends Component {
         }
 
         onSubmit(value);
-        this.setState({ value: "", displaySuggestedMessages: false });
+        this.setState({ value: "" });
     }
 
     onKeyPress(event) {
@@ -42,11 +42,11 @@ export default class InputField extends Component {
 
     render() {
         const { placeholder, submitLabel, onSubmitSuggested, suggestedMessages } = this.props;
-        const { value, displaySuggestedMessages } = this.state;
+        const { value } = this.state;
 
         return (
             <div id="inputField">
-                {suggestedMessages.length != 0 && displaySuggestedMessages ? (
+                {suggestedMessages.length != 0 ? (
                     <div id="suggestedMessages">
                         {suggestedMessages.map((suggestedMessage, index) => {
                             return (
