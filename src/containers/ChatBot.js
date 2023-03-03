@@ -18,7 +18,17 @@ class ChatBot extends Component {
         this.renderChatMessages = this.renderChatMessages.bind(this);
         this.onRegenerateResponse = this.onRegenerateResponse.bind(this);
 
-        this.state = { messages: [] };
+        this.state = {
+            messages: [
+                {
+                    message: "I am an AI assistant here to help you debug your code. Ask me anything!",
+                    isUserSubmitted: false,
+                    isComplete: false,
+                    isBlocked: false,
+                    isLoading: false
+                }
+            ]
+        };
     }
 
     /* Utilities */
@@ -59,32 +69,85 @@ class ChatBot extends Component {
         const cachedDocumentIds = localStorage.getItem("cachedDocumentIds");
 
         if (!isAuthenticated) {
-            this.ws.send(JSON.stringify({ is_init: false, token: null }));
-            this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }] });
-
-            return;
+            this.setState({
+                messages: [
+                    ...messages,
+                    { message, isUserSubmitted: true, isComplete: true },
+                    {
+                        message: "You must be logged in to use the chatbot.",
+                        isUserSubmitted: false,
+                        isComplete: false
+                    }
+                ]
+            });
+        } else if (!isRegeneration) {
+            this.setState({
+                messages: [
+                    ...messages,
+                    { message, isUserSubmitted: true, isComplete: true },
+                    { message: "", isUserSubmitted: false, isComplete: false, isLoading: true }
+                ]
+            });
         }
 
-        getAccessTokenSilently()
-            .then(token => {
-                this.ws.send(JSON.stringify({
-                    is_init: false,
-                    token,
-                    user_id: user.sub,
-                    email: user.email,
-                    query: message,
-                    chat_history: this.consolidateChatHistory(),
-                    error_message: errorMessage,
-                    code,
-                    cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                    should_update_context: shouldUpdateContext,
-                    is_demo_code: code == DEMO_CODE.join("\n")
-                }));
+        if (window.location.protocol === "https:") {
+            this.ws = new WebSocket(`wss://rubrick-api-production.up.railway.app/generate_chat_response`);
+        } else {
+            this.ws = new WebSocket(`ws://rubrick-api-production.up.railway.app/generate_chat_response`);
+        }
 
-                if (!isRegeneration) {
-                    this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }] });
+        this.ws.onopen = event => {
+            localStorage.removeItem("cachedDocumentIds");
+
+            // Send message
+            getAccessTokenSilently()
+                .then(token => {
+                    this.ws.send(JSON.stringify({
+                        is_init: false, // TODO: Remove
+                        token,
+                        user_id: user.sub,
+                        email: user.email,
+                        query: message,
+                        chat_history: this.consolidateChatHistory(),
+                        error_message: errorMessage,
+                        code,
+                        cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
+                        should_update_context: shouldUpdateContext,
+                        is_demo_code: code == DEMO_CODE.join("\n")
+                    }));
+                })
+        }
+        this.ws.onmessage = event => {
+            const { message, document_ids, is_rate_limit_error } = JSON.parse(event.data);
+            const { messages } = this.state;
+            const { shouldUpdateContext, setCachedDocumentIds } = this.props;
+
+            let response = messages[messages.length - 1];
+            response.isLoading = false;
+            response.isBlocked = is_rate_limit_error;
+
+            if (message !== "STOP") {
+                response.message += message;
+            } else {
+                Mixpanel.track("received_chatbot_response");
+
+                response.isComplete = true;
+
+                if (shouldUpdateContext) {
+                    setCachedDocumentIds(document_ids);
                 }
-            })
+
+                this.ws.close();
+            }
+
+            this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
+        }
+        this.ws.onerror = event => {
+            Mixpanel.track("chatbot_failed_to_respond");
+            console.log(event);
+
+            // TODO: Tell user via message
+        }
     }
 
     onSendSuggestedMessage(message) {
@@ -166,7 +229,7 @@ class ChatBot extends Component {
         const { messages } = this.state;
         const lastQuery = messages[messages.length - 2].message;
 
-        this.setState({ messages: [...messages.slice(0, messages.length - 1), { message: "", isUserSubmitted: false }] })
+        this.setState({ messages: [...messages.slice(0, messages.length - 1), { message: "", isUserSubmitted: false, isLoading: true }] })
         this.onSendMessage(lastQuery, true);
     }
 
@@ -200,80 +263,6 @@ class ChatBot extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
-        const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
-
-        console.log("Initializing websocket connection")
-        if (window.location.protocol === "https:") {
-            this.ws = new WebSocket(`wss://rubrick-api-production.up.railway.app/generate_chat_response`);
-        } else {
-            this.ws = new WebSocket(`ws://rubrick-api-production.up.railway.app/generate_chat_response`);
-        }
-
-        console.log("Connection created")
-        console.log(this.ws)
-        console.log()
-
-        this.ws.onopen = event => {
-            if (!isAuthenticated) {
-                this.ws.send(JSON.stringify({ is_init: true, token: null }));
-                localStorage.removeItem("cachedDocumentIds")
-            } else {
-                getAccessTokenSilently()
-                    .then(token => {
-                        this.ws.send(JSON.stringify({
-                            is_init: true,
-                            token: token
-                        }));
-                        localStorage.removeItem("cachedDocumentIds")
-                    });
-            }
-        };
-        this.ws.onmessage = event => {
-            const { message, document_ids, is_rate_limit_error } = JSON.parse(event.data);
-            const { messages } = this.state;
-            const { shouldUpdateContext, setCachedDocumentIds } = this.props;
-
-            let response = {
-                message,
-                isUserSubmitted: false,
-                isComplete: false,
-                isBlocked: is_rate_limit_error
-            };
-
-            if (messages.length == 0) {
-                this.setState({ messages: [response] });
-                return;
-            }
-
-            const lastMessage = messages[messages.length - 1];
-            if (message !== "STOP") {
-                if (!lastMessage.isUserSubmitted) {
-                    response.message = lastMessage.message + message;
-                    this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
-                } else {
-                    this.setState({ messages: [...messages, response] });
-                }
-            } else {
-                Mixpanel.track("received_chatbot_response");
-
-                response = lastMessage;
-                response.isComplete = true;
-                this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
-
-                if (shouldUpdateContext) {
-                    setCachedDocumentIds(document_ids);
-                }
-            }
-        };
-        this.ws.onerror = event => {
-            console.log("ERROR WITH WEBSOCKET")
-            console.log(event)
-
-            Mixpanel.track("chatbot_failed_to_respond")
-        }
-
-        console.log("Event handlers set")
-
         this.scrollToBottom();
     }
 
