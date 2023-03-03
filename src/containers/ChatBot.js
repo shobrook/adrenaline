@@ -17,9 +17,8 @@ class ChatBot extends Component {
         this.onSendSuggestedMessage = this.onSendSuggestedMessage.bind(this);
         this.renderChatMessages = this.renderChatMessages.bind(this);
         this.onRegenerateResponse = this.onRegenerateResponse.bind(this);
-        this.renderResponseWordByWord = this.renderResponseWordByWord.bind(this);
 
-        this.state = { messages: [{ message: "I'm an AI trained to help you debug your code. Ask me anything!", isUserSubmitted: false, isComplete: false, isBlocked: false }] };
+        this.state = { messages: [] };
     }
 
     /* Utilities */
@@ -49,102 +48,42 @@ class ChatBot extends Component {
         return chatHistory;
     }
 
-    renderResponseWordByWord(response, isRateLimitError) {
-        response.split().forEach((word, index) => {
-            const { messages } = this.state;
-
-            let newMessage;
-            if (index == 0) { // First word, initialize new message in state
-                newMessage = {
-                    message: word,
-                    isUserSubmitted: false,
-                    isComplete: false,
-                    isBlocked: isRateLimitError
-                };
-            } else {
-                newMessage = {
-                    message: `${messages[messages.length - 1].message} ${word}`,
-                    isUserSubmitted: false,
-                    isComplete: false,
-                    isBlocked: isRateLimitError
-                }
-            }
-
-            if (messages.length == 0) {
-                this.setState({ messages: [newMessage] })
-                return;
-            } else {
-                this.setState({ messages: [...messages.splice(0, messages.length - 1), newMessage] });
-            }
-        });
-
-        const { messages } = this.state;
-        const newMessage = {
-            message: messages[messages.length - 1],
-            isUserSubmitted: false,
-            isComplete: true,
-            isBlocked: isRateLimitError
-        }
-        this.setState({ messages: [...messages.splice(0, messages.length - 1), newMessage] });
-    }
-
     /* Event Handlers */
 
     onSendMessage(message, isRegeneration = false) {
         Mixpanel.track("click_send_message", { isRegeneration, isSuggested: false });
 
         const { isAuthenticated, getAccessTokenSilently, user } = this.props.auth0;
-        const { code, errorMessage, shouldUpdateContext, setCachedDocumentIds } = this.props;
-        let { messages } = this.state;
+        const { code, errorMessage, shouldUpdateContext } = this.props;
+        const { messages } = this.state;
         const cachedDocumentIds = localStorage.getItem("cachedDocumentIds");
 
         if (!isAuthenticated) {
-            this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }, { message: "You must be logged in to use the chatbot.", isUserSubmitted: false, isComplete: false }] });
+            this.ws.send(JSON.stringify({ is_init: false, token: null }));
+            this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }] });
+
             return;
-        } else if (!isRegeneration) {
-            this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }, { message: "...", isUserSubmitted: false, isComplete: false, isLoading: true }] });
-        } else {
-            this.setState({ messages: [...messages.slice(0, messages.length - 1), { message: "...", isUserSubmitted: false, isComplete: false, isLoading: true }] });
         }
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://rubrick-api-production.up.railway.app/api/generate_chat_response", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        user_id: user.sub,
-                        email: user.email,
-                        code: code,
-                        query: message,
-                        chat_history: this.consolidateChatHistory(),
-                        is_demo_code: code == DEMO_CODE.join("\n"),
-                        cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
-                        should_update_context: shouldUpdateContext,
-                        error_message: errorMessage,
-                        is_suggested: false
-                    })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        Mixpanel.track("received_chatbot_response", { isRegeneration, isSuggested: false });
+                this.ws.send(JSON.stringify({
+                    is_init: false,
+                    token,
+                    user_id: user.sub,
+                    email: user.email,
+                    query: message,
+                    chat_history: this.consolidateChatHistory(),
+                    error_message: errorMessage,
+                    code,
+                    cached_document_ids: JSON.parse(cachedDocumentIds) ?? [],
+                    should_update_context: shouldUpdateContext,
+                    is_demo_code: code == DEMO_CODE.join("\n")
+                }));
 
-                        const { messages } = this.state;
-                        const { message, document_ids, is_rate_limit_error } = data;
-                        // this.renderResponseWordByWord(message, is_rate_limit_error);
-                        this.setState({ messages: [...messages.slice(0, messages.length - 1), { message, isUserSubmitted: false, isComplete: true, isBlocked: is_rate_limit_error }] })
-
-                        if (shouldUpdateContext) {
-                            setCachedDocumentIds(document_ids);
-                        }
-                    })
-                    .catch(error => {
-                        Mixpanel.track("chatbot_failed_to_respond", { isRegeneration, isSuggested: false });
-                        console.log(error);
-                    });
+                if (!isRegeneration) {
+                    this.setState({ messages: [...messages, { message, isUserSubmitted: true, isComplete: true }] });
+                }
             })
     }
 
@@ -261,6 +200,79 @@ class ChatBot extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
+        const { isAuthenticated, getAccessTokenSilently } = this.props.auth0;
+
+        console.log("Initializing websocket connection")
+        if (window.location.protocol === "https:") {
+            this.ws = new WebSocket(`wss://rubrick-api-production.up.railway.app/generate_chat_response`);
+        } else {
+            this.ws = new WebSocket(`ws://rubrick-api-production.up.railway.app/generate_chat_response`);
+        }
+
+        console.log("Connection created")
+        console.log(this.ws)
+        console.log()
+
+        this.ws.onopen = event => {
+            if (!isAuthenticated) {
+                this.ws.send(JSON.stringify({ is_init: true, token: null }));
+                localStorage.removeItem("cachedDocumentIds")
+            } else {
+                getAccessTokenSilently()
+                    .then(token => {
+                        this.ws.send(JSON.stringify({
+                            is_init: true,
+                            token: token
+                        }));
+                        localStorage.removeItem("cachedDocumentIds")
+                    });
+            }
+        };
+        this.ws.onmessage = event => {
+            Mixpanel.track("received_chatbot_response");
+            const { message, document_ids, is_rate_limit_error } = JSON.parse(event.data);
+            const { messages } = this.state;
+            const { shouldUpdateContext, setCachedDocumentIds } = this.props;
+
+            let response = {
+                message,
+                isUserSubmitted: false,
+                isComplete: false,
+                isBlocked: is_rate_limit_error
+            };
+
+            if (messages.length == 0) {
+                this.setState({ messages: [response] });
+                return;
+            }
+
+            const lastMessage = messages[messages.length - 1];
+            if (message !== "STOP") {
+                if (!lastMessage.isUserSubmitted) {
+                    response.message = lastMessage.message + message;
+                    this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
+                } else {
+                    this.setState({ messages: [...messages, response] });
+                }
+            } else {
+                response = lastMessage;
+                response.isComplete = true;
+                this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
+
+                if (shouldUpdateContext) {
+                    setCachedDocumentIds(document_ids);
+                }
+            }
+        };
+        this.ws.onerror = event => {
+            console.log("ERROR WITH WEBSOCKET")
+            console.log(event)
+
+            Mixpanel.track("chatbot_failed_to_respond")
+        }
+
+        console.log("Event handlers set")
+
         this.scrollToBottom();
     }
 
