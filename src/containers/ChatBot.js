@@ -229,7 +229,6 @@ class ChatBot extends Component {
             }
         };
         this.ws.onmessage = event => {
-            Mixpanel.track("received_chatbot_response");
             const { message, document_ids, is_rate_limit_error } = JSON.parse(event.data);
             const { messages } = this.state;
             const { shouldUpdateContext, setCachedDocumentIds } = this.props;
@@ -255,6 +254,8 @@ class ChatBot extends Component {
                     this.setState({ messages: [...messages, response] });
                 }
             } else {
+                Mixpanel.track("received_chatbot_response");
+
                 response = lastMessage;
                 response.isComplete = true;
                 this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
