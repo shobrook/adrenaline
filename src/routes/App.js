@@ -5,7 +5,6 @@ import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ErrorMessage from "../containers/ErrorMessage";
 import ChatBot from "../containers/ChatBot";
-import UnresolvedDiffModal from "../containers/UnresolvedDiffModal";
 
 import { OLD_CODE_LABEL, NEW_CODE_LABEL, DEMO_CODE, DEFAULT_LANGUAGE } from "../library/constants";
 import { withRouter, updateDiffIndexing, diffCode } from "../library/utilities";
