@@ -34,18 +34,22 @@
   flex-direction: column;
   height: 67%;
   overflow: auto;
-  padding-left: 11px;
-  padding-right: 24px;
+  /* padding-left: 11px; */
+  /* padding-right: 24px; */
   font-family: "Monaco" !important;
   font-size: 14px;
   border-bottom: 2px solid #54546A; /* #4E4881 */
+
+  padding-left: 30px;
+  padding-right: 30px;
+  justify-content: space-between;
 }
 
 .codeEditorHeader {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding-left: 18px;
+  /* padding-left: 18px; */
   padding-top: 20px;
   justify-content: space-between;
   height: 35px;
@@ -104,6 +108,7 @@
 #codeMirrorContainer {
   position: relative;
   overflow: auto;
+  margin-left: -11px;
 }
 
 #rateLimitedCodeMirrorContainer {
@@ -237,4 +242,11 @@
 #rejectAllButton {
   margin-left: 15px;
   background-color: #279AF1;
+}
+
+#codeEditorSubContainer {
+  overflow: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }

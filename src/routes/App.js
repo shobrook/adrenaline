@@ -339,19 +339,6 @@ class App extends Component {
 
     return (
       <>
-        {waitingForDiffResolution ? (
-          <UnresolvedDiffModal
-            setModalRef={ref => this.modalRef = ref}
-            onCloseModal={event => {
-              if (this.modalRef && this.modalRef.contains(event.target)) {
-                return;
-              }
-
-              this.setState({ waitingForDiffResolution: false });
-            }}
-          />
-        ) : null}
-
         <div className="app">
           <Header />
 
@@ -366,6 +353,8 @@ class App extends Component {
                 language={language}
                 onSelectLanguage={this.onSelectLanguage}
                 isRateLimited={isRateLimited}
+                waitingForDiffResolution={waitingForDiffResolution}
+                onCloseDiffAlert={() => this.setState({ waitingForDiffResolution: false })}
               />
               <ErrorMessage
                 onDebug={this.onDebug}

@@ -145,7 +145,7 @@ class ChatBot extends Component {
             this.setState({ messages: [...messages.splice(0, messages.length - 1), response] });
         }
         this.ws.onerror = event => {
-            Mixpanel.track("chatbot_failed_to_respond");
+            Mixpanel.track("chatbot_failed_to_respond", { error: event });
             console.log(event);
 
             // TODO: Tell user via message
