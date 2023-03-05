@@ -23,6 +23,7 @@ const LANGUAGES = [
 	{ label: "PHP", value: "php", compilerId: 29 },
 	{ label: "C++", value: "clike", compilerId: 1 },
 	{ label: "C", value: "clike", compilerId: 11 },
+	{ label: "R", value: "r", compilerId: 117 },
 	{ label: "Bash", value: "shell", compilerId: 28 },
 	{ label: "C#", value: "clike", compilerId: 86 },
 	{ label: "Objective-C", value: "clike", compilerId: 43 },
