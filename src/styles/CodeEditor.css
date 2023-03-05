@@ -108,6 +108,7 @@
   position: relative;
   overflow: auto;
   margin-left: -11px;
+  height: 100%;
 }
 
 #rateLimitedCodeMirrorContainer {

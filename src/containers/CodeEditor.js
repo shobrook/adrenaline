@@ -184,7 +184,6 @@ export default class CodeEditor extends Component {
 	/* Event Handlers */
 
 	onFocus() {
-		console.log(this.codeMirrorRef);
 		this.codeMirrorRef.focus();
 	}
 
@@ -221,7 +220,7 @@ export default class CodeEditor extends Component {
 		const { alertMessage } = this.state;
 
 		return (
-			<div className="codeEditorContainer" onClick={this.onFocus}>
+			<div className="codeEditorContainer">
 				<div id="codeEditorContainerWithAlert">
 					<div id="codeEditorSubContainer">
 						<div className="codeEditorHeader">
@@ -261,7 +260,7 @@ export default class CodeEditor extends Component {
 								) : null
 							}
 						</div>
-						<div id={!isRateLimited ? "codeMirrorContainer" : "rateLimitedCodeMirrorContainer"}>
+						<div id={!isRateLimited ? "codeMirrorContainer" : "rateLimitedCodeMirrorContainer"} onClick={this.onFocus}>
 							{this.renderPaywall()}
 							<CodeMirror
 								className={`codeEditor ${isRateLimited ? "blocked" : ""}`}
