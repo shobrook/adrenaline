@@ -27,7 +27,8 @@ class App extends Component {
 
     this.state = {
       language: DEFAULT_LANGUAGE,
-      code: DEMO_CODE,
+      // code: DEMO_CODE,
+      code: ["# Paste your code here"],
       errorMessage: "",
       diffs: [],
       waitingForDebug: false,

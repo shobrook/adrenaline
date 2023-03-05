@@ -68,7 +68,7 @@ class Console extends Component {
             user
         } = this.props.auth0;
 
-        if (code.trim() === "") {
+        if (code.trim() === "" || code.trim() === "# Paste your code here") {
             onRunFailure("Please enter code into the editor before clicking run.");
             return;
         }
