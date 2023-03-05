@@ -1,7 +1,7 @@
 export const OLD_CODE_LABEL = ">>>>>>> OLD CODE";
 export const CODE_SEPARATOR = "=======";
 export const NEW_CODE_LABEL = ">>>>>>> NEW CODE"
-export const DEFAULT_LANGUAGE = { label: "Python", value: "python" };
+export const DEFAULT_LANGUAGE = { label: "Python", value: "python", compilerId: 116 };
 export const DEMO_CODE = [
     "#################",
     "### DEMO CODE ###",

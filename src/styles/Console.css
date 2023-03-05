@@ -1,0 +1,37 @@
+#console {
+    height: 33%;
+    width: 100%;
+    border-top: 2px solid #54546A;
+    background-color: #202030;
+}
+
+#consoleHeader {
+    display: flex;
+    font-family: "Helvetica Neue";
+    font-size: 16px;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+#consoleHeader > span {
+    font-weight: 500;
+}
+
+#runButton {
+    width: fit-content;
+}
+
+#output {
+    padding-left: 30px;
+    padding-right: 30px;
+    white-space: pre-wrap;
+    opacity: 0.75;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
+}

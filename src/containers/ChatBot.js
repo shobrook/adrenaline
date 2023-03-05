@@ -21,7 +21,7 @@ class ChatBot extends Component {
         this.state = {
             messages: [
                 {
-                    message: "I am an AI assistant here to help you debug your code. Ask me anything!",
+                    message: "I'm an AI assistant that can help debug your code. What seems to be the problem?",
                     isUserSubmitted: false,
                     isComplete: false,
                     isBlocked: false,
@@ -153,7 +153,7 @@ class ChatBot extends Component {
     }
 
     onSendSuggestedMessage(message) {
-        this.onSendMessage(message.preview, false, true);
+        this.onSendMessage(message.prompt, false, true);
     }
 
     onRegenerateResponse() {

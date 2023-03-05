@@ -89,7 +89,6 @@ export default class InputField extends Component {
                         id="sendInputButton"
                         isPrimary
                         onClick={this.onSubmitInput}
-                        isDisabled={value == ""}
                     >
                         {submitLabel}
                     </Button>

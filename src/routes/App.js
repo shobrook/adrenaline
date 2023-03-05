@@ -3,7 +3,6 @@ import { withAuth0 } from "@auth0/auth0-react";
 
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
-import ErrorMessage from "../containers/ErrorMessage";
 import ChatBot from "../containers/ChatBot";
 
 import { OLD_CODE_LABEL, NEW_CODE_LABEL, DEMO_CODE, DEFAULT_LANGUAGE } from "../library/constants";
@@ -22,9 +21,9 @@ class App extends Component {
     this.onCodeChange = this.onCodeChange.bind(this);
     this.onResolveDiff = this.onResolveDiff.bind(this);
     this.onResolveAllDiffs = this.onResolveAllDiffs.bind(this);
-    this.onDebug = this.onDebug.bind(this);
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onSuggestChanges = this.onSuggestChanges.bind(this);
+    this.onError = this.onError.bind(this);
 
     this.state = {
       language: DEFAULT_LANGUAGE,
@@ -64,6 +63,10 @@ class App extends Component {
   }
 
   /* Event Handlers */
+
+  onError(errorMessage) {
+    this.setState({ suggestedMessages: [{ preview: "What's causing my code to fail?", prompt: `What's causing this error:\n${errorMessage}` }] });
+  }
 
   onCodeChange(editor, data, newCode) {
     const { code, diffs } = this.state;
@@ -153,95 +156,15 @@ class App extends Component {
     this.setState({ code: updatedCode, diffs: [] });
   }
 
-  onDebug(errorMessage) {
-    Mixpanel.track("click_debug", { isErrorMessageEmpty: errorMessage == "" });
-
-    const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
-    const { code, diffs } = this.state;
-
-    if (diffs.length !== 0) { // Can't debug code if diffs aren't resolved
-      Mixpanel.track("has_unresolved_diffs", { clickSource: "debug" });
-      this.setState({ waitingForDiffResolution: true, waitingForDebug: false })
-      return;
-    }
-
-    if (!isAuthenticated) {
-      loginWithRedirect({
-        appState: {
-          returnTo: window.location.pathname
-        }
-      });
-      return;
-    }
-
-    this.setState({ waitingForDebug: true });
-
-    let requestBody;
-    let endpoint;
-    if (errorMessage != "") {
-      endpoint = "https://rubrick-api-production.up.railway.app/api/debug";
-      requestBody = JSON.stringify({
-        user_id: user.sub,
-        email: user.email,
-        code: code.join("\n"),
-        error: errorMessage,
-        is_demo_code: code == DEMO_CODE
-      });
-    } else {
-      endpoint = "https://rubrick-api-production.up.railway.app/api/lint";
-      requestBody = JSON.stringify({
-        user_id: user.sub,
-        email: user.email,
-        code: code.join("\n"),
-        is_demo_code: code == DEMO_CODE
-      });
-    }
-
-    getAccessTokenSilently()
-      .then(token => {
-        fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: requestBody
-        })
-          .then(this.handleRateLimitErrors)
-          .then(data => {
-            Mixpanel.track("received_debug_response")
-
-            const { new_code } = data;
-            let newCode = new_code.split("\n");
-            let { mergedCode, diffs } = diffCode(code, newCode);
-            const suggestedMessage = {
-              preview: "What's wrong with my code?",
-              code: code.join("\n")
-            };
-
-            this.setState({
-              waitingForDebug: false,
-              suggestedMessages: [suggestedMessage],
-              code: mergedCode,
-              diffs,
-              errorMessage
-            });
-          })
-          .catch(error => {
-            Mixpanel.track("click_debug_failure");
-            this.setState({ waitingForDebug: false });
-
-            console.log(error);
-          });
-
-        // TODO: Run these API calls in parallel and block state update until both complete
-      });
-  };
-
   onSuggestChanges(message) {
     Mixpanel.track("click_suggest_changes");
 
-    const { isAuthenticated, loginWithRedirect, getAccessTokenSilently, user } = this.props.auth0;
+    const {
+      isAuthenticated,
+      loginWithRedirect,
+      getAccessTokenSilently,
+      user
+    } = this.props.auth0;
     const { code, diffs } = this.state;
 
     if (diffs.length != 0) {
@@ -327,7 +250,6 @@ class App extends Component {
       language,
       code,
       diffs,
-      waitingForDebug,
       waitingForDiffResolution,
       waitingForSuggestedChanges,
       suggestedMessages,
@@ -342,25 +264,6 @@ class App extends Component {
           <Header />
 
           <div className="body">
-            <div className="lhs">
-              <CodeEditor
-                code={code}
-                diffs={diffs}
-                onResolveDiff={this.onResolveDiff}
-                onResolveAllDiffs={this.onResolveAllDiffs}
-                onChange={this.onCodeChange}
-                language={language}
-                onSelectLanguage={this.onSelectLanguage}
-                isRateLimited={isRateLimited}
-                waitingForDiffResolution={waitingForDiffResolution}
-                onCloseDiffAlert={() => this.setState({ waitingForDiffResolution: false })}
-              />
-              <ErrorMessage
-                onDebug={this.onDebug}
-                isLoading={waitingForDebug}
-                onChange={this.onUpdateErrorMessage}
-              />
-            </div>
             <ChatBot
               suggestedMessages={suggestedMessages}
               clearSuggestedMessages={() => this.setState({ suggestedMessages: [] })}
@@ -370,6 +273,19 @@ class App extends Component {
               setCachedDocumentIds={this.setCachedDocumentIds}
               onSuggestChanges={this.onSuggestChanges}
               waitingForSuggestedChanges={waitingForSuggestedChanges}
+            />
+            <CodeEditor
+              code={code}
+              diffs={diffs}
+              onResolveDiff={this.onResolveDiff}
+              onResolveAllDiffs={this.onResolveAllDiffs}
+              onChange={this.onCodeChange}
+              language={language}
+              onSelectLanguage={this.onSelectLanguage}
+              isRateLimited={isRateLimited}
+              waitingForDiffResolution={waitingForDiffResolution}
+              onCloseDiffAlert={() => this.setState({ waitingForDiffResolution: false })}
+              onError={this.onError}
             />
           </div>
         </div>

@@ -21,6 +21,9 @@
     margin-bottom: 20px;
     box-shadow: 0px 0px 10px #10101891;
     z-index: 1;
+
+    margin-left: 30px;
+    margin-right: 30px;
 }
 
 #exitButton {

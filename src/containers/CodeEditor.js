@@ -5,6 +5,7 @@ import Select from 'react-select';
 import Button from "../components/Button";
 import RateLimitMessage from "./RateLimitMessage";
 import Alert from "../components/Alert";
+import Console from "../containers/Console";
 
 import "../styles/CodeEditor.css";
 import 'codemirror/lib/codemirror.css';
@@ -14,28 +15,25 @@ require('codemirror/mode/javascript/javascript');
 require('codemirror/mode/clike/clike');
 
 const LANGUAGES = [
-	{ label: "Python", value: "python" },
-	{ label: "JavaScript", value: "javascript" },
-	{ label: "Java", value: "clike" },
-	{ label: "Ruby", value: "ruby" },
-	{ label: "PHP", value: "php" },
-	{ label: "C++", value: "clike" },
-	{ label: "C", value: "clike" },
-	{ label: "Shell", value: "shell" },
-	{ label: "C#", value: "clike" },
-	{ label: "Objective-C", value: "clike" },
-	{ label: "R", value: "r" },
-	{ label: "Go", value: "go" },
-	{ label: "Perl", value: "perl" },
-	{ label: "CoffeeScript", value: "coffeescript" },
-	{ label: "Scala", value: "clike" },
-	{ label: "Haskell", value: "haskell" },
-	{ label: "HTML", value: "htmlmixed" },
-	{ label: "CSS", value: "css" },
-	{ label: "Kotlin", value: "clike" },
-	{ label: "Rust", value: "rust" },
-	{ label: "SQL", value: "sql" },
-	{ label: "Swift", value: "swift" }
+	{ label: "Python", value: "python", compilerId: 116 },
+	{ label: "JavaScript", value: "javascript", compilerId: 112 },
+	{ label: "Node.js", value: "javascript", compilerId: 56 },
+	{ label: "Java", value: "clike", compilerId: 10 },
+	{ label: "Ruby", value: "ruby", compilerId: 17 },
+	{ label: "PHP", value: "php", compilerId: 29 },
+	{ label: "C++", value: "clike", compilerId: 1 },
+	{ label: "C", value: "clike", compilerId: 11 },
+	{ label: "Bash", value: "shell", compilerId: 28 },
+	{ label: "C#", value: "clike", compilerId: 86 },
+	{ label: "Objective-C", value: "clike", compilerId: 43 },
+	{ label: "Go", value: "go", compilerId: 114 },
+	{ label: "Perl", value: "perl", compilerId: 54 },
+	{ label: "Scala", value: "clike", compilerId: 39 },
+	{ label: "Haskell", value: "haskell", compilerId: 21 },
+	{ label: "Kotlin", value: "clike", compilerId: 47 },
+	{ label: "Rust", value: "rust", compilerId: 93 },
+	{ label: "SQL", value: "sql", compilerId: 52 },
+	{ label: "Swift", value: "swift", compilerId: 85 }
 ];
 
 export default class CodeEditor extends Component {
@@ -50,6 +48,8 @@ export default class CodeEditor extends Component {
 		this.addDiffsToEditor = this.addDiffsToEditor.bind(this);
 		this.deleteDiffsFromEditor = this.deleteDiffsFromEditor.bind(this);
 		this.renderPaywall = this.renderPaywall.bind(this);
+
+		this.state = { alertMessage: "" };
 	}
 
 	/* Utilities */
@@ -207,8 +207,10 @@ export default class CodeEditor extends Component {
 			diffs,
 			onResolveAllDiffs,
 			waitingForDiffResolution,
-			onCloseDiffAlert
+			onCloseDiffAlert,
+			onError
 		} = this.props;
+		const { alertMessage } = this.state;
 
 		return (
 			<div className="codeEditorContainer">
@@ -267,8 +269,19 @@ export default class CodeEditor extends Component {
 					</div>
 				</div>
 
+				{alertMessage === "" ? null : (<Alert onClose={() => this.setState({ alertMessage: "" })}>{alertMessage}</Alert>)}
 				{waitingForDiffResolution ? (<Alert onClose={onCloseDiffAlert}>Please resolve all changes before debugging.</Alert>) : null}
+
+				<Console
+					code={code.join("\n")}
+					compilerId={language.compilerId}
+					onError={onError}
+					onRunFailure={alertMessage => this.setState({ alertMessage })}
+				/>
 			</div>
 		);
 	}
 }
+
+
+// TODO: Implement onError to create a suggested message (implement in parent comp)

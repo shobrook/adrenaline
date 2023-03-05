@@ -1,17 +1,17 @@
 @media (max-width: 700px) {
     #chatBot {
-        height: 100%;
+        height: 50%;
         width: calc(100% - 30px - 30px) !important;
-        border-left: none !important;
-        border-top: 2px solid #54546A !important;
+        border-right: none !important;
+        border-bottom: 2px solid #54546A !important;
     }
 }
 
 #chatBot {
-    width: 33%;
+    width: 50%;
     padding-left: 30px;
     padding-right: 30px;
-    border-left: 2px solid #54546A;
+    border-right: 2px solid #54546A;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
