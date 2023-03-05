@@ -253,6 +253,14 @@
   padding-right: 30px;
 }
 
+#codeEditorContainerWithAlert {
+  height: 67%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1;
+}
+
 @media (max-width: 700px) {
   .codeEditorContainer {
     width: 100% !important;

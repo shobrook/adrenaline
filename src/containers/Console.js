@@ -69,7 +69,7 @@ class Console extends Component {
         } = this.props.auth0;
 
         if (code.trim() === "" || code.trim() === "# Paste your code here") {
-            onRunFailure("Please enter code into the editor before clicking run.");
+            onRunFailure("Please enter code into the editor before executing it.");
             return;
         }
 
@@ -139,14 +139,14 @@ class Console extends Component {
                         } else {
                             Mixpanel.track("run_code_failure");
                             this.setState({ isLoading: false });
-                            onRunFailure("There was an error processing your request.");
+                            onRunFailure("Code execution is not available at this time due to a heavy volume of requests.");
                         }
                     })
                     .catch(error => {
                         Mixpanel.track("run_code_failure");
                         console.log(error);
                         this.setState({ isLoading: false });
-                        onRunFailure("There was an error processing your request.");
+                        onRunFailure("Code execution is not available at this time due to a heavy volume of requests.");
                     });
             })
     }

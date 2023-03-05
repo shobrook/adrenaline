@@ -3,6 +3,7 @@
     width: 100%;
     border-top: 2px solid #54546A;
     background-color: #202030;
+    z-index: 2;
 }
 
 #consoleHeader {

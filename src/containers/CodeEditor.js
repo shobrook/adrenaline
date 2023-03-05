@@ -222,63 +222,65 @@ export default class CodeEditor extends Component {
 
 		return (
 			<div className="codeEditorContainer" onClick={this.onFocus}>
-				<div id="codeEditorSubContainer">
-					<div className="codeEditorHeader">
-						<Select
-							classNamePrefix="languageDropdown"
-							isClearable={false}
-							options={LANGUAGES}
-							onChange={onSelectLanguage}
-							defaultValue={language}
-							styles={{
-								control: (provided, state) => ({
-									...provided,
-									boxShadow: "none",
-									cursor: "pointer",
-									borderRadius: "5px !important"
-								}),
-								menu: (provided, state) => ({
-									...provided,
-									backgroundColor: "#202030"
-								}),
-								option: (provided, state) => ({
-									...provided,
-									fontFamily: "Helvetica Neue",
-									fontSize: "16px",
-									fontWeight: "500",
-									backgroundColor: state.isFocused ? "#279AF1" : "transparent",
-									cursor: "pointer"
-								})
-							}}
-						/>
-						{
-							diffs.length != 0 ? (
-								<div id="diffOptions">
-									<Button isPrimary id="acceptAllButton" onClick={onResolveAllDiffs}>Accept All</Button>
-									<Button isPrimary id="rejectAllButton" onClick={() => onResolveAllDiffs(false)}>Reject All</Button>
-								</div>
-							) : null
-						}
+				<div id="codeEditorContainerWithAlert">
+					<div id="codeEditorSubContainer">
+						<div className="codeEditorHeader">
+							<Select
+								classNamePrefix="languageDropdown"
+								isClearable={false}
+								options={LANGUAGES}
+								onChange={onSelectLanguage}
+								defaultValue={language}
+								styles={{
+									control: (provided, state) => ({
+										...provided,
+										boxShadow: "none",
+										cursor: "pointer",
+										borderRadius: "5px !important"
+									}),
+									menu: (provided, state) => ({
+										...provided,
+										backgroundColor: "#202030"
+									}),
+									option: (provided, state) => ({
+										...provided,
+										fontFamily: "Helvetica Neue",
+										fontSize: "16px",
+										fontWeight: "500",
+										backgroundColor: state.isFocused ? "#279AF1" : "transparent",
+										cursor: "pointer"
+									})
+								}}
+							/>
+							{
+								diffs.length != 0 ? (
+									<div id="diffOptions">
+										<Button isPrimary id="acceptAllButton" onClick={onResolveAllDiffs}>Accept All</Button>
+										<Button isPrimary id="rejectAllButton" onClick={() => onResolveAllDiffs(false)}>Reject All</Button>
+									</div>
+								) : null
+							}
+						</div>
+						<div id={!isRateLimited ? "codeMirrorContainer" : "rateLimitedCodeMirrorContainer"}>
+							{this.renderPaywall()}
+							<CodeMirror
+								className={`codeEditor ${isRateLimited ? "blocked" : ""}`}
+								value={code.join("\n")}
+								options={{
+									mode: language.value,
+									theme: "dracula",
+									lineNumbers: true
+								}}
+								onBeforeChange={onChange}
+								onChange={onChange}
+								editorDidMount={editor => this.codeMirrorRef = editor}
+							/>
+						</div>
 					</div>
-					<div id={!isRateLimited ? "codeMirrorContainer" : "rateLimitedCodeMirrorContainer"}>
-						{this.renderPaywall()}
-						<CodeMirror
-							className={`codeEditor ${isRateLimited ? "blocked" : ""}`}
-							value={code.join("\n")}
-							options={{
-								mode: language.value,
-								theme: "dracula",
-								lineNumbers: true
-							}}
-							onBeforeChange={onChange}
-							onChange={onChange}
-							editorDidMount={editor => this.codeMirrorRef = editor}
-						/>
-					</div>
-				</div>
 
-				{alertMessage === "" ? null : (<Alert onClose={() => this.setState({ alertMessage: "" })}>{alertMessage}</Alert>)}
-				{waitingForDiffResolution ? (<Alert onClose={onCloseDiffAlert}>Please resolve all changes before debugging.</Alert>) : null}
+					{alertMessage === "" ? null : (<Alert onClose={() => this.setState({ alertMessage: "" })}>{alertMessage}</Alert>)}
+					{waitingForDiffResolution ? (<Alert onClose={onCloseDiffAlert}>Please resolve all changes before debugging.</Alert>) : null}
+				</div>
 
 				<Console
 					code={code.join("\n")}
