@@ -48,6 +48,7 @@ export default class CodeEditor extends Component {
 		this.addDiffsToEditor = this.addDiffsToEditor.bind(this);
 		this.deleteDiffsFromEditor = this.deleteDiffsFromEditor.bind(this);
 		this.renderPaywall = this.renderPaywall.bind(this);
+		this.onFocus = this.onFocus.bind(this);
 
 		this.state = { alertMessage: "" };
 	}
@@ -180,6 +181,13 @@ export default class CodeEditor extends Component {
 		}
 	}
 
+	/* Event Handlers */
+
+	onFocus() {
+		console.log(this.codeMirrorRef);
+		this.codeMirrorRef.focus();
+	}
+
 	/* Lifecycle Methods */
 
 	componentDidUpdate(prevProps) {
@@ -213,7 +221,7 @@ export default class CodeEditor extends Component {
 		const { alertMessage } = this.state;
 
 		return (
-			<div className="codeEditorContainer">
+			<div className="codeEditorContainer" onClick={this.onFocus}>
 				<div id="codeEditorSubContainer">
 					<div className="codeEditorHeader">
 						<Select
