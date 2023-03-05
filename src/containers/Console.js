@@ -128,9 +128,9 @@ class Console extends Component {
 
                         const result = await pollSubmissionStatus();
                         if (result) {
+                            const { output, isError } = result;
                             Mixpanel.track("run_code_success", { isError });
 
-                            const { output, isError } = result;
                             this.setState({ output, isLoading: false });
 
                             if (isError) {
