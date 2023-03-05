@@ -28,7 +28,7 @@ class Console extends Component {
 
         return await getAccessTokenSilently()
             .then(async (token) => {
-                return await fetch("http://localhost:5000/api/execution_output", {
+                return await fetch("https://rubrick-api-production.up.railway.app/api/execution_output", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -87,7 +87,7 @@ class Console extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch(`http://localhost:5000/api/execute_code`, {
+                fetch("https://rubrick-api-production.up.railway.app/api/execute_code", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
