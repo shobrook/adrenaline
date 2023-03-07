@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, Fragment } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -43,7 +43,16 @@ export default class ChatMessage extends Component {
 					return (<b>{`\`${otherText}\``}</b>);
 				}
 
-				return otherText;
+				return (
+					<pre className="regularText">
+					  {otherText.split("\n").map((line, index) => (
+						<Fragment key={index}>
+						  {line}
+						  <br />
+						</Fragment>
+					  ))}
+					</pre>
+				  );
 			});
 		});
 

@@ -23,6 +23,10 @@
     margin-top: 15px !important;
 }
 
+.regularText {
+    all: unset !important;
+}
+
 .aiResponse {
     background-color: #535379 !important;
     align-self: flex-start !important;
