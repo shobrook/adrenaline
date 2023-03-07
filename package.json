@@ -4,7 +4,13 @@
   "private": true,
   "dependencies": {
     "@auth0/auth0-react": "^2.0.0",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/lab": "^5.0.0-alpha.122",
+    "@mui/material": "^5.11.12",
+    "@react-spring/web": "^9.7.1",
     "@stripe/react-stripe-js": "^1.16.5",
+    "@stripe/stripe-js": "^1.48.0",
     "codemirror": "^5.65.10",
     "create-react-app": "^5.0.1",
     "diff": "^5.1.0",
@@ -17,6 +23,7 @@
     "react-scripts": "5.0.1",
     "react-select": "^5.7.0",
     "react-syntax-highlighter": "^15.5.0",
+    "swr": "^2.1.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

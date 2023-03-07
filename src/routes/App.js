@@ -10,6 +10,7 @@ import { withRouter, updateDiffIndexing, diffCode } from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/App.css";
+import FileStructure from "../containers/FileStructure";
 
 class App extends Component {
   constructor(props) {
@@ -265,6 +266,11 @@ class App extends Component {
           <Header />
 
           <div className="body">
+              <FileStructure
+                onSelectedFile={(fileContent) => {
+                  this.setState({ code: fileContent.split('\n'), diffs: [], shouldUpdateContext: true });
+                }}
+              />
             <ChatBot
               suggestedMessages={suggestedMessages}
               clearSuggestedMessages={() => this.setState({ suggestedMessages: [] })}
@@ -281,7 +287,7 @@ class App extends Component {
               onResolveDiff={this.onResolveDiff}
               onResolveAllDiffs={this.onResolveAllDiffs}
               onChange={this.onCodeChange}
-              language={language}
+              language={language}  // TODO: update language dynamically
               onSelectLanguage={this.onSelectLanguage}
               isRateLimited={isRateLimited}
               waitingForDiffResolution={waitingForDiffResolution}
