@@ -40,7 +40,7 @@ function Header({ onClick, isTransparent }) {
 		<div className={isTransparent ? "header transparent" : "header"}>
 			<div className="logo">
 				<Link to="/">
-					<img src="./logo.png" />
+					<img src="./logo.png" alt={"our logo"}/>
 				</Link>
 			</div>
 			<div className="buttons">

@@ -253,7 +253,7 @@ export default class CodeEditor extends Component {
 								}}
 							/>
 							{
-								diffs.length != 0 ? (
+								diffs.length !== 0 ? (
 									<div id="diffOptions">
 										<Button isPrimary id="acceptAllButton" onClick={onResolveAllDiffs}>Accept All</Button>
 										<Button isPrimary id="rejectAllButton" onClick={() => onResolveAllDiffs(false)}>Reject All</Button>
