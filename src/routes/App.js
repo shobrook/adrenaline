@@ -226,9 +226,9 @@ class App extends Component {
 
   onSelectLanguage(language) {
     Mixpanel.track("select_language", { language: language.label });
-    this.setState({ language });
     localStorage.setItem("language", JSON.stringify(language));
-    console.log("language", JSON.stringify(language))
+    this.setState({ language });
+    this.setState({ code: language.codeExample });
   }
 
   onUpdateErrorMessage(errorMessage) {
@@ -260,6 +260,8 @@ class App extends Component {
       shouldUpdateContext,
       isRateLimited
     } = this.state;
+
+    console.log(code)
 
     return (
       <>
