@@ -17,7 +17,7 @@ export default class PaymentPlan extends Component {
         return features.map(feature => {
             return (
                 <div className="planFeature">
-                    <img src={isSelected ? "./checkmark_primary.png" : "./checkmark_secondary.png"} />
+                    <img src={isSelected ? "./checkmark_primary.png" : "./checkmark_secondary.png"} alt={"checkmark"}/>
                     <span>{feature}</span>
                 </div>
             );

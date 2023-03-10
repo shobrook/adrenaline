@@ -62,7 +62,7 @@ class Landing extends Component {
 					<div id="underTheFold">
 						<div id="featuresSection">
 							<div id="debugFeature">
-								<img src="./debug_demo.png" />
+								<img src="./debug_demo.png" alt={"demo of debugger"} />
 								<div className="featureOverview">
 									<span>Fix your code with one click</span>
 									<p>Input your code and describe the problem, and Adrenaline will propose a fix with just one click.</p>
@@ -73,7 +73,7 @@ class Landing extends Component {
 									<span>Talk to AI about your code</span>
 									<p>For more advanced errors, diagnose them by discussing your code with the Adrenaline chatbot.</p>
 								</div>
-								<img src="./chatbot_demo.png" />
+								<img src="./chatbot_demo.png" alt={"demo fo chatbot"} />
 							</div>
 						</div>
 						<div id="pricingSection">

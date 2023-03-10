@@ -15,26 +15,26 @@ require('codemirror/mode/javascript/javascript');
 require('codemirror/mode/clike/clike');
 
 const LANGUAGES = [
-	{ label: "Python", value: "python", compilerId: 116 },
-	{ label: "JavaScript", value: "javascript", compilerId: 112 },
-	{ label: "Node.js", value: "javascript", compilerId: 56 },
-	{ label: "Java", value: "clike", compilerId: 10 },
-	{ label: "Ruby", value: "ruby", compilerId: 17 },
-	{ label: "PHP", value: "php", compilerId: 29 },
-	{ label: "C++", value: "clike", compilerId: 1 },
-	{ label: "C", value: "clike", compilerId: 11 },
-	{ label: "R", value: "r", compilerId: 117 },
-	{ label: "Bash", value: "shell", compilerId: 28 },
-	{ label: "C#", value: "clike", compilerId: 86 },
-	{ label: "Objective-C", value: "clike", compilerId: 43 },
-	{ label: "Go", value: "go", compilerId: 114 },
-	{ label: "Perl", value: "perl", compilerId: 54 },
-	{ label: "Scala", value: "clike", compilerId: 39 },
-	{ label: "Haskell", value: "haskell", compilerId: 21 },
-	{ label: "Kotlin", value: "clike", compilerId: 47 },
-	{ label: "Rust", value: "rust", compilerId: 93 },
-	{ label: "SQL", value: "sql", compilerId: 52 },
-	{ label: "Swift", value: "swift", compilerId: 85 }
+	{ label: "Python", value: "python", compilerId: 116, codeExample: [["# Paste your code here"]] },
+	{ label: "JavaScript", value: "javascript", compilerId: 112, codeExample: ["// Paste your code here"] },
+	{ label: "Node.js", value: "javascript", compilerId: 56, codeExample: ["// Paste your code here"] },
+	{ label: "Java", value: "clike", compilerId: 10, codeExample: ["// Paste your code here"] },
+	{ label: "Ruby", value: "ruby", compilerId: 17, codeExample: ["# Paste your code here"] },
+	{ label: "PHP", value: "php", compilerId: 29, codeExample: ["// Paste your code here"] },
+	{ label: "C++", value: "clike", compilerId: 1, codeExample: ["// Paste your code here"] },
+	{ label: "C", value: "clike", compilerId: 11, codeExample: ["// Paste your code here"] },
+	{ label: "R", value: "r", compilerId: 117, codeExample: ["# Paste your code here"] },
+	{ label: "Bash", value: "shell", compilerId: 28, codeExample: ["# Paste your code here"] },
+	{ label: "C#", value: "clike", compilerId: 86, codeExample: ["// Paste your code here"] },
+	{ label: "Objective-C", value: "clike", compilerId: 43, codeExample: ["// Paste your code here"] },
+	{ label: "Go", value: "go", compilerId: 114, codeExample: ["// Paste your code here"] },
+	{ label: "Perl", value: "perl", compilerId: 54, codeExample: ["# Paste your code here"] },
+	{ label: "Scala", value: "clike", compilerId: 39, codeExample: ["// Paste your code here"] },
+	{ label: "Haskell", value: "haskell", compilerId: 21, codeExample: ["-- Paste your code here"] },
+	{ label: "Kotlin", value: "clike", compilerId: 47, codeExample: ["// Paste your code here"] },
+	{ label: "Rust", value: "rust", compilerId: 93, codeExample: ["// Paste your code here"] },
+	{ label: "SQL", value: "sql", compilerId: 52, codeExample: ["-- Paste your code here"] },
+	{ label: "Swift", value: "swift", compilerId: 85, codeExample: ["// Paste your code here"] },
 ];
 
 export default class CodeEditor extends Component {
@@ -253,7 +253,7 @@ export default class CodeEditor extends Component {
 								}}
 							/>
 							{
-								diffs.length != 0 ? (
+								diffs.length !== 0 ? (
 									<div id="diffOptions">
 										<Button isPrimary id="acceptAllButton" onClick={onResolveAllDiffs}>Accept All</Button>
 										<Button isPrimary id="rejectAllButton" onClick={() => onResolveAllDiffs(false)}>Reject All</Button>
