@@ -227,8 +227,7 @@ class App extends Component {
   onSelectLanguage(language) {
     Mixpanel.track("select_language", { language: language.label });
     localStorage.setItem("language", JSON.stringify(language));
-    this.setState({ language });
-    this.setState({ code: language.codeExample });
+    this.setState({ language, code: language.codeExample });
   }
 
   onUpdateErrorMessage(errorMessage) {
