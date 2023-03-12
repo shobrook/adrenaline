@@ -1,0 +1,26 @@
+.app {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #373751;  /* #140C58 */
+
+  /* font-family: "Helvetica Neue"; */
+  font-size: 16px;
+  color: #FFFFFF;
+}
+
+.app .body {
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 55px);
+  overflow: auto;
+}
+
+@media (max-width: 700px) {
+  .app .body {
+    flex-direction: column;
+    width: 100%;
+  }
+}

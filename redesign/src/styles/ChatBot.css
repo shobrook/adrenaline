@@ -1,0 +1,32 @@
+@media (max-width: 700px) {
+    #chatBot {
+        height: 50%;
+        width: calc(100% - 30px - 30px) !important;
+        border-right: none !important;
+        border-bottom: 2px solid #54546A !important;
+    }
+}
+
+#chatBot {
+    width: 50%;
+    padding-left: 30px;
+    padding-right: 30px;
+    border-right: 2px solid #54546A;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#messages {
+    margin-top: calc(20px - 15px);
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    margin-bottom: 30px;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+#messages::-webkit-scrollbar {
+    display: none;
+} 
