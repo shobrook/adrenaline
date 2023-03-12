@@ -46,7 +46,7 @@ export default class InputField extends Component {
 
         return (
             <div id="inputField">
-                {suggestedMessages.length != 0 ? (
+                {suggestedMessages.length !== 0 ? (
                     <div id="suggestedMessages">
                         {suggestedMessages.map((suggestedMessage, index) => {
                             return (

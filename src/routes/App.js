@@ -43,7 +43,7 @@ class App extends Component {
   /* Utilities */
 
   setCachedDocumentIds(documentIds) {
-    if (documentIds.length != 0) {
+    if (documentIds.length !== 0) {
       localStorage.setItem("cachedDocumentIds", JSON.stringify(documentIds))
     }
 
@@ -120,7 +120,7 @@ class App extends Component {
       otherDiff.mergeLine = mergeLine - numLinesDeleted;
 
       return otherDiff;
-    }).filter(otherDiff => otherDiff.id != diffId);
+    }).filter(otherDiff => otherDiff.id !== diffId);
     let updatedCode = code.filter((_, index) => !linesToDelete.includes(index));
 
     this.setState({ code: updatedCode, diffs: updatedDiffs });
@@ -168,7 +168,7 @@ class App extends Component {
     } = this.props.auth0;
     const { code, diffs } = this.state;
 
-    if (diffs.length != 0) {
+    if (diffs.length !== 0) {
       Mixpanel.track("has_unresolved_diffs", { clickSource: "suggest_changes" });
       this.setState({ waitingForDiffResolution: true })
       return;
@@ -198,7 +198,7 @@ class App extends Component {
             email: user.email,
             code: code.join("\n"),
             message,
-            is_demo_code: code == DEMO_CODE
+            is_demo_code: code === DEMO_CODE
           })
         })
           .then(this.handleRateLimitErrors)
@@ -226,7 +226,8 @@ class App extends Component {
 
   onSelectLanguage(language) {
     Mixpanel.track("select_language", { language: language.label });
-    this.setState({ language });
+    localStorage.setItem("language", JSON.stringify(language));
+    this.setState({ language, code: language.codeExample });
   }
 
   onUpdateErrorMessage(errorMessage) {
@@ -258,6 +259,8 @@ class App extends Component {
       shouldUpdateContext,
       isRateLimited
     } = this.state;
+
+    console.log(code)
 
     return (
       <>
