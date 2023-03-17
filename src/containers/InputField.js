@@ -41,7 +41,7 @@ export default class InputField extends Component {
     }
 
     render() {
-        const { placeholder, submitLabel, onSubmitSuggested, suggestedMessages } = this.props;
+        const { placeholder, submitLabel, onSubmitSuggested, suggestedMessages, initialValue } = this.props;
         const { value } = this.state;
 
         return (
@@ -82,7 +82,7 @@ export default class InputField extends Component {
                         id="inputFieldValue"
                         placeholder={placeholder}
                         onChange={this.onChange}
-                        value={value}
+                        value={value || initialValue}
                         onKeyPress={this.onKeyPress}
                     />
                     <Button
