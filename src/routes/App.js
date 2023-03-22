@@ -4,13 +4,13 @@ import { withAuth0 } from "@auth0/auth0-react";
 import Header from "../containers/Header";
 import CodeEditor from "../containers/CodeEditor";
 import ChatBot from "../containers/ChatBot";
+import FileStructure from "../containers/FileStructure";
 
 import { OLD_CODE_LABEL, NEW_CODE_LABEL, DEMO_CODE, DEFAULT_LANGUAGE } from "../library/constants";
 import { withRouter, updateDiffIndexing, diffCode } from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/App.css";
-import FileStructure from "../containers/FileStructure";
 
 class App extends Component {
   constructor(props) {
@@ -25,6 +25,8 @@ class App extends Component {
     this.onSelectLanguage = this.onSelectLanguage.bind(this);
     this.onSuggestChanges = this.onSuggestChanges.bind(this);
     this.onError = this.onError.bind(this);
+    this.onSelectFile = this.onSelectFile.bind(this);
+    this.onSetRepoURL = this.onSetRepoURL.bind(this);
 
     this.state = {
       language: DEFAULT_LANGUAGE,
@@ -37,7 +39,8 @@ class App extends Component {
       suggestedMessages: [],
       waitingForDiffResolution: false,
       shouldUpdateContext: true,
-      isRateLimited: false
+      isRateLimited: false,
+      repoURL: ""
     };
   }
 
@@ -65,6 +68,15 @@ class App extends Component {
   }
 
   /* Event Handlers */
+
+  onSelectFile(fileContent) {
+    this.setState({ code: fileContent.split('\n'), diffs: [], shouldUpdateContext: true });
+  }
+
+  onSetRepoURL(repoURL) {
+    localStorage.setItem('repoURL', repoURL);
+    this.setState({ repoURL });
+  }
 
   onError(errorMessage) {
     this.setState({ suggestedMessages: [{ preview: "What's causing my code to fail?", prompt: `What's causing this error:\n${errorMessage}` }] });
@@ -258,10 +270,9 @@ class App extends Component {
       suggestedMessages,
       errorMessage,
       shouldUpdateContext,
-      isRateLimited
+      isRateLimited,
+      repoURL
     } = this.state;
-
-    console.log(code)
 
     return (
       <>
@@ -269,11 +280,6 @@ class App extends Component {
           <Header />
 
           <div className="body">
-              <FileStructure
-                onSelectedFile={(fileContent) => {
-                  this.setState({ code: fileContent.split('\n'), diffs: [], shouldUpdateContext: true });
-                }}
-              />
             <ChatBot
               suggestedMessages={suggestedMessages}
               clearSuggestedMessages={() => this.setState({ suggestedMessages: [] })}
@@ -283,6 +289,10 @@ class App extends Component {
               setCachedDocumentIds={this.setCachedDocumentIds}
               onSuggestChanges={this.onSuggestChanges}
               waitingForSuggestedChanges={waitingForSuggestedChanges}
+            />
+            <FileStructure
+              onSelectedFile={this.onSelectFile}
+              repoURL={repoURL}
             />
             <CodeEditor
               code={code}
@@ -296,6 +306,8 @@ class App extends Component {
               waitingForDiffResolution={waitingForDiffResolution}
               onCloseDiffAlert={() => this.setState({ waitingForDiffResolution: false })}
               onError={this.onError}
+              repoURL={repoURL}
+              onSetRepoURL={this.onSetRepoURL}
             />
           </div>
         </div>

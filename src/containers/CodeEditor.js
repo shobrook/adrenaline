@@ -5,7 +5,7 @@ import Select from 'react-select';
 import Button from "../components/Button";
 import RateLimitMessage from "./RateLimitMessage";
 import Alert from "../components/Alert";
-import Console from "../containers/Console";
+import InputField from "../containers/InputField";
 
 import "../styles/CodeEditor.css";
 import 'codemirror/lib/codemirror.css';
@@ -216,7 +216,9 @@ export default class CodeEditor extends Component {
 			onResolveAllDiffs,
 			waitingForDiffResolution,
 			onCloseDiffAlert,
-			onError
+			onSetRepoURL,
+			repoURL,
+			onSelectFile
 		} = this.props;
 		const { alertMessage } = this.state;
 
@@ -282,11 +284,13 @@ export default class CodeEditor extends Component {
 					{waitingForDiffResolution ? (<Alert onClose={onCloseDiffAlert}>Please resolve all changes before debugging.</Alert>) : null}
 				</div>
 
-				<Console
-					code={code.join("\n")}
-					compilerId={language.compilerId}
-					onError={onError}
-					onRunFailure={alertMessage => this.setState({ alertMessage })}
+				<InputField
+					className="inputGithubRepo"
+					onSubmit={onSetRepoURL}
+					initialValue={repoURL}
+					suggestedMessages={[]}
+					placeholder="https://github.com/shobrook/adrenaline"
+					submitLabel="Import"
 				/>
 			</div>
 		);

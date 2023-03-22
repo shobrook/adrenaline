@@ -255,12 +255,24 @@
 }
 
 #codeEditorContainerWithAlert {
-  height: 67%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   z-index: 1;
 }
+
+.inputGithubRepo {
+  position: sticky;
+  bottom: 10px;
+  z-index: 1;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-family: "Helvetica Neue";
+  font-size: 16px;
+}
+
+
 
 @media (max-width: 700px) {
   .codeEditorContainer {

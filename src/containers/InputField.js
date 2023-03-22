@@ -41,11 +41,18 @@ export default class InputField extends Component {
     }
 
     render() {
-        const { placeholder, submitLabel, onSubmitSuggested, suggestedMessages, initialValue } = this.props;
+        const {
+            className,
+            placeholder,
+            submitLabel,
+            onSubmitSuggested,
+            suggestedMessages,
+            initialValue
+        } = this.props;
         const { value } = this.state;
 
         return (
-            <div id="inputField">
+            <div id="inputField" className={className}>
                 {suggestedMessages.length !== 0 ? (
                     <div id="suggestedMessages">
                         {suggestedMessages.map((suggestedMessage, index) => {

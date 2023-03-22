@@ -1,6 +1,7 @@
 .fileStructureWrapper {
     border-right: 2px solid #54546A;
     width: 33%;
+    padding-top: 20px;
 }
 
 .fileStructureWrapper > ul {
