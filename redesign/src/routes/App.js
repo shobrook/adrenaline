@@ -4,6 +4,7 @@ import { withAuth0 } from "@auth0/auth0-react";
 import Header from "../containers/Header";
 import ChatBot from "../containers/ChatBot";
 import DocumentFeed from "../containers/DocumentFeed";
+import CodeExplorer from "../containers/CodeExplorer";
 
 import { withRouter } from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
@@ -49,7 +50,11 @@ class App extends Component {
     this.onSubmitQuery = this.onSubmitQuery.bind(this);
     this.onSetCodebaseId = this.onSetCodebaseId.bind(this);
 
-    this.state = { codebaseId: "", messages: [], documents: [] };
+    this.state = {
+      codebaseId: "",
+      messages: [new Message("Ask me anything about your code.", true, true)],
+      documents: []
+    };
   }
 
   /* Event Handlers */
@@ -72,7 +77,7 @@ class App extends Component {
       response.isComplete = true;
     }
 
-    const priorMessages = messages.slice(0, messages.length - 1);
+    const priorMessages = messages.slice(0, messages.length);
     this.setState({ messages: [...priorMessages, query, response] });
 
     if (!isAuthenticated) {
@@ -148,7 +153,9 @@ class App extends Component {
   }
 
   render() {
-    const { messages, documents } = this.state;
+    const { messages, documents, codebaseId } = this.state;
+
+    console.log("App rendered")
 
     return (
       <>
@@ -159,9 +166,11 @@ class App extends Component {
             <ChatBot
               messages={messages}
               onSubmitQuery={this.onSubmitQuery}
-              onSetCodebaseId={this.onSetCodebaseId}
             />
-            <DocumentFeed documents={documents} />
+            <CodeExplorer
+              onSetCodebaseId={this.onSetCodebaseId}
+              codebaseId={codebaseId}
+            />
           </div>
         </div>
       </>

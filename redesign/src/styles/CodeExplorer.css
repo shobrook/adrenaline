@@ -1,0 +1,134 @@
+#codeExplorer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 30px);
+    border: 2px solid #262A39;
+    border-radius: 7px;
+    background-color: #181b26;
+    width: calc(60% - 30px);
+    max-width: calc(60% - 30px);
+}
+
+#codeContextPrompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+#codeContextPrompt > span {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+#codeHeader {
+    height: 60px;
+    border-bottom: 2px solid #262A39;
+    padding-left: 15px;
+}
+
+#codeHeader > img {
+    height: 20px;
+    cursor: pointer;
+}
+
+#codeHeader > span {
+    padding-left: 10px;
+    font-weight: 500;
+}
+
+#codeContent {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* width: 100%; */
+    flex: 1;
+}
+
+.truncatedCodeContent {
+    border-left: 2px solid #262A39;
+    /* width: 70% !important; */
+}
+
+#codeHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#codePreview {
+    width: 100%;
+    height: calc(100% - 60px - 60px);
+    overflow: auto;
+    
+}
+
+#codeContextOptions {
+    border-top: 2px solid #262A39;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+    padding-right: 15px;
+    justify-content: space-between;
+}
+
+#repoLink {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+#repoLink:hover {
+    opacity: 0.75;
+}
+
+#repoLink > img {
+    height: 20px;
+}
+
+#repoLink > a {
+    text-decoration: none;
+    color: white;
+    padding-left: 10px;
+    font-weight: 500;
+}
+
+.codeBlock {
+    background: #181B26 !important;
+}
+
+.MuiTreeItem-content {
+    padding-left: 15px !important;
+}
+
+.MuiTreeItem-group {
+    border-left: 1px dashed #262A39;
+}
+
+.Mui-selected { 
+    background-color: #262A39 !important;
+}
+
+@media (max-width: 700px) {
+    #codeExplorer {
+        width: calc(100% - 4px) !important;
+        max-width: none !important;
+        margin-bottom: 20px;
+    }
+}
+
+#progressMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#progressMessage > span {
+    padding-top: 30px;
+}

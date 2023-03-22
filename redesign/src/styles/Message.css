@@ -9,11 +9,10 @@
     padding-bottom: 15px;
     border-radius: 7px;
     color: white;
-    margin-top: 15px;
-    background-color: #D93CFF;
+    margin-bottom: 15px;
+    background-color: #A305E1;
     align-self: flex-end;
-    max-width: 66%;
-    width: fit-content;
+    width: calc(100% - 15px - 15px);
     overflow-wrap: break-word;
 }
 
@@ -24,7 +23,8 @@
 }
 
 .aiResponse {
-    background-color: #535379 !important;
+    /* background-color: #1E212E !important; */
+    background-color: #2B3044 !important;
     align-self: flex-start !important;
 }
 
@@ -36,30 +36,6 @@
 .messageContent {
     font-weight: 400;
     /* padding-left: 15px; */
-}
-
-.suggestChangesButton {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    font-weight: 600;
-    font-size: 14px;
-    justify-content: center;
-    background-color: #d93cff;
-    height: 35px;
-    border-radius: 7px;
-    margin-top: 15px;
-    cursor: pointer;
-    width: 100%;
-}
-
-.suggestChangesButton:hover {
-    opacity: 0.75;
-}
-
-.suggestChangesButton > img {
-    height: 20px;
-    padding-right: 10px;
 }
 
 .codeBlock {

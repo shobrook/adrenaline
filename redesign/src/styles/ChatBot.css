@@ -1,24 +1,23 @@
 @media (max-width: 700px) {
     #chatBot {
         height: 50%;
-        width: calc(100% - 30px - 30px) !important;
-        border-right: none !important;
-        border-bottom: 2px solid #54546A !important;
+        width: 100% !important;
+        max-width: none !important;
+        padding-bottom: 20px;
+        padding-top: 20px;
     }
 }
 
 #chatBot {
-    width: 50%;
-    padding-left: 30px;
-    padding-right: 30px;
-    border-right: 2px solid #54546A;
+    height: calc(100% - 30px + 2px + 2px);
+    width: 40%;
+    max-width: 40%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
 #messages {
-    margin-top: calc(20px - 15px);
     display: flex;
     flex-direction: column;
     overflow-y: scroll;

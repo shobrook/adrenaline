@@ -8,32 +8,32 @@ import Mixpanel from "../library/mixpanel";
 import "../styles/ChatBot.css";
 
 class ChatBot extends Component {
-    constructor(props) {
-        super(props);
+    /* Utilities */
 
-        this.state = { processedFiles: [] }
+    scrollToBottom = () => {
+        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
 
     /* Lifecycle Methods */
 
+    componentDidMount() {
+        this.scrollToBottom();
+    }
 
+    componentDidUpdate() {
+        this.scrollToBottom();
+    }
 
     render() {
         const {
             onSubmitQuery,
-            onSetCodebaseId,
             messages
         } = this.props;
 
         return (
             <div id="chatBot">
-                <QueryInput
-                    onSubmitQuery={onSubmitQuery}
-                    onSetCodebaseId={onSetCodebaseId}
-                />
-
                 <div id="messages">
-                    {messages.reverse().map(message => {
+                    {messages.map(message => {
                         const {
                             content,
                             isResponse,
@@ -51,7 +51,11 @@ class ChatBot extends Component {
                             </Message>
                         );
                     })}
+                    <div style={{ float: "left", clear: "both" }}
+                        ref={(el) => { this.messagesEnd = el; }}>
+                    </div>
                 </div>
+                <QueryInput onSubmitQuery={onSubmitQuery} />
             </div>
         );
     }

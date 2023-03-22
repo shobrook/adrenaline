@@ -20,3 +20,40 @@ export function withRouter(Component) {
 
     return ComponentWithRouterProp;
 }
+
+export function getLanguageFromFile(filePath) {
+    return "python"; // TODO
+}
+
+export function buildTreeFromFlatList(flatListArray) {
+    if (!flatListArray) {
+        return [];
+    }
+
+    let result = [];
+    let level = { result };
+
+    flatListArray.forEach(path => {
+        path.split('/').reduce((r, name) => {
+            if (!r[name]) {
+                r[name] = { result: [] };
+                r.result.push({ name, path, children: r[name].result })
+            }
+
+            return r[name];
+        }, level)
+    })
+
+    return result;
+}
+
+export async function getFileContent(fileUrl) {
+    // const fileContentUrl = `https://raw.githubusercontent.com/${repoPath}/${defaultBranch}/${filePath}`;
+    const fileContent = await fetch(fileUrl, {
+        method: "GET",
+        headers: {}
+    })
+        .then(res => res.text());
+
+    return fileContent;
+}

@@ -1,5 +1,6 @@
 #inputField {
-    margin-bottom: 20px;
+    border: 2px solid #262A39;
+    border-radius: 7px;
     display: flex;
     flex-direction: column;
     /* align-items: center; */
@@ -12,7 +13,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    background-color: #29293D;
+    background-color: #181B26;
     padding-left: 15px;
     padding-right: 15px;
     border-radius: 7px;
