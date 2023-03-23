@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  adrenaline:
+    build: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true

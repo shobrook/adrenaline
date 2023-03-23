@@ -1,0 +1,12 @@
+# Ignore node_modules as they will be installed inside the container
+node_modules
+
+# Ignore common development files and folders
+.git
+.gitignore
+.vscode
+.idea
+Dockerfile
+docker-compose.yml
+README.md
+LICENSE
