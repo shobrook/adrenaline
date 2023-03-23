@@ -27,7 +27,7 @@ class ApiSubscription extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://staging-rubrick-api-production.up.railway.app/api/stripe/create_checkout_session", {
+                fetch("https://adrenaline-api-staging.up.railway.app/api/stripe/create_checkout_session", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
