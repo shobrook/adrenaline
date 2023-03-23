@@ -14,7 +14,7 @@ To run locally, clone the repository and run the following:
 
 ```bash
 $ npm install
-$ npm run start-local
+$ npm run start
 ```
 
 ## Acknowledgements
