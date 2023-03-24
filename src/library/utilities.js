@@ -10,7 +10,14 @@ import { OLD_CODE_LABEL, NEW_CODE_LABEL, CODE_SEPARATOR } from "./constants";
 export function range(size, startAt = 0) { return [...Array(size).keys()].map(i => i + startAt); }
 
 export function diffCode(oldCode, newCode) {
-  const diffResults = Diff.diffArrays(oldCode, newCode);
+  const diffResults = Diff.diffArrays(oldCode, newCode, {
+    comparator: (left, right) => {
+      const trimmedLeft = left.trim().replace("    ", "\t");
+      const trimmedRight = right.trim().replace("    ", "\t");
+
+      return trimmedLeft === trimmedRight;
+    }
+  });
 
   let mergedCode = []; let diffs = [];
   let i = 0; let j = -1;
@@ -66,15 +73,6 @@ export function diffCode(oldCode, newCode) {
 
     i += 1;
   };
-
-  // Excludes whitespace edits
-  diffs = diffs.filter(diff => {
-    const { oldLines, newLines } = diff;
-    const trimmedOldLines = oldLines.join("\n").trim().replace("    ", "\t");
-    const trimmedNewLines = newLines.join("\n").trim().replace("    ", "\t");
-
-    return trimmedOldLines !== trimmedNewLines;
-  });
 
   return {
     diffs,
