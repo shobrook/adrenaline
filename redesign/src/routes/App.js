@@ -232,6 +232,8 @@ class App extends Component {
 
     Mixpanel.track("load_playground");
 
+    // TODO: Only connect to websocket when user is authenticated
+
     /* Connect to query handler websocket */
 
     if (window.location.protocol === "https:") {
@@ -277,11 +279,43 @@ class App extends Component {
       console.log(event); // TODO: Display error message
     };
 
-    /* Fetch user's subscription status */
-
     if (!isAuthenticated) {
       return;
     }
+
+    /* Handle Github OAuth redirects */
+
+    const { search } = this.props.router.location;
+
+    let githubCode = null;
+    if (search != "") {
+      const searchParams = search.split("?code=");
+      githubCode = searchParams.length == 2 ? searchParams[1] : null;
+    }
+
+    if (githubCode != null) {
+      console.log("Github request??")
+      getAccessTokenSilently()
+        .then(token => {
+          fetch("http://localhost:5000/api/github_callback", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              user_id: user.sub,
+              github_code: githubCode
+            })
+          })
+            .then(res => res.json())
+            .then(data => {
+
+            })
+        })
+    }
+
+    /* Fetch user's subscription status */
 
     getAccessTokenSilently()
       .then(token => {
@@ -304,8 +338,6 @@ class App extends Component {
               num_repositories_indexed,
               num_code_snippets_indexed
             } = data;
-
-            console.log(data);
 
             this.setState({
               subscriptionStatus: {

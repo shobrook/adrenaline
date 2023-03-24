@@ -85,16 +85,23 @@ class GithubInput extends Component {
                 message,
                 metadata,
                 is_final,
+                is_paywalled,
                 error_message
             } = JSON.parse(event.data);
+
+            console.log(event.data);
 
             // TODO: Error-handling
 
             if (is_final) {
-                const { codebase_id, files } = metadata;
-
                 onSetProgressMessage("");
-                await onSetCodebase(codebase_id, githubUrl, files);
+
+                if (is_paywalled) {
+                    await onSetCodebase("", [], is_paywalled);
+                } else {
+                    const { codebase_id, files } = metadata;
+                    await onSetCodebase(codebase_id, files, is_paywalled);
+                }
             } else {
                 onSetProgressMessage(message);
             }

@@ -1,0 +1,29 @@
+.addCodeButton {
+    width: 175px;
+    padding-left: 30px;
+    padding-right: 30px;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #181b26;
+    /* box-shadow: 0px 1px 4px 2px #0000006b; */
+    border-radius: 7px;
+    border: 2px solid #262A39;
+    opacity: 0.75;
+    cursor: pointer;
+}
+
+.addCodeButton:hover {
+    background-color: #14171f;
+    opacity: 1.0;
+}
+
+.addIcon {
+    height: 20px;
+}
+
+.addCodeLabel {
+    font-weight: 500;
+    padding-left: 10px;
+}

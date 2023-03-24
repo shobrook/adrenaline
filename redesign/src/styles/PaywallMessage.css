@@ -1,5 +1,5 @@
 .rateLimitMessage {
-    z-index: 3;
+    z-index: 5;
     position: absolute;
     width: 66%;
     display: flex;

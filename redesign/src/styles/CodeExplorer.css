@@ -1,14 +1,18 @@
 #codeExplorer {
     position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     height: calc(100% - 30px);
     border: 2px solid #262A39;
     border-radius: 7px;
     background-color: #181b26;
     width: calc(60% - 30px);
     max-width: calc(60% - 30px);
+}
+
+.repositoryView {
+    flex-direction: row !important;
 }
 
 #codeContextPrompt {
@@ -27,20 +31,36 @@
     margin-top: 30px;
 }
 
-#codeHeader {
-    height: 60px;
+#managerHeader {
     border-bottom: 2px solid #262A39;
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #14171f;
+    border-radius: 5px 5px 0px 0px;
+}
+
+#headerLabel {
+    display: flex;
+    align-items: center;
     padding-left: 15px;
 }
 
-#codeHeader > img {
+#headerLabel > img {
     height: 20px;
     cursor: pointer;
 }
 
-#codeHeader > span {
+#headerLabel > span {
     padding-left: 10px;
     font-weight: 500;
+}
+
+#returnToManager {
+    margin-right: 15px;
 }
 
 #codeContent {
@@ -128,12 +148,25 @@
     }
 }
 
-#progressMessage {
+#indexingProgress {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-#progressMessage > span {
+#indexingProgress > span {
     padding-top: 30px;
+}
+
+#initCodebaseManager {
+    display: flex;
+    flex-direction: column;
+}
+
+#initCodebaseManager > .addCodeButton {
+    width: 175px !important;
+}
+
+.spacer {
+    height: 30px;
 }
