@@ -88,7 +88,7 @@
 
 #codePreview {
     width: 100%;
-    height: calc(100% - 60px - 60px);
+    height: calc(100% - 60px);
     overflow: auto;
     
 }
@@ -152,6 +152,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
 }
 
 #indexingProgress > span {
@@ -165,8 +168,4 @@
 
 #initCodebaseManager > .addCodeButton {
     width: 175px !important;
-}
-
-.spacer {
-    height: 30px;
 }

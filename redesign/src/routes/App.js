@@ -53,21 +53,42 @@ class App extends Component {
     this.onSetCodebaseId = this.onSetCodebaseId.bind(this);
     this.renderSubscriptionModal = this.renderSubscriptionModal.bind(this);
     this.onToggleSubscriptionModal = this.onToggleSubscriptionModal.bind(this);
+    this.onGithubAuthentication = this.onGithubAuthentication.bind(this);
 
     this.state = {
       codebaseId: "",
       messages: [new Message("Ask me anything about your code.", true, true)],
       documents: [],
       subscriptionStatus: {},
-      displaySubscriptionModal: false
+      isGithubAuthenticated: false,
+      renderSubscriptionModal: false
     };
   }
 
   /* Event Handlers */
 
+  onGithubAuthentication() {
+    const clientId = "fcaf8f61d70e5de447c9";
+    // const redirectUri = "https://useadrenaline.com/app";
+    const redirectUri = "http://localhost:3000/app";
+    // const login = ""; // TODO: Populate this if user is already authenticated with Github
+    const scope = "repo";
+
+    let authUrl = "https://github.com/login/oauth/authorize?"
+    authUrl += `client_id=${clientId}`;
+    authUrl += `&redirect_uri=${redirectUri}`;
+    // authUrl += `&login=${login}`;
+    authUrl += `&scope=${scope}`;
+
+    const win = window.open(authUrl, "_blank"); // TODO: Open in same tab
+    if (win != null) {
+      win.focus();
+    }
+  }
+
   onToggleSubscriptionModal() {
-    const { displaySubscriptionModal } = this.state;
-    this.setState({ displaySubscriptionModal: !displaySubscriptionModal });
+    const { renderSubscriptionModal } = this.state;
+    this.setState({ renderSubscriptionModal: !renderSubscriptionModal });
   }
 
   onSubmitQuery(message) {
@@ -115,9 +136,9 @@ class App extends Component {
 
   // TODO: Abstract into its own container component
   renderSubscriptionModal() {
-    const { displaySubscriptionModal } = this.state;
+    const { renderSubscriptionModal } = this.state;
 
-    if (!displaySubscriptionModal) {
+    if (!renderSubscriptionModal) {
       return null;
     }
 
@@ -190,7 +211,7 @@ class App extends Component {
   }
 
   renderApp() {
-    const { subscriptionStatus, messages, codebaseId } = this.state;
+    const { subscriptionStatus, messages, codebaseId, isGithubAuthenticated } = this.state;
 
     if (!subscriptionStatus) {
       return (
@@ -214,6 +235,8 @@ class App extends Component {
             onSetCodebaseId={this.onSetCodebaseId}
             codebaseId={codebaseId}
             onUpgradePlan={this.onToggleSubscriptionModal}
+            isGithubAuthenticated={isGithubAuthenticated}
+            onGithubAuthentication={this.onGithubAuthentication}
           />
         </div>
       </div>
@@ -292,9 +315,12 @@ class App extends Component {
       const searchParams = search.split("?code=");
       githubCode = searchParams.length == 2 ? searchParams[1] : null;
     }
+    githubCode = "52196c2233d300d23e0d";
+
+    console.log(search);
 
     if (githubCode != null) {
-      console.log("Github request??")
+      console.log(githubCode)
       getAccessTokenSilently()
         .then(token => {
           fetch("http://localhost:5000/api/github_callback", {
@@ -310,7 +336,8 @@ class App extends Component {
           })
             .then(res => res.json())
             .then(data => {
-
+              const { is_github_authenticated } = data;
+              this.setState({ isGithubAuthenticated: is_github_authenticated });
             })
         })
     }
@@ -319,7 +346,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://localhost:5000/api/stripe/subscription_status", {
+        fetch("http://localhost:5000/api/user_metadata", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -336,7 +363,8 @@ class App extends Component {
               plan,
               num_messages_sent,
               num_repositories_indexed,
-              num_code_snippets_indexed
+              num_code_snippets_indexed,
+              is_github_authenticated
             } = data;
 
             this.setState({
@@ -345,7 +373,8 @@ class App extends Component {
                 numMessagesSent: num_messages_sent,
                 numRepositoriesIndexed: num_repositories_indexed,
                 numCodeSnippetsIndexed: num_code_snippets_indexed
-              }
+              },
+              isGithubAuthenticated: is_github_authenticated
             });
           });
       });

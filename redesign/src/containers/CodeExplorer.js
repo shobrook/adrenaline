@@ -3,6 +3,7 @@ import { withAuth0 } from "@auth0/auth0-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion } from "framer-motion";
+import Grid from "@mui/material/Grid";
 
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
@@ -35,6 +36,7 @@ const DEFAULT_STATE = {
     renderIndexingProgress: false,
     progressMessage: "",
     codebases: [], // List of codebase objects
+    repositoryOptions: [],
     currentCodeContext: {
         files: [],
         currentFile: "",
@@ -47,7 +49,8 @@ class CodeExplorer extends Component {
     constructor(props) {
         super(props);
 
-        this.onConnectGithub = this.onConnectGithub.bind(this);
+        this.fetchRepositoryOptions = this.fetchRepositoryOptions.bind(this);
+
         this.onToggleFileTree = this.onToggleFileTree.bind(this);
         this.onSetCodebase = this.onSetCodebase.bind(this);
         this.onSelectFile = this.onSelectFile.bind(this);
@@ -65,26 +68,47 @@ class CodeExplorer extends Component {
         this.state = DEFAULT_STATE;
     }
 
-    /* Event Handlers */
+    /* Utilities */
 
-    onConnectGithub() {
-        const clientId = "fcaf8f61d70e5de447c9";
-        // const redirectUri = "https://useadrenaline.com/app";
-        const redirectUri = "http://localhost:3000/app";
-        // const login = ""; // TODO: Populate this if user is already authenticated with Github
-        const scope = "repo";
+    fetchRepositoryOptions() {
+        const { isGithubAuthenticated } = this.props;
+        const { user, isAuthenticated, getAccessTokenSilently } = this.props.auth0;
 
-        let authUrl = "https://github.com/login/oauth/authorize?"
-        authUrl += `client_id=${clientId}`;
-        authUrl += `&redirect_uri=${redirectUri}`;
-        // authUrl += `&login=${login}`;
-        authUrl += `&scope=${scope}`;
-
-        const win = window.open(authUrl, "_blank"); // TODO: Open in same tab
-        if (win != null) {
-            win.focus();
+        if (!isAuthenticated) {
+            return;
         }
+
+        if (!isGithubAuthenticated) {
+            return;
+        }
+
+        console.log("yooooo")
+
+        getAccessTokenSilently()
+            .then(token => {
+                fetch("http://localhost:5000/api/github_repositories", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ user_id: user.sub })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        const { is_github_authenticated, repos } = data;
+
+                        if (!is_github_authenticated) {
+                            this.setState({ isGithubAuthenticated: false });
+                        }
+
+                        console.log(repos)
+                        this.setState({ isGithubAuthenticated: true, repositoryOptions: repos });
+                    })
+            });
     }
+
+    /* Event Handlers */
 
     onSetCodeSnippet(codebaseId, code, language, isPaywalled) {
         const { onSetCodebaseId } = this.props;
@@ -92,8 +116,9 @@ class CodeExplorer extends Component {
 
         onSetCodebaseId(codebaseId);
         this.setState({
-            renderCodeSnippet: true,
             renderPaywall: isPaywalled,
+            renderIndexingProgress: false,
+            renderCodeSnippet: true,
             currentCodeContext: {
                 ...currentCodeContext,
                 code,
@@ -191,72 +216,6 @@ class CodeExplorer extends Component {
         );
     }
 
-    // renderExplorer() {
-    //     const { codebaseId } = this.props;
-    //     const { progressMessage } = this.state;
-    //     const {
-    //         githubUrl,
-    //         currentFile,
-    //         code,
-    //         displayFileTree,
-    //         displayPaywall,
-    //         isCodeSnippet,
-    //         language
-    //     } = this.state;
-
-    //     // TODO: Handle case where language isn't supported by Prism
-
-    //     if (codebaseId == "" || progressMessage != "") {
-    //         return null;
-    //     }
-
-    //     let codeContentClassName = displayFileTree ? "truncatedCodeContent" : "";
-    //     codeContentClassName += displayPaywall ? " paywalledCodeContent" : "";
-
-    //     return (
-    //         <>
-    //             <motion.div
-    //                 id="codeContent"
-    //                 className={codeContentClassName}
-    //                 initial="closed"
-    //                 animate={displayFileTree ? "open" : "closed"}
-    //                 variants={{
-    //                     open: { width: "70%" },
-    //                     closed: { width: "100%" }
-    //                 }}
-    //             >
-    //                 {isCodeSnippet ? (
-    //                     <div id="codeHeader">
-    //                         <img src="./folder_icon.png" />
-    //                         <span>TODO: Summarize code snippet</span>
-    //                     </div>
-    //                 ) : (
-    //                     <div id="codeHeader">
-    //                         <img src="./folder_icon.png" onClick={this.onToggleFileTree} />
-    //                         <span>{currentFile}</span>
-    //                     </div>
-    //                 )}
-    //                 <div id="codePreview">
-    //                     <SyntaxHighlighter className="codeBlock" language={language} style={dracula}>
-    //                         {code}
-    //                     </SyntaxHighlighter>
-    //                 </div>
-    //                 <div id="codeContextOptions">
-    //                     {isCodeSnippet ? (
-    //                         null
-    //                     ) : (
-    //                         <div id="repoLink">
-    //                             <img src="./github_icon.png" />
-    //                             <a href={githubUrl} target="_blank">{codebaseId}</a>
-    //                         </div>
-    //                     )}
-    //                     <Button isPrimary onClick={this.onChangeContext}>Change context</Button>
-    //                 </div>
-    //             </motion.div>
-    //         </>
-    //     );
-    // }
-
     renderSelectCodeSnippet() {
         const { renderSelectCodeSnippet } = this.state;
 
@@ -308,15 +267,32 @@ class CodeExplorer extends Component {
     }
 
     renderSelectRepository() {
-        const { renderSelectRepository } = this.state;
+        const { onGithubAuthentication, isGithubAuthenticated } = this.props;
+        const { renderSelectRepository, repositoryOptions } = this.state;
 
         if (!renderSelectRepository) {
             return null;
         }
 
+        if (isGithubAuthenticated) {
+            return (
+                <div id="selectRepository">
+                    {repositoryOptions.map(repo => {
+                        const { id, name, is_private, language } = repo;
+
+                        return (<span>{name}</span>); // TODO
+                    })}
+                    <GithubInput
+                        onSetProgressMessage={this.onSetProgressMessage}
+                        onSetCodebase={this.onSetCodebase}
+                    />
+                </div>
+            );
+        }
+
         return (
             <div id="selectRepository">
-                <Button isPrimary onClick={this.onConnectGithub}>Import repository</Button>
+                <Button isPrimary onClick={onGithubAuthentication}>Import repository</Button>
                 <GithubInput
                     onSetProgressMessage={this.onSetProgressMessage}
                     onSetCodebase={this.onSetCodebase}
@@ -342,27 +318,32 @@ class CodeExplorer extends Component {
 
         return (
             <div id="initCodebaseManager">
-                <AddCodeButton onClick={() => this.setState({ renderSelectRepository: true })}>Add repository</AddCodeButton>
-                <div className="spacer" />
-                <AddCodeButton onClick={() => this.setState({ renderSelectCodeSnippet: true })}>Add code snippet</AddCodeButton>
-                {
-                    codebases.map(codebase => {
-                        const { title, isCodeSnippet } = codebase;
+                <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                    <Grid item xs={6}>
+                        <AddCodeButton onClick={() => this.setState({ renderSelectRepository: true })}>Add repository</AddCodeButton>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <AddCodeButton onClick={() => this.setState({ renderSelectCodeSnippet: true })}>Add code snippet</AddCodeButton>
+                    </Grid>
+                    {
+                        codebases.map(codebase => {
+                            const { title, isCodeSnippet } = codebase;
 
-                        return (
-                            <>
-                                <div className="codebaseThumbnail">
-                                    {
-                                        isCodeSnippet ? (<img src="./code_snippet_icon.png" />)
-                                            : (<img src="./repository_icon.png" />)
-                                    }
-                                    <span>{title}</span>
-                                </div>
-                                <div className="spacer" />
-                            </>
-                        );
-                    })
-                }
+                            return (
+                                <Grid item xs={6}>
+                                    <div className="codebaseThumbnail">
+                                        {
+                                            isCodeSnippet ? (<img src="./code_snippet_icon.png" />)
+                                                : (<img src="./repository_icon.png" />)
+                                        }
+                                        <span>{title}</span>
+                                    </div>
+                                    <div className="spacer" />
+                                </Grid>
+                            );
+                        })
+                    }
+                </Grid>
             </div >
         );
 
@@ -449,6 +430,23 @@ class CodeExplorer extends Component {
     }
 
     /* Lifecycle Methods */
+
+    componentDidMount() {
+        this.fetchRepositoryOptions();
+    }
+
+    componentDidUpdate(previousProps, previousState) {
+        const { isGithubAuthenticated: prevAuthStatus } = previousProps;
+        const { isGithubAuthenticated: currAuthStatus } = this.props;
+
+        if (!(!prevAuthStatus && currAuthStatus)) { // Component didn't update due to user authentication
+            return;
+        }
+
+        console.log("ypepp")
+
+        this.fetchRepositoryOptions();
+    }
 
     render() {
         const { renderRepository, renderFileTree, renderPaywall } = this.state;

@@ -73,9 +73,9 @@ class GithubInput extends Component {
         const { onSetCodebase, onSetProgressMessage } = this.props;
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase`);
+            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_url`);
         } else {
-            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase`);
+            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_url`);
         }
 
         this.websocket.onopen = event => { };
