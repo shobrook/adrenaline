@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion } from "framer-motion";
 
+import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
 import GithubInput from "./GithubInput";
 import FileStructure from "./FileStructure";
@@ -20,7 +21,9 @@ const DEFAULT_STATE = {
     currentFile: "",
     code: "",
     isCodeSnippet: false,
-    displayFileTree: false
+    language: "python",
+    displayFileTree: false,
+    displayPaywall: false
 };
 
 export default class CodeExplorer extends Component {
@@ -34,6 +37,7 @@ export default class CodeExplorer extends Component {
         this.onSetProgressMessage = this.onSetProgressMessage.bind(this);
         this.onSetCodeSnippet = this.onSetCodeSnippet.bind(this);
 
+        this.renderPaywall = this.renderPaywall.bind(this);
         this.renderExplorer = this.renderExplorer.bind(this);
         this.renderPrompt = this.renderPrompt.bind(this);
         this.renderFileTree = this.renderFileTree.bind(this);
@@ -43,11 +47,11 @@ export default class CodeExplorer extends Component {
 
     /* Event Handlers */
 
-    onSetCodeSnippet(codebaseId, code) {
+    onSetCodeSnippet(codebaseId, code, language, isPaywalled) {
         const { onSetCodebaseId } = this.props;
 
         onSetCodebaseId(codebaseId);
-        this.setState({ isCodeSnippet: true, code });
+        this.setState({ isCodeSnippet: true, code, language, displayPaywall: isPaywalled });
     }
 
     onSetProgressMessage(progressMessage) {
@@ -97,6 +101,17 @@ export default class CodeExplorer extends Component {
     }
 
     /* Renderers */
+
+    renderPaywall() {
+        const { displayPaywall } = this.state;
+        const { onUpgradePlan } = this.props;
+
+        if (displayPaywall) {
+            return <PaywallMessage className="codeExplorerPaywall" onUpgradePlan={onUpgradePlan} />;
+        }
+
+        return null;
+    }
 
     renderPrompt() {
         const { codebaseId } = this.props;
@@ -157,6 +172,7 @@ export default class CodeExplorer extends Component {
             currentFile,
             code,
             displayFileTree,
+            displayPaywall,
             isCodeSnippet,
             language
         } = this.state;
@@ -167,11 +183,14 @@ export default class CodeExplorer extends Component {
             return null;
         }
 
+        let codeContentClassName = displayFileTree ? "truncatedCodeContent" : "";
+        codeContentClassName += displayPaywall ? " paywalledCodeContent" : "";
+
         return (
             <>
                 <motion.div
                     id="codeContent"
-                    className={displayFileTree ? "truncatedCodeContent" : ""}
+                    className={codeContentClassName}
                     initial="closed"
                     animate={displayFileTree ? "open" : "closed"}
                     variants={{
@@ -180,7 +199,7 @@ export default class CodeExplorer extends Component {
                     }}
                 >
                     {isCodeSnippet ? (
-                        <div id="codeSnippetHeader">
+                        <div id="codeHeader">
                             <img src="./folder_icon.png" />
                             <span>TODO: Summarize code snippet</span>
                         </div>
@@ -216,6 +235,7 @@ export default class CodeExplorer extends Component {
     render() {
         return (
             <div id="codeExplorer">
+                {this.renderPaywall()}
                 {this.renderPrompt()}
                 {this.renderProgressMessage()}
                 {this.renderFileTree()}

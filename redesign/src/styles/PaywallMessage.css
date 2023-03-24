@@ -11,12 +11,14 @@
     text-align: center;
 }
 
-.debugPaywall {
-    font-family: "Helvetica Neue";
-    font-size: 16px;
-
+.codeExplorerPaywall {
     height: 100% !important;
     width: 100% !important;
+
+    background-color: #181b2685;
+    border-radius: 5px;
+
+    font-size: 16px !important;
 }
 
 .rateLimitMessage > span {

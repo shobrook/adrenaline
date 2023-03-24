@@ -70,7 +70,6 @@ class GithubInput extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
-        const { githubUrl } = this.state;
         const { onSetCodebase, onSetProgressMessage } = this.props;
 
         if (window.location.protocol === "https:") {
@@ -81,11 +80,15 @@ class GithubInput extends Component {
 
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {
+            const { githubUrl } = this.state;
             const {
                 message,
                 metadata,
-                is_final
+                is_final,
+                error_message
             } = JSON.parse(event.data);
+
+            // TODO: Error-handling
 
             if (is_final) {
                 const { codebase_id, files } = metadata;

@@ -27,7 +27,8 @@ class ChatBot extends Component {
     render() {
         const {
             onSubmitQuery,
-            messages
+            messages,
+            onUpgradePlan
         } = this.props;
 
         return (
@@ -46,6 +47,7 @@ class ChatBot extends Component {
                                 isResponse={isResponse}
                                 isComplete={isComplete}
                                 isPaywalled={isPaywalled}
+                                onUpgradePlan={onUpgradePlan}
                             >
                                 {content}
                             </Message>

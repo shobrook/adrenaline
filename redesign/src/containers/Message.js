@@ -2,7 +2,7 @@ import { Component } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import RateLimitMessage from "./RateLimitMessage";
+import PaywallMessage from "./PaywallMessage";
 
 import "../styles/Message.css";
 
@@ -43,11 +43,11 @@ export default class Message extends Component {
 	}
 
 	renderPaywall() {
-		const { isPaywalled, isComplete } = this.props;
+		const { isPaywalled, isComplete, onUpgradePlan } = this.props;
 
 		if (isPaywalled && isComplete) {
 			return (
-				<RateLimitMessage />
+				<PaywallMessage onUpgradePlan={onUpgradePlan} />
 			);
 		}
 	}
@@ -55,10 +55,11 @@ export default class Message extends Component {
 	/* Lifecycle Methods */
 
 	render() {
-		const { isResponse, isPaywalled } = this.props;
+		const { isResponse, isPaywalled, isComplete, children } = this.props;
+		const isLoading = isResponse && children == "" && !isComplete;
 
 		return (
-			<div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""}`}>
+			<div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""} ${isLoading ? "loadingMessage" : ""}`}>
 				{this.renderPaywall()}
 				<div className={`messageContainer ${isPaywalled ? "blocked" : ""}`}>
 					{this.renderMessage()}
