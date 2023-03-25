@@ -164,8 +164,26 @@
 #initCodebaseManager {
     display: flex;
     flex-direction: column;
+    width: calc(100% - 30px);
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
 }
 
 #initCodebaseManager > .addCodeButton {
     width: 175px !important;
+}
+
+#selectRepository {
+    padding-top: 30px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.MuiFormControl-root {
+    border: 2px solid #262A39;
+    border-radius: 7px;
 }

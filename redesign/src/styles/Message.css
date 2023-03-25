@@ -14,7 +14,6 @@
     align-self: flex-end;
     width: calc(100% - 15px - 15px);
     overflow-wrap: break-word;
-    min-height: 20px;
 }
 
 .loadingMessage {

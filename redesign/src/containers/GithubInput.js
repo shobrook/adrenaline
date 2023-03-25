@@ -70,6 +70,7 @@ class GithubInput extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
+        console.log("mounting")
         const { onSetCodebase, onSetProgressMessage } = this.props;
 
         if (window.location.protocol === "https:") {
@@ -78,7 +79,7 @@ class GithubInput extends Component {
             this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_url`);
         }
 
-        this.websocket.onopen = event => { };
+        this.websocket.onopen = event => { console.log("opened index ws") };
         this.websocket.onmessage = async event => {
             const { githubUrl } = this.state;
             const {

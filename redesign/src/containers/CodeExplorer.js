@@ -8,14 +8,15 @@ import Grid from "@mui/material/Grid";
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
 import GithubInput from "./GithubInput";
+import AuthenticatedGithubInput from "./AuthenticatedGithubInput";
 import FileStructure from "./FileStructure";
 import Mixpanel from "../library/mixpanel";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
+import AddCodeButton from "../components/AddCodeButton";
 import { getFileContent } from "../library/utilities";
 
 import "../styles/CodeExplorer.css";
-import AddCodeButton from "../components/AddCodeButton";
 
 class Codebase {
     constructor(title, isCodeSnippet) {
@@ -36,7 +37,6 @@ const DEFAULT_STATE = {
     renderIndexingProgress: false,
     progressMessage: "",
     codebases: [], // List of codebase objects
-    repositoryOptions: [],
     currentCodeContext: {
         files: [],
         currentFile: "",
@@ -49,14 +49,13 @@ class CodeExplorer extends Component {
     constructor(props) {
         super(props);
 
-        this.fetchRepositoryOptions = this.fetchRepositoryOptions.bind(this);
-
         this.onToggleFileTree = this.onToggleFileTree.bind(this);
         this.onSetCodebase = this.onSetCodebase.bind(this);
         this.onSelectFile = this.onSelectFile.bind(this);
         this.onSetProgressMessage = this.onSetProgressMessage.bind(this);
         this.onSetCodeSnippet = this.onSetCodeSnippet.bind(this);
         this.onReturnToManager = this.onReturnToManager.bind(this);
+        this.onSetPrivateRepository = this.onSetPrivateRepository.bind(this);
 
         this.renderHeader = this.renderHeader.bind(this);
         this.renderPaywall = this.renderPaywall.bind(this);
@@ -68,47 +67,16 @@ class CodeExplorer extends Component {
         this.state = DEFAULT_STATE;
     }
 
-    /* Utilities */
-
-    fetchRepositoryOptions() {
-        const { isGithubAuthenticated } = this.props;
-        const { user, isAuthenticated, getAccessTokenSilently } = this.props.auth0;
-
-        if (!isAuthenticated) {
-            return;
-        }
-
-        if (!isGithubAuthenticated) {
-            return;
-        }
-
-        console.log("yooooo")
-
-        getAccessTokenSilently()
-            .then(token => {
-                fetch("http://localhost:5000/api/github_repositories", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ user_id: user.sub })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        const { is_github_authenticated, repos } = data;
-
-                        if (!is_github_authenticated) {
-                            this.setState({ isGithubAuthenticated: false });
-                        }
-
-                        console.log(repos)
-                        this.setState({ isGithubAuthenticated: true, repositoryOptions: repos });
-                    })
-            });
-    }
-
     /* Event Handlers */
+
+    onSetPrivateRepository() {
+        // this.onSetCodebase();
+        const { repositoryOptions, selectedRepository } = this.state;
+
+        // Instantiate websocket connection in didmount to the path for private repos
+        // Hit backend websocket with repository ID, user_id to get gh_access_token
+        // 
+    }
 
     onSetCodeSnippet(codebaseId, code, language, isPaywalled) {
         const { onSetCodebaseId } = this.props;
@@ -267,33 +235,20 @@ class CodeExplorer extends Component {
     }
 
     renderSelectRepository() {
-        const { onGithubAuthentication, isGithubAuthenticated } = this.props;
-        const { renderSelectRepository, repositoryOptions } = this.state;
+        const { renderSelectRepository } = this.state;
 
         if (!renderSelectRepository) {
             return null;
         }
 
-        if (isGithubAuthenticated) {
-            return (
-                <div id="selectRepository">
-                    {repositoryOptions.map(repo => {
-                        const { id, name, is_private, language } = repo;
-
-                        return (<span>{name}</span>); // TODO
-                    })}
-                    <GithubInput
-                        onSetProgressMessage={this.onSetProgressMessage}
-                        onSetCodebase={this.onSetCodebase}
-                    />
-                </div>
-            );
-        }
-
         return (
             <div id="selectRepository">
-                <Button isPrimary onClick={onGithubAuthentication}>Import repository</Button>
                 <GithubInput
+                    onSetProgressMessage={this.onSetProgressMessage}
+                    onSetCodebase={this.onSetCodebase}
+                />
+
+                <AuthenticatedGithubInput
                     onSetProgressMessage={this.onSetProgressMessage}
                     onSetCodebase={this.onSetCodebase}
                 />
@@ -318,11 +273,11 @@ class CodeExplorer extends Component {
 
         return (
             <div id="initCodebaseManager">
-                <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                    <Grid item xs={6}>
+                <Grid className="grid" container spacing={2}>
+                    <Grid item xs={4}>
                         <AddCodeButton onClick={() => this.setState({ renderSelectRepository: true })}>Add repository</AddCodeButton>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={4}>
                         <AddCodeButton onClick={() => this.setState({ renderSelectCodeSnippet: true })}>Add code snippet</AddCodeButton>
                     </Grid>
                     {
@@ -330,7 +285,7 @@ class CodeExplorer extends Component {
                             const { title, isCodeSnippet } = codebase;
 
                             return (
-                                <Grid item xs={6}>
+                                <Grid item xs={4}>
                                     <div className="codebaseThumbnail">
                                         {
                                             isCodeSnippet ? (<img src="./code_snippet_icon.png" />)
@@ -346,9 +301,6 @@ class CodeExplorer extends Component {
                 </Grid>
             </div >
         );
-
-        // TODO: On componentDidMount, hit endpoint to get list of codebases that
-        // user has uploaded
     }
 
     renderPaywall() {
@@ -430,23 +382,6 @@ class CodeExplorer extends Component {
     }
 
     /* Lifecycle Methods */
-
-    componentDidMount() {
-        this.fetchRepositoryOptions();
-    }
-
-    componentDidUpdate(previousProps, previousState) {
-        const { isGithubAuthenticated: prevAuthStatus } = previousProps;
-        const { isGithubAuthenticated: currAuthStatus } = this.props;
-
-        if (!(!prevAuthStatus && currAuthStatus)) { // Component didn't update due to user authentication
-            return;
-        }
-
-        console.log("ypepp")
-
-        this.fetchRepositoryOptions();
-    }
 
     render() {
         const { renderRepository, renderFileTree, renderPaywall } = this.state;

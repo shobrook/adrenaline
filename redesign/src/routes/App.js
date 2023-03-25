@@ -53,38 +53,17 @@ class App extends Component {
     this.onSetCodebaseId = this.onSetCodebaseId.bind(this);
     this.renderSubscriptionModal = this.renderSubscriptionModal.bind(this);
     this.onToggleSubscriptionModal = this.onToggleSubscriptionModal.bind(this);
-    this.onGithubAuthentication = this.onGithubAuthentication.bind(this);
 
     this.state = {
       codebaseId: "",
       messages: [new Message("Ask me anything about your code.", true, true)],
       documents: [],
       subscriptionStatus: {},
-      isGithubAuthenticated: false,
       renderSubscriptionModal: false
     };
   }
 
   /* Event Handlers */
-
-  onGithubAuthentication() {
-    const clientId = "fcaf8f61d70e5de447c9";
-    // const redirectUri = "https://useadrenaline.com/app";
-    const redirectUri = "http://localhost:3000/app";
-    // const login = ""; // TODO: Populate this if user is already authenticated with Github
-    const scope = "repo";
-
-    let authUrl = "https://github.com/login/oauth/authorize?"
-    authUrl += `client_id=${clientId}`;
-    authUrl += `&redirect_uri=${redirectUri}`;
-    // authUrl += `&login=${login}`;
-    authUrl += `&scope=${scope}`;
-
-    const win = window.open(authUrl, "_blank"); // TODO: Open in same tab
-    if (win != null) {
-      win.focus();
-    }
-  }
 
   onToggleSubscriptionModal() {
     const { renderSubscriptionModal } = this.state;
@@ -211,7 +190,7 @@ class App extends Component {
   }
 
   renderApp() {
-    const { subscriptionStatus, messages, codebaseId, isGithubAuthenticated } = this.state;
+    const { subscriptionStatus, messages, codebaseId } = this.state;
 
     if (!subscriptionStatus) {
       return (
@@ -235,8 +214,6 @@ class App extends Component {
             onSetCodebaseId={this.onSetCodebaseId}
             codebaseId={codebaseId}
             onUpgradePlan={this.onToggleSubscriptionModal}
-            isGithubAuthenticated={isGithubAuthenticated}
-            onGithubAuthentication={this.onGithubAuthentication}
           />
         </div>
       </div>
@@ -246,7 +223,8 @@ class App extends Component {
   /* Lifecycle Methods */
 
   componentDidMount() {
-    const { user, isAuthenticated, getAccessTokenSilently } = this.props.auth0;
+    console.log("Test")
+    const { user, isAuthenticated } = this.props.auth0;
 
     if (isAuthenticated) {
       Mixpanel.identify(user.sub);
@@ -265,7 +243,6 @@ class App extends Component {
     } else {
       // this.query_ws = new WebSocket(`wss://adrenaline-dev.us-east-1.elasticbeanstalk.com/answer_query`);
       this.query_ws = new WebSocket(`ws://localhost:5001/answer_query`);
-
     }
 
     this.query_ws.onopen = event => { }; // QUESTION: Should we wait to render the rest of the site until connection is established?
@@ -301,8 +278,13 @@ class App extends Component {
     this.query_ws.onerror = event => {
       console.log(event); // TODO: Display error message
     };
+  }
 
-    if (!isAuthenticated) {
+  componentDidUpdate(prevProps) {
+    const { isAuthenticated: prevIsAuthenticated } = prevProps.auth0;
+    const { user, getAccessTokenSilently, isAuthenticated } = this.props.auth0;
+
+    if (prevIsAuthenticated == isAuthenticated) {
       return;
     }
 
@@ -310,20 +292,17 @@ class App extends Component {
 
     const { search } = this.props.router.location;
 
+    // TODO: Probably a better way to get query parameters than this
     let githubCode = null;
     if (search != "") {
       const searchParams = search.split("?code=");
       githubCode = searchParams.length == 2 ? searchParams[1] : null;
     }
-    githubCode = "52196c2233d300d23e0d";
-
-    console.log(search);
 
     if (githubCode != null) {
-      console.log(githubCode)
       getAccessTokenSilently()
         .then(token => {
-          fetch("http://localhost:5000/api/github_callback", {
+          fetch("http://localhost:5050/api/github_callback", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -336,8 +315,7 @@ class App extends Component {
           })
             .then(res => res.json())
             .then(data => {
-              const { is_github_authenticated } = data;
-              this.setState({ isGithubAuthenticated: is_github_authenticated });
+              // TODO: Update state to tell CodeExplorer to render the SelectRepository view
             })
         })
     }
@@ -346,7 +324,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://localhost:5000/api/user_metadata", {
+        fetch("http://localhost:5050/api/user_metadata", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -363,8 +341,7 @@ class App extends Component {
               plan,
               num_messages_sent,
               num_repositories_indexed,
-              num_code_snippets_indexed,
-              is_github_authenticated
+              num_code_snippets_indexed
             } = data;
 
             this.setState({
@@ -373,8 +350,7 @@ class App extends Component {
                 numMessagesSent: num_messages_sent,
                 numRepositoriesIndexed: num_repositories_indexed,
                 numCodeSnippetsIndexed: num_code_snippets_indexed
-              },
-              isGithubAuthenticated: is_github_authenticated
+              }
             });
           });
       });
