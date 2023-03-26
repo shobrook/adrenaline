@@ -76,7 +76,7 @@ class ApiSubscription extends Component {
             <div id="apiSubscription">
                 <div className={`paymentPlan ${isSelected ? "isSelected" : ""}`}>
                     <span className={`planLabel ${isSelected ? "isSelected" : ""}`}>API Access</span>
-                    <span className="planPrice">$50/month</span>
+                    <span className="planPrice">$100/month</span>
                     <Button
                         className={isSelected ? "selectPlanPrimary" : "selectPlan"}
                         isPrimary={isSelected}
