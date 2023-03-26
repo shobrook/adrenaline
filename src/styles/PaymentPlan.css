@@ -7,7 +7,7 @@
     padding-right: 20px;
     padding-top: 30px;
     color: white;
-    border: 2px solid #54546A;
+    border: 2px solid #262A39;
 }
 
 .paymentPlan.isSelected {
@@ -47,13 +47,13 @@
 .selectPlan {
     height: 45px;
     margin-top: 25px;
-    border: 2px solid #d93cff;
-    color: #d93cff;
+    /* border: 2px solid #d93cff; */
+    /* color: #d93cff; */
 }
 
 .selectPlan:hover {
     opacity: 0.75;
-    border: 2px solid #d93cff;
+    /* border: 2px solid #d93cff; */
 }
 
 .planFeatures {

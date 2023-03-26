@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #D93CFF;
+  background-color: #A305E1;
   border-radius: 5px;
   cursor: pointer;
   font-weight: 500;
@@ -11,11 +11,11 @@
   padding-left: 15px;
   padding-right: 15px;
   text-align: center;
-  opacity: 0.9;
+  opacity: 1.0;
 }
 
 .primaryButton:hover {
-  opacity: 1.0;
+  opacity: 0.75;
 }
 
 .secondaryButton {

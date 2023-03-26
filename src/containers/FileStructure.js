@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { Component } from "react";
 import PropTypes from 'prop-types';
 import SvgIcon from '@mui/material/SvgIcon';
 import { alpha, styled } from '@mui/material/styles';
@@ -7,11 +7,11 @@ import TreeView from '@mui/lab/TreeView';
 import TreeItem, { treeItemClasses } from '@mui/lab/TreeItem';
 import Collapse from '@mui/material/Collapse';
 import { useSpring, animated } from '@react-spring/web';
-import useSWR from 'swr'
+import { motion } from "framer-motion";
+
+import { buildTreeFromFlatList } from "../library/utilities";
 
 import '../styles/FileStructure.css';
-import { buildTreeFromFlatList } from "../library/utilities";
-import { getGitHubRawFileContent, getGitHubRepoFileStructure } from "../library/requests";
 
 function MinusSquare(props) {
     return (
@@ -89,25 +89,20 @@ const StyledTreeItem = styled((props) => (
     },
 }));
 
-export default function FileStructure({ onSelectedFile, repoURL }) {
-    // const [repoURL, setRepoURL] = useState(localStorage.getItem('repoURL'));
+export default class FileStructure extends Component {
+    constructor(props) {
+        super(props);
 
-    const getFinalURL = (inputURL) => {
-        // TODO: "master" branch is hardcoded. Handle this dynamically
-        return `${inputURL.replace("https://github.com/", "https://api.github.com/repos/").replace(/\/$/, '')}/git/trees/master?recursive=1`
+        this.renderTreeLevel = this.renderTreeLevel.bind(this);
     }
 
-    const { data } = useSWR(repoURL ? getFinalURL(repoURL) : null, getGitHubRepoFileStructure);
+    /* Helpers */
 
-    const treeFiles = buildTreeFromFlatList(data);
+    renderTreeLevel(level, index) {
+        const { onSelectFile } = this.props;
 
-    const renderTreeLevel = (level, index) => {
         const onFlickClick = async () => {
-            // TODO: "master" branch is hardcoded. Handle this dynamically
-            const rawGitHubContentURL = `${repoURL.replace('https://github.com', 'https://raw.githubusercontent.com').replace(/\/$/, '')}/master/${level.path}`;
-
-            const fileContent = await getGitHubRawFileContent(rawGitHubContentURL);
-            onSelectedFile(fileContent);
+            await onSelectFile(level.path);
         }
 
         if (level.children.length === 0) {
@@ -116,29 +111,41 @@ export default function FileStructure({ onSelectedFile, repoURL }) {
             return (
                 <StyledTreeItem key={index} nodeId={`${level.name}->${index}`} label={level.name}>
                     {level.children.map((level, index) => {
-                        return renderTreeLevel(level, index);
+                        return this.renderTreeLevel(level, index);
                     })}
                 </StyledTreeItem>
             );
         }
     }
 
-    return (
-        <motion.iv className="fileStructureWrapper">
-            <TreeView
-                aria-label="customized"
-                defaultExpanded={['1']}
-                defaultCollapseIcon={<MinusSquare />}
-                defaultExpandIcon={<PlusSquare />}
-                defaultEndIcon={<CloseSquare />}
-                sx={{ height: 264, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+    render() {
+        const { filePaths, isOpen } = this.props;
+        const treeFiles = buildTreeFromFlatList(filePaths);
+
+        return (
+            <motion.div
+                className="fileStructureWrapper"
+                initial="closed"
+                animate={isOpen ? "open" : "closed"}
+                variants={{
+                    open: { width: "30%" },
+                    closed: { width: "0%" }
+                }}
             >
-                <StyledTreeItem nodeId="1" label="Main">
+                <TreeView
+                    aria-label="customized"
+                    defaultExpanded={['1']}
+                    defaultCollapseIcon={<MinusSquare />}
+                    defaultExpandIcon={<PlusSquare />}
+                    defaultEndIcon={<CloseSquare />}
+                    sx={{ height: 264, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+                >
+
                     {
-                        treeFiles.map((level, index) => renderTreeLevel(level, index))
+                        treeFiles.map((level, index) => this.renderTreeLevel(level, index))
                     }
-                </StyledTreeItem>
-            </TreeView>
-        </motion.div>
-    );
+                </TreeView>
+            </motion.div>
+        );
+    }
 }

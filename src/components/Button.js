@@ -1,6 +1,4 @@
-import React, { Component } from "react";
-
-import Spinner from "./Spinner";
+import { Component } from "react";
 
 import "../styles/Button.css";
 
@@ -8,29 +6,34 @@ export default class Button extends Component {
 	constructor(props) {
 		super(props);
 
-		this.onClickButton = this.onClickButton.bind(this);
+		this.onClick = this.onClick.bind(this);
 	}
 
-	onClickButton() {
-		const { isLoading, isDisabled, onClick } = this.props;
+	onClick() {
+		const { isLoading } = this.props;
 
-		if (isLoading || isDisabled) {
+		if (isLoading) {
 			return null;
 		}
 
-		return onClick();
+		return this.props.onClick();
 	}
 
 	render() {
-		const { id, className, isPrimary, children, isLoading, isDisabled } = this.props;
+		const {
+			id,
+			className,
+			isPrimary,
+			children
+		} = this.props;
 
 		return (
 			<div
 				id={id}
-				className={`${className} ${isPrimary ? "primaryButton" : "secondaryButton"} ${isDisabled ? "disabled" : ""}`}
-				onClick={this.onClickButton}
+				className={`${className} ${isPrimary ? "primaryButton" : "secondaryButton"}`}
+				onClick={this.onClick}
 			>
-				{isLoading ? (<Spinner />) : children}
+				{children}
 			</div>
 		);
 	}
