@@ -4,6 +4,8 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion } from "framer-motion";
 import Grid from "@mui/material/Grid";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
@@ -14,7 +16,6 @@ import Mixpanel from "../library/mixpanel";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
-import { getFileContent } from "../library/utilities";
 
 import "../styles/CodeExplorer.css";
 
@@ -31,10 +32,12 @@ const DEFAULT_STATE = {
     renderCodeSnippet: false,
     renderRepository: false,
     renderSelectRepository: false,
+    renderSelectPrivateRepository: false,
     renderSelectCodeSnippet: false,
     renderFileTree: false,
     renderPaywall: false,
     renderIndexingProgress: false,
+    renderSecondaryIndexingProgress: false,
     progressMessage: "",
     codebases: [], // List of codebase objects
     currentCodeContext: {
@@ -53,9 +56,10 @@ class CodeExplorer extends Component {
         this.onSetCodebase = this.onSetCodebase.bind(this);
         this.onSelectFile = this.onSelectFile.bind(this);
         this.onSetProgressMessage = this.onSetProgressMessage.bind(this);
+        this.onSetSecondaryProgressMessage = this.onSetSecondaryProgressMessage.bind(this);
         this.onSetCodeSnippet = this.onSetCodeSnippet.bind(this);
         this.onReturnToManager = this.onReturnToManager.bind(this);
-        this.onSetPrivateRepository = this.onSetPrivateRepository.bind(this);
+        this.onToggleSelectPrivateRepository = this.onToggleSelectPrivateRepository.bind(this);
 
         this.renderHeader = this.renderHeader.bind(this);
         this.renderPaywall = this.renderPaywall.bind(this);
@@ -64,18 +68,39 @@ class CodeExplorer extends Component {
         this.renderCodeExplorer = this.renderCodeExplorer.bind(this);
         this.renderFileTree = this.renderFileTree.bind(this);
 
+        this.getFileContent = this.getFileContent.bind(this);
+
         this.state = DEFAULT_STATE;
+    }
+
+    /* Utilities */
+
+    async getFileContent(fileUrl) {
+        const { user, getAccessTokenSilently } = this.props.auth0;
+
+        return await getAccessTokenSilently()
+            .then(async token => {
+                return await fetch("http://localhost:5050/api/file_content", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ user_id: user.sub, file_url: fileUrl })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        const { file_content } = data;
+                        return file_content;
+                    })
+            })
     }
 
     /* Event Handlers */
 
-    onSetPrivateRepository() {
-        // this.onSetCodebase();
-        const { repositoryOptions, selectedRepository } = this.state;
-
-        // Instantiate websocket connection in didmount to the path for private repos
-        // Hit backend websocket with repository ID, user_id to get gh_access_token
-        // 
+    onToggleSelectPrivateRepository() {
+        const { renderSelectPrivateRepository } = this.state;
+        this.setState({ renderSelectPrivateRepository: !renderSelectPrivateRepository });
     }
 
     onSetCodeSnippet(codebaseId, code, language, isPaywalled) {
@@ -104,6 +129,13 @@ class CodeExplorer extends Component {
         });
     }
 
+    onSetSecondaryProgressMessage(progressMessage) {
+        this.setState({
+            renderSecondaryIndexingProgress: true,
+            progressMessage
+        });
+    }
+
     onToggleFileTree() {
         console.log("toggled")
         const { renderFileTree } = this.state;
@@ -123,9 +155,16 @@ class CodeExplorer extends Component {
             return
         }
 
-        const currentFile = Object.keys(files)[0]; // Default to first file in tree
+        let currentFile = Object.keys(files)[0];
+        Object.keys(files).forEach(file => {
+            if (file.toLowerCase().endsWith("readme.md")) {
+                currentFile = file;
+                return;
+            }
+        });
+
         const fileUrl = files[currentFile].url;
-        const fileContent = await getFileContent(fileUrl);
+        const fileContent = await this.getFileContent(fileUrl);
         const fileLanguage = files[currentFile].language;
 
         this.setState({
@@ -144,7 +183,7 @@ class CodeExplorer extends Component {
         const { files } = this.state.currentCodeContext;
         const fileUrl = files[filePath].url;
         const fileLanguage = files[filePath].language;
-        const fileContent = await getFileContent(fileUrl);
+        const fileContent = await this.getFileContent(fileUrl);
 
         this.setState({
             currentCodeContext: {
@@ -234,8 +273,22 @@ class CodeExplorer extends Component {
         );
     }
 
+    renderSecondaryIndexingProgress() {
+        const { renderSecondaryIndexingProgress, progressMessage } = this.state;
+
+        if (!renderSecondaryIndexingProgress) {
+            return null;
+        }
+
+        return (
+            <div id="secondaryIndexingProgress">
+                <span>{progressMessage}</span>
+            </div>
+        );
+    }
+
     renderSelectRepository() {
-        const { renderSelectRepository } = this.state;
+        const { renderSelectRepository, renderSelectPrivateRepository } = this.state;
 
         if (!renderSelectRepository) {
             return null;
@@ -243,17 +296,40 @@ class CodeExplorer extends Component {
 
         return (
             <div id="selectRepository">
-                <GithubInput
-                    onSetProgressMessage={this.onSetProgressMessage}
-                    onSetCodebase={this.onSetCodebase}
-                />
+                <div id="selectRepositoryHeading">
+                    <span id="selectHeading">Add a Github repository</span>
+                    <span id="selectSubheading">Paste a link to a public repository or import your own by authenticating with Github.</span>
+                </div>
 
-                <AuthenticatedGithubInput
-                    onSetProgressMessage={this.onSetProgressMessage}
-                    onSetCodebase={this.onSetCodebase}
-                />
+                <div id="repoSwitch">
+                    <Switch
+                        size="small"
+                        checked={renderSelectPrivateRepository}
+                        onChange={this.onToggleSelectPrivateRepository}
+                        color="secondary"
+                    />
+                    <span id={renderSelectPrivateRepository ? "activeSwitch" : "passiveSwitch"}>Your repos</span>
+                </div>
+
+                {renderSelectPrivateRepository ? (
+                    <AuthenticatedGithubInput
+                        onSetProgressMessage={this.onSetProgressMessage}
+                        onSetSecondaryProgressMessage={this.onSetSecondaryProgressMessage}
+                        onSetCodebase={this.onSetCodebase}
+                    />
+                ) : (
+                    <>
+                        <GithubInput
+                            onSetProgressMessage={this.onSetProgressMessage}
+                            onSetSecondaryProgressMessage={this.onSetSecondaryProgressMessage}
+                            onSetCodebase={this.onSetCodebase}
+                        />
+                    </>
+                )}
             </div>
         );
+
+        // TODO: Add example GH URLs
     }
 
     renderCodebaseManager() {
@@ -327,7 +403,7 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        <img src="./repository_icon.png" />
+                        {/* <img src="./repository_icon.png" /> */}
                         <span>Add GitHub repository</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
@@ -351,7 +427,7 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        <img src="./code_snippet_icon.png" />
+                        {/* <img src="./code_snippet_icon.png" /> */}
                         <span>Add a code snippet</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
@@ -374,7 +450,7 @@ class CodeExplorer extends Component {
         return (
             <div id="managerHeader">
                 <div id="headerLabel">
-                    <img src="./manager_icon.png" />
+                    {/* <img src="./manager_icon.png" /> */}
                     <span>Manage codebases</span>
                 </div>
             </div>
@@ -407,6 +483,7 @@ class CodeExplorer extends Component {
                         {this.renderHeader()}
                         {this.renderCodeExplorer()}
                     </motion.div>
+                    {this.renderSecondaryIndexingProgress()}
                 </div>
             )
         }
@@ -420,6 +497,7 @@ class CodeExplorer extends Component {
                 {this.renderSelectCodeSnippet()}
                 {this.renderIndexingProgress()}
                 {this.renderCodeExplorer()}
+                {this.renderSecondaryIndexingProgress()}
             </div>
         );
     }

@@ -70,8 +70,11 @@ class GithubInput extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
-        console.log("mounting")
-        const { onSetCodebase, onSetProgressMessage } = this.props;
+        const {
+            onSetCodebase,
+            onSetProgressMessage,
+            onSetSecondaryProgressMessage
+        } = this.props;
 
         if (window.location.protocol === "https:") {
             this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_url`);
@@ -81,12 +84,12 @@ class GithubInput extends Component {
 
         this.websocket.onopen = event => { console.log("opened index ws") };
         this.websocket.onmessage = async event => {
-            const { githubUrl } = this.state;
             const {
                 message,
                 metadata,
                 is_final,
                 is_paywalled,
+                is_fast,
                 error_message
             } = JSON.parse(event.data);
 
@@ -94,17 +97,27 @@ class GithubInput extends Component {
 
             // TODO: Error-handling
 
-            if (is_final) {
-                onSetProgressMessage("");
+            if (is_fast) {
+                if (is_final) {
+                    onSetProgressMessage("");
 
-                if (is_paywalled) {
-                    await onSetCodebase("", [], is_paywalled);
+                    if (is_paywalled) {
+                        await onSetCodebase("", [], is_paywalled);
+                    } else {
+                        const { codebase_id, files } = metadata;
+                        await onSetCodebase(codebase_id, files, is_paywalled);
+                    }
                 } else {
-                    const { codebase_id, files } = metadata;
-                    await onSetCodebase(codebase_id, files, is_paywalled);
+                    onSetProgressMessage(message);
                 }
             } else {
-                onSetProgressMessage(message);
+                if (is_final) {
+                    onSetSecondaryProgressMessage("");
+
+                    // TODO: Show checkmark or confirmation
+                } else {
+                    onSetSecondaryProgressMessage(message);
+                }
             }
         }
         this.websocket.onerror = event => { };
@@ -116,6 +129,7 @@ class GithubInput extends Component {
         return (
             <div id="inputField" className="githubInput">
                 <div id="inputFieldArea">
+                    <img id={githubUrl == "" ? "passiveLink" : "activeLink"} src="./link_icon.png" />
                     <input
                         id="inputFieldValue"
                         placeholder="Github repository link"

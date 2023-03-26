@@ -52,10 +52,11 @@
 #headerLabel > img {
     height: 20px;
     cursor: pointer;
+    padding-right: 10px;
 }
 
 #headerLabel > span {
-    padding-left: 10px;
+    /* padding-left: 10px; */
     font-weight: 500;
 }
 
@@ -175,15 +176,67 @@
 }
 
 #selectRepository {
-    padding-top: 30px;
-    width: 100%;
+    padding-top: 45px;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: calc(85% - 15px - 15px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    overflow: auto;
+    height: 100%;
 }
 
 .MuiFormControl-root {
     border: 2px solid #262A39;
     border-radius: 7px;
+}
+
+#selectRepositoryHeading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#selectHeading {
+    font-size: 22px;
+    font-weight: 500;
+}
+
+#selectSubheading {
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.75;
+    max-width: 340px;
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 30px;
+}
+
+#repoSwitch {
+    display: flex !important;
+    align-items: center;
+    align-self: start;
+    font-size: 14px;
+    font-weight: 500;
+    padding-bottom: 7px;
+}
+
+#repoSwitch > span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#activeSwitch {
+    padding-left: 2.5px;
+    opacity: 1.0;
+}
+
+#passiveSwitch {
+    padding-left: 2.5px;
+    opacity: 0.75;
+}
+
+#secondaryIndexingProgress {
+    position: fixed;
 }

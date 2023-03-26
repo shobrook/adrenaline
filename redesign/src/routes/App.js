@@ -324,7 +324,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://localhost:5050/api/user_metadata", {
+        fetch("http://localhost:5050/api/stripe/subscription_status", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

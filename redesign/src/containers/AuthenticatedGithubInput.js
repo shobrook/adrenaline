@@ -3,6 +3,7 @@ import { Component } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 
+import Spinner from "../components/Spinner";
 import Button from "../components/Button";
 
 import "../styles/AuthenticatedGithubInput.css";
@@ -12,32 +13,32 @@ class AuthenticatedGithubInput extends Component {
         super(props);
 
         this.onChangeRepository = this.onChangeRepository.bind(this);
+        this.onSelectRepository = this.onSelectRepository.bind(this);
+        this.onChangeSearchInput = this.onChangeSearchInput.bind(this);
         this.onGithubAuthentication = this.onGithubAuthentication.bind(this);
 
+        this.renderSearchBar = this.renderSearchBar.bind(this);
+
         this.fetchRepositoryOptions = this.fetchRepositoryOptions.bind(this);
+        this.groupRepositoriesByOwner = this.groupRepositoriesByOwner.bind(this);
 
         this.state = {
             isGithubAuthenticated: false,
             repositoryOptions: {},
-            selectedRepository: ""
+            selectedRepository: "",
+            searchInput: "",
+            isLoading: true
         };
     }
 
     /* Utilities */
 
     fetchRepositoryOptions() {
-        const { isGithubAuthenticated } = this.props;
         const { user, isAuthenticated, getAccessTokenSilently } = this.props.auth0;
 
         if (!isAuthenticated) {
-            return;
+            return; // TODO: Prompt user to login? Or is this condition not possible
         }
-
-        if (!isGithubAuthenticated) {
-            return;
-        }
-
-        console.log("yooooo")
 
         getAccessTokenSilently()
             .then(token => {
@@ -54,15 +55,39 @@ class AuthenticatedGithubInput extends Component {
                         const { is_github_authenticated, repos } = data;
 
                         if (!is_github_authenticated) {
-                            this.setState({ isGithubAuthenticated: false });
+                            this.setState({
+                                isGithubAuthenticated: false,
+                                isLoading: false
+                            });
+                            return;
                         }
 
-                        const repositoryOptions = repos.reduce((repoObj, repo) => ({ ...repoObj, [repo.name]: repo }), {})
-                        this.setState({ isGithubAuthenticated: true, repositoryOptions });
-
-                        console.log(repositoryOptions)
-                    })
+                        // const repositoryOptions = repos.reduce((options, repo) => ({ ...options, [repo.name]: repo }), {})
+                        const repositoryOptions = repos;
+                        this.setState({
+                            isGithubAuthenticated: true,
+                            isLoading: false,
+                            repositoryOptions
+                        });
+                    });
             });
+    }
+
+    groupRepositoriesByOwner() {
+        const { repositoryOptions } = this.state;
+
+        console.log(repositoryOptions);
+
+        const groupedRepositories = repositoryOptions.reduce((r, a) => {
+            r[a.owner] = r[a.owner] || [];
+            r[a.owner].push(a);
+
+            return r;
+        }, Object.create(null));
+
+        console.log(groupedRepositories);
+
+        return groupedRepositories;
     }
 
     /* Event Handlers */
@@ -86,36 +111,56 @@ class AuthenticatedGithubInput extends Component {
         }
     }
 
+    onChangeSearchInput(event) {
+        this.setState({ searchInput: event.target.value });
+    }
+
     onChangeRepository(event, newValue) {
         this.setState({ selectedRepository: newValue })
     }
 
-    onSubmitRepository() {
+    onSelectRepository(repo) {
+        console.log("Selected repo:")
+        console.log(repo);
+
         const { onSetProgressMessage } = this.props;
         const {
-            isAuthenticated,
-            loginWithRedirect,
             getAccessTokenSilently,
             user
         } = this.props.auth0;
-        const { repositoryOptions, selectedRepository } = this.state;
-
-        if (selectedRepository == "") {
-            return;
-        }
 
         getAccessTokenSilently()
             .then(token => {
+                console.log("Got this far")
                 const request = {
                     user_id: user.sub,
                     token: token,
-                    repo_id: repositoryOptions[selectedRepository].id,
-                    refresh_index: true // TEMP
+                    repo_name: `${repo.owner}/${repo.name}`,
+                    refresh_index: false // TEMP
                 };
                 this.websocket.send(JSON.stringify(request));
+                console.log("Sent websocket thing!");
 
                 onSetProgressMessage("Scraping repository");
             });
+    }
+
+    /* Renderers */
+
+    renderSearchBar() {
+        const { searchInput } = this.state;
+
+        return (
+            <div id="repositorySearch">
+                <img id={searchInput == "" ? "passiveSearch" : "activeSearch"} src="./search_icon.png" />
+                <input
+                    id="inputFieldValue"
+                    placeholder="Search..."
+                    onChange={this.onChangeSearchInput}
+                    value={searchInput}
+                />
+            </div>
+        );
     }
 
     /* Lifecycle Methods */
@@ -126,9 +171,9 @@ class AuthenticatedGithubInput extends Component {
         this.fetchRepositoryOptions();
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_id`);
+            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_name`);
         } else {
-            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_id`);
+            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_name`);
         }
 
         this.websocket.onopen = event => { };
@@ -171,27 +216,87 @@ class AuthenticatedGithubInput extends Component {
     }
 
     render() {
-        const { selectedRepository, repositoryOptions, isGithubAuthenticated } = this.state;
+        const {
+            isGithubAuthenticated,
+            searchInput,
+            isLoading
+        } = this.state;
+
+        if (isLoading) {
+            return (
+                <div id="authenticatedGithubInput">
+                    {this.renderSearchBar()}
+                    <Spinner />
+                </div>
+            );
+        }
 
         if (isGithubAuthenticated) {
+            const groupedRepositories = this.groupRepositoriesByOwner();
+
             return (
-                <div id="inputField" className="githubInput">
-                    <Autocomplete
-                        value={selectedRepository}
-                        onChange={this.onChangeRepository}
-                        options={Object.keys(repositoryOptions)}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} />}
-                    />
-                    <Button isPrimary onClick={this.onSetPrivateRepository}>Add</Button>
+                <div id="authenticatedGithubInput">
+                    {this.renderSearchBar()}
+
+                    <div id="repositoryList">
+                        {Object.entries(groupedRepositories).map(([owner, repos], index) => {
+                            const reposContainMatch = repos.some(repo => {
+                                const { name } = repo;
+                                return name.toLowerCase().startsWith(searchInput);
+                            });
+
+                            if (!reposContainMatch) {
+                                return null;
+                            }
+
+                            return (
+                                <>
+                                    <div className="ownerSection">
+                                        <div className="ownerHeader">{owner}</div>
+                                        <div className="groupedRepos">
+                                            {repos.map(repo => {
+                                                const { name } = repo;
+
+                                                if (!name.toLowerCase().startsWith(searchInput)) {
+                                                    return null;
+                                                }
+
+                                                return (
+                                                    <>
+                                                        <div
+                                                            className="repositoryItem"
+                                                            onClick={() => this.onSelectRepository(repo)}
+                                                        >
+                                                            {name}
+                                                        </div>
+                                                        {
+                                                            index < Object.keys(groupedRepositories).length - 1 ? (
+                                                                <div className="divider" />
+                                                            )
+                                                                : null
+                                                        }
+                                                    </>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </>
+                            );
+                        })}
+                    </div>
                 </div>
             );
         }
 
         return (
-            <a id="" onClick={this.onGithubAuthentication}>
-                Authenticate with Github
-            </a>
+            <div id="authenticatedGithubInput">
+                {this.renderSearchBar()}
+
+                <div id="githubAuthPrompt">
+                    <span>Authenticate with GitHub to add your repos</span>
+                    <Button isPrimary onClick={this.onGithubAuthentication}>Connect with GitHub</Button>
+                </div>
+            </div>
         );
     }
 }

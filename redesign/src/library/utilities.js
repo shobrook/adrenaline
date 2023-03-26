@@ -46,14 +46,3 @@ export function buildTreeFromFlatList(flatListArray) {
 
     return result;
 }
-
-export async function getFileContent(fileUrl) {
-    // const fileContentUrl = `https://raw.githubusercontent.com/${repoPath}/${defaultBranch}/${filePath}`;
-    const fileContent = await fetch(fileUrl, {
-        method: "GET",
-        headers: {}
-    })
-        .then(res => res.text());
-
-    return fileContent;
-}
