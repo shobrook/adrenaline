@@ -7,6 +7,7 @@ import Spinner from "../components/Spinner";
 import Button from "../components/Button";
 
 import "../styles/AuthenticatedGithubInput.css";
+import { Repository } from "../library/data";
 
 class AuthenticatedGithubInput extends Component {
     constructor(props) {
@@ -170,6 +171,8 @@ class AuthenticatedGithubInput extends Component {
 
         this.fetchRepositoryOptions();
 
+        // TODO: The websocket stuff in this component and GithubInput should be moved up a level
+
         if (window.location.protocol === "https:") {
             this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_name`);
         } else {
@@ -183,22 +186,36 @@ class AuthenticatedGithubInput extends Component {
                 metadata,
                 is_final,
                 is_paywalled,
+                is_fast,
                 error_message
             } = JSON.parse(event.data);
 
+            console.log(event.data);
+
+            if (error_message != "") {
+                onSetProgressMessage("", true);
+                return;
+            }
+
             // TODO: Error-handling
 
-            if (is_final) {
-                onSetProgressMessage("");
+            if (is_fast) {
+                if (is_final) {
+                    onSetProgressMessage("");
 
-                if (is_paywalled) {
-                    await onSetCodebase("", [], is_paywalled);
+                    if (is_paywalled) {
+                        const repository = new Repository("", "", {});
+                        await onSetCodebase(repository, is_paywalled);
+                    } else {
+                        const { codebase_id, name, files } = metadata;
+                        const repository = new Repository(codebase_id, name, files);
+                        await onSetCodebase(repository, is_paywalled);
+                    }
                 } else {
-                    const { codebase_id, files } = metadata;
-                    await onSetCodebase(codebase_id, files, is_paywalled);
+                    onSetProgressMessage(message);
                 }
-            } else {
-                onSetProgressMessage(message);
+            } else { // TODO: Render notification
+
             }
         }
         this.websocket.onerror = event => { };

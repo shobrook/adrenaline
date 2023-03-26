@@ -16,17 +16,9 @@ import Mixpanel from "../library/mixpanel";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
+import { CodeSnippet, Repository } from "../library/data";
 
 import "../styles/CodeExplorer.css";
-
-class Codebase {
-    constructor(title, isCodeSnippet) {
-        this.title = title;
-        this.isCodeSnippet = isCodeSnippet;
-        // this.language;
-        // this.lastUpdated;
-    }
-}
 
 const DEFAULT_STATE = {
     renderCodeSnippet: false,
@@ -68,12 +60,59 @@ class CodeExplorer extends Component {
         this.renderCodeExplorer = this.renderCodeExplorer.bind(this);
         this.renderFileTree = this.renderFileTree.bind(this);
 
+        this.shouldRenderCodebaseManager = this.shouldRenderCodebaseManager.bind(this);
         this.getFileContent = this.getFileContent.bind(this);
+        this.fetchCodebases = this.fetchCodebases.bind(this);
 
         this.state = DEFAULT_STATE;
     }
 
     /* Utilities */
+
+    fetchCodebases() {
+        const { getAccessTokenSilently, isAuthenticated, user } = this.props.auth0;
+
+        if (!isAuthenticated) {
+            return;
+        }
+
+        getAccessTokenSilently()
+            .then(async token => {
+                fetch("http://localhost:5050/api/user_codebases", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ user_id: user.sub })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        const { codebases } = data;
+
+                        this.setState({
+                            codebases: codebases.map(codebase => {
+                                const {
+                                    name,
+                                    is_code_snippet,
+                                    codebase_id,
+                                    files,
+                                    code,
+                                    language
+                                } = codebase;
+
+                                console.log(codebase)
+
+                                if (is_code_snippet) {
+                                    return new CodeSnippet(codebase_id, name, code, language);
+                                }
+
+                                return new Repository(codebase_id, name, files);
+                            })
+                        });
+                    });
+            });
+    }
 
     async getFileContent(fileUrl) {
         const { user, getAccessTokenSilently } = this.props.auth0;
@@ -96,6 +135,17 @@ class CodeExplorer extends Component {
             })
     }
 
+    shouldRenderCodebaseManager() {
+        const {
+            renderCodeSnippet,
+            renderRepository,
+            renderSelectRepository,
+            renderSelectCodeSnippet,
+            renderIndexingProgress
+        } = this.state;
+        return !renderCodeSnippet && !renderRepository && !renderSelectRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
+    }
+
     /* Event Handlers */
 
     onToggleSelectPrivateRepository() {
@@ -103,9 +153,10 @@ class CodeExplorer extends Component {
         this.setState({ renderSelectPrivateRepository: !renderSelectPrivateRepository });
     }
 
-    onSetCodeSnippet(codebaseId, code, language, isPaywalled) {
+    onSetCodeSnippet(codeSnippet, isPaywalled) {
         const { onSetCodebaseId } = this.props;
         const { currentCodeContext } = this.state;
+        const { codebaseId, name, code, language } = codeSnippet;
 
         onSetCodebaseId(codebaseId);
         this.setState({
@@ -120,9 +171,9 @@ class CodeExplorer extends Component {
         });
     }
 
-    onSetProgressMessage(progressMessage) {
+    onSetProgressMessage(progressMessage, haltProgress = false) {
         this.setState({
-            renderIndexingProgress: true,
+            renderIndexingProgress: !haltProgress,
             renderSelectCodeSnippet: false,
             renderSelectRepository: false,
             progressMessage
@@ -142,8 +193,10 @@ class CodeExplorer extends Component {
         this.setState({ renderFileTree: !renderFileTree });
     }
 
-    async onSetCodebase(codebaseId, files, isPaywalled) {
+    async onSetCodebase(repository, isPaywalled) {
         const { onSetCodebaseId } = this.props;
+        const { codebaseId, files } = repository;
+
         onSetCodebaseId(codebaseId);
 
         if (isPaywalled) {
@@ -333,15 +386,8 @@ class CodeExplorer extends Component {
     }
 
     renderCodebaseManager() {
-        const {
-            renderCodeSnippet,
-            renderRepository,
-            renderSelectRepository,
-            renderSelectCodeSnippet,
-            renderIndexingProgress,
-            codebases
-        } = this.state;
-        const renderCodebaseManager = !renderCodeSnippet && !renderRepository && !renderSelectRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
+        const { codebases } = this.state;
+        const renderCodebaseManager = this.shouldRenderCodebaseManager();
 
         if (!renderCodebaseManager) {
             return null;
@@ -358,16 +404,25 @@ class CodeExplorer extends Component {
                     </Grid>
                     {
                         codebases.map(codebase => {
-                            const { title, isCodeSnippet } = codebase;
+                            const { name, isCodeSnippet } = codebase;
+
+                            if (isCodeSnippet) {
+                                return (
+                                    <Grid item xs={4}>
+                                        <div className="codebaseThumbnail" onClick={() => this.onSetCodeSnippet(codebase, false)}>
+                                            <img src="./code_snippet_icon.png" />
+                                            <span>{name}</span>
+                                        </div>
+                                        <div className="spacer" />
+                                    </Grid>
+                                )
+                            }
 
                             return (
                                 <Grid item xs={4}>
-                                    <div className="codebaseThumbnail">
-                                        {
-                                            isCodeSnippet ? (<img src="./code_snippet_icon.png" />)
-                                                : (<img src="./repository_icon.png" />)
-                                        }
-                                        <span>{title}</span>
+                                    <div className="codebaseThumbnail" onClick={async () => await this.onSetCodebase(codebase, false)}>
+                                        <img src="./github_icon.png" />
+                                        <span>{name}</span>
                                     </div>
                                     <div className="spacer" />
                                 </Grid>
@@ -458,6 +513,26 @@ class CodeExplorer extends Component {
     }
 
     /* Lifecycle Methods */
+
+    componentDidMount() {
+        this.fetchCodebases();
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        const {
+            renderCodeSnippet,
+            renderRepository,
+            renderSelectRepository,
+            renderSelectCodeSnippet,
+            renderIndexingProgress
+        } = prevState;
+        const prevShouldRenderCodebaseManager = !renderCodeSnippet && !renderRepository && !renderSelectRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
+        const shouldRenderCodebaseManager = this.shouldRenderCodebaseManager();
+
+        if (prevShouldRenderCodebaseManager != shouldRenderCodebaseManager && shouldRenderCodebaseManager) {
+            this.fetchCodebases();
+        }
+    }
 
     render() {
         const { renderRepository, renderFileTree, renderPaywall } = this.state;

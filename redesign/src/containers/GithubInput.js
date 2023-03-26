@@ -2,6 +2,7 @@ import { withAuth0 } from "@auth0/auth0-react";
 import { Component } from "react";
 
 import Button from "../components/Button";
+import { Repository } from "../library/data";
 
 import "../styles/GithubInput.css";
 
@@ -51,7 +52,7 @@ class GithubInput extends Component {
                     user_id: user.sub,
                     token: token,
                     repo_url: githubUrl,
-                    refresh_index: true // TEMP
+                    refresh_index: false // TEMP
                 };
                 this.websocket.send(JSON.stringify(request));
 
@@ -102,22 +103,24 @@ class GithubInput extends Component {
                     onSetProgressMessage("");
 
                     if (is_paywalled) {
-                        await onSetCodebase("", [], is_paywalled);
+                        const repository = new Repository("", "", []);
+                        await onSetCodebase(repository, is_paywalled);
                     } else {
-                        const { codebase_id, files } = metadata;
-                        await onSetCodebase(codebase_id, files, is_paywalled);
+                        const { codebase_id, name, files } = metadata;
+                        const repository = new Repository(codebase_id, name, files);
+                        await onSetCodebase(repository, is_paywalled);
                     }
                 } else {
                     onSetProgressMessage(message);
                 }
-            } else {
-                if (is_final) {
-                    onSetSecondaryProgressMessage("");
+            } else { // TODO: Render a notification on first message and on last
+                // if (is_final) {
+                //     onSetSecondaryProgressMessage("");
 
-                    // TODO: Show checkmark or confirmation
-                } else {
-                    onSetSecondaryProgressMessage(message);
-                }
+                //     // TODO: Show checkmark or confirmation
+                // } else {
+                //     onSetSecondaryProgressMessage(message);
+                // }
             }
         }
         this.websocket.onerror = event => { };

@@ -7,6 +7,7 @@ import ChatBot from "../containers/ChatBot";
 // import DocumentFeed from "../containers/DocumentFeed";
 import CodeExplorer from "../containers/CodeExplorer";
 import PaymentPlan from "../containers/PaymentPlan";
+import Spinner from "../components/Spinner";
 
 import { withRouter } from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
@@ -45,6 +46,8 @@ class StackOverflowPost {
   }
 }
 
+const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a Github repository or a code snippet.\nYou can ask me to explain how something works, where something is implemented, or even how to debug an error."
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -56,7 +59,7 @@ class App extends Component {
 
     this.state = {
       codebaseId: "",
-      messages: [new Message("Ask me anything about your code.", true, true)],
+      messages: [new Message(WELCOME_MESSAGE, true, true)],
       documents: [],
       subscriptionStatus: {},
       renderSubscriptionModal: false
@@ -103,6 +106,7 @@ class App extends Component {
           codebase_id: codebaseId,
           query: message
         };
+        console.log(request)
         this.query_ws.send(JSON.stringify(request));
       });
   }
@@ -190,12 +194,16 @@ class App extends Component {
   }
 
   renderApp() {
-    const { subscriptionStatus, messages, codebaseId } = this.state;
+    const { isLoading } = this.props.auth0;
+    const { messages, codebaseId } = this.state;
 
-    if (!subscriptionStatus) {
+    if (isLoading) {
       return (
-        <div id="loadingPage">
-          Loading
+        <div className="app">
+          <Header />
+          <div id="loadingBody">
+            <Spinner />
+          </div>
         </div>
       );
     }

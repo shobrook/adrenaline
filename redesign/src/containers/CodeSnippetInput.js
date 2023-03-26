@@ -26,6 +26,7 @@ import "prismjs/components/prism-sql";
 import "prismjs/components/prism-swift";
 
 import Button from "../components/Button";
+import { CodeSnippet } from "../library/data";
 
 import "prismjs/themes/prism.css"; // TODO: Change style
 import "../styles/CodeSnippetInput.css";
@@ -133,10 +134,11 @@ class CodeSnippetInput extends Component {
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {
             const { code, language } = this.state;
-            const { codebase_id, is_paywalled, error_message } = JSON.parse(event.data);
+            const { codebase_id, name, is_paywalled, error_message } = JSON.parse(event.data);
+            const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);
 
             onSetProgressMessage("");
-            onSetCodeSnippet(codebase_id, code, language.value, is_paywalled);
+            onSetCodeSnippet(codeSnippet, is_paywalled);
         }
         this.websocket.onerror = event => {
             console.log(event); // TODO: Show error message
