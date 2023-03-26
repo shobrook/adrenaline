@@ -28,7 +28,7 @@ class AuthenticatedGithubInput extends Component {
             repositoryOptions: {},
             selectedRepository: "",
             searchInput: "",
-            isLoading: true
+            isLoading: false
         };
     }
 
@@ -41,9 +41,10 @@ class AuthenticatedGithubInput extends Component {
             return; // TODO: Prompt user to login? Or is this condition not possible
         }
 
+        this.setState({ isLoading: true });
         getAccessTokenSilently()
             .then(token => {
-                fetch("http://localhost:5050/api/github_repositories", {
+                fetch("https://adrenaline-api-staging.up.railway.app/api/github_repositories", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -54,6 +55,8 @@ class AuthenticatedGithubInput extends Component {
                     .then(res => res.json())
                     .then(data => {
                         const { is_github_authenticated, repos } = data;
+
+                        console.log(data);
 
                         if (!is_github_authenticated) {
                             this.setState({
@@ -132,7 +135,6 @@ class AuthenticatedGithubInput extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                console.log("Got this far")
                 const request = {
                     user_id: user.sub,
                     token: token,
@@ -140,7 +142,6 @@ class AuthenticatedGithubInput extends Component {
                     refresh_index: false // TEMP
                 };
                 this.websocket.send(JSON.stringify(request));
-                console.log("Sent websocket thing!");
 
                 onSetProgressMessage("Scraping repository");
             });
@@ -174,9 +175,9 @@ class AuthenticatedGithubInput extends Component {
         // TODO: The websocket stuff in this component and GithubInput should be moved up a level
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_name`);
+            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_name`);
         } else {
-            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_name`);
+            this.websocket = new WebSocket(`ws://websocket-lb.useadrenaline.com/index_codebase_by_repo_name`);
         }
 
         this.websocket.onopen = event => { };

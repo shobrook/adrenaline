@@ -67,3 +67,15 @@
 .repositoryItem:hover {
     opacity: 0.75;
 }
+
+#githubAuthPrompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#githubAuthPrompt > span {
+    font-size: 18px;
+    padding-bottom: 15px;
+    padding-top: 30px;
+}

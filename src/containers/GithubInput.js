@@ -78,9 +78,9 @@ class GithubInput extends Component {
         } = this.props;
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_url`);
+            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
         } else {
-            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_url`);
+            this.websocket = new WebSocket(`ws://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
         }
 
         this.websocket.onopen = event => { console.log("opened index ws") };
@@ -103,7 +103,7 @@ class GithubInput extends Component {
                     onSetProgressMessage("");
 
                     if (is_paywalled) {
-                        const repository = new Repository("", "", []);
+                        const repository = new Repository("", "", {});
                         await onSetCodebase(repository, is_paywalled);
                     } else {
                         const { codebase_id, name, files } = metadata;

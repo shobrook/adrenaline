@@ -78,7 +78,7 @@ class CodeExplorer extends Component {
 
         getAccessTokenSilently()
             .then(async token => {
-                fetch("http://localhost:5050/api/user_codebases", {
+                fetch("https://adrenaline-api-staging.up.railway.app/api/user_codebases", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -119,7 +119,7 @@ class CodeExplorer extends Component {
 
         return await getAccessTokenSilently()
             .then(async token => {
-                return await fetch("http://localhost:5050/api/file_content", {
+                return await fetch("https://adrenaline-api-staging.up.railway.app/api/file_content", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

@@ -60,6 +60,7 @@ class App extends Component {
     this.state = {
       codebaseId: "",
       messages: [new Message(WELCOME_MESSAGE, true, true)],
+      chatHistorySummary: "",
       documents: [],
       subscriptionStatus: {},
       renderSubscriptionModal: false
@@ -74,7 +75,7 @@ class App extends Component {
   }
 
   onSubmitQuery(message) {
-    const { codebaseId, messages } = this.state;
+    const { codebaseId, messages, chatHistorySummary } = this.state;
     const {
       isAuthenticated,
       getAccessTokenSilently,
@@ -104,9 +105,10 @@ class App extends Component {
           user_id: user.sub,
           token: token,
           codebase_id: codebaseId,
-          query: message
+          query: message,
+          chat_history_summary: chatHistorySummary
         };
-        console.log(request)
+        console.log(request);
         this.query_ws.send(JSON.stringify(request));
       });
   }
@@ -246,16 +248,21 @@ class App extends Component {
     /* Connect to query handler websocket */
 
     if (window.location.protocol === "https:") {
-      // this.query_ws = new WebSocket(`wss://adrenaline-dev.us-east-1.elasticbeanstalk.com/answer_query`);
-      this.query_ws = new WebSocket(`wss://localhost:5001/answer_query`);
+      this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
     } else {
-      // this.query_ws = new WebSocket(`wss://adrenaline-dev.us-east-1.elasticbeanstalk.com/answer_query`);
-      this.query_ws = new WebSocket(`ws://localhost:5001/answer_query`);
+      this.query_ws = new WebSocket(`ws://websocket-lb.useadrenaline.com/answer_query`);
     }
 
     this.query_ws.onopen = event => { }; // QUESTION: Should we wait to render the rest of the site until connection is established?
     this.query_ws.onmessage = event => {
-      const { type, data, is_final, is_paywalled, error_message } = JSON.parse(event.data);
+      const {
+        type,
+        data,
+        is_final,
+        is_paywalled,
+        chat_history_summary,
+        error_message
+      } = JSON.parse(event.data);
       const { documents, messages } = this.state;
 
       if (type == "code_chunk") {
@@ -275,7 +282,10 @@ class App extends Component {
         response.isComplete = is_final;
         response.isPaywalled = is_paywalled;
 
-        this.setState({ messages: [...priorMessages, response] });
+        this.setState({
+          messages: [...priorMessages, response],
+          chatHistorySummary: chat_history_summary
+        });
       } else if (type == "so_post") {
         const { title, question_body, answer, link } = data;
         const document = new Document(answer); // TODO: Use StackOverflowPost
@@ -310,7 +320,7 @@ class App extends Component {
     if (githubCode != null) {
       getAccessTokenSilently()
         .then(token => {
-          fetch("http://localhost:5050/api/github_callback", {
+          fetch("https://adrenaline-api-staging.up.railway.app/api/github_callback", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -332,7 +342,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("http://localhost:5050/api/stripe/subscription_status", {
+        fetch("https://adrenaline-api-staging.up.railway.app/api/stripe/subscription_status", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
