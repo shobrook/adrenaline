@@ -35,7 +35,7 @@ class ApiSubscription extends Component {
                     },
                     body: JSON.stringify({
                         user_id: user.sub,
-                        lookup_key: "api_access"
+                        lookup_key: "api_access_bimonthly"
                     })
                 })
                     .then(res => {
