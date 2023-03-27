@@ -3,7 +3,7 @@ import { Component } from "react";
 
 import Button from "../components/Button";
 
-import "../styles/QueryInput.css";
+import "../styles/QueryInput.module.css";
 
 class QueryInput extends Component {
     constructor(props) {

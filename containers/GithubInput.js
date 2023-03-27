@@ -4,7 +4,7 @@ import { Component } from "react";
 import Button from "../components/Button";
 import { Repository } from "../library/data";
 
-import "../styles/GithubInput.css";
+import "../styles/GithubInput.module.css";
 
 class GithubInput extends Component {
     constructor(props) {

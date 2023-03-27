@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
 import { useAuth0 } from '@auth0/auth0-react';
 
 import Button from "../components/Button";
 import Mixpanel from "../library/mixpanel";
 
-import "../styles/Header.css";
+import "../styles/Header.module.css";
+import Link from "next/link";
 
 function Header({ onClick, isTransparent }) {
 	const {
@@ -39,8 +39,8 @@ function Header({ onClick, isTransparent }) {
 	return (
 		<div className={isTransparent ? "header transparent" : "header"}>
 			<div className="logo">
-				<Link to="/">
-					<img src="./logo.png" />
+				<Link href="/">
+					<img src="./logo.png" alt={"logo"} />
 				</Link>
 			</div>
 			<div className="buttons">

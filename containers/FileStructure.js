@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 
 import { buildTreeFromFlatList } from "../library/utilities";
 
-import '../styles/FileStructure.css';
+import '../styles/FileStructure.module.css';
 
 function MinusSquare(props) {
     return (
