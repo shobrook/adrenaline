@@ -2,6 +2,7 @@ import { withAuth0 } from "@auth0/auth0-react";
 import { Component } from "react";
 import Select from "react-select";
 import Editor from "react-simple-code-editor";
+import toast from "react-hot-toast";
 // import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { highlight, languages } from "prismjs/components/prism-core";
 
@@ -141,7 +142,8 @@ class CodeSnippetInput extends Component {
             onSetCodeSnippet(codeSnippet, is_paywalled);
         }
         this.websocket.onerror = event => {
-            console.log(event); // TODO: Show error message
+            console.log(event);
+            toast.error("Error connecting to server. Please try again later.");
         };
     }
 

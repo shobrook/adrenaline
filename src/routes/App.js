@@ -110,7 +110,7 @@ class App extends Component {
         };
         console.log(request);
         this.query_ws.send(JSON.stringify(request));
-      });
+      })
   }
 
   onSetCodebaseId(codebaseId) {
