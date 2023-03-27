@@ -101,7 +101,7 @@ class AuthenticatedGithubInput extends Component {
         const redirectUri = "https://useadrenaline.com/app";
         // const redirectUri = "http://localhost:3000/app";
         // const login = ""; // TODO: Populate this if user is already authenticated with Github
-        const scope = "repo";
+        const scope = "repo:read";
 
         let authUrl = "https://github.com/login/oauth/authorize?"
         authUrl += `client_id=${clientId}`;
