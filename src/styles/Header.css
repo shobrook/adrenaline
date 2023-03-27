@@ -45,7 +45,7 @@
 
 .linkButtons > a > img {
   height: 25px;
-} 
+}
 
 .ctaButtons {
   display: flex;
@@ -129,4 +129,72 @@
 
 .logo img {
   height: 20px;
+}
+
+.user-nav-dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.profile-picture {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: 8px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    background-color: #181b26;
+    min-width: 200px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 8px;
+    opacity: 0;
+    transform: scale(0.8);
+    animation: pop 0.3s forwards;
+    padding: 8px 16px;
+}
+
+@keyframes pop {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dropdown-item {
+    padding: 8px 0;
+    cursor: pointer;
+    color: white;
+}
+
+.dropdown-item a {
+    text-decoration: none;
+    color: white;
+}
+
+.dropdown-item:hover {
+    background-color: #14171f;
+}
+
+.pro-tag{
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #A305E1;
+    margin-left: 8px;
+}
+
+.logout {
+    border-top: 1px solid #ccc;
 }
