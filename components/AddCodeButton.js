@@ -1,6 +1,6 @@
 import { Component } from "react";
 
-import "../styles/AddCodeButton.css";
+import "../styles/AddCodeButton.module.css";
 
 export default class AddCodeButton extends Component {
     render() {

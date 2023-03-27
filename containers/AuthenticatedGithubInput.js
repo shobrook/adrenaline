@@ -6,7 +6,7 @@ import TextField from "@mui/material/TextField";
 import Spinner from "../components/Spinner";
 import Button from "../components/Button";
 
-import "../styles/AuthenticatedGithubInput.css";
+import "../styles/AuthenticatedGithubInput.module.css";
 import { Repository } from "../library/data";
 
 class AuthenticatedGithubInput extends Component {

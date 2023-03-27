@@ -18,7 +18,7 @@ import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
 import { CodeSnippet, Repository } from "../library/data";
 
-import "../styles/CodeExplorer.css";
+import "../styles/CodeExplorer.module.css";
 
 const DEFAULT_STATE = {
     renderCodeSnippet: false,

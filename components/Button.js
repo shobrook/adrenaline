@@ -1,6 +1,6 @@
 import { Component } from "react";
 
-import "../styles/Button.css";
+import "../styles/Button.module.css";
 
 export default class Button extends Component {
 	constructor(props) {

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import React from "react";
 
-import "../styles/Spinner.css";
+import "../styles/Spinner.module.css";
 
 const LoadingDot = {
     display: "block",

@@ -5,7 +5,7 @@ import QueryInput from "./QueryInput";
 import Message from "./Message";
 import Mixpanel from "../library/mixpanel";
 
-import "../styles/ChatBot.css";
+import "../styles/ChatBot.module.css";
 
 class ChatBot extends Component {
     /* Utilities */

@@ -29,7 +29,7 @@ import Button from "../components/Button";
 import { CodeSnippet } from "../library/data";
 
 import "prismjs/themes/prism.css"; // TODO: Change style
-import "../styles/CodeSnippetInput.css";
+import "../styles/CodeSnippetInput.module.css";
 
 const LANGUAGES = [
     { label: "Python", value: "python", prismMode: languages.python, codeExample: "# Paste your code here" },

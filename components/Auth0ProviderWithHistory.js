@@ -1,7 +1,8 @@
-import { useNavigate } from "react-router-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
+import {useRouter} from "next/router";
 
 const Auth0ProviderWithHistory = ({ children }) => {
+    const router = useRouter()
     // TODO: Store these in environment variables
 
     // const domain = process.env.REACT_APP_AUTH0_DOMAIN;
@@ -10,10 +11,8 @@ const Auth0ProviderWithHistory = ({ children }) => {
     const clientId = "9JZ9notgpzW8BhCo5HMsv6h2HVUbdYhu";
     const audience = "rubrick-api-production.up.railway.app";
 
-    const navigate = useNavigate();
-
     const onRedirectCallback = (appState) => {
-        navigate(appState?.returnTo || window.location.pathname);
+        router.push(appState?.returnTo || window.location.pathname);
     };
 
     return (
