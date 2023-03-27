@@ -1,5 +1,6 @@
 import { withAuth0 } from "@auth0/auth0-react";
 import { Component } from "react";
+import toast from "react-hot-toast";
 
 import Button from "../components/Button";
 import { Repository } from "../library/data";
@@ -14,7 +15,7 @@ class GithubInput extends Component {
         this.onSubmitGithubUrl = this.onSubmitGithubUrl.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
 
-        this.state = { githubUrl: "" };
+        this.state = { githubUrl: "", loadingToastId: null };
     }
 
     /* Event Handlers */
@@ -83,8 +84,9 @@ class GithubInput extends Component {
             this.websocket = new WebSocket(`ws://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
         }
 
-        this.websocket.onopen = event => { console.log("opened index ws") };
+        this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {
+            const { loadingToastId } = this.state;
             const {
                 message,
                 metadata,
@@ -94,9 +96,21 @@ class GithubInput extends Component {
                 error_message
             } = JSON.parse(event.data);
 
-            console.log(event.data);
-
-            // TODO: Error-handling
+            if (error_message != "") {
+                toast.error(error_message, {
+                    style: {
+                        borderRadius: "7px",
+                        background: "#FB4D3D",
+                        color: "#fff",
+                    },
+                    iconTheme: {
+                        primary: '#ffffff7a',
+                        secondary: '#fff',
+                    }
+                });
+                onSetProgressMessage("", true);
+                return;
+            }
 
             if (is_fast) {
                 if (is_final) {
@@ -113,14 +127,14 @@ class GithubInput extends Component {
                 } else {
                     onSetProgressMessage(message);
                 }
-            } else { // TODO: Render a notification on first message and on last
-                // if (is_final) {
-                //     onSetSecondaryProgressMessage("");
+            } else {
+                if (is_final) {
+                    this.setState({ renderFineTuningSuccessMessage: true });
+                } else {
 
-                //     // TODO: Show checkmark or confirmation
-                // } else {
-                //     onSetSecondaryProgressMessage(message);
-                // }
+                    toast.loading("Fine-tuning the chatbot on your code. Output will continuously improve.");
+                    this.setState({ renderFineTuningProgress: true });
+                }
             }
         }
         this.websocket.onerror = event => { };

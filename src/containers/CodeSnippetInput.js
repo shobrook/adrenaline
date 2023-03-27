@@ -141,7 +141,7 @@ class CodeSnippetInput extends Component {
             onSetCodeSnippet(codeSnippet, is_paywalled);
         }
         this.websocket.onerror = event => {
-            console.log(event); // TODO: Show error message
+            // TODO: Show error message
         };
     }
 

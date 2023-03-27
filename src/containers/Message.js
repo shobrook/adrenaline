@@ -30,6 +30,7 @@ export default class Message extends Component {
 				);
 			}
 
+			// TODO: Format plaintext properly
 			return text.split("`").map((otherText, otherIndex) => {
 				if (otherIndex % 2) { // In-line code
 					return (<b>{`\`${otherText}\``}</b>);
