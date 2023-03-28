@@ -138,8 +138,8 @@
 }
 
 .profile-picture {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
     margin-top: 8px;
@@ -186,13 +186,6 @@
 
 .dropdown-item:hover {
     background-color: #14171f;
-}
-
-.pro-tag{
-    padding: 4px 8px;
-    border-radius: 4px;
-    background-color: #A305E1;
-    margin-left: 8px;
 }
 
 .logout {

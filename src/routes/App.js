@@ -13,6 +13,7 @@ import { withRouter } from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/App.css";
+import SubscriptionModal from "../containers/SubscriptionModal";
 
 class Message {
   constructor(content, isResponse, isComplete, isPaywalled = false) {
@@ -55,7 +56,7 @@ class App extends Component {
     this.onSubmitQuery = this.onSubmitQuery.bind(this);
     this.onSetCodebaseId = this.onSetCodebaseId.bind(this);
     this.renderSubscriptionModal = this.renderSubscriptionModal.bind(this);
-    this.onToggleSubscriptionModal = this.onToggleSubscriptionModal.bind(this);
+    this.toggleShowSubscriptionModal = this.toggleShowSubscriptionModal.bind(this);
 
     this.state = {
       codebaseId: "",
@@ -63,15 +64,14 @@ class App extends Component {
       chatHistorySummary: "",
       documents: [],
       subscriptionStatus: {},
-      renderSubscriptionModal: false
+      showSubscriptionModal: false
     };
   }
 
   /* Event Handlers */
 
-  onToggleSubscriptionModal() {
-    const { renderSubscriptionModal } = this.state;
-    this.setState({ renderSubscriptionModal: !renderSubscriptionModal });
+  toggleShowSubscriptionModal(value) {
+    this.setState({ showSubscriptionModal: value });
   }
 
   onSubmitQuery(message) {
@@ -150,7 +150,7 @@ class App extends Component {
 
     return (
       <motion.div
-        onClick={this.onToggleSubscriptionModal}
+        onClick={this.toggleShowSubscriptionModal}
         id="modalBackground"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -202,7 +202,7 @@ class App extends Component {
     if (isLoading) {
       return (
         <div className="app">
-          <Header />
+          <Header setShowSubscriptionModal={this.toggleShowSubscriptionModal} />
           <div id="loadingBody">
             <Spinner />
           </div>
@@ -212,18 +212,18 @@ class App extends Component {
 
     return (
       <div className="app">
-        <Header />
+        <Header setShowSubscriptionModal={this.toggleShowSubscriptionModal} />
 
         <div className="body">
           <ChatBot
             messages={messages}
             onSubmitQuery={this.onSubmitQuery}
-            onUpgradePlan={this.onToggleSubscriptionModal}
+            onUpgradePlan={this.toggleShowSubscriptionModal}
           />
           <CodeExplorer
             onSetCodebaseId={this.onSetCodebaseId}
             codebaseId={codebaseId}
-            onUpgradePlan={this.onToggleSubscriptionModal}
+            onUpgradePlan={this.toggleShowSubscriptionModal}
           />
         </div>
       </div>
@@ -250,7 +250,7 @@ class App extends Component {
     if (window.location.protocol === "https:") {
       this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
     } else {
-      this.query_ws = new WebSocket(`ws://websocket-lb.useadrenaline.com/answer_query`);
+      this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
     }
 
     this.query_ws.onopen = event => { }; // QUESTION: Should we wait to render the rest of the site until connection is established?
@@ -379,6 +379,12 @@ class App extends Component {
       <>
         {this.renderSubscriptionModal()}
         {this.renderApp()}
+        {this.state.showSubscriptionModal ?
+            <div className={"grid p-2 justify-items-center"}>
+                <SubscriptionModal setShowSubscriptionModal={this.toggleShowSubscriptionModal}/>
+            </div>
+            : null
+        }
       </>
     );
   }

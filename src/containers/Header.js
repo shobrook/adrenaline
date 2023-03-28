@@ -5,9 +5,9 @@ import Button from "../components/Button";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/Header.css";
-import {useState, useEffect} from "react";
+import {useState} from "react";
 
-export default function Header({onClick, isTransparent}) {
+export default function Header({isTransparent, setShowSubscriptionModal}) {
     const {
         isAuthenticated,
         loginWithRedirect,
@@ -57,7 +57,8 @@ export default function Header({onClick, isTransparent}) {
                 </div>
                 <div className="ctaButtons">
                     {isAuthenticated ? (
-                        <UserNavDropdown user={user} onLogout={onLogout}/>
+                        <UserNavDropdown user={user} onLogout={onLogout}
+                                         setShowSubscriptionModal={setShowSubscriptionModal}/>
                     ) : (
                         <>
                             <Button
@@ -79,7 +80,8 @@ export default function Header({onClick, isTransparent}) {
             </div>
             <div className="compactButtons">
                 {isAuthenticated ? (
-                    <UserNavDropdown user={user} onLogout={onLogout}/>
+                    <UserNavDropdown user={user} onLogout={onLogout}
+                                     setShowSubscriptionModal={setShowSubscriptionModal}/>
                 ) : (
                     <>
                         <Button isPrimary={false} onClick={onLogIn}>Log in</Button>
@@ -90,8 +92,7 @@ export default function Header({onClick, isTransparent}) {
     );
 }
 
-const UserNavDropdown = ({user, onLogout}) => {
-    console.log(user)
+const UserNavDropdown = ({user, onLogout, setShowSubscriptionModal}) => {
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
     const toggleDropdown = () => {
@@ -109,17 +110,19 @@ const UserNavDropdown = ({user, onLogout}) => {
             {dropdownVisible && (
                 <div className="dropdown-menu">
                     <div className={"dropdown-item"}>
-                        <a href={"#pricingSection"}>Upgrade Account<span className={"pro-tag"}>PRO</span></a>
+                        <a href={"#pricingSection"}>Manage Account</a>
                     </div>
-                    <div className={"dropdown-item"}>
-                        <a href={"/"}>Manage Account</a>
+                    <div className={"dropdown-item"} onClick={onLogout}>
+                        Logout
                     </div>
                     <div className={"dropdown-item"}>
                         <Button
                             isPrimary
-                            onClick={onLogout}
+                            onClick={() => {
+                                setShowSubscriptionModal(true)
+                            }}
                         >
-                            Logout
+                            Upgrade Account
                         </Button>
                     </div>
                 </div>
