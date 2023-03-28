@@ -15,7 +15,7 @@ class GithubInput extends Component {
         this.onSubmitGithubUrl = this.onSubmitGithubUrl.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
 
-        this.state = { githubUrl: "", loadingToastId: null };
+        this.state = { githubUrl: "", secondaryIndexingProgressId: null };
     }
 
     /* Event Handlers */
@@ -74,8 +74,7 @@ class GithubInput extends Component {
     componentDidMount() {
         const {
             onSetCodebase,
-            onSetProgressMessage,
-            onSetSecondaryProgressMessage
+            onSetProgressMessage
         } = this.props;
 
         if (window.location.protocol === "https:") {
@@ -86,7 +85,7 @@ class GithubInput extends Component {
 
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {
-            const { loadingToastId } = this.state;
+            const { secondaryIndexingProgressId } = this.state;
             const {
                 message,
                 metadata,
@@ -128,12 +127,15 @@ class GithubInput extends Component {
                     onSetProgressMessage(message);
                 }
             } else {
+                console.log(event.data);
                 if (is_final) {
-                    this.setState({ renderFineTuningSuccessMessage: true });
+                    toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
+                    this.setState({ secondaryIndexingProgressId: null });
                 } else {
-
-                    toast.loading("Fine-tuning the chatbot on your code. Output will continuously improve.");
-                    this.setState({ renderFineTuningProgress: true });
+                    if (secondaryIndexingProgressId == null) {
+                        const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                        this.setState({ secondaryIndexingProgressId: toastId });
+                    }
                 }
             }
         }
