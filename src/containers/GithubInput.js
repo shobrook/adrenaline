@@ -127,10 +127,10 @@ class GithubInput extends Component {
                     onSetProgressMessage(message);
                 }
             } else {
-                if (is_final) {
-                    toast.success("Fine-tuning complete. Chatbot is fully optimized."); // { id: secondaryIndexingProgressId }
-                    // this.setState({ secondaryIndexingProgressId: null });
-                }
+                // if (is_final) {
+                //     toast.success("Fine-tuning complete. Chatbot is fully optimized."); // { id: secondaryIndexingProgressId }
+                //     // this.setState({ secondaryIndexingProgressId: null });
+                // }
                 // else {
                 //     if (secondaryIndexingProgressId == null) {
                 //         const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
