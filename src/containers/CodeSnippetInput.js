@@ -30,6 +30,7 @@ import { CodeSnippet } from "../library/data";
 
 import "prismjs/themes/prism.css"; // TODO: Change style
 import "../styles/CodeSnippetInput.css";
+import toast from "react-hot-toast";
 
 const LANGUAGES = [
     { label: "Python", value: "python", prismMode: languages.python, codeExample: "# Paste your code here" },

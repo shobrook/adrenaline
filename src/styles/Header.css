@@ -160,7 +160,8 @@
     opacity: 0;
     transform: scale(0.8);
     animation: pop 0.3s forwards;
-    padding: 8px 16px;
+    padding: 8px 0;
+    margin-top: 8px;
 }
 
 @keyframes pop {
@@ -178,7 +179,7 @@
 }
 
 .dropdown-item {
-    padding: 8px 0;
+    padding: 8px 16px;
     cursor: pointer;
     color: white;
 }
@@ -190,6 +191,10 @@
 
 .dropdown-item:hover {
     background-color: #14171f;
+}
+
+.dropdown-item:last-child:hover {
+    background-color: transparent;
 }
 
 .logout {

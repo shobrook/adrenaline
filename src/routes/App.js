@@ -13,6 +13,8 @@ import { withRouter } from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/App.css";
+import SubscriptionModal from "../containers/SubscriptionModal";
+import {Toaster} from "react-hot-toast";
 
 class Message {
   constructor(content, isResponse, isComplete, isPaywalled = false) {
