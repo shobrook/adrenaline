@@ -3,10 +3,7 @@
     flex-direction: column;
     justify-content: flex-start; */
     position: relative;
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding: 15px;
     border-radius: 7px;
     color: white;
     margin-bottom: 15px;
@@ -55,8 +52,7 @@
 
 .codeBlock {
     font-size: 14px;
-    margin-top: 10px !important;
-    margin-bottom: 10px !important;
+    /*margin: 1rem 0 !important;*/
     border-radius: 7px !important;
 }
 
@@ -96,4 +92,10 @@
 
 .messageContainer .spinner {
     margin: 0 !important;
+}
+
+.plainText{
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 }
