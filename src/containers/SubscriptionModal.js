@@ -76,7 +76,6 @@ export default function SubscriptionModal({setShowSubscriptionModal}) {
                             ]}
                         />
                     </div>
-                    <Button onClick={closeSubscriptionModal}>Close</Button>
                 </motion.div>
             </motion.div>
         </>
