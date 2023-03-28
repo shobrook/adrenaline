@@ -6,20 +6,17 @@ import Header from "../containers/Header";
 
 import Mixpanel from "../library/mixpanel";
 
-import "../styles/Landing.module.css";
 import SubscriptionModal from "../containers/SubscriptionModal";
+import {useRouter} from "next/router";
 
-class Landing extends Component {
-	constructor(props) {
-		super(props);
-const Landing = (props) => {
-    const { auth0, router } = props;
+const Landing = ({auth0}) => {
     const { isAuthenticated, user } = auth0;
+    const router = useRouter();
     const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
     function onGetStarted() {
         Mixpanel.track("click_get_started", { isAuthenticated });
-        router.navigate("/app");
+        router.push("/debugger");
     }
 
     useEffect(() => {

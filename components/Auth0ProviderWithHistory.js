@@ -1,9 +1,14 @@
-import { Auth0Provider } from "@auth0/auth0-react";
+import {Auth0Provider} from "@auth0/auth0-react";
 import {useRouter} from "next/router";
+import {useEffect, useState} from "react";
 
-const Auth0ProviderWithHistory = ({ children }) => {
+const Auth0ProviderWithHistory = ({children}) => {
     const router = useRouter()
-    // TODO: Store these in environment variables
+    const [isClientLoaded, setIsClientLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsClientLoaded(true);
+    }, []);
 
     // const domain = process.env.REACT_APP_AUTH0_DOMAIN;
     const domain = "dev-0c5k2o4ad10lniwe.us.auth0.com";
@@ -14,6 +19,11 @@ const Auth0ProviderWithHistory = ({ children }) => {
     const onRedirectCallback = (appState) => {
         router.push(appState?.returnTo || window.location.pathname);
     };
+
+    // dont render component until client has loaded
+    if (!isClientLoaded) {
+        return null;
+    }
 
     return (
         <Auth0Provider

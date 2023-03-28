@@ -90,5 +90,7 @@ lerna-debug.log
 .DS_Store
 Thumbs.db
 
+build
+
 # build files
 build
