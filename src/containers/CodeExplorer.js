@@ -421,7 +421,7 @@ class CodeExplorer extends Component {
 
                             if (isCodeSnippet) {
                                 return (
-                                    <Grid item xs={4}>
+                                    <Grid item xs={12}>
                                         <div className="codebaseThumbnail" onClick={() => this.onSetCodeSnippet(codebase, false)}>
                                             <img src="./code_snippet_icon.png" />
                                             <span>{name}</span>
@@ -432,7 +432,7 @@ class CodeExplorer extends Component {
                             }
 
                             return (
-                                <Grid item xs={4}>
+                                <Grid item xs={12}>
                                     <div className="codebaseThumbnail" onClick={async () => await this.onSetCodebase(codebase, false)}>
                                         <img src="./github_icon.png" />
                                         <span>{name}</span>

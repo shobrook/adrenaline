@@ -23,9 +23,17 @@ export default class Message extends Component {
             // TODO: Language is hardcoded as Python right now –– pass it in from parent component
 
             if (index % 2) { // Code block
+                let codeLines = text.split('\n');
+                let programmingLanguage = 'text';
+
+                if (codeLines[0].match(/^[a-zA-Z]+$/)) {
+                    programmingLanguage = codeLines.shift();
+                }
+                codeLines = codeLines.join('\n');
+
                 return (
-                    <SyntaxHighlighter className="codeBlock" language="python" style={dracula}>
-                        {text.trim()}
+                    <SyntaxHighlighter className="codeBlock" language={programmingLanguage} style={dracula}>
+                        {codeLines.trim()}
                     </SyntaxHighlighter>
                 );
             }
@@ -37,8 +45,7 @@ export default class Message extends Component {
                             return (<b>{`\`${otherText}\``}</b>);
                         }
 
-                        return otherText;
-                    })
+                    return otherText.replace(/^\n/, "")                    })
                 }</pre>
             );
         });
