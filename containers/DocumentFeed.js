@@ -2,9 +2,6 @@ import { Component } from "react";
 
 import Message from "./Message";
 import Mixpanel from "../library/mixpanel";
-
-import "../styles/DocumentFeed.module.css";
-
 export default class DocumentFeed extends Component {
     /* Lifecycle Methods */
 

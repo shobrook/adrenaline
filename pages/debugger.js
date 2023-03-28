@@ -10,8 +10,6 @@ import PaymentPlan from "../containers/PaymentPlan";
 import Spinner from "../components/Spinner";
 
 import Mixpanel from "../library/mixpanel";
-
-import "../styles/App.module.css";
 import SubscriptionModal from "../containers/SubscriptionModal";
 import { Toaster } from "react-hot-toast";
 

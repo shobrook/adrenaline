@@ -19,7 +19,6 @@ import AddCodeButton from "../components/AddCodeButton";
 import { CodeSnippet, Repository } from "../library/data";
 
 import { formControlClasses } from "@mui/material";
-import "../styles/CodeExplorer.module.css";
 
 const DEFAULT_STATE = {
     renderCodeSnippet: false,

@@ -4,8 +4,6 @@ import {dracula} from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import PaywallMessage from "./PaywallMessage";
 
-import "../styles/Message.module.css";
-
 export default class Message extends Component {
     constructor(props) {
         super(props);

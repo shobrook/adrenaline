@@ -1,7 +1,5 @@
 import { Component } from "react";
 
-import "../styles/AddCodeButton.module.css";
-
 export default class AddCodeButton extends Component {
     render() {
         const { onClick, children } = this.props;

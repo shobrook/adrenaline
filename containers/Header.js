@@ -3,7 +3,6 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Button from "../components/Button";
 import Mixpanel from "../library/mixpanel";
 
-import "../styles/Header.module.css";
 import Link from "next/link";
 import { useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";

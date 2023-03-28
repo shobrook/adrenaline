@@ -4,8 +4,6 @@ import toast from "react-hot-toast";
 
 import Spinner from "../components/Spinner";
 import Button from "../components/Button";
-
-import "../styles/AuthenticatedGithubInput.module.css";
 import { Repository } from "../library/data";
 
 class AuthenticatedGithubInput extends Component {
@@ -99,7 +97,7 @@ class AuthenticatedGithubInput extends Component {
     onGithubAuthentication() {
         const clientId = "fcaf8f61d70e5de447c9";
         const redirectUri = "https://useadrenaline.com/app";
-        // const redirectUri = "http://localhost:3000/app";
+        // const redirectUri = "http://localhost:3000/debugger";
         // const login = ""; // TODO: Populate this if user is already authenticated with Github
         const scope = "read:project";
 

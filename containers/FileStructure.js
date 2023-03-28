@@ -11,8 +11,6 @@ import { motion } from "framer-motion";
 
 import { buildTreeFromFlatList } from "../library/utilities";
 
-import '../styles/FileStructure.module.css';
-
 function MinusSquare(props) {
     return (
         <SvgIcon fontSize="inherit" style={{ width: 14, height: 14 }} {...props}>

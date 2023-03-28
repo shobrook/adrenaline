@@ -29,7 +29,6 @@ import Button from "../components/Button";
 import { CodeSnippet } from "../library/data";
 
 import "prismjs/themes/prism.css"; // TODO: Change style
-import "../styles/CodeSnippetInput.module.css";
 import toast from "react-hot-toast";
 
 const LANGUAGES = [

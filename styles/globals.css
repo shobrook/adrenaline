@@ -1,11 +1,29 @@
+@import "./AddCodeButton.css";
+@import "./App.css";
+@import "./Button.css";
+@import "./ChatBot.css";
+@import "./CodeExplorer.css";
+@import "./CodeSnippetInput.css";
+@import "./DocumentFeed.css";
+@import "./FileStructure.css";
+@import "./GithubInput.css";
+@import "./Header.css";
+@import "./Landing.css";
+@import "./Message.css";
+@import "./PaymentPlan.css";
+@import "./PaywallMessage.css";
+@import "./QueryInput.css";
+@import "./Spinner.css";
+
 body {
-  margin: 0;
-  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }

@@ -3,8 +3,6 @@ import { withAuth0 } from "@auth0/auth0-react";
 
 import Button from "../components/Button";
 
-import "../styles/PaymentPlan.module.css";
-
 class PaymentPlan extends Component {
     constructor(props) {
         super(props);

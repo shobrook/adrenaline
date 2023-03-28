@@ -5,8 +5,6 @@ import toast from "react-hot-toast";
 import Button from "../components/Button";
 import { Repository } from "../library/data";
 
-import "../styles/GithubInput.module.css";
-
 class GithubInput extends Component {
     constructor(props) {
         super(props);
