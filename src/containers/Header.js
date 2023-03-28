@@ -6,6 +6,7 @@ import Mixpanel from "../library/mixpanel";
 
 import "../styles/Header.css";
 import {useState} from "react";
+import {MdKeyboardArrowDown} from "react-icons/md";
 
 export default function Header({isTransparent, setShowSubscriptionModal}) {
     const {
@@ -101,12 +102,17 @@ const UserNavDropdown = ({user, onLogout, setShowSubscriptionModal}) => {
 
     return (
         <div className="user-nav-dropdown">
-            <img
-                src={user?.picture}
-                alt="User profile"
-                className="profile-picture"
+            <div
+                className={"dropdown-button"}
                 onClick={toggleDropdown}
-            />
+            >
+                <img
+                    src={user?.picture}
+                    alt="User profile"
+                    className="profile-picture"
+                />
+                <MdKeyboardArrowDown fill={"lightgrey"} size={24}/>
+            </div>
             {dropdownVisible && (
                 <div className="dropdown-menu">
                     <div className={"dropdown-item"}>
