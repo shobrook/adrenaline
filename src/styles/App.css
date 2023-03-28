@@ -31,7 +31,7 @@
   justify-content: center;
   background-color: #14171FBF;
   z-index: 50;
-  overflow: auto;
+  overflow-y: auto;
 }
 
 #subscriptionModal {

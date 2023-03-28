@@ -1,7 +1,6 @@
 import { Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 import { motion } from "framer-motion";
-import toast, { Toaster } from "react-hot-toast";
 
 import Header from "../containers/Header";
 import ChatBot from "../containers/ChatBot";
@@ -14,6 +13,8 @@ import { withRouter } from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/App.css";
+import SubscriptionModal from "../containers/SubscriptionModal";
+import {Toaster} from "react-hot-toast";
 
 class Message {
   constructor(content, isResponse, isComplete, isPaywalled = false) {
@@ -109,11 +110,9 @@ class App extends Component {
           query: message,
           chat_history_summary: chatHistorySummary
         };
-        console.log("Request")
-        console.log(JSON.stringify(request));
+        console.log(request);
         this.query_ws.send(JSON.stringify(request));
-        console.log("Request sent")
-      });
+      })
   }
 
   onSetCodebaseId(codebaseId) {
@@ -236,6 +235,7 @@ class App extends Component {
   /* Lifecycle Methods */
 
   componentDidMount() {
+    console.log("Test")
     const { user, isAuthenticated } = this.props.auth0;
 
     if (isAuthenticated) {
@@ -250,11 +250,9 @@ class App extends Component {
     /* Connect to query handler websocket */
 
     if (window.location.protocol === "https:") {
-      // this.query_ws = new WebSocket(`wss://localhost:5001/answer_query`);
       this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
     } else {
-      // this.query_ws = new WebSocket(`ws://localhost:5001/answer_query`);
-      this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
+      this.query_ws = new WebSocket(`ws://websocket-lb.useadrenaline.com/answer_query`);
     }
 
     this.query_ws.onopen = event => { }; // QUESTION: Should we wait to render the rest of the site until connection is established?
@@ -276,25 +274,11 @@ class App extends Component {
         this.setState({ documents: [...documents, document] });
       } else if (type == "answer") {
         const { message } = data;
+
         const priorMessages = messages.slice(0, messages.length - 1);
-
-        if (error_message != "") {
-          toast.error(error_message, {
-            style: {
-              borderRadius: "7px",
-              background: "#FB4D3D",
-              color: "#fff",
-            },
-            iconTheme: {
-              primary: '#ffffff7a'
-            }
-          });
-
-          this.setState({ messages: priorMessages });
-          return;
-        }
-
         let response = messages[messages.length - 1];
+
+        console.log()
 
         response.content += message;
         response.isComplete = is_final;
@@ -397,6 +381,12 @@ class App extends Component {
       <>
         {this.renderSubscriptionModal()}
         {this.renderApp()}
+        {this.state.showSubscriptionModal ?
+            <div className={"grid p-2 justify-items-center"}>
+                <SubscriptionModal setShowSubscriptionModal={this.toggleShowSubscriptionModal}/>
+            </div>
+            : null
+        }
         <Toaster
           position="bottom-right"
           reverseOrder={false}

@@ -45,7 +45,7 @@
 
 .linkButtons > a > img {
   height: 25px;
-} 
+}
 
 .ctaButtons {
   display: flex;
@@ -97,7 +97,6 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  font-weight: 600;
 }
 
 .header .buttons > a {
@@ -129,4 +128,75 @@
 
 .logo img {
   height: 20px;
+}
+
+.user-nav-dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.dropdown-button{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.profile-picture {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    background-color: #2B3044;
+    min-width: 200px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 8px;
+    opacity: 0;
+    transform: scale(0.8);
+    animation: pop 0.3s forwards;
+    padding: 8px 0;
+    margin-top: 8px;
+}
+
+@keyframes pop {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dropdown-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: white;
+}
+
+.dropdown-item a {
+    text-decoration: none;
+    color: white;
+}
+
+.dropdown-item:hover {
+    background-color: #14171f;
+}
+
+.dropdown-item:last-child:hover {
+    background-color: transparent;
+}
+
+.logout {
+    border-top: 1px solid #ccc;
 }

@@ -1,61 +1,61 @@
-import { Component } from "react";
-import { withAuth0 } from "@auth0/auth0-react";
+import {Component, useEffect, useState} from "react";
+import {useAuth0, withAuth0} from "@auth0/auth0-react";
 
 import Button from "../components/Button";
 import Header from "../containers/Header";
 
-import { withRouter } from "../library/utilities";
+import {withRouter} from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/Landing.css";
+import SubscriptionModal from "../containers/SubscriptionModal";
 
-class Landing extends Component {
-	constructor(props) {
-		super(props);
+const Landing = (props) => {
+    const { auth0, router } = props;
+    const { isAuthenticated, user } = auth0;
+    const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
-		this.onGetStarted = this.onGetStarted.bind(this);
-	}
+    function onGetStarted() {
+        Mixpanel.track("click_get_started", {isAuthenticated});
+        router.navigate("/app");
+    }
 
-	onGetStarted() {
-		const { isAuthenticated } = this.props.auth0;
-		const { navigate } = this.props.router;
+    useEffect(() => {
+        if (isAuthenticated) {
+            Mixpanel.identify(user.sub);
+            Mixpanel.people.set({email: user.email});
+        }
 
-		Mixpanel.track("click_get_started", { isAuthenticated });
-		navigate("/app");
-	}
+        Mixpanel.track("load_landing_page");
+    })
 
-	componentDidMount() {
-		const { user, isAuthenticated } = this.props.auth0;
+    return (
+        <div id="landing">
+            <Header isTransparent setShowSubscriptionModal={setShowSubscriptionModal}/>
 
-		if (isAuthenticated) {
-			Mixpanel.identify(user.sub);
-			Mixpanel.people.set({ email: user.email });
-		}
+            <div id="overTheFold">
+                <div id="landingHeading">
+                    <span id="landingTitle">Understand your code <span>with AI</span></span>
+                    <p id="landingSubtitle">Stop using StackOverflow for help. Talk directly to your codebase like you
+                        would an expert.</p>
+                </div>
+                <Button
+                    id="getStartedButton"
+                    isPrimary
+                    onClick={onGetStarted}
+                >
+                    Get started
+                </Button>
+            </div>
 
-		Mixpanel.track("load_landing_page");
-	}
-
-	render() {
-		return (
-			<div id="landing">
-				<Header isTransparent />
-
-				<div id="overTheFold">
-					<div id="landingHeading">
-						<span id="landingTitle">Understand your code <span>with AI</span></span>
-						<p id="landingSubtitle">Stop using StackOverflow for help. Talk directly to your codebase like you would an expert.</p>
-					</div>
-					<Button
-						id="getStartedButton"
-						isPrimary
-						onClick={this.onGetStarted}
-					>
-						Get started
-					</Button>
-				</div>
-			</div>
-		);
-	}
+            {showSubscriptionModal ?
+                <div className={"grid p-2 justify-items-center"}>
+                    <SubscriptionModal setShowSubscriptionModal={setShowSubscriptionModal}/>
+                </div>
+                : null
+            }
+        </div>
+    );
 }
 
 export default withRouter(withAuth0(Landing));
