@@ -58,6 +58,8 @@ class App extends Component {
     this.onSetCodebaseId = this.onSetCodebaseId.bind(this);
     this.setShowSubscriptionModal = this.setShowSubscriptionModal.bind(this);
 
+    this.fetchUserMetadata = this.fetchUserMetadata.bind(this);
+
     this.state = {
       codebaseId: "",
       messages: [new Message(WELCOME_MESSAGE, true, true)],
@@ -66,6 +68,79 @@ class App extends Component {
       subscriptionStatus: {},
       renderSubscriptionModal: false
     };
+  }
+
+  /* Utilities */
+
+  fetchUserMetadata() {
+    const { getAccessTokenSilently, user } = this.props.auth0;
+
+    /* Handle Github OAuth redirects */
+
+    const { search } = this.props.router.location;
+
+    // TODO: Probably a better way to get query parameters than this
+    let githubCode = null;
+    if (search != "") {
+      const searchParams = search.split("?code=");
+      githubCode = searchParams.length == 2 ? searchParams[1] : null;
+    }
+
+    if (githubCode != null) {
+      getAccessTokenSilently()
+        .then(token => {
+          fetch("https://adrenaline-api-staging.up.railway.app/api/github_callback", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              user_id: user.sub,
+              github_code: githubCode
+            })
+          })
+            .then(res => res.json())
+            .then(data => {
+              // TODO: Update state to tell CodeExplorer to render the SelectRepository view
+            })
+        })
+    }
+
+    /* Fetch user's subscription status */
+
+    getAccessTokenSilently()
+      .then(token => {
+        fetch("https://adrenaline-api-staging.up.railway.app/api/stripe/subscription_status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            user_id: user.sub,
+            email: user.email != null ? user.email : ""
+          })
+        })
+          .then(res => res.json())
+          .then(data => {
+            const {
+              plan,
+              num_messages_sent,
+              num_repositories_indexed,
+              num_code_snippets_indexed
+            } = data;
+
+            this.setState({
+              subscriptionStatus: {
+                plan,
+                numMessagesSent: num_messages_sent,
+                numRepositoriesIndexed: num_repositories_indexed,
+                numCodeSnippetsIndexed: num_code_snippets_indexed
+              }
+            });
+          });
+      });
   }
 
   /* Event Handlers */
@@ -158,7 +233,6 @@ class App extends Component {
   /* Lifecycle Methods */
 
   componentDidMount() {
-    console.log("Test")
     const { user, isAuthenticated } = this.props.auth0;
 
     if (isAuthenticated) {
@@ -221,6 +295,8 @@ class App extends Component {
     this.query_ws.onerror = event => {
       console.log(event); // TODO: Display error message
     };
+
+    this.fetchUserMetadata();
   }
 
   componentDidUpdate(prevProps) {
@@ -231,72 +307,7 @@ class App extends Component {
       return;
     }
 
-    /* Handle Github OAuth redirects */
-
-    const { search } = this.props.router.location;
-
-    // TODO: Probably a better way to get query parameters than this
-    let githubCode = null;
-    if (search != "") {
-      const searchParams = search.split("?code=");
-      githubCode = searchParams.length == 2 ? searchParams[1] : null;
-    }
-
-    if (githubCode != null) {
-      getAccessTokenSilently()
-        .then(token => {
-          fetch("https://adrenaline-api-staging.up.railway.app/api/github_callback", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              user_id: user.sub,
-              github_code: githubCode
-            })
-          })
-            .then(res => res.json())
-            .then(data => {
-              // TODO: Update state to tell CodeExplorer to render the SelectRepository view
-            })
-        })
-    }
-
-    /* Fetch user's subscription status */
-
-    getAccessTokenSilently()
-      .then(token => {
-        fetch("https://adrenaline-api-staging.up.railway.app/api/stripe/subscription_status", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            user_id: user.sub,
-            email: user.email
-          })
-        })
-          .then(res => res.json())
-          .then(data => {
-            const {
-              plan,
-              num_messages_sent,
-              num_repositories_indexed,
-              num_code_snippets_indexed
-            } = data;
-
-            this.setState({
-              subscriptionStatus: {
-                plan,
-                numMessagesSent: num_messages_sent,
-                numRepositoriesIndexed: num_repositories_indexed,
-                numCodeSnippetsIndexed: num_code_snippets_indexed
-              }
-            });
-          });
-      });
+    this.fetchUserMetadata();
   }
 
   render() {
