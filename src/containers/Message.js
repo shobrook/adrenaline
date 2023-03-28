@@ -18,35 +18,30 @@ export default class Message extends Component {
     renderMessage() {
         const {children} = this.props;
 
-        console.log(children.split("```"))
         const messageContent = children.split("```").map((text, index) => {
+            // TODO: Remove trailing newlines
+            // TODO: Language is hardcoded as Python right now –– pass it in from parent component
+
             if (index % 2) { // Code block
-                let codeLines = text.split('\n');
-                let programmingLanguage = 'text';
-
-                if (codeLines[0].match(/^[a-zA-Z]+$/)) {
-                    programmingLanguage = codeLines.shift();
-                }
-                codeLines = codeLines.join('\n');
-
                 return (
-                    <SyntaxHighlighter className="codeBlock" language={programmingLanguage} style={dracula}>
-                        {codeLines.trim()}
+                    <SyntaxHighlighter className="codeBlock" language="python" style={dracula}>
+                        {text.trim()}
                     </SyntaxHighlighter>
                 );
             }
 
-            return <pre className={"plainText"}>{
-                text.split("`").map((otherText, otherIndex) => {
-                    if (otherIndex % 2) { // In-line code
-                        return (<b>{`\`${otherText}\``}</b>);
-                    }
+            return (
+                <pre className={"plainText"}>{
+                    text.split("`").map((otherText, otherIndex) => {
+                        if (otherIndex % 2) { // In-line code
+                            return (<b>{`\`${otherText}\``}</b>);
+                        }
 
-                    return otherText.replace(/^\n/, "")
-                })
+                        return otherText;
+                    })
                 }</pre>
+            );
         });
-
         return (<div className="messageContent">{messageContent}</div>);
     }
 

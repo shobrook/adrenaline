@@ -1,7 +1,6 @@
 import { withAuth0 } from "@auth0/auth0-react";
 import { Component } from "react";
-import Autocomplete from "@mui/material/Autocomplete";
-import TextField from "@mui/material/TextField";
+import toast from "react-hot-toast";
 
 import Spinner from "../components/Spinner";
 import Button from "../components/Button";
@@ -73,7 +72,8 @@ class AuthenticatedGithubInput extends Component {
                             isLoading: false,
                             repositoryOptions
                         });
-                    });
+                    })
+                    .catch(error => console.log(error));
             });
     }
 
@@ -98,10 +98,10 @@ class AuthenticatedGithubInput extends Component {
 
     onGithubAuthentication() {
         const clientId = "fcaf8f61d70e5de447c9";
-        // const redirectUri = "https://useadrenaline.com/app";
-        const redirectUri = "http://localhost:3000/app";
+        const redirectUri = "https://useadrenaline.com/app";
+        // const redirectUri = "http://localhost:3000/app";
         // const login = ""; // TODO: Populate this if user is already authenticated with Github
-        const scope = "repo";
+        const scope = "read:project";
 
         let authUrl = "https://github.com/login/oauth/authorize?"
         authUrl += `client_id=${clientId}`;
@@ -177,7 +177,7 @@ class AuthenticatedGithubInput extends Component {
         if (window.location.protocol === "https:") {
             this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_name`);
         } else {
-            this.websocket = new WebSocket(`ws://websocket-lb.useadrenaline.com/index_codebase_by_repo_name`);
+            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_name`);
         }
 
         this.websocket.onopen = event => { };
@@ -191,14 +191,20 @@ class AuthenticatedGithubInput extends Component {
                 error_message
             } = JSON.parse(event.data);
 
-            console.log(event.data);
-
             if (error_message != "") {
+                toast.error(error_message, {
+                    style: {
+                        borderRadius: "7px",
+                        background: "#FB4D3D",
+                        color: "#fff",
+                    },
+                    iconTheme: {
+                        primary: '#ffffff7a'
+                    }
+                });
                 onSetProgressMessage("", true);
                 return;
             }
-
-            // TODO: Error-handling
 
             if (is_fast) {
                 if (is_final) {
@@ -208,15 +214,15 @@ class AuthenticatedGithubInput extends Component {
                         const repository = new Repository("", "", {});
                         await onSetCodebase(repository, is_paywalled);
                     } else {
-                        const { codebase_id, name, files } = metadata;
-                        const repository = new Repository(codebase_id, name, files);
+                        const { codebase_id, name, files, is_private } = metadata;
+                        const repository = new Repository(codebase_id, name, files, is_private);
                         await onSetCodebase(repository, is_paywalled);
                     }
                 } else {
                     onSetProgressMessage(message);
                 }
-            } else { // TODO: Render notification
-
+            } else {
+                // TODO: Render notification
             }
         }
         this.websocket.onerror = event => { };
