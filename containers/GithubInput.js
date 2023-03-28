@@ -1,5 +1,6 @@
 import { withAuth0 } from "@auth0/auth0-react";
 import { Component } from "react";
+import toast from "react-hot-toast";
 
 import Button from "../components/Button";
 import { Repository } from "../library/data";
@@ -14,7 +15,7 @@ class GithubInput extends Component {
         this.onSubmitGithubUrl = this.onSubmitGithubUrl.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
 
-        this.state = { githubUrl: "" };
+        this.state = { githubUrl: "", secondaryIndexingProgressId: null };
     }
 
     /* Event Handlers */
@@ -73,18 +74,18 @@ class GithubInput extends Component {
     componentDidMount() {
         const {
             onSetCodebase,
-            onSetProgressMessage,
-            onSetSecondaryProgressMessage
+            onSetProgressMessage
         } = this.props;
 
         if (window.location.protocol === "https:") {
             this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
         } else {
-            this.websocket = new WebSocket(`ws://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
+            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
         }
 
-        this.websocket.onopen = event => { console.log("opened index ws") };
+        this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {
+            const { secondaryIndexingProgressId } = this.state;
             const {
                 message,
                 metadata,
@@ -94,9 +95,21 @@ class GithubInput extends Component {
                 error_message
             } = JSON.parse(event.data);
 
-            console.log(event.data);
-
-            // TODO: Error-handling
+            if (error_message != "") {
+                toast.error(error_message, {
+                    style: {
+                        borderRadius: "7px",
+                        background: "#FB4D3D",
+                        color: "#fff",
+                    },
+                    iconTheme: {
+                        primary: '#ffffff7a',
+                        secondary: '#fff',
+                    }
+                });
+                onSetProgressMessage("", true);
+                return;
+            }
 
             if (is_fast) {
                 if (is_final) {
@@ -113,13 +126,18 @@ class GithubInput extends Component {
                 } else {
                     onSetProgressMessage(message);
                 }
-            } else { // TODO: Render a notification on first message and on last
+            } else {
                 // if (is_final) {
-                //     onSetSecondaryProgressMessage("");
-
-                //     // TODO: Show checkmark or confirmation
-                // } else {
-                //     onSetSecondaryProgressMessage(message);
+                //     toast.success("Fine-tuning complete. Chatbot is fully optimized."); // { id: secondaryIndexingProgressId }
+                //     // this.setState({ secondaryIndexingProgressId: null });
+                // }
+                // else {
+                //     if (secondaryIndexingProgressId == null) {
+                //         const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                //         this.setState({ secondaryIndexingProgressId: toastId });
+                //     } else {
+                //         toast.dismiss(secondaryIndexingProgressId);
+                //     }
                 // }
             }
         }

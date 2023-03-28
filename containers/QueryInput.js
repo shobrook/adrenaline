@@ -25,7 +25,7 @@ class QueryInput extends Component {
     onSubmitQuery() {
         const { query } = this.state;
 
-        if (query == "") {
+        if (query === "") {
             return;
         }
 

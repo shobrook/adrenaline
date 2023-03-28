@@ -1,70 +1,81 @@
-import { Component } from "react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import {Component} from "react";
+import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
+import {dracula} from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import PaywallMessage from "./PaywallMessage";
 
 import "../styles/Message.module.css";
 
 export default class Message extends Component {
-	constructor(props) {
-		super(props);
+    constructor(props) {
+        super(props);
 
-		this.renderMessage = this.renderMessage.bind(this);
-	}
+        this.renderMessage = this.renderMessage.bind(this);
+    }
 
-	/* Utilities */
+    /* Utilities */
 
-	renderMessage() {
-		const { children } = this.props;
+    renderMessage() {
+        const {children} = this.props;
 
-		const messageContent = children.split("```").map((text, index) => {
-			// TODO: Remove trailing newlines
-			// TODO: Language is hardcoded as Python right now –– pass it in from parent component
+        const messageContent = children.split("```").map((text, index) => {
+            // TODO: Remove trailing newlines
+            // TODO: Language is hardcoded as Python right now –– pass it in from parent component
 
-			if (index % 2) { // Code block
-				return (
-					<SyntaxHighlighter className="codeBlock" language="python" style={dracula}>
-						{text.trim()}
-					</SyntaxHighlighter>
-				);
-			}
+            if (index % 2) { // Code block
+                let codeLines = text.split('\n');
+                let programmingLanguage = 'text';
 
-			return text.split("`").map((otherText, otherIndex) => {
-				if (otherIndex % 2) { // In-line code
-					return (<b>{`\`${otherText}\``}</b>);
-				}
+                if (codeLines[0].match(/^[a-zA-Z]+$/)) {
+                    programmingLanguage = codeLines.shift();
+                }
+                codeLines = codeLines.join('\n');
 
-				return otherText;
-			});
-		});
+                return (
+                    <SyntaxHighlighter className="codeBlock" language={programmingLanguage} style={dracula}>
+                        {codeLines.trim()}
+                    </SyntaxHighlighter>
+                );
+            }
 
-		return (<div className="messageContent">{messageContent}</div>);
-	}
+            return (
+                <pre className={"plainText"}>{
+                    text.split("`").map((otherText, otherIndex) => {
+                        if (otherIndex % 2) { // In-line code
+                            return (<b>{`\`${otherText}\``}</b>);
+                        }
 
-	renderPaywall() {
-		const { isPaywalled, isComplete, onUpgradePlan } = this.props;
+                    return otherText.replace(/^\n/, "")                    })
+                }</pre>
+            );
+        });
+        return (<div className="messageContent">{messageContent}</div>);
+    }
 
-		if (isPaywalled && isComplete) {
-			return (
-				<PaywallMessage onUpgradePlan={onUpgradePlan} />
-			);
-		}
-	}
+    renderPaywall() {
+        const {isPaywalled, isComplete, onUpgradePlan} = this.props;
 
-	/* Lifecycle Methods */
+        if (isPaywalled && isComplete) {
+            return (
+                <PaywallMessage onUpgradePlan={onUpgradePlan}/>
+            );
+        }
+    }
 
-	render() {
-		const { isResponse, isPaywalled, isComplete, children } = this.props;
-		const isLoading = isResponse && children == "" && !isComplete;
+    /* Lifecycle Methods */
 
-		return (
-			<div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""} ${isLoading ? "loadingMessage" : ""}`}>
-				{this.renderPaywall()}
-				<div className={`messageContainer ${isPaywalled ? "blocked" : ""}`}>
-					{this.renderMessage()}
-				</div>
-			</div>
-		);
-	}
+    render() {
+        const {isResponse, isPaywalled, isComplete, children} = this.props;
+        const isLoading = isResponse && children == "" && !isComplete;
+
+        return (
+            <div
+                className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""} ${isLoading ? "loadingMessage" : ""}`}>
+                {this.renderPaywall()}
+                <div className={`messageContainer ${isPaywalled ? "blocked" : ""}`}>
+                    {this.renderMessage()}
+                </div>
+            </div>
+        );
+    }
 }

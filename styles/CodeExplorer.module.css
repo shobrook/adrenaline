@@ -173,6 +173,8 @@
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 15px;
+    overflow: auto;
+    padding-bottom: 15px;
 }
 
 #initCodebaseManager > .addCodeButton {

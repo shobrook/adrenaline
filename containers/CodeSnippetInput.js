@@ -30,6 +30,7 @@ import { CodeSnippet } from "../library/data";
 
 import "prismjs/themes/prism.css"; // TODO: Change style
 import "../styles/CodeSnippetInput.module.css";
+import toast from "react-hot-toast";
 
 const LANGUAGES = [
     { label: "Python", value: "python", prismMode: languages.python, codeExample: "# Paste your code here" },
@@ -141,7 +142,7 @@ class CodeSnippetInput extends Component {
             onSetCodeSnippet(codeSnippet, is_paywalled);
         }
         this.websocket.onerror = event => {
-            console.log(event); // TODO: Show error message
+            toast.error("Error connecting to server. Please try again later.");
         };
     }
 

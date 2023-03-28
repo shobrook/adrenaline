@@ -18,6 +18,7 @@ import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
 import { CodeSnippet, Repository } from "../library/data";
 
+import { formControlClasses } from "@mui/material";
 import "../styles/CodeExplorer.module.css";
 
 const DEFAULT_STATE = {
@@ -36,7 +37,8 @@ const DEFAULT_STATE = {
         files: [],
         currentFile: "",
         code: "",
-        language: "python"
+        language: "python",
+        isPrivate: false
     }
 };
 
@@ -98,7 +100,8 @@ class CodeExplorer extends Component {
                                     codebase_id,
                                     files,
                                     code,
-                                    language
+                                    language,
+                                    is_private
                                 } = codebase;
 
                                 console.log(codebase)
@@ -107,14 +110,14 @@ class CodeExplorer extends Component {
                                     return new CodeSnippet(codebase_id, name, code, language);
                                 }
 
-                                return new Repository(codebase_id, name, files);
+                                return new Repository(codebase_id, name, files, is_private);
                             })
                         });
                     });
             });
     }
 
-    async getFileContent(fileUrl) {
+    async getFileContent(fileUrl, isPrivateRepo) {
         const { user, getAccessTokenSilently } = this.props.auth0;
 
         return await getAccessTokenSilently()
@@ -125,12 +128,19 @@ class CodeExplorer extends Component {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
-                    body: JSON.stringify({ user_id: user.sub, file_url: fileUrl })
+                    body: JSON.stringify({
+                        user_id: user.sub,
+                        file_url: fileUrl,
+                        is_private_repo: isPrivateRepo
+                    })
                 })
                     .then(res => res.json())
                     .then(data => {
                         const { file_content } = data;
                         return file_content;
+                    })
+                    .catch(error => {
+                        console.log(error);
                     })
             })
     }
@@ -166,7 +176,9 @@ class CodeExplorer extends Component {
             currentCodeContext: {
                 ...currentCodeContext,
                 code,
-                language
+                language,
+                currentFile: name,
+                isPrivate: formControlClasses
             }
         });
     }
@@ -188,14 +200,13 @@ class CodeExplorer extends Component {
     }
 
     onToggleFileTree() {
-        console.log("toggled")
         const { renderFileTree } = this.state;
         this.setState({ renderFileTree: !renderFileTree });
     }
 
     async onSetCodebase(repository, isPaywalled) {
         const { onSetCodebaseId } = this.props;
-        const { codebaseId, files } = repository;
+        const { codebaseId, files, isPrivate } = repository;
 
         onSetCodebaseId(codebaseId);
 
@@ -217,7 +228,7 @@ class CodeExplorer extends Component {
         });
 
         const fileUrl = files[currentFile].url;
-        const fileContent = await this.getFileContent(fileUrl);
+        const fileContent = await this.getFileContent(fileUrl, isPrivate);
         const fileLanguage = files[currentFile].language;
 
         this.setState({
@@ -225,7 +236,8 @@ class CodeExplorer extends Component {
                 files,
                 currentFile,
                 code: fileContent,
-                language: fileLanguage
+                language: fileLanguage,
+                isPrivate
             },
             renderRepository: true,
             renderIndexingProgress: false
@@ -233,17 +245,18 @@ class CodeExplorer extends Component {
     }
 
     async onSelectFile(filePath) {
-        const { files } = this.state.currentCodeContext;
+        const { files, isPrivate } = this.state.currentCodeContext;
         const fileUrl = files[filePath].url;
         const fileLanguage = files[filePath].language;
-        const fileContent = await this.getFileContent(fileUrl);
+        const fileContent = await this.getFileContent(fileUrl, isPrivate);
 
         this.setState({
             currentCodeContext: {
                 files: files,
                 currentFile: filePath,
                 code: fileContent,
-                language: fileLanguage
+                language: fileLanguage,
+                isPrivate
             }
         });
     }
@@ -396,10 +409,10 @@ class CodeExplorer extends Component {
         return (
             <div id="initCodebaseManager">
                 <Grid className="grid" container spacing={2}>
-                    <Grid item xs={4}>
+                    <Grid item xs={6}>
                         <AddCodeButton onClick={() => this.setState({ renderSelectRepository: true })}>Add repository</AddCodeButton>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={6}>
                         <AddCodeButton onClick={() => this.setState({ renderSelectCodeSnippet: true })}>Add code snippet</AddCodeButton>
                     </Grid>
                     {
@@ -408,7 +421,7 @@ class CodeExplorer extends Component {
 
                             if (isCodeSnippet) {
                                 return (
-                                    <Grid item xs={4}>
+                                    <Grid item xs={6}>
                                         <div className="codebaseThumbnail" onClick={() => this.onSetCodeSnippet(codebase, false)}>
                                             <img src="./code_snippet_icon.png" />
                                             <span>{name}</span>
@@ -419,7 +432,7 @@ class CodeExplorer extends Component {
                             }
 
                             return (
-                                <Grid item xs={4}>
+                                <Grid item xs={6}>
                                     <div className="codebaseThumbnail" onClick={async () => await this.onSetCodebase(codebase, false)}>
                                         <img src="./github_icon.png" />
                                         <span>{name}</span>

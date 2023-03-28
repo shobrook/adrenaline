@@ -30,8 +30,9 @@
   align-items: center;
   justify-content: center;
   background-color: #14171FBF;
-  z-index: 5;
-  overflow: auto;
+  z-index: 50;
+  overflow-y: auto;
+  top: 0;
 }
 
 #subscriptionModal {
@@ -114,4 +115,15 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+}
+
+#closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+}
+
+#closeButton:hover {
+  opacity: 0.75;
 }
