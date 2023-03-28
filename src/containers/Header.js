@@ -1,14 +1,15 @@
-import {Link} from "react-router-dom";
-import {useAuth0} from '@auth0/auth0-react';
+import { Link } from "react-router-dom";
+import { useAuth0 } from '@auth0/auth0-react';
 
 import Button from "../components/Button";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/Header.css";
-import {useState} from "react";
-import {MdKeyboardArrowDown} from "react-icons/md";
+import { useState } from "react";
+import { MdKeyboardArrowDown } from "react-icons/md";
 
-export default function Header({isTransparent, setShowSubscriptionModal}) {
+export default function Header({ isTransparent, setShowSubscriptionModal }) {
+    console.log(setShowSubscriptionModal)
     const {
         isAuthenticated,
         loginWithRedirect,
@@ -18,7 +19,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
 
     const onLogout = () => {
         Mixpanel.track("click_logout");
-        logout({returnTo: window.location.origin});
+        logout({ returnTo: window.location.origin });
     };
 
     const onLogIn = () => {
@@ -44,7 +45,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
         <div className={isTransparent ? "header transparent" : "header"}>
             <div className="logo">
                 <Link to="/">
-                    <img src="./logo.png" alt={"our logo"}/>
+                    <img src="./logo.png" alt={"our logo"} />
                 </Link>
             </div>
             <div className="buttons">
@@ -59,7 +60,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
                 <div className="ctaButtons">
                     {isAuthenticated ? (
                         <UserNavDropdown user={user} onLogout={onLogout}
-                                         setShowSubscriptionModal={setShowSubscriptionModal}/>
+                            setShowSubscriptionModal={setShowSubscriptionModal} />
                     ) : (
                         <>
                             <Button
@@ -82,7 +83,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
             <div className="compactButtons">
                 {isAuthenticated ? (
                     <UserNavDropdown user={user} onLogout={onLogout}
-                                     setShowSubscriptionModal={setShowSubscriptionModal}/>
+                        setShowSubscriptionModal={setShowSubscriptionModal} />
                 ) : (
                     <>
                         <Button isPrimary={false} onClick={onLogIn}>Log in</Button>
@@ -93,7 +94,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
     );
 }
 
-const UserNavDropdown = ({user, onLogout, setShowSubscriptionModal}) => {
+const UserNavDropdown = ({ user, onLogout, setShowSubscriptionModal }) => {
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
     const toggleDropdown = () => {
@@ -111,7 +112,7 @@ const UserNavDropdown = ({user, onLogout, setShowSubscriptionModal}) => {
                     alt="User profile"
                     className="profile-picture"
                 />
-                <MdKeyboardArrowDown fill={"lightgrey"} size={24}/>
+                <MdKeyboardArrowDown fill={"lightgrey"} size={24} />
             </div>
             {dropdownVisible && (
                 <div className="dropdown-menu">
@@ -125,6 +126,7 @@ const UserNavDropdown = ({user, onLogout, setShowSubscriptionModal}) => {
                         <Button
                             isPrimary
                             onClick={() => {
+                                console.log("test")
                                 setShowSubscriptionModal(true)
                             }}
                         >

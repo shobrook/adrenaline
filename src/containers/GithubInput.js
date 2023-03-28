@@ -80,7 +80,7 @@ class GithubInput extends Component {
         if (window.location.protocol === "https:") {
             this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
         } else {
-            this.websocket = new WebSocket(`ws://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
+            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
         }
 
         this.websocket.onopen = event => { };
@@ -127,16 +127,18 @@ class GithubInput extends Component {
                     onSetProgressMessage(message);
                 }
             } else {
-                console.log(event.data);
                 if (is_final) {
-                    toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
-                    this.setState({ secondaryIndexingProgressId: null });
-                } else {
-                    if (secondaryIndexingProgressId == null) {
-                        const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
-                        this.setState({ secondaryIndexingProgressId: toastId });
-                    }
+                    toast.success("Fine-tuning complete. Chatbot is fully optimized."); // { id: secondaryIndexingProgressId }
+                    // this.setState({ secondaryIndexingProgressId: null });
                 }
+                // else {
+                //     if (secondaryIndexingProgressId == null) {
+                //         const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                //         this.setState({ secondaryIndexingProgressId: toastId });
+                //     } else {
+                //         toast.dismiss(secondaryIndexingProgressId);
+                //     }
+                // }
             }
         }
         this.websocket.onerror = event => { };

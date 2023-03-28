@@ -409,10 +409,10 @@ class CodeExplorer extends Component {
         return (
             <div id="initCodebaseManager">
                 <Grid className="grid" container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                         <AddCodeButton onClick={() => this.setState({ renderSelectRepository: true })}>Add repository</AddCodeButton>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                         <AddCodeButton onClick={() => this.setState({ renderSelectCodeSnippet: true })}>Add code snippet</AddCodeButton>
                     </Grid>
                     {
@@ -421,7 +421,7 @@ class CodeExplorer extends Component {
 
                             if (isCodeSnippet) {
                                 return (
-                                    <Grid item xs={12}>
+                                    <Grid item xs={6}>
                                         <div className="codebaseThumbnail" onClick={() => this.onSetCodeSnippet(codebase, false)}>
                                             <img src="./code_snippet_icon.png" />
                                             <span>{name}</span>
@@ -432,7 +432,7 @@ class CodeExplorer extends Component {
                             }
 
                             return (
-                                <Grid item xs={12}>
+                                <Grid item xs={6}>
                                     <div className="codebaseThumbnail" onClick={async () => await this.onSetCodebase(codebase, false)}>
                                         <img src="./github_icon.png" />
                                         <span>{name}</span>

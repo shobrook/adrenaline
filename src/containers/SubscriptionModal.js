@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from "react"
-import {motion} from "framer-motion";
+import React, { useState, useEffect } from "react"
+import { motion } from "framer-motion";
 import PaymentPlan from "./PaymentPlan";
 import Button from "../components/Button";
-import {IoIosClose} from "react-icons/io";
+import { IoIosClose } from "react-icons/io";
 
-export default function SubscriptionModal({setShowSubscriptionModal}) {
-
+export default function SubscriptionModal({ setShowSubscriptionModal }) {
     const closeSubscriptionModal = () => {
+        console.log("Gets called")
         setShowSubscriptionModal(false)
     }
 
@@ -35,9 +35,9 @@ export default function SubscriptionModal({setShowSubscriptionModal}) {
         <>
             <motion.div
                 id="modalBackground"
-                initial={{opacity: 0}}
-                animate={{opacity: 1}}
-                exit={{opacity: 0}}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
             >
                 <motion.div
                     onClick={(e) => e.stopPropagation()}
@@ -48,7 +48,7 @@ export default function SubscriptionModal({setShowSubscriptionModal}) {
                     exit="exit"
                 >
                     <div id="closeButton" onClick={closeSubscriptionModal}>
-                        <IoIosClose fill={"white"} size={32}/>
+                        <IoIosClose fill={"white"} size={32} />
                     </div>
                     <span id="modalTitle">Get answers. Fast.</span>
                     <p id="modalSubtitle">Understand your code like an expert. Focus on the problems that matter.</p>
@@ -64,7 +64,7 @@ export default function SubscriptionModal({setShowSubscriptionModal}) {
                                 "50 code snippets."
                             ]}
                         />
-                        <div id="spacer"/>
+                        <div id="spacer" />
                         <PaymentPlan
                             lookupKey="power"
                             planName="POWER"

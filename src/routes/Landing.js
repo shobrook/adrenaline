@@ -1,10 +1,10 @@
-import {Component, useEffect, useState} from "react";
-import {useAuth0, withAuth0} from "@auth0/auth0-react";
+import { Component, useEffect, useState } from "react";
+import { useAuth0, withAuth0 } from "@auth0/auth0-react";
 
 import Button from "../components/Button";
 import Header from "../containers/Header";
 
-import {withRouter} from "../library/utilities";
+import { withRouter } from "../library/utilities";
 import Mixpanel from "../library/mixpanel";
 
 import "../styles/Landing.css";
@@ -16,14 +16,14 @@ const Landing = (props) => {
     const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
     function onGetStarted() {
-        Mixpanel.track("click_get_started", {isAuthenticated});
+        Mixpanel.track("click_get_started", { isAuthenticated });
         router.navigate("/app");
     }
 
     useEffect(() => {
         if (isAuthenticated) {
             Mixpanel.identify(user.sub);
-            Mixpanel.people.set({email: user.email});
+            Mixpanel.people.set({ email: user.email });
         }
 
         Mixpanel.track("load_landing_page");
@@ -31,7 +31,7 @@ const Landing = (props) => {
 
     return (
         <div id="landing">
-            <Header isTransparent setShowSubscriptionModal={setShowSubscriptionModal}/>
+            <Header isTransparent setShowSubscriptionModal={setShowSubscriptionModal} />
 
             <div id="overTheFold">
                 <div id="landingHeading">
@@ -50,7 +50,7 @@ const Landing = (props) => {
 
             {showSubscriptionModal ?
                 <div className={"grid p-2 justify-items-center"}>
-                    <SubscriptionModal setShowSubscriptionModal={setShowSubscriptionModal}/>
+                    <SubscriptionModal setShowSubscriptionModal={setShowSubscriptionModal} />
                 </div>
                 : null
             }

@@ -14,7 +14,7 @@ import Mixpanel from "../library/mixpanel";
 
 import "../styles/App.css";
 import SubscriptionModal from "../containers/SubscriptionModal";
-import {Toaster} from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 class Message {
   constructor(content, isResponse, isComplete, isPaywalled = false) {
@@ -48,7 +48,7 @@ class StackOverflowPost {
   }
 }
 
-const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a Github repository or a code snippet.\nYou can ask me to explain how something works, where something is implemented, or even how to debug an error."
+const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a Github repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
 class App extends Component {
   constructor(props) {
@@ -56,8 +56,7 @@ class App extends Component {
 
     this.onSubmitQuery = this.onSubmitQuery.bind(this);
     this.onSetCodebaseId = this.onSetCodebaseId.bind(this);
-    this.renderSubscriptionModal = this.renderSubscriptionModal.bind(this);
-    this.onToggleSubscriptionModal = this.onToggleSubscriptionModal.bind(this);
+    this.setShowSubscriptionModal = this.setShowSubscriptionModal.bind(this);
 
     this.state = {
       codebaseId: "",
@@ -71,9 +70,9 @@ class App extends Component {
 
   /* Event Handlers */
 
-  onToggleSubscriptionModal() {
-    const { renderSubscriptionModal } = this.state;
-    this.setState({ renderSubscriptionModal: !renderSubscriptionModal });
+  setShowSubscriptionModal(isVisible) {
+    console.log(isVisible)
+    this.setState({ renderSubscriptionModal: isVisible });
   }
 
   onSubmitQuery(message) {
@@ -121,82 +120,6 @@ class App extends Component {
 
   /* Helpers */
 
-  // TODO: Abstract into its own container component
-  renderSubscriptionModal() {
-    const { renderSubscriptionModal } = this.state;
-
-    if (!renderSubscriptionModal) {
-      return null;
-    }
-
-    const dropIn = {
-      hidden: {
-        y: "-100vh",
-        opacity: 0,
-      },
-      visible: {
-        y: "0",
-        opacity: 1,
-        transition: {
-          duration: 0.1,
-          type: "spring",
-          damping: 25,
-          stiffness: 500,
-        },
-      },
-      exit: {
-        y: "100vh",
-        opacity: 0,
-      },
-    };
-
-    return (
-      <motion.div
-        onClick={this.onToggleSubscriptionModal}
-        id="modalBackground"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <motion.div
-          onClick={(e) => e.stopPropagation()}
-          id="subscriptionModal"
-          variants={dropIn}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-        >
-          <span id="modalTitle">Get answers. Fast.</span>
-          <p id="modalSubtitle">Understand your code like an expert. Focus on the problems that matter.</p>
-
-          <div id="paymentPlans">
-            <PaymentPlan
-              lookupKey="premium"
-              planName="PREMIUM"
-              price="10"
-              features={[
-                "100 chat messages.",
-                "15 repositories.",
-                "50 code snippets."
-              ]}
-            />
-            <div id="spacer" />
-            <PaymentPlan
-              lookupKey="power"
-              planName="POWER"
-              price="20"
-              features={[
-                "Unlimited chat messages.",
-                "25 repositories.",
-                "Unlimited code snippets."
-              ]}
-            />
-          </div>
-        </motion.div>
-      </motion.div>
-    )
-  }
-
   renderApp() {
     const { isLoading } = this.props.auth0;
     const { messages, codebaseId } = this.state;
@@ -204,7 +127,7 @@ class App extends Component {
     if (isLoading) {
       return (
         <div className="app">
-          <Header />
+          <Header setShowSubscriptionModal={this.setShowSubscriptionModal} />
           <div id="loadingBody">
             <Spinner />
           </div>
@@ -214,18 +137,18 @@ class App extends Component {
 
     return (
       <div className="app">
-        <Header />
+        <Header setShowSubscriptionModal={this.setShowSubscriptionModal} />
 
         <div className="body">
           <ChatBot
             messages={messages}
             onSubmitQuery={this.onSubmitQuery}
-            onUpgradePlan={this.onToggleSubscriptionModal}
+            onUpgradePlan={() => this.setShowSubscriptionModal(true)}
           />
           <CodeExplorer
             onSetCodebaseId={this.onSetCodebaseId}
             codebaseId={codebaseId}
-            onUpgradePlan={this.onToggleSubscriptionModal}
+            onUpgradePlan={() => this.setShowSubscriptionModal(true)}
           />
         </div>
       </div>
@@ -252,7 +175,7 @@ class App extends Component {
     if (window.location.protocol === "https:") {
       this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
     } else {
-      this.query_ws = new WebSocket(`ws://websocket-lb.useadrenaline.com/answer_query`);
+      this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
     }
 
     this.query_ws.onopen = event => { }; // QUESTION: Should we wait to render the rest of the site until connection is established?
@@ -379,13 +302,12 @@ class App extends Component {
   render() {
     return (
       <>
-        {this.renderSubscriptionModal()}
         {this.renderApp()}
-        {this.state.showSubscriptionModal ?
-            <div className={"grid p-2 justify-items-center"}>
-                <SubscriptionModal setShowSubscriptionModal={this.toggleShowSubscriptionModal}/>
-            </div>
-            : null
+        {this.state.renderSubscriptionModal ?
+          <div className={"grid p-2 justify-items-center"}>
+            <SubscriptionModal setShowSubscriptionModal={this.setShowSubscriptionModal} />
+          </div>
+          : null
         }
         <Toaster
           position="bottom-right"
