@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
-import { Auth0Provider } from "@auth0/auth0-react";
+import {useNavigate} from "react-router-dom";
+import {Auth0Provider} from "@auth0/auth0-react";
 
-const Auth0ProviderWithHistory = ({ children }) => {
+const Auth0ProviderWithHistory = ({children}) => {
     // TODO: Store these in environment variables
 
     // const domain = process.env.REACT_APP_AUTH0_DOMAIN;
@@ -21,6 +21,7 @@ const Auth0ProviderWithHistory = ({ children }) => {
             domain={domain}
             clientId={clientId}
             onRedirectCallback={onRedirectCallback}
+            cacheLocation="localstorage"
             authorizationParams={{
                 redirect_uri: window.location.origin,
                 audience: audience
