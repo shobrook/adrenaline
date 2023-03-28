@@ -396,10 +396,10 @@ class CodeExplorer extends Component {
         return (
             <div id="initCodebaseManager">
                 <Grid className="grid" container spacing={2}>
-                    <Grid item xs={4}>
+                    <Grid item xs={12}>
                         <AddCodeButton onClick={() => this.setState({ renderSelectRepository: true })}>Add repository</AddCodeButton>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={12}>
                         <AddCodeButton onClick={() => this.setState({ renderSelectCodeSnippet: true })}>Add code snippet</AddCodeButton>
                     </Grid>
                     {
