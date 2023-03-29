@@ -1,133 +1,143 @@
 .header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: 55px;
-  padding-left: 30px;
-  padding-right: 30px;
-  justify-content: space-between;
-  border-bottom: 2px solid #262A39;  /* #4E4881 */
-  background-color: #181b26;
-  border-top: 4px solid #A305E1;
-  padding-top: 2px;
-  min-height: 55px;
-  /* font-family: "Helvetica Neue"; */
-  font-size: 16px;
-  color: white;
-}
-
-.transparent {
-  background-color: transparent !important;
-  border-bottom: none;
-  border-top: none;
-}
-
-#signUpButton {
-  margin-right: 10px;
-}
-
-.linkButtons {
-  margin-right: 20px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.discordIcon {
-  margin-right: 20px;
-}
-
-.linkButtons > a {
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-}
-
-.linkButtons > a > img {
-  height: 25px;
-}
-
-.ctaButtons {
-  display: flex;
-  flex-direction: row;
-}
-
-.discordIcon:hover, .githubIcon:hover {
-  opacity: 0.75;
-}
-
-.header .compactButtons {
-  display: none;
-  position: absolute;
-}
-
-@media (max-width: 700px) {
-  .header .compactButtons {
-    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
-  }
+    height: 55px;
+    padding-left: 30px;
+    padding-right: 30px;
+    justify-content: space-between;
+    border-bottom: 2px solid #262A39; /* #4E4881 */
+    background-color: #181b26;
+    border-top: 4px solid #A305E1;
+    padding-top: 2px;
+    min-height: 55px;
+    /* font-family: "Helvetica Neue"; */
+    font-size: 16px;
+    color: white;
+}
 
-  .githubIcon img {
-    height: 24px;
-  }
+.transparent {
+    background-color: transparent !important;
+    border-bottom: none;
+    border-top: none;
+}
 
-  .githubIcon:hover {
+#signUpButton {
+    margin-right: 10px;
+}
+
+.linkButtons {
+    margin-right: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.discordIcon {
+    margin-right: 20px;
+}
+
+.linkButtons > a {
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+}
+
+.linkButtons > a > img {
+    height: 25px;
+}
+
+.ctaButtons {
+    display: flex;
+    flex-direction: row;
+}
+
+.githubIcon {
+    display: flex;
+    align-items: center;
+}
+
+.star-count {
+    display: flex;
+    align-items: center;
+}
+
+.discordIcon:hover, .githubIcon:hover {
     opacity: 0.75;
-  }
+}
 
-  .keyIcon {
-    margin-left: 15px;
-    height: 16px;
-    cursor: pointer;
-  }
+.header .compactButtons {
+    display: none;
+    position: absolute;
+}
 
-  .keyIcon:hover {
-    opacity: 0.75;
-  }
+@media (max-width: 700px) {
+    .header .compactButtons {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
 
-  .header .buttons {
-    display: none !important;
-    position: absolute !important;
-  }
+    .githubIcon img {
+        height: 24px;
+    }
+
+    .githubIcon:hover {
+        opacity: 0.75;
+    }
+
+    .keyIcon {
+        margin-left: 15px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .keyIcon:hover {
+        opacity: 0.75;
+    }
+
+    .header .buttons {
+        display: none !important;
+        position: absolute !important;
+    }
 }
 
 .header .buttons {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .header .buttons > a {
-  text-decoration: none;
-  color: white;
-  /* font-family: "Helvetica Neue"; */
-  font-size: 16px;
-  font-weight: 400;
-  padding-right: 25px;
-  cursor: pointer;
+    text-decoration: none;
+    color: white;
+    /* font-family: "Helvetica Neue"; */
+    font-size: 16px;
+    font-weight: 400;
+    padding-right: 25px;
+    cursor: pointer;
 }
 
 .header .buttons .headerGithubButton a {
-  padding-right: 0px !important;
-  text-decoration: none;
-  color: white;
-  /* font-family: "Helvetica Neue"; */
-  font-size: 16px;
-  font-weight: 500;
+    padding-right: 0px !important;
+    text-decoration: none;
+    color: white;
+    /* font-family: "Helvetica Neue"; */
+    font-size: 16px;
+    font-weight: 500;
 }
 
 .LogInButton {
-  margin-right: 15px;
+    margin-right: 15px;
 }
 
 .header .buttons > a:hover {
-  opacity: 0.75;
+    opacity: 0.75;
 }
 
 .logo img {
-  height: 20px;
+    height: 20px;
 }
 
 .user-nav-dropdown {
@@ -136,7 +146,7 @@
     cursor: pointer;
 }
 
-.dropdown-button{
+.dropdown-button {
     display: flex;
     align-items: center;
     cursor: pointer;
