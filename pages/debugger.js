@@ -9,6 +9,7 @@ import Spinner from "../components/Spinner";
 import Mixpanel from "../library/mixpanel";
 import SubscriptionModal from "../containers/SubscriptionModal";
 import {Toaster} from "react-hot-toast";
+import {useRouter} from "next/router";
 
 const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a Github repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
@@ -22,6 +23,12 @@ export default function DebuggerAppPage() {
     const [subscriptionStatus, setSubscriptionStatus] = useState({});
     const [renderSubscriptionModal, setRenderSubscriptionModal] = useState(false);
     const queryWS = useRef(null);
+    const prevAuthState = useRef(isAuthenticated);
+    const router = useRouter();
+
+    useEffect(() => {
+        console.log("router.query", router.query)
+    }, [router.query])
 
     /* Utilities */
 
@@ -93,8 +100,6 @@ export default function DebuggerAppPage() {
             });
     }
 
-    /* Event Handlers */
-
     function setShowSubscriptionModal(isVisible) {
         setRenderSubscriptionModal(isVisible);
     }
@@ -112,6 +117,7 @@ export default function DebuggerAppPage() {
 
         const priorMessages = messages.slice(0, messages.length);
         setMessages([...priorMessages, query, response]);
+        localStorage.setItem(codebaseId, JSON.stringify(priorMessages));
 
         if (!isAuthenticated) {
             return;
@@ -132,6 +138,8 @@ export default function DebuggerAppPage() {
 
     function onSetCodebaseId(codebaseId) {
         setCodebaseId(codebaseId);
+        console.log("jhere")
+        setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
     }
 
     /* Helpers */
@@ -226,20 +234,17 @@ export default function DebuggerAppPage() {
         };
         queryWS.current = ws;
 
-        // this.fetchUserMetadata();
+        fetchUserMetadata();
     }, [])
 
 
-    // useEffect(() => {
-    //     const {isAuthenticated: prevIsAuthenticated} = prevProps.auth0;
-    //     const {user, getAccessTokenSilently, isAuthenticated} = this.props.auth0;
-    //
-    //     if (prevIsAuthenticated === isAuthenticated) {
-    //         return;
-    //     }
-    //
-    //     // this.fetchUserMetadata();
-    // })
+    useEffect(() => {
+        if (prevAuthState.current !== isAuthenticated) {
+            fetchUserMetadata();
+        }
+
+        prevAuthState.current = isAuthenticated;
+    }, [isAuthenticated])
 
     return (
         <>
