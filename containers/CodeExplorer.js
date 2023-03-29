@@ -314,7 +314,12 @@ class CodeExplorer extends Component {
 
         return (
             <div id="codePreview">
-                <SyntaxHighlighter className="codeBlock" language={language} style={dracula}>
+                <SyntaxHighlighter
+                    className="codeBlock"
+                    language={language}
+                    style={dracula}
+                    showLineNumbers={true}
+                >
                     {code}
                 </SyntaxHighlighter>
             </div>

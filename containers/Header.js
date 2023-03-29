@@ -8,7 +8,6 @@ import { useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 
 export default function Header({ isTransparent, setShowSubscriptionModal }) {
-    console.log(setShowSubscriptionModal)
     const {
         isAuthenticated,
         loginWithRedirect,

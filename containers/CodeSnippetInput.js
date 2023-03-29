@@ -113,9 +113,6 @@ class CodeSnippetInput extends Component {
                 };
                 this.websocket.send(JSON.stringify(request));
 
-                console.log("aosjdfiosadf")
-                console.log(code)
-
                 onSetProgressMessage("Analyzing code");
             });
     }
@@ -123,6 +120,7 @@ class CodeSnippetInput extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
+        console.log("mounted")
         const { onSetCodeSnippet, onSetProgressMessage } = this.props;
 
         if (window.location.protocol === "https:") {
@@ -133,6 +131,7 @@ class CodeSnippetInput extends Component {
 
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {
+            console.log(event);
             const { code, language } = this.state;
             const { codebase_id, name, is_paywalled, error_message } = JSON.parse(event.data);
             const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);

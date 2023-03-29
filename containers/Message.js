@@ -30,7 +30,12 @@ export default class Message extends Component {
                 codeLines = codeLines.join('\n');
 
                 return (
-                    <SyntaxHighlighter className="codeBlock" language={programmingLanguage} style={dracula}>
+                    <SyntaxHighlighter
+                        className="codeBlock"
+                        language={programmingLanguage}
+                        style={dracula}
+                        showLineNumbers={true}
+                    >
                         {codeLines.trim()}
                     </SyntaxHighlighter>
                 );
@@ -43,7 +48,8 @@ export default class Message extends Component {
                             return (<b>{`\`${otherText}\``}</b>);
                         }
 
-                    return otherText.replace(/^\n/, "")                    })
+                        return otherText.replace(/^\n/, "")
+                    })
                 }</pre>
             );
         });
