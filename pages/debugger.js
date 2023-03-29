@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useAuth0} from "@auth0/auth0-react";
 
 import Header from "../containers/Header";
@@ -12,7 +12,7 @@ import {Toaster} from "react-hot-toast";
 
 const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a Github repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
-export default function App() {
+export default function DebuggerAppPage() {
     // create functional state variables using the component state variables from above
     const {isAuthenticated, getAccessTokenSilently, user, isLoading} = useAuth0();
     const [codebaseId, setCodebaseId] = useState("");
@@ -21,7 +21,7 @@ export default function App() {
     const [documents, setDocuments] = useState([]);
     const [subscriptionStatus, setSubscriptionStatus] = useState({});
     const [renderSubscriptionModal, setRenderSubscriptionModal] = useState(false);
-
+    const queryWS = useRef(null);
 
     /* Utilities */
 
@@ -126,7 +126,7 @@ export default function App() {
                     query: message,
                     chat_history_summary: chatHistorySummary
                 };
-                this.query_ws.send(JSON.stringify(request));
+                queryWS.current.send(JSON.stringify(request));
             })
     }
 
@@ -178,15 +178,16 @@ export default function App() {
 
         /* Connect to query handler websocket */
 
+        let ws;
         if (window.location.protocol === "https:") {
-            this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
+            ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
         } else {
-            this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
+            ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
         }
 
-        this.query_ws.onopen = event => {
+        ws.onopen = event => {
         }; // QUESTION: Should we wait to render the rest of the site until connection is established?
-        this.query_ws.onmessage = event => {
+        ws.onmessage = event => {
             const {
                 type,
                 data,
@@ -220,9 +221,10 @@ export default function App() {
                 setDocuments([...documents, document]);
             }
         }
-        this.query_ws.onerror = event => {
+        ws.onerror = event => {
             console.log(event); // TODO: Display error message
         };
+        queryWS.current = ws;
 
         // this.fetchUserMetadata();
     }, [])
