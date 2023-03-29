@@ -1,10 +1,9 @@
-import { Component } from "react";
-import { withAuth0 } from "@auth0/auth0-react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { motion } from "framer-motion";
+import {Component} from "react";
+import {withAuth0} from "@auth0/auth0-react";
+import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
+import {dracula} from "react-syntax-highlighter/dist/cjs/styles/prism";
+import {motion} from "framer-motion";
 import Grid from "@mui/material/Grid";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 
 import PaywallMessage from "./PaywallMessage";
@@ -12,13 +11,12 @@ import CodeSnippetInput from "./CodeSnippetInput";
 import GithubInput from "./GithubInput";
 import AuthenticatedGithubInput from "./AuthenticatedGithubInput";
 import FileStructure from "./FileStructure";
-import Mixpanel from "../library/mixpanel";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
-import { CodeSnippet, Repository } from "../library/data";
+import {CodeSnippet, Repository} from "../library/data";
 
-import { formControlClasses } from "@mui/material";
+import {formControlClasses} from "@mui/material";
 
 const DEFAULT_STATE = {
     renderCodeSnippet: false,
