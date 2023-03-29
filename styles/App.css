@@ -30,7 +30,7 @@
   align-items: center;
   justify-content: center;
   background-color: #14171FBF;
-  z-index: 50;
+  z-index: 1;
   overflow-y: auto;
   top: 0;
 }

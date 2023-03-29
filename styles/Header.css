@@ -60,6 +60,7 @@
 .star-count {
     display: flex;
     align-items: center;
+    color: #d93cff;
 }
 
 .discordIcon:hover, .githubIcon:hover {
@@ -165,7 +166,7 @@
     background-color: #2B3044;
     min-width: 200px;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-    z-index: 1;
+    z-index: 5;
     border-radius: 8px;
     opacity: 0;
     transform: scale(0.8);
