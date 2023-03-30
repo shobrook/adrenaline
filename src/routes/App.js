@@ -247,9 +247,9 @@ class App extends Component {
     /* Connect to query handler websocket */
 
     if (window.location.protocol === "https:") {
-      this.query_ws = new WebSocket(`wss://localhost:5001/answer_query`);
+      this.query_ws = new WebSocket(`wss://${process.env.WEBSOCKET_URL}answer_query`);
     } else {
-      this.query_ws = new WebSocket(`ws://localhost:5001/answer_query`);
+      this.query_ws = new WebSocket(`ws://${process.env.WEBSOCKET_URL}answer_query`);
     }
 
     this.query_ws.onopen = event => { }; // QUESTION: Should we wait to render the rest of the site until connection is established?

@@ -176,9 +176,9 @@ class AuthenticatedGithubInput extends Component {
         // TODO: The websocket stuff in this component and GithubInput should be moved up a level
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_name`);
+            this.websocket = new WebSocket(`wss://${process.env.WEBSOCKET_URL}index_codebase_by_repo_name`);
         } else {
-            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_name`);
+            this.websocket = new WebSocket(`ws://${process.env.WEBSOCKET_URL}index_codebase_by_repo_name`);
         }
 
         this.websocket.onopen = event => { };
