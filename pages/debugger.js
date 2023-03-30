@@ -216,6 +216,19 @@ export default function DebuggerAppPage() {
                 const priorMessages = messages.slice(0, messages.length - 1);
                 let response = messages[messages.length - 1];
 
+                if (message.type in response.steps) {
+                  response.steps[message.type] += message.content;
+                } else {
+                  response.steps[message.type] = message.content;
+                }
+
+                this.setState({ messages: [...priorMessages, response] });
+              } else if (type == "answer") {
+                const { message } = data;
+
+                const priorMessages = messages.slice(0, messages.length - 1);
+                let response = messages[messages.length - 1];
+
                 response.content += message;
                 response.isComplete = is_final;
                 response.isPaywalled = is_paywalled;
@@ -255,10 +268,6 @@ export default function DebuggerAppPage() {
                 </div>
                 : null
             }
-            <Toaster
-                position="bottom-right"
-                reverseOrder={false}
-            />
         </>
     );
 
@@ -271,6 +280,7 @@ class Message {
         this.isResponse = isResponse;
         this.isComplete = isComplete; // Indicates whether message has finished streaming
         this.isPaywalled = isPaywalled;
+        this.steps = {}
     }
 }
 
