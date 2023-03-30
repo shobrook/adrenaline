@@ -35,7 +35,7 @@ class PaymentPlan extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://adrenaline-api-staging.up.railway.app/api/stripe/create_checkout_session", {
+                fetch(`https://${process.env.REACT_APP_API_URI}api/stripe/create_checkout_session`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

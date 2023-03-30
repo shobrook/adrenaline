@@ -89,7 +89,7 @@ class App extends Component {
     if (githubCode != null) {
       getAccessTokenSilently()
         .then(token => {
-          fetch("https://adrenaline-api-staging.up.railway.app/api/github_callback", {
+          fetch(`https://${process.env.REACT_APP_API_URI}api/github_callback`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -111,7 +111,7 @@ class App extends Component {
 
     getAccessTokenSilently()
       .then(token => {
-        fetch("https://adrenaline-api-staging.up.railway.app/api/stripe/subscription_status", {
+        fetch(`https://${process.env.REACT_APP_API_URI}api/stripe/subscription_status`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -247,9 +247,9 @@ class App extends Component {
     /* Connect to query handler websocket */
 
     if (window.location.protocol === "https:") {
-      this.query_ws = new WebSocket(`wss://${process.env.WEBSOCKET_URL}answer_query`);
+      this.query_ws = new WebSocket(`wss://${process.env.REACT_APP_WEBSOCKET_URI}answer_query`);
     } else {
-      this.query_ws = new WebSocket(`ws://${process.env.WEBSOCKET_URL}answer_query`);
+      this.query_ws = new WebSocket(`ws://${process.env.REACT_APP_WEBSOCKET_URI}answer_query`);
     }
 
     this.query_ws.onopen = event => { }; // QUESTION: Should we wait to render the rest of the site until connection is established?

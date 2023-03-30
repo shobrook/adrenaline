@@ -78,9 +78,9 @@ class GithubInput extends Component {
         } = this.props;
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://${process.env.WEBSOCKET_URL}index_codebase_by_repo_url`);
+            this.websocket = new WebSocket(`wss://${process.env.REACT_APP_WEBSOCKET_URI}index_codebase_by_repo_url`);
         } else {
-            this.websocket = new WebSocket(`ws://${process.env.WEBSOCKET_URL}index_codebase_by_repo_url`);
+            this.websocket = new WebSocket(`ws://${process.env.REACT_APP_WEBSOCKET_URI}index_codebase_by_repo_url`);
         }
 
         this.websocket.onopen = event => { };
