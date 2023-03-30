@@ -4,8 +4,7 @@ import toast from "react-hot-toast";
 
 import Button from "../components/Button";
 import { Repository } from "../library/data";
-
-import "../styles/GithubInput.css";
+import Mixpanel from "../library/mixpanel";
 
 class GithubInput extends Component {
     constructor(props) {
@@ -58,6 +57,7 @@ class GithubInput extends Component {
                 this.websocket.send(JSON.stringify(request));
 
                 onSetProgressMessage("Scraping repository");
+                Mixpanel.track("Scrape public repository")
             });
     }
 
@@ -77,11 +77,7 @@ class GithubInput extends Component {
             onSetProgressMessage
         } = this.props;
 
-        if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://${process.env.REACT_APP_WEBSOCKET_URI}index_codebase_by_repo_url`);
-        } else {
-            this.websocket = new WebSocket(`ws://${process.env.REACT_APP_WEBSOCKET_URI}index_codebase_by_repo_url`);
-        }
+        this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_url`);
 
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {

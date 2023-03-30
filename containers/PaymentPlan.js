@@ -3,8 +3,6 @@ import { withAuth0 } from "@auth0/auth0-react";
 
 import Button from "../components/Button";
 
-import "../styles/PaymentPlan.css";
-
 class PaymentPlan extends Component {
     constructor(props) {
         super(props);
@@ -35,7 +33,7 @@ class PaymentPlan extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch(`https://${process.env.REACT_APP_API_URI}api/stripe/create_checkout_session`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/stripe/create_checkout_session`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

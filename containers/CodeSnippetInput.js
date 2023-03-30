@@ -29,7 +29,6 @@ import Button from "../components/Button";
 import { CodeSnippet } from "../library/data";
 
 import "prismjs/themes/prism.css"; // TODO: Change style
-import "../styles/CodeSnippetInput.css";
 import toast from "react-hot-toast";
 
 const LANGUAGES = [
@@ -114,9 +113,6 @@ class CodeSnippetInput extends Component {
                 };
                 this.websocket.send(JSON.stringify(request));
 
-                console.log("aosjdfiosadf")
-                console.log(code)
-
                 onSetProgressMessage("Analyzing code");
             });
     }
@@ -126,11 +122,8 @@ class CodeSnippetInput extends Component {
     componentDidMount() {
         const { onSetCodeSnippet, onSetProgressMessage } = this.props;
 
-        if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://${process.env.REACT_APP_WEBSOCKET_URI}index_code_snippet`);
-        } else {
-            this.websocket = new WebSocket(`ws://${process.env.REACT_APP_WEBSOCKET_URI}index_code_snippet`);
-        }
+        this.websocket = new WebSocket(`wss://${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
+
 
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {

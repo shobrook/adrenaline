@@ -1,8 +1,14 @@
-import {useNavigate} from "react-router-dom";
 import {Auth0Provider} from "@auth0/auth0-react";
+import {useRouter} from "next/router";
+import {useEffect, useState} from "react";
 
 const Auth0ProviderWithHistory = ({children}) => {
-    // TODO: Store these in environment variables
+    const router = useRouter()
+    const [isClientLoaded, setIsClientLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsClientLoaded(true);
+    }, []);
 
     // const domain = process.env.REACT_APP_AUTH0_DOMAIN;
     const domain = "dev-0c5k2o4ad10lniwe.us.auth0.com";
@@ -10,11 +16,14 @@ const Auth0ProviderWithHistory = ({children}) => {
     const clientId = "9JZ9notgpzW8BhCo5HMsv6h2HVUbdYhu";
     const audience = "rubrick-api-production.up.railway.app";
 
-    const navigate = useNavigate();
-
     const onRedirectCallback = (appState) => {
-        navigate(appState?.returnTo || window.location.pathname);
+        router.push(appState?.returnTo || window.location.pathname);
     };
+
+    // dont render component until client has loaded
+    if (!isClientLoaded) {
+        return null;
+    }
 
     return (
         <Auth0Provider

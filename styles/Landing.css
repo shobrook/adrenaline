@@ -1,12 +1,12 @@
 @font-face {
   font-family: "Gilroy";
-  src: url("../styles/fonts/Gilroy-ExtraBold.otf") format("opentype");
+  src: url("fonts/Gilroy-ExtraBold.otf") format("opentype");
 }
 
 #landing {
   position: absolute;
   /* background-color: #373751; */
-  background-image: url("../../public/cyberpunk_background.png");
+  background-image: url("../public/cyberpunk_background.png");
   background-position-y: center;
   background-size: 100% auto;
   height: 100%;

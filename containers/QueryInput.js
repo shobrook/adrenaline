@@ -1,9 +1,8 @@
-import { withAuth0 } from "@auth0/auth0-react";
-import { Component } from "react";
+import {withAuth0} from "@auth0/auth0-react";
+import {Component} from "react";
 
 import Button from "../components/Button";
-
-import "../styles/QueryInput.css";
+import Mixpanel from "../library/mixpanel";
 
 class QueryInput extends Component {
     constructor(props) {
@@ -13,24 +12,24 @@ class QueryInput extends Component {
         this.onSubmitQuery = this.onSubmitQuery.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
 
-        this.state = { query: "" };
+        this.state = {query: ""};
     }
 
     /* Event Handlers */
 
     onChangeQuery(event) {
-        this.setState({ query: event.target.value });
+        this.setState({query: event.target.value});
     }
 
     onSubmitQuery() {
-        const { query } = this.state;
+        const {query} = this.state;
 
         if (query === "") {
             return;
         }
 
         this.props.onSubmitQuery(query);
-        this.setState({ query: "" });
+        this.setState({query: ""});
     }
 
     onKeyPress(event) {
@@ -44,17 +43,16 @@ class QueryInput extends Component {
     /* Lifecycle Methods */
 
     render() {
-        const { query } = this.state;
+        const {query} = this.state;
 
         return (
             <div id="inputField">
                 <div id="inputFieldArea">
-                    <input
+                    <textarea
                         id="inputFieldValue"
                         placeholder="Ask a question"
                         onChange={this.onChangeQuery}
                         value={query}
-                        onKeyPress={this.onKeyPress}
                     />
                     <Button
                         id="sendInputButton"
