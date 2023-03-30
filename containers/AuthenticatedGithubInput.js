@@ -43,7 +43,7 @@ class AuthenticatedGithubInput extends Component {
         this.setState({ isLoading: true });
         getAccessTokenSilently()
             .then(token => {
-                fetch(`https://${process.env.REACT_APP_API_URI}api/github_repositories`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/github_repositories`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -175,11 +175,7 @@ class AuthenticatedGithubInput extends Component {
 
         // TODO: The websocket stuff in this component and GithubInput should be moved up a level
 
-        if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://${process.env.REACT_APP_WEBSOCKET_URI}index_codebase_by_repo_name`);
-        } else {
-            this.websocket = new WebSocket(`ws://${process.env.REACT_APP_WEBSOCKET_URI}index_codebase_by_repo_name`);
-        }
+        this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_name`);
 
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {

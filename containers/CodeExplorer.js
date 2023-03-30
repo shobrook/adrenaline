@@ -20,6 +20,7 @@ import {CodeSnippet, Repository} from "../library/data";
 
 import {formControlClasses} from "@mui/material";
 import Mixpanel from "../library/mixpanel";
+import toast from "react-hot-toast";
 
 const DEFAULT_STATE = {
     renderCodeSnippet: false,
@@ -81,7 +82,7 @@ class CodeExplorer extends Component {
 
         getAccessTokenSilently()
             .then(async token => {
-                await fetch(`https://${process.env.REACT_APP_API_URI}api/user_codebases`, {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URI}api/user_codebases`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -123,7 +124,7 @@ class CodeExplorer extends Component {
 
         return await getAccessTokenSilently()
             .then(async token => {
-                return await fetch(`https://${process.env.REACT_APP_API_URI}api/file_content`, {
+                return await fetch(`${process.env.NEXT_PUBLIC_API_URI}api/file_content`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -161,9 +162,10 @@ class CodeExplorer extends Component {
         const { codebaseId } = codebase;
         const { getAccessTokenSilently, user } = this.props.auth0;
 
+        const toastIdGenerate = toast.loading("Deleting codebase...")
         getAccessTokenSilently()
             .then(token => {
-                fetch(`http://${process.env.REACT_APP_API_URI}api/delete_codebase`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/delete_codebase`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -184,9 +186,14 @@ class CodeExplorer extends Component {
                         } else {
                             // TODO: Display toast
                         }
+                        toast.success("Codebase deleted!");
                     })
                     .catch(error => {
                         console.log(error);
+                        toast.error("Failed to delete codebase!");
+                    })
+                    .finally(() => {
+                        toast.dismiss(toastIdGenerate);
                     })
             });
     }

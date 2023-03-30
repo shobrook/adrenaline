@@ -210,7 +210,7 @@ export default function DebuggerAppPage() {
                 const document = new Document(`\`\`\`\n${chunk}\n\`\`\``); // TODO: Use CodeChunk
 
                 setDocuments([...documents, document]);
-            } else if (type === "answer") {
+            } else if (type === "reasoning_step") {
                 const {message} = data;
 
                 const priorMessages = messages.slice(0, messages.length - 1);
@@ -222,7 +222,7 @@ export default function DebuggerAppPage() {
                   response.steps[message.type] = message.content;
                 }
 
-                this.setState({ messages: [...priorMessages, response] });
+                setMessages([...priorMessages, response]);
               } else if (type == "answer") {
                 const { message } = data;
 
