@@ -124,7 +124,7 @@ class CodeExplorer extends Component {
 
         return await getAccessTokenSilently()
             .then(async token => {
-                return await fetch(`https://${process.env.REACT_APP_API_URI}/api/file_content`, {
+                return await fetch(`https://${process.env.REACT_APP_API_URI}api/file_content`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -164,7 +164,7 @@ class CodeExplorer extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch(`http://${process.env.REACT_APP_API_URI}/api/delete_codebase`, {
+                fetch(`http://${process.env.REACT_APP_API_URI}api/delete_codebase`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
