@@ -164,7 +164,7 @@ class CodeExplorer extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch(`http://${process.env.REACT_APP_API_URI}api/delete_codebase`, {
+                fetch(`https://${process.env.REACT_APP_API_URI}api/delete_codebase`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
