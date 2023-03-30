@@ -133,12 +133,12 @@ export default function DebuggerAppPage() {
                     chat_history_summary: chatHistorySummary
                 };
                 queryWS.current.send(JSON.stringify(request));
+                Mixpanel.track("received_chatbot_response", {query: message});
             })
     }
 
     function onSetCodebaseId(codebaseId) {
         setCodebaseId(codebaseId);
-        console.log("jhere")
         setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
     }
 
@@ -234,13 +234,13 @@ export default function DebuggerAppPage() {
         };
         queryWS.current = ws;
 
-        fetchUserMetadata();
+        // fetchUserMetadata();
     }, [])
 
 
     useEffect(() => {
         if (prevAuthState.current !== isAuthenticated) {
-            fetchUserMetadata();
+            // fetchUserMetadata();
         }
 
         prevAuthState.current = isAuthenticated;

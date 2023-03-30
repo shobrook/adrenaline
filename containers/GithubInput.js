@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 import Button from "../components/Button";
 import { Repository } from "../library/data";
+import Mixpanel from "../library/mixpanel";
 
 class GithubInput extends Component {
     constructor(props) {
@@ -56,6 +57,7 @@ class GithubInput extends Component {
                 this.websocket.send(JSON.stringify(request));
 
                 onSetProgressMessage("Scraping repository");
+                Mixpanel.track("Scrape public repository")
             });
     }
 

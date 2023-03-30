@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Spinner from "../components/Spinner";
 import Button from "../components/Button";
 import { Repository } from "../library/data";
+import Mixpanel from "../library/mixpanel";
 
 class AuthenticatedGithubInput extends Component {
     constructor(props) {
@@ -111,6 +112,7 @@ class AuthenticatedGithubInput extends Component {
         if (win != null) {
             win.focus();
         }
+        Mixpanel.track("Connect to github")
     }
 
     onChangeSearchInput(event) {
