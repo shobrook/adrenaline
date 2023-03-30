@@ -123,9 +123,9 @@ class CodeSnippetInput extends Component {
         const { onSetCodeSnippet, onSetProgressMessage } = this.props;
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://${process.env.WEBSOCKET_URL}index_code_snippet`);
+            this.websocket = new WebSocket(`wss://${process.env.REACT_APP_WEBSOCKET_URI}index_code_snippet`);
         } else {
-            this.websocket = new WebSocket(`ws://${process.env.WEBSOCKET_URL}index_code_snippet`);
+            this.websocket = new WebSocket(`ws://${process.env.REACT_APP_WEBSOCKET_URI}index_code_snippet`);
         }
 
         this.websocket.onopen = event => { };
