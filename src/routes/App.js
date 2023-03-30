@@ -14,7 +14,6 @@ import Mixpanel from "../library/mixpanel";
 
 import "../styles/App.css";
 import SubscriptionModal from "../containers/SubscriptionModal";
-import { Toaster } from "react-hot-toast";
 
 class Message {
   constructor(content, isResponse, isComplete, isPaywalled = false) {
@@ -22,6 +21,7 @@ class Message {
     this.isResponse = isResponse;
     this.isComplete = isComplete; // Indicates whether message has finished streaming
     this.isPaywalled = isPaywalled;
+    this.steps = {};
   }
 }
 
@@ -247,9 +247,9 @@ class App extends Component {
     /* Connect to query handler websocket */
 
     if (window.location.protocol === "https:") {
-      this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
+      this.query_ws = new WebSocket(`wss://localhost:5001/answer_query`);
     } else {
-      this.query_ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
+      this.query_ws = new WebSocket(`ws://localhost:5001/answer_query`);
     }
 
     this.query_ws.onopen = event => { }; // QUESTION: Should we wait to render the rest of the site until connection is established?
@@ -269,13 +269,24 @@ class App extends Component {
         const document = new Document(`\`\`\`\n${chunk}\n\`\`\``); // TODO: Use CodeChunk
 
         this.setState({ documents: [...documents, document] });
+      } else if (type == "reasoning_step") {
+        const { message } = data;
+        const priorMessages = messages.slice(0, messages.length - 1);
+
+        let response = messages[messages.length - 1];
+
+        if (message.type in response.steps) {
+          response.steps[message.type] += message.content;
+        } else {
+          response.steps[message.type] = message.content;
+        }
+
+        this.setState({ messages: [...priorMessages, response] });
       } else if (type == "answer") {
         const { message } = data;
 
         const priorMessages = messages.slice(0, messages.length - 1);
         let response = messages[messages.length - 1];
-
-        console.log()
 
         response.content += message;
         response.isComplete = is_final;
@@ -301,7 +312,7 @@ class App extends Component {
 
   componentDidUpdate(prevProps) {
     const { isAuthenticated: prevIsAuthenticated } = prevProps.auth0;
-    const { user, getAccessTokenSilently, isAuthenticated } = this.props.auth0;
+    const { isAuthenticated } = this.props.auth0;
 
     if (prevIsAuthenticated == isAuthenticated) {
       return;
@@ -320,10 +331,6 @@ class App extends Component {
           </div>
           : null
         }
-        <Toaster
-          position="bottom-right"
-          reverseOrder={false}
-        />
       </>
     );
   }

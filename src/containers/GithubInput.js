@@ -78,9 +78,9 @@ class GithubInput extends Component {
         } = this.props;
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
+            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_url`);
         } else {
-            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_url`);
+            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_url`);
         }
 
         this.websocket.onopen = event => { };
@@ -122,51 +122,46 @@ class GithubInput extends Component {
                         const { codebase_id, name, files } = metadata;
                         const repository = new Repository(codebase_id, name, files);
                         await onSetCodebase(repository, is_paywalled);
+
+                        const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                        this.setState({ secondaryIndexingProgressId: toastId });
                     }
                 } else {
                     onSetProgressMessage(message);
                 }
-            } else {
-                // if (is_final) {
-                //     toast.success("Fine-tuning complete. Chatbot is fully optimized."); // { id: secondaryIndexingProgressId }
-                //     // this.setState({ secondaryIndexingProgressId: null });
-                // }
-                // else {
-                //     if (secondaryIndexingProgressId == null) {
-                //         const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
-                //         this.setState({ secondaryIndexingProgressId: toastId });
-                //     } else {
-                //         toast.dismiss(secondaryIndexingProgressId);
-                //     }
-                // }
+            } else if (is_final) {
+                toast.dismiss(secondaryIndexingProgressId);
+                toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
             }
         }
         this.websocket.onerror = event => { };
     }
 
     render() {
-        const { githubUrl } = this.state;
+        const { githubUrl, secondaryIndexingProgressId, } = this.state;
 
         return (
-            <div id="inputField" className="githubInput">
-                <div id="inputFieldArea">
-                    <img id={githubUrl == "" ? "passiveLink" : "activeLink"} src="./link_icon.png" />
-                    <input
-                        id="inputFieldValue"
-                        placeholder="Github repository link"
-                        onChange={this.onChangeGithubUrl}
-                        value={githubUrl}
-                        onKeyPress={this.onKeyPress}
-                    />
-                    <Button
-                        id="sendInputButton"
-                        isPrimary
-                        onClick={this.onSubmitGithubUrl}
-                    >
-                        Add
-                    </Button>
+            <>
+                <div id="inputField" className="githubInput">
+                    <div id="inputFieldArea">
+                        <img id={githubUrl == "" ? "passiveLink" : "activeLink"} src="./link_icon.png" />
+                        <input
+                            id="inputFieldValue"
+                            placeholder="Github repository link"
+                            onChange={this.onChangeGithubUrl}
+                            value={githubUrl}
+                            onKeyPress={this.onKeyPress}
+                        />
+                        <Button
+                            id="sendInputButton"
+                            isPrimary
+                            onClick={this.onSubmitGithubUrl}
+                        >
+                            Add
+                        </Button>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 }

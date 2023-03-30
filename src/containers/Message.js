@@ -1,6 +1,6 @@
-import {Component} from "react";
-import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
-import {dracula} from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Component } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import PaywallMessage from "./PaywallMessage";
 
@@ -11,12 +11,14 @@ export default class Message extends Component {
         super(props);
 
         this.renderMessage = this.renderMessage.bind(this);
+        this.renderReasoningSteps = this.renderReasoningSteps.bind(this);
+        this.renderPaywall = this.renderPaywall.bind(this);
     }
 
     /* Utilities */
 
     renderMessage() {
-        const {children} = this.props;
+        const { children } = this.props;
 
         const messageContent = children.split("```").map((text, index) => {
             // TODO: Remove trailing newlines
@@ -45,7 +47,8 @@ export default class Message extends Component {
                             return (<b>{`\`${otherText}\``}</b>);
                         }
 
-                    return otherText.replace(/^\n/, "")                    })
+                        return otherText.replace(/^\n/, "")
+                    })
                 }</pre>
             );
         });
@@ -53,27 +56,42 @@ export default class Message extends Component {
     }
 
     renderPaywall() {
-        const {isPaywalled, isComplete, onUpgradePlan} = this.props;
+        const { isPaywalled, isComplete, onUpgradePlan } = this.props;
 
         if (isPaywalled && isComplete) {
             return (
-                <PaywallMessage onUpgradePlan={onUpgradePlan}/>
+                <PaywallMessage onUpgradePlan={onUpgradePlan} />
             );
         }
+    }
+
+    renderReasoningSteps() {
+        const { steps } = this.props;
+
+        console.log(steps);
+
+        return Object.keys(steps).map(stepType => (
+            <div className="reasoningStep">
+                <span className="stepType">{stepType}:</span> <span className="stepContent">{steps[stepType]}</span>
+            </div>
+        ));
     }
 
     /* Lifecycle Methods */
 
     render() {
-        const {isResponse, isPaywalled, isComplete, children} = this.props;
+        const { isResponse, isPaywalled, isComplete, children } = this.props;
         const isLoading = isResponse && children == "" && !isComplete;
 
         return (
-            <div
-                className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""} ${isLoading ? "loadingMessage" : ""}`}>
-                {this.renderPaywall()}
-                <div className={`messageContainer ${isPaywalled ? "blocked" : ""}`}>
-                    {this.renderMessage()}
+            <div className="chatMessageContainer">
+                {this.renderReasoningSteps()}
+                <div
+                    className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""} ${isLoading ? "loadingMessage" : ""}`}>
+                    {this.renderPaywall()}
+                    <div className={`messageContainer ${isPaywalled ? "blocked" : ""}`}>
+                        {this.renderMessage()}
+                    </div>
                 </div>
             </div>
         );

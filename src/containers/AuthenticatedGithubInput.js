@@ -27,7 +27,8 @@ class AuthenticatedGithubInput extends Component {
             repositoryOptions: {},
             selectedRepository: "",
             searchInput: "",
-            isLoading: false
+            isLoading: false,
+            secondaryIndexingProgressId: null
         };
     }
 
@@ -175,13 +176,14 @@ class AuthenticatedGithubInput extends Component {
         // TODO: The websocket stuff in this component and GithubInput should be moved up a level
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_name`);
+            this.websocket = new WebSocket(`wss://localhost:5001/index_codebase_by_repo_name`);
         } else {
-            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_codebase_by_repo_name`);
+            this.websocket = new WebSocket(`ws://localhost:5001/index_codebase_by_repo_name`);
         }
 
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {
+            const { secondaryIndexingProgressId } = this.state;
             const {
                 message,
                 metadata,
@@ -217,12 +219,16 @@ class AuthenticatedGithubInput extends Component {
                         const { codebase_id, name, files, is_private } = metadata;
                         const repository = new Repository(codebase_id, name, files, is_private);
                         await onSetCodebase(repository, is_paywalled);
+
+                        const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                        this.setState({ secondaryIndexingProgressId: toastId });
                     }
                 } else {
                     onSetProgressMessage(message);
                 }
-            } else {
-                // TODO: Render notification
+            } else if (is_final) {
+                toast.dismiss(secondaryIndexingProgressId);
+                toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
             }
         }
         this.websocket.onerror = event => { };

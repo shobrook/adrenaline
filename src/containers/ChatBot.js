@@ -39,7 +39,8 @@ class ChatBot extends Component {
                             content,
                             isResponse,
                             isComplete,
-                            isPaywalled
+                            isPaywalled,
+                            steps
                         } = message;
 
                         return (
@@ -48,6 +49,7 @@ class ChatBot extends Component {
                                 isComplete={isComplete}
                                 isPaywalled={isPaywalled}
                                 onUpgradePlan={onUpgradePlan}
+                                steps={steps}
                             >
                                 {content}
                             </Message>
