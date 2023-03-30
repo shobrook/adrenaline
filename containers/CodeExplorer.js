@@ -5,6 +5,8 @@ import {dracula} from "react-syntax-highlighter/dist/cjs/styles/prism";
 import {motion} from "framer-motion";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
+import { HiTrash, HiCode } from "react-icons/hi";
+import { AiFillGithub } from "react-icons/ai";
 
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
@@ -63,6 +65,7 @@ class CodeExplorer extends Component {
         this.shouldRenderCodebaseManager = this.shouldRenderCodebaseManager.bind(this);
         this.getFileContent = this.getFileContent.bind(this);
         this.fetchCodebases = this.fetchCodebases.bind(this);
+        this.deleteCodebase = this.deleteCodebase.bind(this);
 
         this.state = DEFAULT_STATE;
     }
@@ -78,7 +81,7 @@ class CodeExplorer extends Component {
 
         getAccessTokenSilently()
             .then(async token => {
-                fetch("https://adrenaline-api-staging.up.railway.app/api/user_codebases", {
+                await fetch("https://adrenaline-api-staging.up.railway.app/api/user_codebases", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -154,6 +157,40 @@ class CodeExplorer extends Component {
         return !renderCodeSnippet && !renderRepository && !renderSelectRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
     }
 
+    deleteCodebase(codebase) {
+        const { codebaseId } = codebase;
+        const { getAccessTokenSilently, user } = this.props.auth0;
+
+        getAccessTokenSilently()
+            .then(token => {
+                fetch("http://localhost:5002/api/delete_codebase", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        user_id: user.sub,
+                        codebase_id: codebaseId
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        const { success } = data;
+
+                        if (success) {
+                            console.log("Fetching codebases")
+                            this.fetchCodebases();
+                        } else {
+                            // TODO: Display toast
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+            });
+    }
+
     /* Event Handlers */
 
     onToggleSelectPrivateRepository() {
@@ -219,7 +256,7 @@ class CodeExplorer extends Component {
 
         let currentFile = Object.keys(files)[0];
         Object.keys(files).forEach(file => {
-            if (file.toLowerCase().endsWith("readme.md")) {
+            if (file.toLowerCase().endsWith("model.py")) {
                 currentFile = file;
                 return;
             }
@@ -436,10 +473,12 @@ class CodeExplorer extends Component {
                             if (isCodeSnippet) {
                                 return (
                                     <Grid item xs={6}>
-                                        <div className="codebaseThumbnail"
-                                             onClick={() => this.onSetCodeSnippet(codebase, false)}>
-                                            <img src="./code_snippet_icon.png"/>
-                                            <span>{name}</span>
+                                        <div className="codebaseThumbnail">
+                                            <div className="codebaseName" onClick={() => this.onSetCodeSnippet(codebase, false)}>
+                                                <HiCode file="white" size={22} />
+                                                <span>{name}</span>
+                                            </div>
+                                            <HiTrash fill="white" size={22} onClick={() => this.deleteCodebase(codebase)} />
                                         </div>
                                         <div className="spacer"/>
                                     </Grid>
@@ -448,10 +487,12 @@ class CodeExplorer extends Component {
 
                             return (
                                 <Grid item xs={6}>
-                                    <div className="codebaseThumbnail"
-                                         onClick={async () => await this.onSetCodebase(codebase, false)}>
-                                        <img src="./github_icon.png"/>
-                                        <span>{name}</span>
+                                    <div className="codebaseThumbnail">
+                                        <div className="codebaseName" onClick={async () => await this.onSetCodebase(codebase, false)}>
+                                            <AiFillGithub fill="white" size={22} />
+                                            <span>{name}</span>
+                                        </div>
+                                        <HiTrash fill="white" size={22} onClick={() => this.deleteCodebase(codebase)} />
                                     </div>
                                     <div className="spacer"/>
                                 </Grid>

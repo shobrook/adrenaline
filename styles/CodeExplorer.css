@@ -62,6 +62,7 @@
 #headerLabel > span {
     /* padding-left: 10px; */
     font-weight: 500;
+    opacity: 0.75;
 }
 
 #returnToManager {
@@ -253,7 +254,7 @@
     height: 75px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     background-color: #15171f;
     /* box-shadow: 0px 1px 4px 2px #0000006b; */
     border-radius: 7px;
@@ -261,15 +262,27 @@
     cursor: pointer;
 }
 
-.codebaseThumbnail:hover {
+/* .codebaseThumbnail:hover {
     background-color: #191b26;
+} */
+
+.codebaseThumbnail > svg {
+    opacity: 0.75;
 }
 
-.codebaseThumbnail > img {
-    height: 20px;
+.codebaseThumbnail > svg:hover {
+    opacity: 1.0;
 }
 
-.codebaseThumbnail > span {
+.codebaseName {
+    display: flex;
+}
+
+.codebaseName:hover {
+    opacity: 0.75;
+}
+
+.codebaseName > span {
     font-weight: 500;
     padding-left: 10px;
 }

@@ -120,18 +120,16 @@ class CodeSnippetInput extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
-        console.log("mounted")
         const { onSetCodeSnippet, onSetProgressMessage } = this.props;
 
         if (window.location.protocol === "https:") {
-            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_code_snippet`);
+            this.websocket = new WebSocket(`wss://${process.env.WEBSOCKET_URL}index_code_snippet`);
         } else {
-            this.websocket = new WebSocket(`wss://websocket-lb.useadrenaline.com/index_code_snippet`);
+            this.websocket = new WebSocket(`ws://${process.env.WEBSOCKET_URL}index_code_snippet`);
         }
 
         this.websocket.onopen = event => { };
         this.websocket.onmessage = async event => {
-            console.log(event);
             const { code, language } = this.state;
             const { codebase_id, name, is_paywalled, error_message } = JSON.parse(event.data);
             const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);

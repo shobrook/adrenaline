@@ -99,3 +99,23 @@
     white-space: pre-wrap;
     font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 }
+
+.reasoningStep {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #4B5A91;
+    border-radius: 7px;
+    margin-bottom: 7px;
+    width: fit-content;
+    font-size: 14px;
+}
+
+.stepType {
+    font-weight: 600;
+}
+
+.stepContent {
+    opacity: 0.75;
+}
