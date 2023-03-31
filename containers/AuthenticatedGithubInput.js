@@ -53,6 +53,8 @@ class AuthenticatedGithubInput extends Component {
                 })
                     .then(res => res.json())
                     .then(data => {
+                        console.log(data)
+                        console.log("y9iii")
                         const { is_github_authenticated, repos } = data;
 
                         console.log(data);
