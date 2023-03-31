@@ -1,5 +1,5 @@
-import React, {useEffect, useRef, useState} from "react";
-import {useAuth0} from "@auth0/auth0-react";
+import React, { useEffect, useRef, useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import Header from "../containers/Header";
 import ChatBot from "../containers/ChatBot";
@@ -8,14 +8,14 @@ import Spinner from "../components/Spinner";
 
 import Mixpanel from "../library/mixpanel";
 import SubscriptionModal from "../containers/SubscriptionModal";
-import {Toaster} from "react-hot-toast";
-import {useRouter} from "next/router";
+import { Toaster } from "react-hot-toast";
+import { useRouter } from "next/router";
 
 const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a Github repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
 export default function DebuggerAppPage() {
     // create functional state variables using the component state variables from above
-    const {isAuthenticated, getAccessTokenSilently, user, isLoading} = useAuth0();
+    const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
     const [codebaseId, setCodebaseId] = useState("");
     const [messages, setMessages] = useState([new Message(WELCOME_MESSAGE, true, true)]);
     const [chatHistorySummary, setChatHistorySummary] = useState("");
@@ -33,7 +33,7 @@ export default function DebuggerAppPage() {
     function authenticateWithGithub() {
         /* Handle Github OAuth redirects */
 
-        const {code} = router.query;
+        const { code } = router.query;
         console.log(code)
 
         if (!code) {
@@ -119,9 +119,11 @@ export default function DebuggerAppPage() {
             response.isComplete = true;
         }
 
-        const priorMessages = messages.slice(0, messages.length);
-        setMessages([...priorMessages, query, response]);
-        localStorage.setItem(codebaseId, JSON.stringify(priorMessages));
+        setMessages(prevMessages => {
+            const priorMessages = prevMessages.slice(0, prevMessages.length);
+            return [...priorMessages, query, response];
+        });
+        // localStorage.setItem(codebaseId, JSON.stringify(priorMessages));
 
         if (!isAuthenticated) {
             return;
@@ -137,13 +139,13 @@ export default function DebuggerAppPage() {
                     chat_history_summary: chatHistorySummary
                 };
                 queryWS.current.send(JSON.stringify(request));
-                Mixpanel.track("received_chatbot_response", {query: message});
+                Mixpanel.track("received_chatbot_response", { query: message });
             })
     }
 
     function onSetCodebaseId(codebaseId) {
         setCodebaseId(codebaseId);
-        setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
+        // setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
     }
 
     /* Helpers */
@@ -151,12 +153,12 @@ export default function DebuggerAppPage() {
     function renderApp() {
         return (
             <div className="app">
-                <Header setShowSubscriptionModal={setShowSubscriptionModal}/>
+                <Header setShowSubscriptionModal={setShowSubscriptionModal} />
 
                 {
                     isLoading ?
                         <div id="loadingBody">
-                            <Spinner/>
+                            <Spinner />
                         </div>
                         :
                         <div className="body">
@@ -181,7 +183,7 @@ export default function DebuggerAppPage() {
     useEffect(() => {
         if (isAuthenticated) {
             Mixpanel.identify(user.sub);
-            Mixpanel.people.set({email: user.email});
+            Mixpanel.people.set({ email: user.email });
         }
 
         Mixpanel.track("load_playground");
@@ -210,37 +212,42 @@ export default function DebuggerAppPage() {
             } = JSON.parse(event.data);
 
             if (type === "code_chunk") {
-                const {chunk, file_path, summary} = data;
+                const { chunk, file_path, summary } = data;
                 const document = new Document(`\`\`\`\n${chunk}\n\`\`\``); // TODO: Use CodeChunk
 
                 setDocuments([...documents, document]);
             } else if (type === "reasoning_step") {
-                const {message} = data;
+                const { message } = data;
 
-                const priorMessages = messages.slice(0, messages.length - 1);
-                let response = messages[messages.length - 1];
+                setMessages(prevMessages => {
+                    const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
+                    let response = prevMessages[prevMessages.length - 1];
 
-                if (message.type in response.steps) {
-                    response.steps[message.type] += message.content;
-                } else {
-                    response.steps[message.type] = message.content;
-                }
+                    if (message.type in response.steps) {
+                        response.steps[message.type] += message.content;
+                    } else {
+                        response.steps[message.type] = message.content;
+                    }
 
-                setMessages([...priorMessages, response]);
+                    return [...priorMessages, response];
+                });
             } else if (type == "answer") {
-                const {message} = data;
+                const { message } = data;
 
-                const priorMessages = messages.slice(0, messages.length - 1);
-                let response = messages[messages.length - 1];
+                setMessages(prevMessages => {
+                    console.log(prevMessages)
+                    const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
+                    let response = prevMessages[prevMessages.length - 1];
 
-                response.content += message;
-                response.isComplete = is_final;
-                response.isPaywalled = is_paywalled;
+                    response.content += message;
+                    response.isComplete = is_final;
+                    response.isPaywalled = is_paywalled;
 
-                setMessages([...priorMessages, response]);
+                    return [...priorMessages, response];
+                });
                 setChatHistorySummary(chat_history_summary);
             } else if (type === "so_post") {
-                const {title, question_body, answer, link} = data;
+                const { title, question_body, answer, link } = data;
                 const document = new Document(answer); // TODO: Use StackOverflowPost
 
                 setDocuments([...documents, document]);
@@ -278,7 +285,7 @@ export default function DebuggerAppPage() {
             {renderApp()}
             {renderSubscriptionModal ?
                 <div className={"grid p-2 justify-items-center"}>
-                    <SubscriptionModal setShowSubscriptionModal={setShowSubscriptionModal}/>
+                    <SubscriptionModal setShowSubscriptionModal={setShowSubscriptionModal} />
                 </div>
                 : null
             }
