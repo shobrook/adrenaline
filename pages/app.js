@@ -30,42 +30,46 @@ export default function DebuggerAppPage() {
         console.log("router.query", router.query)
     }, [router.query])
 
-    /* Utilities */
-
-    function fetchUserMetadata() {
-
+    function authenticateWithGithub() {
         /* Handle Github OAuth redirects */
 
-        const {search} = this.props.router.location;
+        const {code} = router.query;
+        console.log(code)
+
+        if (!code) {
+            return;
+        }
 
         // TODO: Probably a better way to get query parameters than this
-        let githubCode = null;
-        if (search !== "") {
-            const searchParams = search.split("?code=");
-            githubCode = searchParams.length === 2 ? searchParams[1] : null;
-        }
-
-        if (githubCode !== null) {
-            getAccessTokenSilently()
-                .then(token => {
-                    fetch("https://adrenaline-api-staging.up.railway.app/api/github_callback", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            user_id: user.sub,
-                            github_code: githubCode
-                        })
+        // let githubCode = null;
+        // if (search !== "") {
+        //     const searchParams = search.split("?code=");
+        //     githubCode = searchParams.length === 2 ? searchParams[1] : null;
+        // }
+        // console.log("github
+        getAccessTokenSilently()
+            .then(token => {
+                fetch("https://adrenaline-api-staging.up.railway.app/api/github_callback", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        user_id: user.sub,
+                        github_code: code
                     })
-                        .then(res => res.json())
-                        .then(data => {
-                            // TODO: Update state to tell CodeExplorer to render the SelectRepository view
-                        })
                 })
-        }
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log("Data", data)
+                        // TODO: Update state to tell CodeExplorer to render the SelectRepository view
+                    })
+            })
 
+    }
+
+    function fetchUserMetadata() {
         /* Fetch user's subscription status */
 
         getAccessTokenSilently()
@@ -217,14 +221,14 @@ export default function DebuggerAppPage() {
                 let response = messages[messages.length - 1];
 
                 if (message.type in response.steps) {
-                  response.steps[message.type] += message.content;
+                    response.steps[message.type] += message.content;
                 } else {
-                  response.steps[message.type] = message.content;
+                    response.steps[message.type] = message.content;
                 }
 
                 setMessages([...priorMessages, response]);
-              } else if (type == "answer") {
-                const { message } = data;
+            } else if (type == "answer") {
+                const {message} = data;
 
                 const priorMessages = messages.slice(0, messages.length - 1);
                 let response = messages[messages.length - 1];
@@ -247,13 +251,23 @@ export default function DebuggerAppPage() {
         };
         queryWS.current = ws;
 
-        // fetchUserMetadata();
+        if (isAuthenticated) {
+            fetchUserMetadata();
+            authenticateWithGithub();
+        }
     }, [])
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            authenticateWithGithub();
+        }
+    }, [router.isReady])
 
 
     useEffect(() => {
         if (prevAuthState.current !== isAuthenticated) {
-            // fetchUserMetadata();
+            authenticateWithGithub();
+            fetchUserMetadata();
         }
 
         prevAuthState.current = isAuthenticated;
