@@ -122,7 +122,7 @@ class CodeSnippetInput extends Component {
     componentDidMount() {
         const { onSetCodeSnippet, onSetProgressMessage } = this.props;
 
-        this.websocket = new WebSocket(`wss://${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
+        this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
 
 
         this.websocket.onopen = event => { };
