@@ -1,12 +1,12 @@
 # Adrenaline
 
-Adrenaline is a chat interface for debugging your code. It's powered by vector search and large language models.
+Adrenaline lets you talk to your codebase. It's powered by static analysis, vector search, and large language models.
 
 ![Demo](demo.gif)
 
 ## Usage
 
-Adrenaline can be used [here.](https://useadrenaline.com/playground)
+Adrenaline can be used [here.](https://useadrenaline.com/app)
 
 ### Running Locally
 
