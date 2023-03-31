@@ -1,14 +1,14 @@
-import {useAuth0} from '@auth0/auth0-react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 import Button from "../components/Button";
 import Mixpanel from "../library/mixpanel";
 
 import Link from "next/link";
-import {useEffect, useState} from "react";
-import {MdKeyboardArrowDown} from "react-icons/md";
-import {AiFillStar} from "react-icons/ai";
+import { useEffect, useState } from "react";
+import { MdKeyboardArrowDown } from "react-icons/md";
+import { AiFillStar } from "react-icons/ai";
 
-export default function Header({isTransparent, setShowSubscriptionModal}) {
+export default function Header({ isTransparent, setShowSubscriptionModal }) {
     const {
         isAuthenticated,
         loginWithRedirect,
@@ -36,7 +36,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
 
     const onLogout = () => {
         Mixpanel.track("click_logout");
-        logout({returnTo: window.location.origin});
+        logout({ returnTo: window.location.origin });
     };
 
     const onLogIn = () => {
@@ -62,7 +62,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
         <div className={isTransparent ? "header transparent" : "header"}>
             <div className="logo">
                 <Link href="/">
-                    <img src="./logo.png" alt={"our logo"}/>
+                    <img src="./logo.png" alt={"our logo"} />
                 </Link>
             </div>
             <div className="buttons">
@@ -71,13 +71,13 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
                         Discord
                     </a>
                     <a className="githubIcon" href="https://github.com/shobrook/adrenaline/" target="_blank">
-                        Github&nbsp;·&nbsp;<span className={"star-count"}>{starsCount}<AiFillStar/></span>
+                        GitHub&nbsp;·&nbsp;<span className={"star-count"}>{starsCount}<AiFillStar /></span>
                     </a>
                 </div>
                 <div className="ctaButtons">
                     {isAuthenticated ? (
                         <UserNavDropdown user={user} onLogout={onLogout}
-                                         setShowSubscriptionModal={setShowSubscriptionModal}/>
+                            setShowSubscriptionModal={setShowSubscriptionModal} />
                     ) : (
                         <>
                             <Button
@@ -100,7 +100,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
             <div className="compactButtons">
                 {isAuthenticated ? (
                     <UserNavDropdown user={user} onLogout={onLogout}
-                                     setShowSubscriptionModal={setShowSubscriptionModal}/>
+                        setShowSubscriptionModal={setShowSubscriptionModal} />
                 ) : (
                     <>
                         <Button isPrimary={false} onClick={onLogIn}>Log in</Button>
@@ -111,7 +111,7 @@ export default function Header({isTransparent, setShowSubscriptionModal}) {
     );
 }
 
-const UserNavDropdown = ({user, onLogout, setShowSubscriptionModal}) => {
+const UserNavDropdown = ({ user, onLogout, setShowSubscriptionModal }) => {
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
     const toggleDropdown = () => {
@@ -129,7 +129,7 @@ const UserNavDropdown = ({user, onLogout, setShowSubscriptionModal}) => {
                     alt="User profile"
                     className="profile-picture"
                 />
-                <MdKeyboardArrowDown fill={"lightgrey"} size={24}/>
+                <MdKeyboardArrowDown fill={"lightgrey"} size={24} />
             </div>
             {dropdownVisible && (
                 <div className="dropdown-menu">

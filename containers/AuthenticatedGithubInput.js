@@ -115,7 +115,7 @@ class AuthenticatedGithubInput extends Component {
         if (win != null) {
             win.focus();
         }
-        Mixpanel.track("Connect to github")
+        Mixpanel.track("Connect to GitHub")
     }
 
     onChangeSearchInput(event) {

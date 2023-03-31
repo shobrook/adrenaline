@@ -11,7 +11,7 @@ import SubscriptionModal from "../containers/SubscriptionModal";
 import { Toaster } from "react-hot-toast";
 import { useRouter } from "next/router";
 
-const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a Github repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
+const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
 export default function DebuggerAppPage() {
     // create functional state variables using the component state variables from above

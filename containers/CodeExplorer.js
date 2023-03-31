@@ -1,8 +1,8 @@
-import {Component} from "react";
-import {withAuth0} from "@auth0/auth0-react";
-import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
-import {dracula} from "react-syntax-highlighter/dist/cjs/styles/prism";
-import {motion} from "framer-motion";
+import { Component } from "react";
+import { withAuth0 } from "@auth0/auth0-react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { motion } from "framer-motion";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import { HiTrash, HiCode } from "react-icons/hi";
@@ -16,9 +16,9 @@ import FileStructure from "./FileStructure";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
-import {CodeSnippet, Repository} from "../library/data";
+import { CodeSnippet, Repository } from "../library/data";
 
-import {formControlClasses} from "@mui/material";
+import { formControlClasses } from "@mui/material";
 import Mixpanel from "../library/mixpanel";
 import toast from "react-hot-toast";
 
@@ -74,7 +74,7 @@ class CodeExplorer extends Component {
     /* Utilities */
 
     fetchCodebases() {
-        const {getAccessTokenSilently, isAuthenticated, user} = this.props.auth0;
+        const { getAccessTokenSilently, isAuthenticated, user } = this.props.auth0;
 
         if (!isAuthenticated) {
             return;
@@ -88,11 +88,11 @@ class CodeExplorer extends Component {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
-                    body: JSON.stringify({user_id: user.sub})
+                    body: JSON.stringify({ user_id: user.sub })
                 })
                     .then(res => res.json())
                     .then(data => {
-                        const {codebases} = data;
+                        const { codebases } = data;
 
                         this.setState({
                             codebases: codebases.map(codebase => {
@@ -120,7 +120,7 @@ class CodeExplorer extends Component {
     }
 
     async getFileContent(fileUrl, isPrivateRepo) {
-        const {user, getAccessTokenSilently} = this.props.auth0;
+        const { user, getAccessTokenSilently } = this.props.auth0;
 
         return await getAccessTokenSilently()
             .then(async token => {
@@ -138,7 +138,7 @@ class CodeExplorer extends Component {
                 })
                     .then(res => res.json())
                     .then(data => {
-                        const {file_content} = data;
+                        const { file_content } = data;
                         return file_content;
                     })
                     .catch(error => {
@@ -201,14 +201,14 @@ class CodeExplorer extends Component {
     /* Event Handlers */
 
     onToggleSelectPrivateRepository() {
-        const {renderSelectPrivateRepository} = this.state;
-        this.setState({renderSelectPrivateRepository: !renderSelectPrivateRepository});
+        const { renderSelectPrivateRepository } = this.state;
+        this.setState({ renderSelectPrivateRepository: !renderSelectPrivateRepository });
     }
 
     onSetCodeSnippet(codeSnippet, isPaywalled) {
-        const {onSetCodebaseId} = this.props;
-        const {currentCodeContext} = this.state;
-        const {codebaseId, name, code, language} = codeSnippet;
+        const { onSetCodebaseId } = this.props;
+        const { currentCodeContext } = this.state;
+        const { codebaseId, name, code, language } = codeSnippet;
 
         onSetCodebaseId(codebaseId);
         this.setState({
@@ -242,13 +242,13 @@ class CodeExplorer extends Component {
     }
 
     onToggleFileTree() {
-        const {renderFileTree} = this.state;
-        this.setState({renderFileTree: !renderFileTree});
+        const { renderFileTree } = this.state;
+        this.setState({ renderFileTree: !renderFileTree });
     }
 
     async onSetCodebase(repository, isPaywalled) {
-        const {onSetCodebaseId} = this.props;
-        const {codebaseId, files, isPrivate} = repository;
+        const { onSetCodebaseId } = this.props;
+        const { codebaseId, files, isPrivate } = repository;
 
         onSetCodebaseId(codebaseId);
 
@@ -287,7 +287,7 @@ class CodeExplorer extends Component {
     }
 
     async onSelectFile(filePath) {
-        const {files, isPrivate} = this.state.currentCodeContext;
+        const { files, isPrivate } = this.state.currentCodeContext;
         const fileUrl = files[filePath].url;
         const fileLanguage = files[filePath].language;
         const fileContent = await this.getFileContent(fileUrl, isPrivate);
@@ -318,8 +318,8 @@ class CodeExplorer extends Component {
     /* Renderers */
 
     renderFileTree() {
-        const {renderFileTree} = this.state;
-        const {files} = this.state.currentCodeContext;
+        const { renderFileTree } = this.state;
+        const { files } = this.state.currentCodeContext;
         const filePaths = Object.keys(files);
 
         return (
@@ -332,7 +332,7 @@ class CodeExplorer extends Component {
     }
 
     renderSelectCodeSnippet() {
-        const {renderSelectCodeSnippet} = this.state;
+        const { renderSelectCodeSnippet } = this.state;
 
         if (!renderSelectCodeSnippet) {
             return null;
@@ -351,7 +351,7 @@ class CodeExplorer extends Component {
             renderCodeSnippet,
             renderRepository
         } = this.state;
-        const {code, language} = this.state.currentCodeContext;
+        const { code, language } = this.state.currentCodeContext;
 
         if (!renderRepository && !renderCodeSnippet) {
             return null;
@@ -372,7 +372,7 @@ class CodeExplorer extends Component {
     }
 
     renderIndexingProgress() {
-        const {renderIndexingProgress, progressMessage} = this.state;
+        const { renderIndexingProgress, progressMessage } = this.state;
 
         if (!renderIndexingProgress) {
             return null;
@@ -380,14 +380,14 @@ class CodeExplorer extends Component {
 
         return (
             <div id="indexingProgress">
-                <Spinner/>
+                <Spinner />
                 <span>{progressMessage}</span>
             </div>
         );
     }
 
     renderSecondaryIndexingProgress() {
-        const {renderSecondaryIndexingProgress, progressMessage} = this.state;
+        const { renderSecondaryIndexingProgress, progressMessage } = this.state;
 
         if (!renderSecondaryIndexingProgress) {
             return null;
@@ -401,7 +401,7 @@ class CodeExplorer extends Component {
     }
 
     renderSelectRepository() {
-        const {renderSelectRepository, renderSelectPrivateRepository} = this.state;
+        const { renderSelectRepository, renderSelectPrivateRepository } = this.state;
 
         if (!renderSelectRepository) {
             return null;
@@ -410,8 +410,8 @@ class CodeExplorer extends Component {
         return (
             <div id="selectRepository">
                 <div id="selectRepositoryHeading">
-                    <span id="selectHeading">Add a Github repository</span>
-                    <span id="selectSubheading">Paste a link to a public repository or import your own by authenticating with Github.</span>
+                    <span id="selectHeading">Add a GitHub repository</span>
+                    <span id="selectSubheading">Paste a link to a public repository or import your own by authenticating with GitHub.</span>
                 </div>
 
                 <div id="repoSwitch">
@@ -446,7 +446,7 @@ class CodeExplorer extends Component {
     }
 
     renderCodebaseManager() {
-        const {codebases} = this.state;
+        const { codebases } = this.state;
         const renderCodebaseManager = this.shouldRenderCodebaseManager();
 
         if (!renderCodebaseManager) {
@@ -454,12 +454,12 @@ class CodeExplorer extends Component {
         }
 
         const handleAddRepository = () => {
-            this.setState({renderSelectRepository: true})
+            this.setState({ renderSelectRepository: true })
             Mixpanel.track("Add repository")
         }
 
         const handleAddCodeSnippet = () => {
-            this.setState({renderSelectCodeSnippet: true})
+            this.setState({ renderSelectCodeSnippet: true })
             Mixpanel.track("Add a code snippet")
         }
 
@@ -475,7 +475,7 @@ class CodeExplorer extends Component {
                     </Grid>
                     {
                         codebases.map(codebase => {
-                            const {name, isCodeSnippet} = codebase;
+                            const { name, isCodeSnippet } = codebase;
 
                             if (isCodeSnippet) {
                                 return (
@@ -487,7 +487,7 @@ class CodeExplorer extends Component {
                                             </div>
                                             <HiTrash fill="white" size={22} onClick={() => this.deleteCodebase(codebase)} />
                                         </div>
-                                        <div className="spacer"/>
+                                        <div className="spacer" />
                                     </Grid>
                                 )
                             }
@@ -501,7 +501,7 @@ class CodeExplorer extends Component {
                                         </div>
                                         <HiTrash fill="white" size={22} onClick={() => this.deleteCodebase(codebase)} />
                                     </div>
-                                    <div className="spacer"/>
+                                    <div className="spacer" />
                                 </Grid>
                             );
                         })
@@ -512,11 +512,11 @@ class CodeExplorer extends Component {
     }
 
     renderPaywall() {
-        const {renderPaywall} = this.state;
-        const {onUpgradePlan} = this.props;
+        const { renderPaywall } = this.state;
+        const { onUpgradePlan } = this.props;
 
         if (renderPaywall) {
-            return <PaywallMessage className="codeExplorerPaywall" onUpgradePlan={onUpgradePlan}/>;
+            return <PaywallMessage className="codeExplorerPaywall" onUpgradePlan={onUpgradePlan} />;
         }
 
         return null;
@@ -529,7 +529,7 @@ class CodeExplorer extends Component {
             renderSelectRepository,
             renderSelectCodeSnippet
         } = this.state;
-        const {currentFile} = this.state.currentCodeContext;
+        const { currentFile } = this.state.currentCodeContext;
 
         if (renderSelectRepository) {
             return (
@@ -547,7 +547,7 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        <img src="./file_tree_icon.png" onClick={this.onToggleFileTree}/>
+                        <img src="./file_tree_icon.png" onClick={this.onToggleFileTree} />
                         <span>{currentFile}</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
@@ -571,7 +571,7 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        <img src="./code_snippet_icon.png"/>
+                        <img src="./code_snippet_icon.png" />
                         <span>Code snippet</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
@@ -612,7 +612,7 @@ class CodeExplorer extends Component {
     }
 
     render() {
-        const {renderRepository, renderFileTree, renderPaywall} = this.state;
+        const { renderRepository, renderFileTree, renderPaywall } = this.state;
 
         if (renderRepository) {
             let codeContentClassName = renderFileTree ? "truncatedCodeContent" : "";
@@ -628,8 +628,8 @@ class CodeExplorer extends Component {
                         initial="closed"
                         animate={renderFileTree ? "open" : "closed"}
                         variants={{
-                            open: {width: "70%"},
-                            closed: {width: "100%"}
+                            open: { width: "70%" },
+                            closed: { width: "100%" }
                         }}
                     >
                         {this.renderHeader()}
