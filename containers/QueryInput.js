@@ -48,11 +48,12 @@ class QueryInput extends Component {
         return (
             <div id="inputField">
                 <div id="inputFieldArea">
-                    <textarea
+                    <input
                         id="inputFieldValue"
                         placeholder="Ask a question"
                         onChange={this.onChangeQuery}
                         value={query}
+                        onKeyPress={this.onKeyPress}
                     />
                     <Button
                         id="sendInputButton"

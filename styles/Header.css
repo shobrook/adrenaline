@@ -63,6 +63,11 @@
     color: #d93cff;
 }
 
+.star-count > svg {
+    padding-left: 5px;
+    padding-top: 1px;
+}
+
 .discordIcon:hover, .githubIcon:hover {
     opacity: 0.75;
 }

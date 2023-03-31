@@ -137,3 +137,7 @@
         transform: scale(0.95);
     }
 }
+
+[contentEditable=true]:empty:not(:focus):before {
+    content: attr(data-text)
+}
