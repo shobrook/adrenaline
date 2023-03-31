@@ -16,7 +16,7 @@ export default function LandingPage() {
 
     function onGetStarted() {
         Mixpanel.track("click_get_started", {isAuthenticated});
-        router.push("/debugger");
+        router.push("/app");
     }
 
     useEffect(() => {
