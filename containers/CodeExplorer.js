@@ -304,6 +304,9 @@ class CodeExplorer extends Component {
     }
 
     onReturnToManager() {
+        const { onSetCodebaseId } = this.props;
+        onSetCodebaseId("")
+
         this.setState({
             renderCodeSnippet: false,
             renderRepository: false,

@@ -25,6 +25,7 @@ export default function DebuggerAppPage() {
     const queryWS = useRef(null);
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
+    console.log(codebaseId)
 
     useEffect(() => {
         console.log("router.query", router.query)
@@ -121,6 +122,8 @@ export default function DebuggerAppPage() {
 
         setMessages(prevMessages => {
             const priorMessages = prevMessages.slice(0, prevMessages.length);
+            localStorage.setItem(codebaseId, JSON.stringify(priorMessages));
+            console.log("priorMessages", priorMessages)
             return [...priorMessages, query, response];
         });
         // localStorage.setItem(codebaseId, JSON.stringify(priorMessages));
@@ -145,7 +148,14 @@ export default function DebuggerAppPage() {
 
     function onSetCodebaseId(codebaseId) {
         setCodebaseId(codebaseId);
-        // setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
+        const priorMessages = JSON.parse(localStorage.getItem(codebaseId))
+        if (priorMessages) {
+            setMessages(priorMessages);
+        } else {
+            const newMessages = [new Message(WELCOME_MESSAGE, true, true)];
+            setMessages(newMessages);
+            localStorage.setItem(codebaseId, JSON.stringify(newMessages));
+        }
     }
 
     /* Helpers */
