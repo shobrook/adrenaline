@@ -38,15 +38,13 @@ class QueryInput extends Component {
         }
     };
 
-    /* Lifecycle Methods */
-
     render() {
         const { query } = this.state;
 
         return (
             <div id="inputField">
                 <div id="inputFieldArea">
-                    <input
+                    <textarea
                         id="inputFieldValue"
                         placeholder="Ask a question"
                         onChange={this.onChangeQuery}
