@@ -33,7 +33,8 @@ class GithubInput extends Component {
         } = this.props.auth0;
         const { githubUrl } = this.state;
 
-        if (githubUrl == "") {
+        if (githubUrl === "") {
+            toast.error("Please enter a GitHub URL");
             return;
         }
 
@@ -91,7 +92,23 @@ class GithubInput extends Component {
                 error_message
             } = JSON.parse(event.data);
 
-            if (error_message != "") {
+            if (error_message !== "") {
+                console.log()
+                if (error_message.includes("Invalid")) {
+                    toast.error("To upload your private repository, connect with GitHub", {
+                        style: {
+                            borderRadius: "7px",
+                            background: "#FB4D3D",
+                            color: "#fff",
+                        },
+                        iconTheme: {
+                            primary: '#ffffff7a',
+                            secondary: '#fff',
+                        }
+                    });
+                    onSetProgressMessage("", true);
+                    return;
+                }
                 toast.error(error_message, {
                     style: {
                         borderRadius: "7px",
@@ -140,7 +157,7 @@ class GithubInput extends Component {
             <>
                 <div id="inputField" className="githubInput">
                     <div id="inputFieldArea">
-                        <img id={githubUrl == "" ? "passiveLink" : "activeLink"} src="./link_icon.png" />
+                        <img id={githubUrl === "" ? "passiveLink" : "activeLink"} src="./link_icon.png" />
                         <input
                             id="inputFieldValue"
                             placeholder="Github repository link"
