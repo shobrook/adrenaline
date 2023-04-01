@@ -32,13 +32,11 @@ class QueryInput extends Component {
         this.setState({ query: "" });
     }
 
-    onKeyPress(event) {
-        const code = event.keyCode || event.which;
-
-        if (code === 13) {
+    onKeyPress = (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
             this.onSubmitQuery();
         }
-    }
+    };
 
     /* Lifecycle Methods */
 
