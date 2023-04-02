@@ -1,12 +1,11 @@
-import { useAuth0 } from '@auth0/auth0-react';
-
-import Button from "../components/Button";
-import Mixpanel from "../library/mixpanel";
-
+import { useAuth0 } from "@auth0/auth0-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { AiFillStar } from "react-icons/ai";
+
+import Button from "../components/Button";
+import Mixpanel from "../library/mixpanel";
 
 export default function Header({ isTransparent, setShowSubscriptionModal }) {
     const {
@@ -22,7 +21,8 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
             const res = await fetch(`https://api.github.com/repos/shobrook/adrenaline`);
 
             if (!res.ok) {
-                throw new Error("Failed to fetch stars count for adrenaline");
+                // throw new Error("Failed to fetch stars count for adrenaline");
+                return 1900;
             }
 
             const data = await res.json();
@@ -76,7 +76,7 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
                 </div>
                 <div className="ctaButtons">
                     {isAuthenticated ? (
-                        <UserNavDropdown user={user} onLogout={onLogout}
+                        <UserNavDropdown onLogout={onLogout}
                             setShowSubscriptionModal={setShowSubscriptionModal} />
                     ) : (
                         <>
@@ -99,7 +99,7 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
             </div>
             <div className="compactButtons">
                 {isAuthenticated ? (
-                    <UserNavDropdown user={user} onLogout={onLogout}
+                    <UserNavDropdown onLogout={onLogout}
                         setShowSubscriptionModal={setShowSubscriptionModal} />
                 ) : (
                     <>
@@ -111,12 +111,36 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
     );
 }
 
-const UserNavDropdown = ({ user, onLogout, setShowSubscriptionModal }) => {
+const UserNavDropdown = ({ onLogout, setShowSubscriptionModal }) => {
+    const { getAccessTokenSilently, user } = useAuth0();
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
     const toggleDropdown = () => {
         setDropdownVisible(!dropdownVisible);
     };
+
+    const onClickManageAccount = () => {
+        getAccessTokenSilently()
+            .then(token => {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/stripe/create_portal_session`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ user_id: user.sub })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        const { portal_url } = data;
+
+                        const win = window.open(portal_url, "_blank");
+                        if (win != null) {
+                            win.focus();
+                        }
+                    })
+            })
+    }
 
     return (
         <div className="user-nav-dropdown">
@@ -134,7 +158,7 @@ const UserNavDropdown = ({ user, onLogout, setShowSubscriptionModal }) => {
             {dropdownVisible && (
                 <div className="dropdown-menu">
                     <div className={"dropdown-item"}>
-                        <a href={"#pricingSection"}>Manage Account</a>
+                        <a onClick={onClickManageAccount}>Manage Account</a>
                     </div>
                     <div className={"dropdown-item"} onClick={onLogout}>
                         Logout

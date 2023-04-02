@@ -55,9 +55,9 @@ export default function SubscriptionModal({ setShowSubscriptionModal }) {
 
                     <div id="paymentPlans">
                         <PaymentPlan
-                            lookupKey="premium"
+                            lookupKey="premium_reduced"
                             planName="PREMIUM"
-                            price="10"
+                            price="5"
                             features={[
                                 "100 chat messages.",
                                 "15 repositories.",
@@ -66,9 +66,9 @@ export default function SubscriptionModal({ setShowSubscriptionModal }) {
                         />
                         <div id="spacer" />
                         <PaymentPlan
-                            lookupKey="power"
+                            lookupKey="power_reduced"
                             planName="POWER"
-                            price="20"
+                            price="10"
                             features={[
                                 "Unlimited chat messages.",
                                 "25 repositories.",

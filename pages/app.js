@@ -49,7 +49,7 @@ export default function DebuggerAppPage() {
         // console.log("github
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://adrenaline-api-staging.up.railway.app/api/github_callback", {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/github_callback`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default function DebuggerAppPage() {
 
         getAccessTokenSilently()
             .then(token => {
-                fetch("https://adrenaline-api-staging.up.railway.app/api/stripe/subscription_status", {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/stripe/subscription_status`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -192,12 +192,7 @@ export default function DebuggerAppPage() {
 
         /* Connect to query handler websocket */
 
-        let ws;
-        if (window.location.protocol === "https:") {
-            ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
-        } else {
-            ws = new WebSocket(`wss://websocket-lb.useadrenaline.com/answer_query`);
-        }
+        let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}answer_query`);
 
         ws.onopen = event => {
         }; // QUESTION: Should we wait to render the rest of the site until connection is established?

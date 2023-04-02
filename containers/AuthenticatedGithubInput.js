@@ -99,15 +99,12 @@ class AuthenticatedGithubInput extends Component {
     /* Event Handlers */
 
     onGithubAuthentication() {
-        const clientId = "fcaf8f61d70e5de447c9";
-        const redirectUri = "https://useadrenaline.com/app";
-        // const redirectUri = "http://localhost:3000/debugger";
         // const login = ""; // TODO: Populate this if user is already authenticated with Github
         const scope = "read:project";
 
         let authUrl = "https://github.com/login/oauth/authorize?"
-        authUrl += `client_id=${clientId}`;
-        authUrl += `&redirect_uri=${redirectUri}`;
+        authUrl += `client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`;
+        authUrl += `&redirect_uri=${process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI}`;
         // authUrl += `&login=${login}`;
         authUrl += `&scope=${scope}`;
 
