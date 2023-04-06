@@ -18,17 +18,13 @@ export default function DebuggerAppPage() {
     const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
     const [codebaseId, setCodebaseId] = useState("");
     const [messages, setMessages] = useState([new Message(WELCOME_MESSAGE, true, true)]);
-    const [chatHistorySummary, setChatHistorySummary] = useState("");
+    // const [chatHistorySummary, setChatHistorySummary] = useState("");
     const [documents, setDocuments] = useState([]);
     const [subscriptionStatus, setSubscriptionStatus] = useState({});
     const [renderSubscriptionModal, setRenderSubscriptionModal] = useState(false);
     const queryWS = useRef(null);
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
-
-    useEffect(() => {
-        console.log("router.query", router.query)
-    }, [router.query])
 
     function authenticateWithGithub() {
         /* Handle Github OAuth redirects */
@@ -67,6 +63,15 @@ export default function DebuggerAppPage() {
                     })
             })
 
+    }
+
+    function getChatHistory() {
+        return messages.map(message => {
+            return {
+                content: message.content,
+                is_response: message.isResponse
+            };
+        });
     }
 
     function fetchUserMetadata() {
@@ -136,7 +141,7 @@ export default function DebuggerAppPage() {
                     token: token,
                     codebase_id: codebaseId,
                     query: message,
-                    chat_history_summary: chatHistorySummary
+                    chat_history: getChatHistory()
                 };
                 queryWS.current.send(JSON.stringify(request));
                 Mixpanel.track("received_chatbot_response", { query: message });
@@ -202,7 +207,6 @@ export default function DebuggerAppPage() {
                 data,
                 is_final,
                 is_paywalled,
-                chat_history_summary,
                 error_message
             } = JSON.parse(event.data);
 
@@ -240,7 +244,7 @@ export default function DebuggerAppPage() {
 
                     return [...priorMessages, response];
                 });
-                setChatHistorySummary(chat_history_summary);
+                // setChatHistorySummary(chat_history_summary);
             } else if (type === "so_post") {
                 const { title, question_body, answer, link } = data;
                 const document = new Document(answer); // TODO: Use StackOverflowPost

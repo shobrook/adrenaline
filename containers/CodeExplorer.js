@@ -77,6 +77,7 @@ class CodeExplorer extends Component {
         const { getAccessTokenSilently, isAuthenticated, user } = this.props.auth0;
 
         if (!isAuthenticated) {
+            console.log("isn't authenticated")
             return;
         }
 
