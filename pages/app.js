@@ -30,19 +30,11 @@ export default function DebuggerAppPage() {
         /* Handle Github OAuth redirects */
 
         const { code } = router.query;
-        console.log(code)
 
         if (!code) {
             return;
         }
 
-        // TODO: Probably a better way to get query parameters than this
-        // let githubCode = null;
-        // if (search !== "") {
-        //     const searchParams = search.split("?code=");
-        //     githubCode = searchParams.length === 2 ? searchParams[1] : null;
-        // }
-        // console.log("github
         getAccessTokenSilently()
             .then(token => {
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}api/github_callback`, {

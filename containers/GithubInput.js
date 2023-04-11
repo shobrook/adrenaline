@@ -130,7 +130,34 @@ class GithubInput extends Component {
                 toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
             }
         }
-        this.websocket.onerror = event => { };
+        this.websocket.onerror = event => {
+            onSetProgressMessage("", true);
+            toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                style: {
+                    borderRadius: "7px",
+                    background: "#FB4D3D",
+                    color: "#fff",
+                },
+                iconTheme: {
+                    primary: '#ffffff7a',
+                    secondary: '#fff',
+                }
+            });
+        };
+        this.websocket.onclose = event => {
+            onSetProgressMessage("", true);
+            toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                style: {
+                    borderRadius: "7px",
+                    background: "#FB4D3D",
+                    color: "#fff",
+                },
+                iconTheme: {
+                    primary: '#ffffff7a',
+                    secondary: '#fff',
+                }
+            });
+        };
     }
 
     render() {

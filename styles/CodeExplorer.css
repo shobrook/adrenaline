@@ -96,7 +96,7 @@
     width: 100%;
     height: calc(100% - 60px);
     overflow: auto;
-    
+    border-radius: 0px 0px 5px 5px;
 }
 
 #codeContextOptions {
@@ -285,4 +285,13 @@
 .codebaseName > span {
     font-weight: 500;
     padding-left: 10px;
+}
+
+.linenumber {
+    min-width: 0px !important;
+    padding-right: 1.5em !important;
+}
+
+#codeSnippetIcon {
+    height: 17px !important;
 }

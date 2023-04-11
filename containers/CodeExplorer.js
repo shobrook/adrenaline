@@ -572,7 +572,7 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        <img src="./code_snippet_icon.png" />
+                        <img id="codeSnippetIcon" src="./code_snippet_icon.png" />
                         <span>Code snippet</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
