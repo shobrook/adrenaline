@@ -181,7 +181,7 @@ class AuthenticatedGithubInput extends Component {
                                 await onSetCodebase(repository, is_paywalled);
                             } else {
                                 const { codebase_id, name, files, is_private } = metadata;
-                                const repository = new Repository(codebase_id, name, files, is_private);
+                                const repository = new Repository(codebase_id, name, files, repo.is_private);
                                 await onSetCodebase(repository, is_paywalled);
 
                                 const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
