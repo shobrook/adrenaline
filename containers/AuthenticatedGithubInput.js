@@ -124,10 +124,7 @@ class AuthenticatedGithubInput extends Component {
     }
 
     onSelectRepository(repo) {
-        console.log("Selected repo:")
-        console.log(repo);
-
-        const { onSetProgressMessage } = this.props;
+        const { onSetProgressMessage, onSetCodebase } = this.props;
         const {
             getAccessTokenSilently,
             user
@@ -135,15 +132,99 @@ class AuthenticatedGithubInput extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                const request = {
-                    user_id: user.sub,
-                    token: token,
-                    repo_name: `${repo.owner}/${repo.name}`,
-                    refresh_index: false // TEMP
-                };
-                this.websocket.send(JSON.stringify(request));
+                // TODO: The websocket stuff in this component and GithubInput should be moved up a level
 
-                onSetProgressMessage("Scraping repository");
+                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_name`);
+                this.websocket.onopen = event => {
+                    const request = {
+                        user_id: user.sub,
+                        token: token,
+                        repo_name: `${repo.owner}/${repo.name}`,
+                        refresh_index: false // TEMP
+                    };
+                    this.websocket.send(JSON.stringify(request));
+
+                    onSetProgressMessage("Scraping repository");
+                };
+                this.websocket.onmessage = async event => {
+                    const { secondaryIndexingProgressId } = this.state;
+                    const {
+                        message,
+                        metadata,
+                        is_final,
+                        is_paywalled,
+                        is_fast,
+                        error_message
+                    } = JSON.parse(event.data);
+
+                    if (error_message != "") {
+                        toast.error(error_message, {
+                            style: {
+                                borderRadius: "7px",
+                                background: "#FB4D3D",
+                                color: "#fff",
+                            },
+                            iconTheme: {
+                                primary: '#ffffff7a'
+                            }
+                        });
+                        onSetProgressMessage("", true);
+                        return;
+                    }
+
+                    if (is_fast) {
+                        if (is_final) {
+                            onSetProgressMessage("");
+
+                            if (is_paywalled) {
+                                const repository = new Repository("", "", {});
+                                await onSetCodebase(repository, is_paywalled);
+                            } else {
+                                const { codebase_id, name, files, is_private } = metadata;
+                                const repository = new Repository(codebase_id, name, files, is_private);
+                                await onSetCodebase(repository, is_paywalled);
+
+                                const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                                this.setState({ secondaryIndexingProgressId: toastId });
+                            }
+                        } else {
+                            onSetProgressMessage(message);
+                        }
+                    } else if (is_final) {
+                        toast.dismiss(secondaryIndexingProgressId);
+                        toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
+
+                        this.websocket.close();
+                    }
+                }
+                this.websocket.onerror = event => {
+                    onSetProgressMessage("", true);
+                    toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                        style: {
+                            borderRadius: "7px",
+                            background: "#FB4D3D",
+                            color: "#fff",
+                        },
+                        iconTheme: {
+                            primary: '#ffffff7a',
+                            secondary: '#fff',
+                        }
+                    });
+                };
+                // this.websocket.onclose = event => {
+                //     onSetProgressMessage("", true);
+                //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                //         style: {
+                //             borderRadius: "7px",
+                //             background: "#FB4D3D",
+                //             color: "#fff",
+                //         },
+                //         iconTheme: {
+                //             primary: '#ffffff7a',
+                //             secondary: '#fff',
+                //         }
+                //     });
+                // };
             });
     }
 
@@ -168,92 +249,7 @@ class AuthenticatedGithubInput extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
-        const { onSetProgressMessage, onSetCodebase } = this.props;
-
         this.fetchRepositoryOptions();
-
-        // TODO: The websocket stuff in this component and GithubInput should be moved up a level
-
-        this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_name`);
-
-        this.websocket.onopen = event => { };
-        this.websocket.onmessage = async event => {
-            const { secondaryIndexingProgressId } = this.state;
-            const {
-                message,
-                metadata,
-                is_final,
-                is_paywalled,
-                is_fast,
-                error_message
-            } = JSON.parse(event.data);
-
-            if (error_message != "") {
-                toast.error(error_message, {
-                    style: {
-                        borderRadius: "7px",
-                        background: "#FB4D3D",
-                        color: "#fff",
-                    },
-                    iconTheme: {
-                        primary: '#ffffff7a'
-                    }
-                });
-                onSetProgressMessage("", true);
-                return;
-            }
-
-            if (is_fast) {
-                if (is_final) {
-                    onSetProgressMessage("");
-
-                    if (is_paywalled) {
-                        const repository = new Repository("", "", {});
-                        await onSetCodebase(repository, is_paywalled);
-                    } else {
-                        const { codebase_id, name, files, is_private } = metadata;
-                        const repository = new Repository(codebase_id, name, files, is_private);
-                        await onSetCodebase(repository, is_paywalled);
-
-                        const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
-                        this.setState({ secondaryIndexingProgressId: toastId });
-                    }
-                } else {
-                    onSetProgressMessage(message);
-                }
-            } else if (is_final) {
-                toast.dismiss(secondaryIndexingProgressId);
-                toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
-            }
-        }
-        this.websocket.onerror = event => {
-            onSetProgressMessage("", true);
-            toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                style: {
-                    borderRadius: "7px",
-                    background: "#FB4D3D",
-                    color: "#fff",
-                },
-                iconTheme: {
-                    primary: '#ffffff7a',
-                    secondary: '#fff',
-                }
-            });
-        };
-        this.websocket.onclose = event => {
-            onSetProgressMessage("", true);
-            toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                style: {
-                    borderRadius: "7px",
-                    background: "#FB4D3D",
-                    color: "#fff",
-                },
-                iconTheme: {
-                    primary: '#ffffff7a',
-                    secondary: '#fff',
-                }
-            });
-        };
     }
 
     componentDidUpdate(previousProps, previousState) {

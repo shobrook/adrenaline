@@ -81,7 +81,7 @@ class CodeSnippetInput extends Component {
     }
 
     onSubmitCode() {
-        const { onSetProgressMessage } = this.props;
+        const { onSetCodeSnippet, onSetProgressMessage } = this.props;
         const {
             isAuthenticated,
             loginWithRedirect,
@@ -105,39 +105,35 @@ class CodeSnippetInput extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                const request = {
-                    user_id: user.sub,
-                    token: token,
-                    language: language.value,
-                    code
-                };
-                this.websocket.send(JSON.stringify(request));
+                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
+                this.websocket.onopen = event => {
+                    const request = {
+                        user_id: user.sub,
+                        token: token,
+                        language: language.value,
+                        code
+                    };
+                    this.websocket.send(JSON.stringify(request));
 
-                onSetProgressMessage("Analyzing code");
+                    onSetProgressMessage("Analyzing code");
+                };
+                this.websocket.onmessage = async event => {
+                    const { code, language } = this.state;
+                    const { codebase_id, name, is_paywalled, error_message } = JSON.parse(event.data);
+                    const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);
+
+                    onSetProgressMessage("");
+                    onSetCodeSnippet(codeSnippet, is_paywalled);
+
+                    this.websocket.close();
+                }
+                this.websocket.onerror = event => {
+                    toast.error("Error connecting to server. Please try again later.");
+                };
             });
     }
 
     /* Lifecycle Methods */
-
-    componentDidMount() {
-        const { onSetCodeSnippet, onSetProgressMessage } = this.props;
-
-        this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
-
-
-        this.websocket.onopen = event => { };
-        this.websocket.onmessage = async event => {
-            const { code, language } = this.state;
-            const { codebase_id, name, is_paywalled, error_message } = JSON.parse(event.data);
-            const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);
-
-            onSetProgressMessage("");
-            onSetCodeSnippet(codeSnippet, is_paywalled);
-        }
-        this.websocket.onerror = event => {
-            toast.error("Error connecting to server. Please try again later.");
-        };
-    }
 
     render() {
         const { code, language } = this.state;

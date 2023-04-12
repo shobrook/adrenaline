@@ -24,7 +24,7 @@ class GithubInput extends Component {
     }
 
     onSubmitGithubUrl() {
-        const { onSetProgressMessage } = this.props;
+        const { onSetProgressMessage, onSetCodebase } = this.props;
         const {
             isAuthenticated,
             loginWithRedirect,
@@ -48,16 +48,104 @@ class GithubInput extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                const request = {
-                    user_id: user.sub,
-                    token: token,
-                    repo_url: githubUrl,
-                    refresh_index: false // TEMP
-                };
-                this.websocket.send(JSON.stringify(request));
+                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_url`);
 
-                onSetProgressMessage("Scraping repository");
-                Mixpanel.track("Scrape public repository")
+                this.websocket.onopen = event => {
+                    const request = {
+                        user_id: user.sub,
+                        token: token,
+                        repo_url: githubUrl,
+                        refresh_index: false // TEMP
+                    };
+
+                    this.websocket.send(JSON.stringify(request));
+
+                    onSetProgressMessage("Scraping repository");
+                    Mixpanel.track("Scrape public repository")
+                };
+                this.websocket.onmessage = async event => {
+                    const { secondaryIndexingProgressId } = this.state;
+                    const {
+                        message,
+                        metadata,
+                        is_final,
+                        is_paywalled,
+                        is_fast,
+                        error_message
+                    } = JSON.parse(event.data);
+
+                    if (error_message != "") {
+                        toast.error(error_message, {
+                            style: {
+                                borderRadius: "7px",
+                                background: "#FB4D3D",
+                                color: "#fff",
+                            },
+                            iconTheme: {
+                                primary: '#ffffff7a',
+                                secondary: '#fff',
+                            }
+                        });
+                        onSetProgressMessage("", true);
+                        return;
+                    }
+
+                    if (is_fast) {
+                        if (is_final) {
+                            onSetProgressMessage("");
+
+                            if (is_paywalled) {
+                                const repository = new Repository("", "", {});
+                                await onSetCodebase(repository, is_paywalled);
+                            } else {
+                                const { codebase_id, name, files } = metadata;
+                                const repository = new Repository(codebase_id, name, files);
+                                await onSetCodebase(repository, is_paywalled);
+
+                                const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                                this.setState({ secondaryIndexingProgressId: toastId });
+                            }
+                        } else {
+                            onSetProgressMessage(message);
+                        }
+                    } else if (is_final) {
+                        toast.dismiss(secondaryIndexingProgressId);
+                        toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
+                        this.websocket.close();
+                    }
+                }
+                this.websocket.onerror = event => {
+                    console.log("gh input ws error")
+                    console.log(event)
+                    onSetProgressMessage("", true);
+                    toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                        style: {
+                            borderRadius: "7px",
+                            background: "#FB4D3D",
+                            color: "#fff",
+                        },
+                        iconTheme: {
+                            primary: '#ffffff7a',
+                            secondary: '#fff',
+                        }
+                    });
+                };
+                // this.websocket.onclose = event => {
+                //     console.log("gh input ws close")
+                //     console.log(event);
+                //     onSetProgressMessage("", true);
+                //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                //         style: {
+                //             borderRadius: "7px",
+                //             background: "#FB4D3D",
+                //             color: "#fff",
+                //         },
+                //         iconTheme: {
+                //             primary: '#ffffff7a',
+                //             secondary: '#fff',
+                //         }
+                //     });
+                // };
             });
     }
 
@@ -77,87 +165,91 @@ class GithubInput extends Component {
             onSetProgressMessage
         } = this.props;
 
-        this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_url`);
+        // this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_url`);
 
-        this.websocket.onopen = event => { };
-        this.websocket.onmessage = async event => {
-            const { secondaryIndexingProgressId } = this.state;
-            const {
-                message,
-                metadata,
-                is_final,
-                is_paywalled,
-                is_fast,
-                error_message
-            } = JSON.parse(event.data);
+        // this.websocket.onopen = event => { console.log("opened github input websocket") };
+        // this.websocket.onmessage = async event => {
+        //     const { secondaryIndexingProgressId } = this.state;
+        //     const {
+        //         message,
+        //         metadata,
+        //         is_final,
+        //         is_paywalled,
+        //         is_fast,
+        //         error_message
+        //     } = JSON.parse(event.data);
 
-            if (error_message != "") {
-                toast.error(error_message, {
-                    style: {
-                        borderRadius: "7px",
-                        background: "#FB4D3D",
-                        color: "#fff",
-                    },
-                    iconTheme: {
-                        primary: '#ffffff7a',
-                        secondary: '#fff',
-                    }
-                });
-                onSetProgressMessage("", true);
-                return;
-            }
+        //     if (error_message != "") {
+        //         toast.error(error_message, {
+        //             style: {
+        //                 borderRadius: "7px",
+        //                 background: "#FB4D3D",
+        //                 color: "#fff",
+        //             },
+        //             iconTheme: {
+        //                 primary: '#ffffff7a',
+        //                 secondary: '#fff',
+        //             }
+        //         });
+        //         onSetProgressMessage("", true);
+        //         return;
+        //     }
 
-            if (is_fast) {
-                if (is_final) {
-                    onSetProgressMessage("");
+        //     if (is_fast) {
+        //         if (is_final) {
+        //             onSetProgressMessage("");
 
-                    if (is_paywalled) {
-                        const repository = new Repository("", "", {});
-                        await onSetCodebase(repository, is_paywalled);
-                    } else {
-                        const { codebase_id, name, files } = metadata;
-                        const repository = new Repository(codebase_id, name, files);
-                        await onSetCodebase(repository, is_paywalled);
+        //             if (is_paywalled) {
+        //                 const repository = new Repository("", "", {});
+        //                 await onSetCodebase(repository, is_paywalled);
+        //             } else {
+        //                 const { codebase_id, name, files } = metadata;
+        //                 const repository = new Repository(codebase_id, name, files);
+        //                 await onSetCodebase(repository, is_paywalled);
 
-                        const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
-                        this.setState({ secondaryIndexingProgressId: toastId });
-                    }
-                } else {
-                    onSetProgressMessage(message);
-                }
-            } else if (is_final) {
-                toast.dismiss(secondaryIndexingProgressId);
-                toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
-            }
-        }
-        this.websocket.onerror = event => {
-            onSetProgressMessage("", true);
-            toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                style: {
-                    borderRadius: "7px",
-                    background: "#FB4D3D",
-                    color: "#fff",
-                },
-                iconTheme: {
-                    primary: '#ffffff7a',
-                    secondary: '#fff',
-                }
-            });
-        };
-        this.websocket.onclose = event => {
-            onSetProgressMessage("", true);
-            toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                style: {
-                    borderRadius: "7px",
-                    background: "#FB4D3D",
-                    color: "#fff",
-                },
-                iconTheme: {
-                    primary: '#ffffff7a',
-                    secondary: '#fff',
-                }
-            });
-        };
+        //                 const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+        //                 this.setState({ secondaryIndexingProgressId: toastId });
+        //             }
+        //         } else {
+        //             onSetProgressMessage(message);
+        //         }
+        //     } else if (is_final) {
+        //         toast.dismiss(secondaryIndexingProgressId);
+        //         toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
+        //     }
+        // }
+        // this.websocket.onerror = event => {
+        //     console.log("gh input ws error")
+        //     console.log(event)
+        //     onSetProgressMessage("", true);
+        //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
+        //         style: {
+        //             borderRadius: "7px",
+        //             background: "#FB4D3D",
+        //             color: "#fff",
+        //         },
+        //         iconTheme: {
+        //             primary: '#ffffff7a',
+        //             secondary: '#fff',
+        //         }
+        //     });
+        // };
+        // this.websocket.onclose = event => {
+        //     console.log("gh input ws close")
+        //     console.log(event);
+        //     onSetProgressMessage("", true);
+        //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
+        //         style: {
+        //             borderRadius: "7px",
+        //             background: "#FB4D3D",
+        //             color: "#fff",
+        //         },
+        //         iconTheme: {
+        //             primary: '#ffffff7a',
+        //             secondary: '#fff',
+        //         }
+        //     });
+        // };
     }
 
     render() {
