@@ -58,7 +58,7 @@ export default function DebuggerAppPage() {
     }
 
     function getChatHistory() {
-        return messages.map(message => {
+        return messages.slice(1).map(message => {
             return {
                 content: message.content,
                 is_response: message.isResponse
@@ -236,7 +236,6 @@ export default function DebuggerAppPage() {
 
                     return [...priorMessages, response];
                 });
-                // setChatHistorySummary(chat_history_summary);
             } else if (type === "so_post") {
                 const { title, question_body, answer, link } = data;
                 const document = new Document(answer); // TODO: Use StackOverflowPost

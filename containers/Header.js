@@ -42,7 +42,6 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
     const onLogIn = () => {
         Mixpanel.track("click_log_in");
         loginWithRedirect({
-            screen_hint: "signup",
             appState: {
                 returnTo: window.location.pathname
             }
@@ -51,7 +50,9 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
     const onSignUp = () => {
         Mixpanel.track("click_sign_up");
         loginWithRedirect({
-            screen_hint: "signup",
+            authorizationParams: {
+                screen_hint: "signup"
+            },
             appState: {
                 returnTo: window.location.pathname
             }

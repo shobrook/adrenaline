@@ -100,7 +100,7 @@ class AuthenticatedGithubInput extends Component {
 
     onGithubAuthentication() {
         // const login = ""; // TODO: Populate this if user is already authenticated with Github
-        const scope = "read:project";
+        const scope = "repo,read:org";
 
         let authUrl = "https://github.com/login/oauth/authorize?"
         authUrl += `client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`;
