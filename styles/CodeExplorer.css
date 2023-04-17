@@ -164,6 +164,7 @@
 
 #indexingProgress > span {
     padding-top: 30px;
+    text-align: center;
 }
 
 #initCodebaseManager {

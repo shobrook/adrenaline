@@ -219,9 +219,9 @@ class GithubInput extends Component {
                     hwchase17/langchain
                 </ExampleRepository>
                 <ExampleRepository
-                    onClick={() => this.onSelectExampleRepository("pytorch/pytorch")}
+                    onClick={() => this.onSelectExampleRepository("psf/requests")}
                 >
-                    pytorch/pytorch
+                    psf/requests
                 </ExampleRepository>
                 <ExampleRepository
                     onClick={() => this.onSelectExampleRepository("shobrook/adrenaline")}
