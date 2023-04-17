@@ -79,7 +79,7 @@ export default function DebuggerAppPage() {
                     },
                     body: JSON.stringify({
                         user_id: user.sub,
-                        email: user.email !== null ? user.email : ""
+                        email: user.email
                     })
                 })
                     .then(res => res.json())
