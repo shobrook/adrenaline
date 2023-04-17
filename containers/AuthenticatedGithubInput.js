@@ -287,7 +287,7 @@ class AuthenticatedGithubInput extends Component {
                     {this.renderSearchBar()}
 
                     <div id="repositoryList">
-                        {Object.entries(groupedRepositories).map(([owner, repos], index) => {
+                        {Object.entries(groupedRepositories).map(([owner, repos]) => {
                             const reposContainMatch = repos.some(repo => {
                                 const { name } = repo;
                                 return name.toLowerCase().startsWith(searchInput);
@@ -302,7 +302,7 @@ class AuthenticatedGithubInput extends Component {
                                     <div className="ownerSection">
                                         <div className="ownerHeader">{owner}</div>
                                         <div className="groupedRepos">
-                                            {repos.map(repo => {
+                                            {repos.map((repo, index) => {
                                                 const { name } = repo;
 
                                                 if (!name.toLowerCase().startsWith(searchInput)) {
@@ -318,7 +318,7 @@ class AuthenticatedGithubInput extends Component {
                                                             {name}
                                                         </div>
                                                         {
-                                                            index < Object.keys(groupedRepositories).length - 1 ? (
+                                                            index < repos.length - 1 ? (
                                                                 <div className="divider" />
                                                             )
                                                                 : null
