@@ -53,8 +53,6 @@ class AuthenticatedGithubInput extends Component {
                 })
                     .then(res => res.json())
                     .then(data => {
-                        console.log(data)
-                        console.log("y9iii")
                         const { is_github_authenticated, repos } = data;
 
                         console.log(data);
@@ -134,7 +132,7 @@ class AuthenticatedGithubInput extends Component {
             .then(token => {
                 // TODO: The websocket stuff in this component and GithubInput should be moved up a level
 
-                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_name`);
+                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_repository`);
                 this.websocket.onopen = event => {
                     const request = {
                         user_id: user.sub,
@@ -183,18 +181,20 @@ class AuthenticatedGithubInput extends Component {
                                 const { codebase_id, name, files, is_private } = metadata;
                                 const repository = new Repository(codebase_id, name, files, repo.is_private);
                                 await onSetCodebase(repository, is_paywalled);
-
-                                const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
-                                this.setState({ secondaryIndexingProgressId: toastId });
                             }
                         } else {
                             onSetProgressMessage(message);
                         }
-                    } else if (is_final) {
-                        toast.dismiss(secondaryIndexingProgressId);
-                        toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
+                    } else {
+                        if (is_final) {
+                            toast.dismiss(secondaryIndexingProgressId);
+                            toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
 
-                        this.websocket.close();
+                            this.websocket.close();
+                        } else {
+                            const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                            this.setState({ secondaryIndexingProgressId: toastId });
+                        }
                     }
                 }
                 this.websocket.onerror = event => {

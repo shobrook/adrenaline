@@ -3,6 +3,8 @@ import { Component } from "react";
 import toast from "react-hot-toast";
 
 import Button from "../components/Button";
+import ExampleRepository from "../components/ExampleRepository";
+
 import { Repository } from "../library/data";
 import Mixpanel from "../library/mixpanel";
 
@@ -10,6 +12,9 @@ class GithubInput extends Component {
     constructor(props) {
         super(props);
 
+        this.getRepoNameFromUrl = this.getRepoNameFromUrl.bind(this);
+
+        this.onSelectExampleRepository = this.onSelectExampleRepository.bind(this);
         this.onChangeGithubUrl = this.onChangeGithubUrl.bind(this);
         this.onSubmitGithubUrl = this.onSubmitGithubUrl.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
@@ -17,7 +22,27 @@ class GithubInput extends Component {
         this.state = { githubUrl: "", secondaryIndexingProgressId: null };
     }
 
+    /* Utilities */
+
+    getRepoNameFromUrl() {
+        let { githubUrl } = this.state;
+        githubUrl = githubUrl.trim();
+
+        if (githubUrl.endsWith("/")) {
+            githubUrl = githubUrl.slice(0, githubUrl.length - 1);
+        }
+
+        const components = githubUrl.split("/");
+        const repoName = components.slice(-2).join("/");
+
+        return repoName;
+    }
+
     /* Event Handlers */
+
+    onSelectExampleRepository(codebaseId) {
+        this.setState({ githubUrl: `https://github.com/${codebaseId}` }, this.onSubmitGithubUrl);
+    }
 
     onChangeGithubUrl(event) {
         this.setState({ githubUrl: event.target.value });
@@ -48,13 +73,13 @@ class GithubInput extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_url`);
+                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_repository`);
 
                 this.websocket.onopen = event => {
                     const request = {
                         user_id: user.sub,
                         token: token,
-                        repo_url: githubUrl,
+                        repo_name: this.getRepoNameFromUrl(),
                         refresh_index: false // TEMP
                     };
 
@@ -101,17 +126,19 @@ class GithubInput extends Component {
                                 const { codebase_id, name, files } = metadata;
                                 const repository = new Repository(codebase_id, name, files);
                                 await onSetCodebase(repository, is_paywalled);
-
-                                const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
-                                this.setState({ secondaryIndexingProgressId: toastId });
                             }
                         } else {
                             onSetProgressMessage(message);
                         }
-                    } else if (is_final) {
-                        toast.dismiss(secondaryIndexingProgressId);
-                        toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
-                        this.websocket.close();
+                    } else {
+                        if (is_final) {
+                            toast.dismiss(secondaryIndexingProgressId);
+                            toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
+                            this.websocket.close();
+                        } else {
+                            const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
+                            this.setState({ secondaryIndexingProgressId: toastId });
+                        }
                     }
                 }
                 this.websocket.onerror = event => {
@@ -159,101 +186,8 @@ class GithubInput extends Component {
 
     /* Lifecycle Methods */
 
-    componentDidMount() {
-        const {
-            onSetCodebase,
-            onSetProgressMessage
-        } = this.props;
-
-        // this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_codebase_by_repo_url`);
-
-        // this.websocket.onopen = event => { console.log("opened github input websocket") };
-        // this.websocket.onmessage = async event => {
-        //     const { secondaryIndexingProgressId } = this.state;
-        //     const {
-        //         message,
-        //         metadata,
-        //         is_final,
-        //         is_paywalled,
-        //         is_fast,
-        //         error_message
-        //     } = JSON.parse(event.data);
-
-        //     if (error_message != "") {
-        //         toast.error(error_message, {
-        //             style: {
-        //                 borderRadius: "7px",
-        //                 background: "#FB4D3D",
-        //                 color: "#fff",
-        //             },
-        //             iconTheme: {
-        //                 primary: '#ffffff7a',
-        //                 secondary: '#fff',
-        //             }
-        //         });
-        //         onSetProgressMessage("", true);
-        //         return;
-        //     }
-
-        //     if (is_fast) {
-        //         if (is_final) {
-        //             onSetProgressMessage("");
-
-        //             if (is_paywalled) {
-        //                 const repository = new Repository("", "", {});
-        //                 await onSetCodebase(repository, is_paywalled);
-        //             } else {
-        //                 const { codebase_id, name, files } = metadata;
-        //                 const repository = new Repository(codebase_id, name, files);
-        //                 await onSetCodebase(repository, is_paywalled);
-
-        //                 const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
-        //                 this.setState({ secondaryIndexingProgressId: toastId });
-        //             }
-        //         } else {
-        //             onSetProgressMessage(message);
-        //         }
-        //     } else if (is_final) {
-        //         toast.dismiss(secondaryIndexingProgressId);
-        //         toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
-        //     }
-        // }
-        // this.websocket.onerror = event => {
-        //     console.log("gh input ws error")
-        //     console.log(event)
-        //     onSetProgressMessage("", true);
-        //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
-        //         style: {
-        //             borderRadius: "7px",
-        //             background: "#FB4D3D",
-        //             color: "#fff",
-        //         },
-        //         iconTheme: {
-        //             primary: '#ffffff7a',
-        //             secondary: '#fff',
-        //         }
-        //     });
-        // };
-        // this.websocket.onclose = event => {
-        //     console.log("gh input ws close")
-        //     console.log(event);
-        //     onSetProgressMessage("", true);
-        //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
-        //         style: {
-        //             borderRadius: "7px",
-        //             background: "#FB4D3D",
-        //             color: "#fff",
-        //         },
-        //         iconTheme: {
-        //             primary: '#ffffff7a',
-        //             secondary: '#fff',
-        //         }
-        //     });
-        // };
-    }
-
     render() {
-        const { githubUrl, secondaryIndexingProgressId, } = this.state;
+        const { githubUrl } = this.state;
 
         return (
             <>
@@ -276,6 +210,24 @@ class GithubInput extends Component {
                         </Button>
                     </div>
                 </div>
+
+                <span id="exampleRepositoriesTitle">Examples</span>
+
+                <ExampleRepository
+                    onClick={() => this.onSelectExampleRepository("hwchase17/langchain")}
+                >
+                    hwchase17/langchain
+                </ExampleRepository>
+                <ExampleRepository
+                    onClick={() => this.onSelectExampleRepository("pytorch/pytorch")}
+                >
+                    pytorch/pytorch
+                </ExampleRepository>
+                <ExampleRepository
+                    onClick={() => this.onSelectExampleRepository("shobrook/adrenaline")}
+                >
+                    shobrook/adrenaline
+                </ExampleRepository>
             </>
         );
     }
