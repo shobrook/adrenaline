@@ -13,13 +13,23 @@
     background-color: #262a39;
     border-radius: 7px;
     cursor: pointer;
+    justify-content: space-between;
+}
+
+.exampleRepository > svg {
+    padding-right: 15px;
 }
 
 .exampleRepository:hover {
     opacity: 0.75;
 }
 
-.exampleRepository > svg {
+.exampleRepositoryLink > svg {
     padding-left: 15px;
     padding-right: 7.5px;
+}
+
+.exampleRepositoryLink {
+    display: flex;
+    align-items: center;
 }
