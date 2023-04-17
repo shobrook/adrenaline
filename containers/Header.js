@@ -145,15 +145,8 @@ const UserNavDropdown = ({ onLogout, setShowSubscriptionModal }) => {
 
     return (
         <div className="user-nav-dropdown">
-            <div
-                className={"dropdown-button"}
-                onClick={toggleDropdown}
-            >
-                <img
-                    src={user?.picture}
-                    alt="User profile"
-                    className="profile-picture"
-                />
+            <div className={"dropdown-button"} onClick={toggleDropdown}>
+                <img src={user?.picture} className="profile-picture" />
                 <MdKeyboardArrowDown fill={"lightgrey"} size={24} />
             </div>
             {dropdownVisible && (
