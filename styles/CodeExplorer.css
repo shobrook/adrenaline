@@ -61,8 +61,7 @@
 
 #headerLabel > span {
     /* padding-left: 10px; */
-    font-weight: 500;
-    opacity: 0.75;
+    font-weight: 600;
 }
 
 #returnToManager {
