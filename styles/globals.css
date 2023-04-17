@@ -15,6 +15,7 @@
 @import "./PaywallMessage.css";
 @import "./QueryInput.css";
 @import "./Spinner.css";
+@import "./ExampleRepository.css";
 
 body {
     margin: 0;

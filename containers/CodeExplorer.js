@@ -402,6 +402,7 @@ class CodeExplorer extends Component {
     }
 
     renderSelectRepository() {
+        const { onSetCodebaseId } = this.props;
         const { renderSelectRepository, renderSelectPrivateRepository } = this.state;
 
         if (!renderSelectRepository) {

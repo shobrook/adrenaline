@@ -1,0 +1,25 @@
+#exampleRepositoriesTitle {
+    margin-top: 30px;
+    font-weight: 500;
+}
+
+.exampleRepository {
+    width: 100%;
+    margin-top: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    background-color: #262a39;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.exampleRepository:hover {
+    opacity: 0.75;
+}
+
+.exampleRepository > svg {
+    padding-left: 15px;
+    padding-right: 7.5px;
+}
