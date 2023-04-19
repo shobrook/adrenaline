@@ -1,0 +1,90 @@
+.rateLimitMessage {
+    z-index: 2;
+    position: absolute;
+    width: 66%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 30px);
+    height: calc(100% - 30px);
+    text-align: center;
+}
+
+.codeExplorerPaywall {
+    height: 100% !important;
+    width: 100% !important;
+
+    background-color: #181b2685;
+    border-radius: 5px;
+
+    font-size: 16px !important;
+}
+
+.rateLimitMessage > span {
+    padding-bottom: 15px;
+}
+
+.rateLimitMessage > span > span {
+    font-weight: 500;
+}
+
+.rateLimitButton {
+    -webkit-animation: breathing 5s ease-out infinite normal;
+    animation: breathing 5s ease-out infinite normal;
+    -webkit-font-smoothing: antialiased;
+
+    opacity: 1.0 !important;
+}
+
+.rateLimitButton:hover {
+    opacity: 0.8 !important;
+}
+
+@-webkit-keyframes breathing {
+    0% {
+        -webkit-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+
+    25% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+
+    60% {
+        -webkit-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+
+    100% {
+        -webkit-transform: scale(0.95);
+        transform: scale(0.95);
+    }
+}
+  
+@keyframes breathing {
+    0% {
+        -webkit-transform: scale(0.90);
+        -ms-transform: scale(0.90);
+        transform: scale(0.90);
+    }
+
+    25% {
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+    }
+
+    60% {
+        -webkit-transform: scale(0.90);
+        -ms-transform: scale(0.90);
+        transform: scale(0.90);
+    }
+
+    100% {
+        -webkit-transform: scale(0.90);
+        -ms-transform: scale(0.90);
+        transform: scale(0.90);
+    }
+}

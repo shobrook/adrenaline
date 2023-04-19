@@ -1,0 +1,121 @@
+.chatMessage {
+    /* display: flex;
+    flex-direction: column;
+    justify-content: flex-start; */
+    position: relative;
+    padding: 15px;
+    border-radius: 7px;
+    color: white;
+    margin-bottom: 15px;
+    background-color: #A305E1;
+    align-self: flex-end;
+    width: calc(100% - 15px - 15px);
+    overflow-wrap: break-word;
+}
+
+.loadingMessage {
+    background: linear-gradient(90deg,#0000 33%,rgba(80, 90, 125, 0.23) 50%,#0000 66%) #2B3044;
+    background-size: 300% 100%;
+    animation: shine 2s infinite;   
+}
+
+@keyframes shine {
+    0% {
+        background-position: right;    
+    }
+    /*100% {
+        background-position: left; it's the default value, no need to define it
+    }*/
+}
+
+.chatMessage > pre {
+    background-color: #29293d !important;
+    font-size: 14px !important;
+    margin-top: 15px !important;
+}
+
+.aiResponse {
+    /* background-color: #1E212E !important; */
+    background-color: #2B3044 !important;
+    align-self: flex-start !important;
+}
+
+.aiSenderId {
+    background-color: #FFFFFF !important;
+    color: #101018 !important;
+}
+
+.messageContent {
+    font-weight: 400;
+    /* padding-left: 15px; */
+}
+
+.codeBlock {
+    font-size: 14px;
+    /*margin: 1rem 0 !important;*/
+    border-radius: 7px !important;
+}
+
+#regenerateResponse {
+    margin-top: 15px;
+    padding-left: 15px;
+    display: flex;
+    justify-content: flex-end;
+    cursor: pointer;
+    /* width: 100%; */
+}
+
+#regenerateResponse:hover {
+    opacity: 0.75;
+}
+
+#regenerateResponse > img {
+    height: 15px;
+}
+
+.chatMessageOptions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.blockedMessage {
+    background-color: #2b3044 !important;
+    height: 100px;
+}
+
+.blocked {
+    filter: blur(4px);
+    opacity: 0.4;
+}
+
+.messageContainer .spinner {
+    margin: 0 !important;
+}
+
+.plainText{
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+.reasoningStep {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #4B5A91;
+    border-radius: 7px;
+    margin-bottom: 7px;
+    width: fit-content;
+    font-size: 14px;
+}
+
+.stepType {
+    font-weight: 600;
+}
+
+.stepContent {
+    opacity: 0.75;
+}

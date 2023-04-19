@@ -1,0 +1,31 @@
+@media (max-width: 700px) {
+    #chatBot {
+        height: 50%;
+        width: 100% !important;
+        max-width: none !important;
+        padding-bottom: 20px;
+        padding-top: 20px;
+    }
+}
+
+#chatBot {
+    height: calc(100% - 30px + 2px + 2px);
+    width: 40%;
+    max-width: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#messages {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    margin-bottom: 30px;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+#messages::-webkit-scrollbar {
+    display: none;
+} 

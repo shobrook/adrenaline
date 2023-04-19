@@ -1,0 +1,81 @@
+#authenticatedGithubInput {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+#authenticatedGithubInput > .spinner {
+    width: 100%;
+    margin-top: 45px;
+    display: flex;
+    justify-content: center;
+}
+
+#repositorySearch {
+    display: flex;
+    align-items: center;
+    border-radius: 7px;
+    padding-left: 15px;
+    border: 2px solid #262a39;
+}
+
+#repositorySearch > input {
+    padding-left: 15px;
+}
+
+#repositorySearch > img {
+    height: 20px;
+}
+
+#passiveSearch {
+    opacity: 0.75;
+}
+
+#activeSearch {
+    opacity: 1.0;
+}
+
+#repositoryList {
+    margin-top: 15px;
+    border-radius: 7px;
+    border: 2px solid #262a39;
+    margin-bottom: 15px;
+}
+
+.ownerHeader {
+    background-color: #262a39;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 15px;
+    font-weight: 500;
+    color: #ffffffc4;
+}
+
+.divider {
+    height: 2px;
+    width: 100%;
+    background-color: #262a39;
+}
+
+.repositoryItem {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    cursor: pointer;
+}
+
+.repositoryItem:hover {
+    opacity: 0.75;
+}
+
+#githubAuthPrompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#githubAuthPrompt > span {
+    font-size: 18px;
+    padding-bottom: 15px;
+    padding-top: 30px;
+}
