@@ -33,6 +33,7 @@ const DEFAULT_STATE = {
     renderIndexingProgress: false,
     renderSecondaryIndexingProgress: false,
     progressMessage: "",
+    paywallMessage: "You've reached your repository limit! Upgrade your plan to increase it.",
     codebases: [], // List of codebase objects
     currentCodeContext: {
         files: [],
@@ -247,17 +248,20 @@ class CodeExplorer extends Component {
         this.setState({ renderFileTree: !renderFileTree });
     }
 
-    async onSetCodebase(repository, isPaywalled) {
+    async onSetCodebase(repository, isPaywalled, paywallMessage = "") {
         const { onSetCodebaseId } = this.props;
         const { codebaseId, files, isPrivate } = repository;
 
         onSetCodebaseId(codebaseId);
 
+        console.log(paywallMessage)
+
         if (isPaywalled) {
             this.setState({
                 renderRepository: true,
                 renderPaywall: true,
-                renderIndexingProgress: false
+                renderIndexingProgress: false,
+                paywallMessage: paywallMessage != "" ? paywallMessage : this.state.paywallMessage
             });
             return
         }
@@ -514,11 +518,17 @@ class CodeExplorer extends Component {
     }
 
     renderPaywall() {
-        const { renderPaywall } = this.state;
+        const { renderPaywall, paywallMessage } = this.state;
         const { onUpgradePlan } = this.props;
 
         if (renderPaywall) {
-            return <PaywallMessage className="codeExplorerPaywall" onUpgradePlan={onUpgradePlan} />;
+            return (
+                <PaywallMessage
+                    className="codeExplorerPaywall"
+                    onUpgradePlan={onUpgradePlan}
+                    message={paywallMessage}
+                />
+            );
         }
 
         return null;

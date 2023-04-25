@@ -121,7 +121,7 @@ class GithubInput extends Component {
 
                             if (is_paywalled) {
                                 const repository = new Repository("", "", {});
-                                await onSetCodebase(repository, is_paywalled);
+                                await onSetCodebase(repository, is_paywalled, message);
                             } else {
                                 const { codebase_id, name, files } = metadata;
                                 const repository = new Repository(codebase_id, name, files);

@@ -18,11 +18,13 @@
     background-color: #181b2685;
     border-radius: 5px;
 
-    font-size: 16px !important;
+    font-size: 18px !important;
 }
 
 .rateLimitMessage > span {
     padding-bottom: 15px;
+    width: 60%;
+    line-height: 25px;
 }
 
 .rateLimitMessage > span > span {
