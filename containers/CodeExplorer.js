@@ -78,7 +78,6 @@ class CodeExplorer extends Component {
         const { getAccessTokenSilently, isAuthenticated, user } = this.props.auth0;
 
         if (!isAuthenticated) {
-            console.log("isn't authenticated")
             return;
         }
 
@@ -107,8 +106,6 @@ class CodeExplorer extends Component {
                                     language,
                                     is_private
                                 } = codebase;
-
-                                console.log(codebase)
 
                                 if (is_code_snippet) {
                                     return new CodeSnippet(codebase_id, name, code, language);
@@ -253,8 +250,6 @@ class CodeExplorer extends Component {
         const { codebaseId, files, isPrivate } = repository;
 
         onSetCodebaseId(codebaseId);
-
-        console.log(paywallMessage)
 
         if (isPaywalled) {
             this.setState({
