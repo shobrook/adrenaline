@@ -20,3 +20,11 @@ export class CodeSnippet {
         this.isCodeSnippet = true;
     }
 }
+
+export class Source {
+    constructor(filePath) {
+        const pathComponents = filePath.split("/");
+        this.name = pathComponents[pathComponents.length - 1];
+        this.filePath = filePath;
+    }
+}

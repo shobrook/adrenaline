@@ -11,9 +11,25 @@ export default class Message extends Component {
         this.renderMessage = this.renderMessage.bind(this);
         this.renderReasoningSteps = this.renderReasoningSteps.bind(this);
         this.renderPaywall = this.renderPaywall.bind(this);
+        this.renderSources = this.renderSources.bind(this);
     }
 
     /* Utilities */
+
+    renderSources() {
+        const { sources, onSelectFile } = this.props;
+        const sourceButtons = sources.map(source => {
+            const { name, filePath } = source;
+
+            return (
+                <span className="source" onClick={() => onSelectFile(filePath)}>
+                    {name}
+                </span>
+            );
+        });
+
+        return (<div className="sources">{sourceButtons}</div>);
+    }
 
     renderMessage() {
         const { children } = this.props;
@@ -95,6 +111,7 @@ export default class Message extends Component {
                     <div className={`messageContainer ${isPaywalled ? "blocked" : ""}`}>
                         {this.renderMessage()}
                     </div>
+                    {this.renderSources()}
                 </div>
             </div>
         );

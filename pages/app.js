@@ -5,10 +5,10 @@ import Header from "../containers/Header";
 import ChatBot from "../containers/ChatBot";
 import CodeExplorer from "../containers/CodeExplorer";
 import Spinner from "../components/Spinner";
+import SubscriptionModal from "../containers/SubscriptionModal";
 
 import Mixpanel from "../library/mixpanel";
-import SubscriptionModal from "../containers/SubscriptionModal";
-import { Toaster } from "react-hot-toast";
+import { Source } from "../library/data";
 import { useRouter } from "next/router";
 
 const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
@@ -223,16 +223,16 @@ export default function DebuggerAppPage() {
                     return [...priorMessages, response];
                 });
             } else if (type == "answer") {
-                const { message } = data;
+                const { message, file_paths } = data;
 
                 setMessages(prevMessages => {
-                    console.log(prevMessages)
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let response = prevMessages[prevMessages.length - 1];
 
                     response.content += message;
                     response.isComplete = is_final;
                     response.isPaywalled = is_paywalled;
+                    response.sources = file_paths.map(filePath => new Source(filePath));
 
                     return [...priorMessages, response];
                 });
@@ -262,7 +262,7 @@ export default function DebuggerAppPage() {
 
 
     useEffect(() => {
-        if (prevAuthState.current !== isAuthenticated) {
+        if (prevAuthState.current !== isAuthenticated && isAuthenticated) {
             authenticateWithGithub();
             fetchUserMetadata();
         }
