@@ -1,5 +1,5 @@
 export class Repository {
-    constructor(codebaseId, name, files, isPrivate = false) {
+    constructor(codebaseId, name, files, isPrivate = false, isGitLab = false) {
         this.codebaseId = codebaseId;
         this.name = name;
         this.files = files;
@@ -7,6 +7,7 @@ export class Repository {
         // this.lastUpdated;
         this.isPrivate = isPrivate;
         this.isCodeSnippet = false;
+        this.isGitLab = isGitLab;
     }
 }
 

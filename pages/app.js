@@ -26,35 +26,28 @@ export default function DebuggerAppPage() {
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
 
-    function authenticateWithGithub() {
-        /* Handle Github OAuth redirects */
+    function handleOAuthCallback() {
+        const { source, code } = router.query;
 
-        const { code } = router.query;
-
-        if (!code) {
+        if (!source) {
             return;
         }
 
         getAccessTokenSilently()
             .then(token => {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/github_callback`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/${source}_callback`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
-                    body: JSON.stringify({
-                        user_id: user.sub,
-                        github_code: code
-                    })
+                    body: JSON.stringify({ user_id: user.sub, code })
                 })
                     .then(res => res.json())
                     .then(data => {
-                        console.log("Data", data)
                         // TODO: Update state to tell CodeExplorer to render the SelectRepository view
                     })
-            })
-
+            });
     }
 
     function getChatHistory() {
@@ -250,20 +243,20 @@ export default function DebuggerAppPage() {
 
         if (isAuthenticated) {
             fetchUserMetadata();
-            authenticateWithGithub();
+            handleOAuthCallback();
         }
     }, [])
 
     useEffect(() => {
         if (isAuthenticated) {
-            authenticateWithGithub();
+            handleOAuthCallback();
         }
     }, [router.isReady])
 
 
     useEffect(() => {
-        if (prevAuthState.current !== isAuthenticated) {
-            authenticateWithGithub();
+        if (prevAuthState.current !== isAuthenticated && isAuthenticated) {
+            handleOAuthCallback();
             fetchUserMetadata();
         }
 
