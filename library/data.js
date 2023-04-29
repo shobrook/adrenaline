@@ -1,3 +1,14 @@
+export class Message {
+    constructor(content, isResponse, isComplete, isPaywalled = false, sources = []) {
+        this.content = content;
+        this.isResponse = isResponse;
+        this.isComplete = isComplete; // Indicates whether message has finished streaming
+        this.isPaywalled = isPaywalled;
+        this.sources = sources;
+        this.steps = {}
+    }
+}
+
 export class Repository {
     constructor(codebaseId, name, files, isPrivate = false) {
         this.codebaseId = codebaseId;

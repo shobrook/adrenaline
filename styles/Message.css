@@ -1,3 +1,7 @@
+.chatMessageContainer {
+    margin-bottom: 22.5px;
+}
+
 .chatMessage {
     /* display: flex;
     flex-direction: column;
@@ -6,11 +10,11 @@
     padding: 15px;
     border-radius: 7px;
     color: white;
-    margin-bottom: 15px;
     background-color: #A305E1;
     align-self: flex-end;
     width: calc(100% - 15px - 15px);
     overflow-wrap: break-word;
+    z-index: 2;
 }
 
 .loadingMessage {
@@ -118,4 +122,65 @@
 
 .stepContent {
     opacity: 0.75;
+}
+
+.responseOptions {
+    display: flex;
+    align-items: center;
+    margin-top: 22.5px;
+    justify-content: flex-start;
+}
+
+.optionButton:first-child {
+    margin-right: 10px;
+}
+
+.optionButton {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #181b26b0;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.optionButton:hover {
+    background-color: #181b26;
+}
+
+.optionsDisplay {
+    margin-top: 7px;
+    background-color: #1d212f;
+    border-radius: 7px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.contextSource {
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    opacity: 0.85;
+    font-weight: 500;
+}
+
+.contextSource:hover {
+    opacity: 1.0;
+}
+
+.contextSource:first-child {
+    margin-top: 0px;
+}
+
+.contextSource > svg {
+    padding-right: 15px;
+}
+
+.isClicked {
+    background-color: #181b26;
 }

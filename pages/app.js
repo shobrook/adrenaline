@@ -8,20 +8,18 @@ import Spinner from "../components/Spinner";
 import SubscriptionModal from "../containers/SubscriptionModal";
 
 import Mixpanel from "../library/mixpanel";
-import { Source } from "../library/data";
+import { Source, Message } from "../library/data";
 import { useRouter } from "next/router";
 
 const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
 export default function DebuggerAppPage() {
-    // create functional state variables using the component state variables from above
     const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
     const [codebaseId, setCodebaseId] = useState("");
     const [messages, setMessages] = useState([new Message(WELCOME_MESSAGE, true, true)]);
-    // const [chatHistorySummary, setChatHistorySummary] = useState("");
-    const [documents, setDocuments] = useState([]);
     const [subscriptionStatus, setSubscriptionStatus] = useState({});
     const [renderSubscriptionModal, setRenderSubscriptionModal] = useState(false);
+    const [fileContext, setFileContext] = useState("");
     const queryWS = useRef(null);
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
@@ -163,11 +161,14 @@ export default function DebuggerAppPage() {
                                 messages={messages}
                                 onSubmitQuery={onSubmitQuery}
                                 onUpgradePlan={() => setShowSubscriptionModal(true)}
+                                setFileContext={setFileContext}
                             />
                             <CodeExplorer
                                 onSetCodebaseId={onSetCodebaseId}
                                 codebaseId={codebaseId}
                                 onUpgradePlan={() => setShowSubscriptionModal(true)}
+                                setFileContext={setFileContext}
+                                fileContext={fileContext}
                             />
                         </div>
                 }
@@ -202,12 +203,7 @@ export default function DebuggerAppPage() {
                 error_message
             } = JSON.parse(event.data);
 
-            if (type === "code_chunk") {
-                const { chunk, file_path, summary } = data;
-                const document = new Document(`\`\`\`\n${chunk}\n\`\`\``); // TODO: Use CodeChunk
-
-                setDocuments([...documents, document]);
-            } else if (type === "reasoning_step") {
+            if (type === "reasoning_step") {
                 const { message } = data;
 
                 setMessages(prevMessages => {
@@ -236,11 +232,6 @@ export default function DebuggerAppPage() {
 
                     return [...priorMessages, response];
                 });
-            } else if (type === "so_post") {
-                const { title, question_body, answer, link } = data;
-                const document = new Document(answer); // TODO: Use StackOverflowPost
-
-                setDocuments([...documents, document]);
             }
         }
         ws.onerror = event => {
@@ -282,38 +273,4 @@ export default function DebuggerAppPage() {
         </>
     );
 
-}
-
-
-class Message {
-    constructor(content, isResponse, isComplete, isPaywalled = false) {
-        this.content = content;
-        this.isResponse = isResponse;
-        this.isComplete = isComplete; // Indicates whether message has finished streaming
-        this.isPaywalled = isPaywalled;
-        this.steps = {}
-    }
-}
-
-class Document {
-    constructor(content) {
-        this.content = content;
-    }
-}
-
-class CodeChunk {
-    constructor(filePath, code, summary) {
-        this.filePath = filePath;
-        this.code = code;
-        this.summary = summary;
-    }
-}
-
-class StackOverflowPost {
-    constructor(title, questionBody, answer, link) {
-        this.title = title;
-        this.questionBody = questionBody;
-        this.answer = answer;
-        this.link = link;
-    }
 }

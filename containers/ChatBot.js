@@ -6,38 +6,24 @@ import Message from "./Message";
 import Mixpanel from "../library/mixpanel";
 
 class ChatBot extends Component {
-    /* Utilities */
-
-    scrollToBottom = () => {
-        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-    }
-
-    /* Lifecycle Methods */
-
-    componentDidMount() {
-        this.scrollToBottom();
-    }
-
-    componentDidUpdate() {
-        this.scrollToBottom();
-    }
-
     render() {
         const {
             onSubmitQuery,
             messages,
-            onUpgradePlan
+            onUpgradePlan,
+            setFileContext
         } = this.props;
 
         return (
             <div id="chatBot">
                 <div id="messages">
-                    {messages.map(message => {
+                    {messages.map((message, index) => {
                         const {
                             content,
                             isResponse,
                             isComplete,
                             isPaywalled,
+                            sources,
                             steps
                         } = message;
 
@@ -47,15 +33,16 @@ class ChatBot extends Component {
                                 isComplete={isComplete}
                                 isPaywalled={isPaywalled}
                                 onUpgradePlan={onUpgradePlan}
+                                sources={sources}
                                 steps={steps}
+                                isFirstMessage={index == 0}
+                                isLastMessage={index == messages.length - 1}
+                                setFileContext={setFileContext}
                             >
                                 {content}
                             </Message>
                         );
                     })}
-                    <div style={{ float: "left", clear: "both" }}
-                        ref={(el) => { this.messagesEnd = el; }}>
-                    </div>
                 </div>
                 <QueryInput onSubmitQuery={onSubmitQuery} />
             </div>
