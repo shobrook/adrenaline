@@ -28,7 +28,7 @@ const DEFAULT_STATE = {
     renderSelectRepository: false,
     renderSelectPrivateRepository: false,
     renderSelectCodeSnippet: false,
-    renderFileTree: false,
+    renderFileTree: true,
     renderPaywall: false,
     renderIndexingProgress: false,
     renderSecondaryIndexingProgress: false,
@@ -261,14 +261,7 @@ class CodeExplorer extends Component {
             return
         }
 
-        let currentFile = Object.keys(files)[0];
-        Object.keys(files).forEach(file => {
-            if (file.toLowerCase().endsWith("model.py")) {
-                currentFile = file;
-                return;
-            }
-        });
-
+        const currentFile = Object.keys(files)[0];
         const fileUrl = files[currentFile].url;
         const fileContent = await this.getFileContent(fileUrl, isPrivate);
         const fileLanguage = files[currentFile].language;
@@ -276,9 +269,9 @@ class CodeExplorer extends Component {
         this.setState({
             currentCodeContext: {
                 files,
-                currentFile,
                 code: fileContent,
                 language: fileLanguage,
+                currentFile,
                 isPrivate
             },
             renderRepository: true,
@@ -286,7 +279,8 @@ class CodeExplorer extends Component {
         });
     }
 
-    async onSelectFile(filePath) {
+    async onSelectFile(filePath, updateFileContext = true) {
+        const { setFileContext } = this.props;
         const { files, isPrivate } = this.state.currentCodeContext;
         const fileUrl = files[filePath].url;
         const fileLanguage = files[filePath].language;
@@ -295,12 +289,13 @@ class CodeExplorer extends Component {
         this.setState({
             currentCodeContext: {
                 files: files,
-                currentFile: filePath,
                 code: fileContent,
                 language: fileLanguage,
+                currentFile: filePath,
                 isPrivate
             }
         });
+        setFileContext("");
     }
 
     onReturnToManager() {
@@ -442,8 +437,6 @@ class CodeExplorer extends Component {
                 )}
             </div>
         );
-
-        // TODO: Add example GH URLs
     }
 
     renderCodebaseManager() {
@@ -599,10 +592,18 @@ class CodeExplorer extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
+        const { fileContext } = this.props;
+        const { renderCodeSnippet, renderRepository } = this.state;
+
         this.fetchCodebases();
+
+        if (fileContext != "" && (renderRepository || renderCodeSnippet)) {
+            this.onSelectFile(fileContext, false);
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
+        const { fileContext } = this.props;
         const {
             renderCodeSnippet,
             renderRepository,
@@ -615,6 +616,10 @@ class CodeExplorer extends Component {
 
         if (prevShouldRenderCodebaseManager != shouldRenderCodebaseManager && shouldRenderCodebaseManager) {
             this.fetchCodebases();
+        }
+
+        if (fileContext != "" && (this.state.renderRepository || this.state.renderCodeSnippet) && this.state.currentCodeContext.currentFile != fileContext) {
+            this.onSelectFile(fileContext, false);
         }
     }
 
