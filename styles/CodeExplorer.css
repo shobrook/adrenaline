@@ -96,6 +96,9 @@
     height: calc(100% - 60px);
     overflow: auto;
     border-radius: 0px 0px 5px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #codeContextOptions {
@@ -131,6 +134,8 @@
 
 .codeBlock {
     background: #181B26 !important;
+    width: calc(100% - 2em);
+    margin: 0 !important;
 }
 
 .MuiTreeItem-content {

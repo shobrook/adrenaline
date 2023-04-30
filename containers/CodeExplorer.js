@@ -13,6 +13,7 @@ import CodeSnippetInput from "./CodeSnippetInput";
 import GithubInput from "./GithubInput";
 import AuthenticatedGithubInput from "./AuthenticatedGithubInput";
 import FileStructure from "./FileStructure";
+import FileSummary from "./FileSummary";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
@@ -39,6 +40,7 @@ const DEFAULT_STATE = {
         files: [],
         currentFile: "",
         code: "",
+        fileSummary: "",
         language: "python",
         isPrivate: false
     }
@@ -118,7 +120,7 @@ class CodeExplorer extends Component {
             });
     }
 
-    async getFileContent(fileUrl, isPrivateRepo) {
+    async getFileContent(filePath, fileUrl, codebaseId, isPrivateRepo) {
         const { user, getAccessTokenSilently } = this.props.auth0;
 
         return await getAccessTokenSilently()
@@ -131,14 +133,19 @@ class CodeExplorer extends Component {
                     },
                     body: JSON.stringify({
                         user_id: user.sub,
+                        codebase_id: codebaseId,
                         file_url: fileUrl,
+                        file_path: filePath,
                         is_private_repo: isPrivateRepo
                     })
                 })
                     .then(res => res.json())
                     .then(data => {
-                        const { file_content } = data;
-                        return file_content;
+                        const { file_content, file_summary } = data;
+                        return {
+                            fileContent: file_content,
+                            fileSummary: file_summary
+                        };
                     })
                     .catch(error => {
                         console.log(error);
@@ -263,7 +270,7 @@ class CodeExplorer extends Component {
 
         const currentFile = Object.keys(files)[0];
         const fileUrl = files[currentFile].url;
-        const fileContent = await this.getFileContent(fileUrl, isPrivate);
+        const { fileContent, fileSummary } = await this.getFileContent(currentFile, fileUrl, codebaseId, isPrivate);
         const fileLanguage = files[currentFile].language;
 
         this.setState({
@@ -271,6 +278,7 @@ class CodeExplorer extends Component {
                 files,
                 code: fileContent,
                 language: fileLanguage,
+                fileSummary,
                 currentFile,
                 isPrivate
             },
@@ -279,17 +287,17 @@ class CodeExplorer extends Component {
         });
     }
 
-    async onSelectFile(filePath, updateFileContext = true) {
-        const { setFileContext } = this.props;
+    async onSelectFile(filePath) {
+        const { setFileContext, codebaseId } = this.props;
         const { files, isPrivate } = this.state.currentCodeContext;
-        const fileUrl = files[filePath].url;
-        const fileLanguage = files[filePath].language;
-        const fileContent = await this.getFileContent(fileUrl, isPrivate);
+        const { language: fileLanguage, url: fileUrl } = files[filePath];
+        const { fileContent, fileSummary } = await this.getFileContent(filePath, fileUrl, codebaseId, isPrivate);
 
         this.setState({
             currentCodeContext: {
                 files: files,
                 code: fileContent,
+                fileSummary,
                 language: fileLanguage,
                 currentFile: filePath,
                 isPrivate
@@ -299,6 +307,8 @@ class CodeExplorer extends Component {
     }
 
     onReturnToManager() {
+        const { setFileContext } = this.props;
+
         this.setState({
             renderCodeSnippet: false,
             renderRepository: false,
@@ -308,6 +318,7 @@ class CodeExplorer extends Component {
             renderPaywall: false,
             renderIndexingProgress: false
         });
+        setFileContext("");
     }
 
     /* Renderers */
@@ -346,7 +357,7 @@ class CodeExplorer extends Component {
             renderCodeSnippet,
             renderRepository
         } = this.state;
-        const { code, language } = this.state.currentCodeContext;
+        const { code, language, fileSummary } = this.state.currentCodeContext;
 
         if (!renderRepository && !renderCodeSnippet) {
             return null;
@@ -354,6 +365,7 @@ class CodeExplorer extends Component {
 
         return (
             <div id="codePreview">
+                <FileSummary>{fileSummary}</FileSummary>
                 <SyntaxHighlighter
                     className="codeBlock"
                     language={language}
@@ -598,7 +610,7 @@ class CodeExplorer extends Component {
         this.fetchCodebases();
 
         if (fileContext != "" && (renderRepository || renderCodeSnippet)) {
-            this.onSelectFile(fileContext, false);
+            this.onSelectFile(fileContext);
         }
     }
 
@@ -619,7 +631,7 @@ class CodeExplorer extends Component {
         }
 
         if (fileContext != "" && (this.state.renderRepository || this.state.renderCodeSnippet) && this.state.currentCodeContext.currentFile != fileContext) {
-            this.onSelectFile(fileContext, false);
+            this.onSelectFile(fileContext);
         }
     }
 

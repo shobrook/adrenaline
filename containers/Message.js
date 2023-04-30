@@ -2,7 +2,7 @@ import { Component } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { FaRegFileAlt } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import PaywallMessage from "./PaywallMessage";
 
@@ -176,7 +176,8 @@ export default class Message extends Component {
             <motion.div
                 initial={{ translateY: -50, opacity: 0.0 }}
                 animate={{ translateY: 0, opacity: 1.0 }}
-                transition={{ duration: 0.25, delay: 0.25 }}
+                exit={{ translateY: -50, opacity: 0.0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
                 className="optionsDisplay"
             >
                 {filePaths}
@@ -223,7 +224,7 @@ export default class Message extends Component {
                         </div>
                         {this.renderOptions()}
                     </div>
-                    {this.renderContext()}
+                    <AnimatePresence>{this.renderContext()}</AnimatePresence>
                 </div>
 
                 {this.renderScrollAnchor()}
