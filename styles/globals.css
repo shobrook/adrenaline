@@ -16,6 +16,7 @@
 @import "./QueryInput.css";
 @import "./Spinner.css";
 @import "./ExampleRepository.css";
+@import "./FileSummary.css";
 
 body {
     margin: 0;

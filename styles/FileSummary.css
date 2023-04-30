@@ -1,0 +1,38 @@
+#fileSummary {
+    position: sticky;
+    width: calc(100% - 30px - 30px);
+    /* height: fit-content; */
+    padding: 15px;
+    background-color: #2b3044;
+    top: 15px;
+    box-shadow: 0px 1px 6px #101018b8;
+    border-radius: 7px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+#fileSummary > span {
+    margin-top: 15px;
+    opacity: 0.85;
+}
+
+#summaryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+#summaryHeader > span {
+    font-weight: 500;
+}
+
+#summaryHeader > svg:hover {
+    opacity: 0.75;
+}
+
+#summaryContent {
+    overflow: hidden;
+}
