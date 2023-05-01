@@ -8,57 +8,111 @@ import ExampleRepository from "../components/ExampleRepository";
 import { Repository } from "../library/data";
 import Mixpanel from "../library/mixpanel";
 
-class GithubInput extends Component {
+class RepositoryInput extends Component {
     constructor(props) {
         super(props);
 
         this.getRepoNameFromUrl = this.getRepoNameFromUrl.bind(this);
+        this.renderExampleRepositories = this.renderExampleRepositories.bind(this);
 
         this.onSelectExampleRepository = this.onSelectExampleRepository.bind(this);
-        this.onChangeGithubUrl = this.onChangeGithubUrl.bind(this);
-        this.onSubmitGithubUrl = this.onSubmitGithubUrl.bind(this);
+        this.onChangeUrl = this.onChangeUrl.bind(this);
+        this.onSubmitUrl = this.onSubmitUrl.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
 
-        this.state = { githubUrl: "", secondaryIndexingProgressId: null };
+        this.state = { url: "", secondaryIndexingProgressId: null };
     }
 
     /* Utilities */
 
     getRepoNameFromUrl() {
-        let { githubUrl } = this.state;
-        githubUrl = githubUrl.trim();
+        let { url } = this.state;
+        url = url.trim();
 
-        if (githubUrl.endsWith("/")) {
-            githubUrl = githubUrl.slice(0, githubUrl.length - 1);
+        if (url.endsWith("/")) {
+            url = url.slice(0, url.length - 1);
         }
 
-        const components = githubUrl.split("/");
+        const components = url.split("/");
         const repoName = components.slice(-2).join("/");
 
         return repoName;
     }
 
+    renderExampleRepositories() {
+        const { isGitLab } = this.props;
+
+        if (isGitLab) {
+            return (
+                <>
+                    <ExampleRepository
+                        isGitLab
+                        onClick={() => this.onSelectExampleRepository("graphviz/graphviz")}
+                    >
+                        graphviz/graphviz
+                    </ExampleRepository>
+                    <ExampleRepository
+                        isGitLab
+                        onClick={() => this.onSelectExampleRepository("baserow/baserow")}
+                    >
+                        baserow/baserow
+                    </ExampleRepository>
+                    <ExampleRepository
+                        isGitLab
+                        onClick={() => this.onSelectExampleRepository("ClearURLs/ClearUrls")}
+                    >
+                        ClearURLs/ClearUrls
+                    </ExampleRepository>
+                </>
+            );
+        }
+
+        return (
+            <>
+                <ExampleRepository
+                    onClick={() => this.onSelectExampleRepository("hwchase17/langchain")}
+                >
+                    hwchase17/langchain
+                </ExampleRepository>
+                <ExampleRepository
+                    onClick={() => this.onSelectExampleRepository("psf/requests")}
+                >
+                    psf/requests
+                </ExampleRepository>
+                <ExampleRepository
+                    onClick={() => this.onSelectExampleRepository("shobrook/adrenaline")}
+                >
+                    shobrook/adrenaline
+                </ExampleRepository>
+            </>
+        );
+    }
+
     /* Event Handlers */
 
     onSelectExampleRepository(codebaseId) {
-        this.setState({ githubUrl: `https://github.com/${codebaseId}` }, this.onSubmitGithubUrl);
+        const { isGitLab } = this.props;
+        this.setState(
+            { url: `https://${isGitLab ? "gitlab" : "github"}.com/${codebaseId}` },
+            this.onSubmitUrl
+        );
     }
 
-    onChangeGithubUrl(event) {
-        this.setState({ githubUrl: event.target.value });
+    onChangeUrl(event) {
+        this.setState({ url: event.target.value });
     }
 
-    onSubmitGithubUrl() {
-        const { onSetProgressMessage, onSetCodebase } = this.props;
+    onSubmitUrl() {
+        const { onSetProgressMessage, onSetCodebase, isGitLab } = this.props;
         const {
             isAuthenticated,
             loginWithRedirect,
             getAccessTokenSilently,
             user
         } = this.props.auth0;
-        const { githubUrl } = this.state;
+        const { url } = this.state;
 
-        if (githubUrl == "") {
+        if (url == "") {
             return;
         }
 
@@ -80,7 +134,8 @@ class GithubInput extends Component {
                         user_id: user.sub,
                         token: token,
                         repo_name: this.getRepoNameFromUrl(),
-                        refresh_index: false // TEMP
+                        refresh_index: false, // TEMP
+                        is_gitlab: isGitLab
                     };
 
                     this.websocket.send(JSON.stringify(request));
@@ -180,31 +235,32 @@ class GithubInput extends Component {
         const code = event.keyCode || event.which;
 
         if (code === 13) {
-            this.onSubmitGithubUrl();
+            this.onSubmitUrl();
         }
     }
 
     /* Lifecycle Methods */
 
     render() {
-        const { githubUrl } = this.state;
+        const { isGitLab } = this.props;
+        const { url } = this.state;
 
         return (
             <>
                 <div id="inputField" className="githubInput">
                     <div id="inputFieldArea">
-                        <img id={githubUrl == "" ? "passiveLink" : "activeLink"} src="./link_icon.png" />
+                        <img id={url == "" ? "passiveLink" : "activeLink"} src="./link_icon.png" />
                         <input
                             id="inputFieldValue"
-                            placeholder="Github repository link"
-                            onChange={this.onChangeGithubUrl}
-                            value={githubUrl}
+                            placeholder={`${isGitLab ? "GitLab" : "GitHub"} repository link`}
+                            onChange={this.onChangeUrl}
+                            value={url}
                             onKeyPress={this.onKeyPress}
                         />
                         <Button
                             id="sendInputButton"
                             isPrimary
-                            onClick={this.onSubmitGithubUrl}
+                            onClick={this.onSubmitUrl}
                         >
                             Add
                         </Button>
@@ -212,25 +268,10 @@ class GithubInput extends Component {
                 </div>
 
                 <span id="exampleRepositoriesTitle">Examples</span>
-
-                <ExampleRepository
-                    onClick={() => this.onSelectExampleRepository("hwchase17/langchain")}
-                >
-                    hwchase17/langchain
-                </ExampleRepository>
-                <ExampleRepository
-                    onClick={() => this.onSelectExampleRepository("psf/requests")}
-                >
-                    psf/requests
-                </ExampleRepository>
-                <ExampleRepository
-                    onClick={() => this.onSelectExampleRepository("shobrook/adrenaline")}
-                >
-                    shobrook/adrenaline
-                </ExampleRepository>
+                {this.renderExampleRepositories()}
             </>
         );
     }
 }
 
-export default withAuth0(GithubInput);
+export default withAuth0(RepositoryInput);

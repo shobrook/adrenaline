@@ -34,9 +34,9 @@ export default function LandingPage() {
 
             <div id="overTheFold">
                 <div id="landingHeading">
-                    <span id="landingTitle">Understand your code <span>with AI</span></span>
-                    <p id="landingSubtitle">Stop using Stack Overflow for help. Talk directly to your codebase like you
-                        would an expert.</p>
+                    <span id="landingTitle">Understand any codebase <span>with AI</span></span>
+                    <p id="landingSubtitle">Stop crawling through documentation. Talk directly to a package or project like you
+                        would to an expert.</p>
                 </div>
                 <Button
                     id="getStartedButton"

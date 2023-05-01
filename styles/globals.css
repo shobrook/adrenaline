@@ -1,5 +1,5 @@
 @import "./AddCodeButton.css";
-@import "./AuthenticatedGithubInput.css";
+@import "./AuthenticatedRepositoryInput.css";
 @import "./App.css";
 @import "./Button.css";
 @import "./ChatBot.css";
@@ -7,7 +7,7 @@
 @import "./CodeSnippetInput.css";
 @import "./DocumentFeed.css";
 @import "./FileStructure.css";
-@import "./GithubInput.css";
+@import "./RepositoryInput.css";
 @import "./Header.css";
 @import "./Landing.css";
 @import "./Message.css";

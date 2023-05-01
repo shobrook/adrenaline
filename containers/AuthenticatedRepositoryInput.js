@@ -7,14 +7,15 @@ import Button from "../components/Button";
 import { Repository } from "../library/data";
 import Mixpanel from "../library/mixpanel";
 
-class AuthenticatedGithubInput extends Component {
+class AuthenticatedRepositoryInput extends Component {
     constructor(props) {
         super(props);
 
         this.onChangeRepository = this.onChangeRepository.bind(this);
         this.onSelectRepository = this.onSelectRepository.bind(this);
         this.onChangeSearchInput = this.onChangeSearchInput.bind(this);
-        this.onGithubAuthentication = this.onGithubAuthentication.bind(this);
+        this.onGitHubAuthentication = this.onGitHubAuthentication.bind(this);
+        this.onGitLabAuthentication = this.onGitLabAuthentication.bind(this);
 
         this.renderSearchBar = this.renderSearchBar.bind(this);
 
@@ -22,7 +23,7 @@ class AuthenticatedGithubInput extends Component {
         this.groupRepositoriesByOwner = this.groupRepositoriesByOwner.bind(this);
 
         this.state = {
-            isGithubAuthenticated: false,
+            isAuthenticated: false,
             repositoryOptions: {},
             selectedRepository: "",
             searchInput: "",
@@ -34,6 +35,7 @@ class AuthenticatedGithubInput extends Component {
     /* Utilities */
 
     fetchRepositoryOptions() {
+        const { isGitLab } = this.props;
         const { user, isAuthenticated, getAccessTokenSilently } = this.props.auth0;
 
         if (!isAuthenticated) {
@@ -43,7 +45,7 @@ class AuthenticatedGithubInput extends Component {
         this.setState({ isLoading: true });
         getAccessTokenSilently()
             .then(token => {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/github_repositories`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/${isGitLab ? "gitlab" : "github"}_repositories`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -53,22 +55,19 @@ class AuthenticatedGithubInput extends Component {
                 })
                     .then(res => res.json())
                     .then(data => {
-                        const { is_github_authenticated, repos } = data;
+                        const { is_authenticated, repos } = data;
 
-                        console.log(data);
-
-                        if (!is_github_authenticated) {
+                        if (!is_authenticated) {
                             this.setState({
-                                isGithubAuthenticated: false,
+                                isAuthenticated: false,
                                 isLoading: false
                             });
                             return;
                         }
 
-                        // const repositoryOptions = repos.reduce((options, repo) => ({ ...options, [repo.name]: repo }), {})
                         const repositoryOptions = repos;
                         this.setState({
-                            isGithubAuthenticated: true,
+                            isAuthenticated: true,
                             isLoading: false,
                             repositoryOptions
                         });
@@ -96,7 +95,24 @@ class AuthenticatedGithubInput extends Component {
 
     /* Event Handlers */
 
-    onGithubAuthentication() {
+    onGitLabAuthentication() {
+        const scope = "read_user+read_repository+read_api";
+        let authUrl = "https://gitlab.com/oauth/authorize?";
+        authUrl += `client_id=${process.env.NEXT_PUBLIC_GITLAB_CLIENT_ID}`;
+        authUrl += `&redirect_uri=${process.env.NEXT_PUBLIC_GITLAB_REDIRECT_URI}`;
+        authUrl += `&response_type=code`
+        // authUrl += `&state=${process.env.NEXT_PUBLIC_GITLAB_STATE}`;
+        authUrl += `&scope=${scope}`;
+
+        const win = window.open(authUrl, "_blank");
+        if (win != null) {
+            win.focus();
+        }
+
+        Mixpanel.track("Connect to GitLab");
+    }
+
+    onGitHubAuthentication() {
         // const login = ""; // TODO: Populate this if user is already authenticated with Github
         const scope = "repo,read:org";
 
@@ -106,10 +122,11 @@ class AuthenticatedGithubInput extends Component {
         // authUrl += `&login=${login}`;
         authUrl += `&scope=${scope}`;
 
-        const win = window.open(authUrl, "_blank"); // TODO: Open in same tab
+        const win = window.open(authUrl, "_blank");
         if (win != null) {
             win.focus();
         }
+
         Mixpanel.track("Connect to GitHub")
     }
 
@@ -122,7 +139,7 @@ class AuthenticatedGithubInput extends Component {
     }
 
     onSelectRepository(repo) {
-        const { onSetProgressMessage, onSetCodebase } = this.props;
+        const { onSetProgressMessage, onSetCodebase, isGitLab } = this.props;
         const {
             getAccessTokenSilently,
             user
@@ -138,6 +155,7 @@ class AuthenticatedGithubInput extends Component {
                         user_id: user.sub,
                         token: token,
                         repo_name: `${repo.owner}/${repo.name}`,
+                        is_gitlab: isGitLab,
                         refresh_index: false // TEMP
                     };
                     this.websocket.send(JSON.stringify(request));
@@ -253,10 +271,11 @@ class AuthenticatedGithubInput extends Component {
     }
 
     componentDidUpdate(previousProps, previousState) {
-        const { isGithubAuthenticated: prevAuthStatus } = previousProps;
-        const { isGithubAuthenticated: currAuthStatus } = this.props;
+        const { isAuthenticated: prevAuthStatus } = previousProps;
+        const { isAuthenticated: currAuthStatus } = this.props;
 
-        if (!(!prevAuthStatus && currAuthStatus)) { // Component didn't update due to user authentication
+        // Check if component updated due to user authentication
+        if (!(!prevAuthStatus && currAuthStatus)) {
             return;
         }
 
@@ -264,8 +283,9 @@ class AuthenticatedGithubInput extends Component {
     }
 
     render() {
+        const { isGitLab } = this.props;
         const {
-            isGithubAuthenticated,
+            isAuthenticated,
             searchInput,
             isLoading
         } = this.state;
@@ -279,7 +299,7 @@ class AuthenticatedGithubInput extends Component {
             );
         }
 
-        if (isGithubAuthenticated) {
+        if (isAuthenticated) {
             const groupedRepositories = this.groupRepositoriesByOwner();
 
             return (
@@ -341,12 +361,17 @@ class AuthenticatedGithubInput extends Component {
                 {this.renderSearchBar()}
 
                 <div id="githubAuthPrompt">
-                    <span>Authenticate with GitHub to add your repos</span>
-                    <Button isPrimary onClick={this.onGithubAuthentication}>Connect with GitHub</Button>
+                    <span>Authorize Adrenaline to access the list of your {isGitLab ? "GitLab" : "GitHub"} repositories</span>
+                    <Button
+                        isPrimary
+                        onClick={() => isGitLab ? this.onGitLabAuthentication() : this.onGitHubAuthentication()}
+                    >
+                        Authenticate with {isGitLab ? "GitLab" : "GitHub"}
+                    </Button>
                 </div>
             </div>
         );
     }
 }
 
-export default withAuth0(AuthenticatedGithubInput);
+export default withAuth0(AuthenticatedRepositoryInput);

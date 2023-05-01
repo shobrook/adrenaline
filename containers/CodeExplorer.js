@@ -6,12 +6,12 @@ import { motion } from "framer-motion";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import { HiTrash, HiCode } from "react-icons/hi";
-import { AiFillGithub } from "react-icons/ai";
+import { AiFillGithub, AiFillGitlab } from "react-icons/ai";
 
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
-import GithubInput from "./GithubInput";
-import AuthenticatedGithubInput from "./AuthenticatedGithubInput";
+import RepositoryInput from "./RepositoryInput";
+import AuthenticatedRepositoryInput from "./AuthenticatedRepositoryInput";
 import FileStructure from "./FileStructure";
 import FileSummary from "./FileSummary";
 import Button from "../components/Button";
@@ -26,7 +26,8 @@ import toast from "react-hot-toast";
 const DEFAULT_STATE = {
     renderCodeSnippet: false,
     renderRepository: false,
-    renderSelectRepository: false,
+    renderSelectGitHubRepository: false,
+    renderSelectGitLabRepository: false,
     renderSelectPrivateRepository: false,
     renderSelectCodeSnippet: false,
     renderFileTree: true,
@@ -42,7 +43,8 @@ const DEFAULT_STATE = {
         code: "",
         fileSummary: "",
         language: "python",
-        isPrivate: false
+        isPrivate: false,
+        isGitLab: false
     }
 };
 
@@ -106,26 +108,27 @@ class CodeExplorer extends Component {
                                     files,
                                     code,
                                     language,
-                                    is_private
+                                    is_private,
+                                    is_gitlab
                                 } = codebase;
 
                                 if (is_code_snippet) {
                                     return new CodeSnippet(codebase_id, name, code, language);
                                 }
 
-                                return new Repository(codebase_id, name, files, is_private);
+                                return new Repository(codebase_id, name, files, is_private, is_gitlab);
                             })
                         });
                     });
             });
     }
 
-    async getFileContent(filePath, fileUrl, codebaseId, isPrivateRepo) {
+    async getFileContent(filePath, fileUrl, codebaseId, isGitLab, isPrivateRepo) {
         const { user, getAccessTokenSilently } = this.props.auth0;
 
         return await getAccessTokenSilently()
             .then(async token => {
-                return await fetch(`${process.env.NEXT_PUBLIC_API_URI}api/file_content`, {
+                return await fetch(`${process.env.NEXT_PUBLIC_API_URI}api/${isGitLab ? "gitlab" : "github"}_file_content`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -157,11 +160,12 @@ class CodeExplorer extends Component {
         const {
             renderCodeSnippet,
             renderRepository,
-            renderSelectRepository,
+            renderSelectGitHubRepository,
+            renderSelectGitLabRepository,
             renderSelectCodeSnippet,
             renderIndexingProgress
         } = this.state;
-        return !renderCodeSnippet && !renderRepository && !renderSelectRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
+        return !renderCodeSnippet && !renderRepository && !renderSelectGitHubRepository && !renderSelectGitLabRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
     }
 
     deleteCodebase(codebase) {
@@ -190,7 +194,7 @@ class CodeExplorer extends Component {
                             console.log("Fetching codebases")
                             this.fetchCodebases();
                         } else {
-                            // TODO: Display toast
+                            toast.error("Failed to delete codebase!");
                         }
                         toast.success("Codebase deleted!");
                     })
@@ -225,8 +229,7 @@ class CodeExplorer extends Component {
                 ...currentCodeContext,
                 code,
                 language,
-                currentFile: name,
-                isPrivate: formControlClasses
+                currentFile: name
             }
         });
     }
@@ -235,7 +238,8 @@ class CodeExplorer extends Component {
         this.setState({
             renderIndexingProgress: !haltProgress,
             renderSelectCodeSnippet: false,
-            renderSelectRepository: false,
+            renderSelectGitHubRepository: false,
+            renderSelectGitLabRepository: false,
             progressMessage
         });
     }
@@ -254,7 +258,7 @@ class CodeExplorer extends Component {
 
     async onSetCodebase(repository, isPaywalled, paywallMessage = "") {
         const { onSetCodebaseId } = this.props;
-        const { codebaseId, files, isPrivate } = repository;
+        const { codebaseId, files, isPrivate, isGitLab } = repository;
 
         onSetCodebaseId(codebaseId);
 
@@ -270,7 +274,7 @@ class CodeExplorer extends Component {
 
         const currentFile = Object.keys(files)[0];
         const fileUrl = files[currentFile].url;
-        const { fileContent, fileSummary } = await this.getFileContent(currentFile, fileUrl, codebaseId, isPrivate);
+        const { fileContent, fileSummary } = await this.getFileContent(currentFile, fileUrl, codebaseId, isGitLab, isPrivate);
         const fileLanguage = files[currentFile].language;
 
         this.setState({
@@ -280,7 +284,8 @@ class CodeExplorer extends Component {
                 language: fileLanguage,
                 fileSummary,
                 currentFile,
-                isPrivate
+                isPrivate,
+                isGitLab
             },
             renderRepository: true,
             renderIndexingProgress: false
@@ -289,9 +294,9 @@ class CodeExplorer extends Component {
 
     async onSelectFile(filePath) {
         const { setFileContext, codebaseId } = this.props;
-        const { files, isPrivate } = this.state.currentCodeContext;
+        const { files, isPrivate, isGitLab } = this.state.currentCodeContext;
         const { language: fileLanguage, url: fileUrl } = files[filePath];
-        const { fileContent, fileSummary } = await this.getFileContent(filePath, fileUrl, codebaseId, isPrivate);
+        const { fileContent, fileSummary } = await this.getFileContent(filePath, fileUrl, codebaseId, isGitLab, isPrivate);
 
         this.setState({
             currentCodeContext: {
@@ -300,7 +305,8 @@ class CodeExplorer extends Component {
                 fileSummary,
                 language: fileLanguage,
                 currentFile: filePath,
-                isPrivate
+                isPrivate,
+                isGitLab
             }
         });
         setFileContext("");
@@ -312,7 +318,8 @@ class CodeExplorer extends Component {
         this.setState({
             renderCodeSnippet: false,
             renderRepository: false,
-            renderSelectRepository: false,
+            renderSelectGitHubRepository: false,
+            renderSelectGitLabRepository: false,
             renderSelectCodeSnippet: false,
             renderFileTree: false,
             renderPaywall: false,
@@ -408,18 +415,21 @@ class CodeExplorer extends Component {
     }
 
     renderSelectRepository() {
-        const { onSetCodebaseId } = this.props;
-        const { renderSelectRepository, renderSelectPrivateRepository } = this.state;
+        const {
+            renderSelectGitHubRepository,
+            renderSelectGitLabRepository,
+            renderSelectPrivateRepository
+        } = this.state;
 
-        if (!renderSelectRepository) {
+        if (!renderSelectGitHubRepository && !renderSelectGitLabRepository) {
             return null;
         }
 
         return (
             <div id="selectRepository">
                 <div id="selectRepositoryHeading">
-                    <span id="selectHeading">Add a GitHub repository</span>
-                    <span id="selectSubheading">Paste a link to a public repository or import your own by authenticating with GitHub.</span>
+                    <span id="selectHeading">Add a {renderSelectGitHubRepository ? "GitHub" : "GitLab"} repository</span>
+                    <span id="selectSubheading">Paste a link to a public repository or import your own by authenticating with {renderSelectGitHubRepository ? "GitHub" : "GitLab"}.</span>
                 </div>
 
                 <div id="repoSwitch">
@@ -433,17 +443,19 @@ class CodeExplorer extends Component {
                 </div>
 
                 {renderSelectPrivateRepository ? (
-                    <AuthenticatedGithubInput
+                    <AuthenticatedRepositoryInput
                         onSetProgressMessage={this.onSetProgressMessage}
                         onSetSecondaryProgressMessage={this.onSetSecondaryProgressMessage}
                         onSetCodebase={this.onSetCodebase}
+                        isGitLab={renderSelectGitLabRepository}
                     />
                 ) : (
                     <>
-                        <GithubInput
+                        <RepositoryInput
                             onSetProgressMessage={this.onSetProgressMessage}
                             onSetSecondaryProgressMessage={this.onSetSecondaryProgressMessage}
                             onSetCodebase={this.onSetCodebase}
+                            isGitLab={renderSelectGitLabRepository}
                         />
                     </>
                 )}
@@ -459,9 +471,14 @@ class CodeExplorer extends Component {
             return null;
         }
 
-        const handleAddRepository = () => {
-            this.setState({ renderSelectRepository: true })
-            Mixpanel.track("Add repository")
+        const handleAddGitHubRepository = () => {
+            this.setState({ renderSelectGitHubRepository: true })
+            Mixpanel.track("Add GitHub repository")
+        }
+
+        const handleAddGitLabRepository = () => {
+            this.setState({ renderSelectGitLabRepository: true });
+            Mixpanel.track("Add GitLab repository");
         }
 
         const handleAddCodeSnippet = () => {
@@ -473,7 +490,10 @@ class CodeExplorer extends Component {
             <div id="initCodebaseManager">
                 <Grid className="grid" container spacing={2}>
                     <Grid item xs={6}>
-                        <AddCodeButton onClick={handleAddRepository}>Add repository</AddCodeButton>
+                        <AddCodeButton onClick={handleAddGitHubRepository}>Add GitHub repository</AddCodeButton>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <AddCodeButton onClick={handleAddGitLabRepository}>Add GitLab repository</AddCodeButton>
                     </Grid>
                     <Grid item xs={6}>
                         <AddCodeButton onClick={handleAddCodeSnippet}>Add code
@@ -481,7 +501,7 @@ class CodeExplorer extends Component {
                     </Grid>
                     {
                         codebases.map(codebase => {
-                            const { name, isCodeSnippet } = codebase;
+                            const { name, isCodeSnippet, isGitLab } = codebase;
 
                             if (isCodeSnippet) {
                                 return (
@@ -502,7 +522,10 @@ class CodeExplorer extends Component {
                                 <Grid item xs={6}>
                                     <div className="codebaseThumbnail">
                                         <div className="codebaseName" onClick={async () => await this.onSetCodebase(codebase, false)}>
-                                            <AiFillGithub fill="white" size={22} />
+                                            {
+                                                isGitLab ? (<AiFillGitlab fill="white" size={22} />) :
+                                                    (<AiFillGithub fill="white" size={22} />)
+                                            }
                                             <span>{name}</span>
                                         </div>
                                         <HiTrash fill="white" size={22} onClick={() => this.deleteCodebase(codebase)} />
@@ -538,17 +561,18 @@ class CodeExplorer extends Component {
         const {
             renderCodeSnippet,
             renderRepository,
-            renderSelectRepository,
+            renderSelectGitHubRepository,
+            renderSelectGitLabRepository,
             renderSelectCodeSnippet
         } = this.state;
         const { currentFile } = this.state.currentCodeContext;
 
-        if (renderSelectRepository) {
+        if (renderSelectGitHubRepository || renderSelectGitLabRepository) {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
                         {/* <img src="./repository_icon.png" /> */}
-                        <span>Add GitHub repository</span>
+                        <span>Add {renderSelectGitHubRepository ? "GitHub" : "GitLab"} repository</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
                 </div>
@@ -619,11 +643,12 @@ class CodeExplorer extends Component {
         const {
             renderCodeSnippet,
             renderRepository,
-            renderSelectRepository,
+            renderSelectGitHubRepository,
+            renderSelectGitLabRepository,
             renderSelectCodeSnippet,
             renderIndexingProgress
         } = prevState;
-        const prevShouldRenderCodebaseManager = !renderCodeSnippet && !renderRepository && !renderSelectRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
+        const prevShouldRenderCodebaseManager = !renderCodeSnippet && !renderRepository && !renderSelectGitHubRepository && !renderSelectGitLabRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
         const shouldRenderCodebaseManager = this.shouldRenderCodebaseManager();
 
         if (prevShouldRenderCodebaseManager != shouldRenderCodebaseManager && shouldRenderCodebaseManager) {
