@@ -42,44 +42,49 @@ class AuthenticatedRepositoryInput extends Component {
             return; // TODO: Prompt user to login? Or is this condition not possible
         }
 
-        this.setState({ isLoading: true });
-        getAccessTokenSilently()
-            .then(token => {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/${isGitLab ? "gitlab" : "github"}_repositories`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ user_id: user.sub })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        const { is_authenticated, repos } = data;
-
-                        if (!is_authenticated) {
-                            this.setState({
-                                isAuthenticated: false,
-                                isLoading: false
-                            });
-                            return;
-                        }
-
-                        const repositoryOptions = repos;
-                        this.setState({
-                            isAuthenticated: true,
-                            isLoading: false,
-                            repositoryOptions
-                        });
+        this.setState({ isLoading: true }, () => {
+            getAccessTokenSilently()
+                .then(token => {
+                    fetch(`${process.env.NEXT_PUBLIC_API_URI}api/${isGitLab ? "gitlab" : "github"}_repositories`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ user_id: user.sub })
                     })
-                    .catch(error => console.log(error));
-            });
+                        .then(res => res.json())
+                        .then(data => {
+                            const { is_authenticated, repos } = data;
+
+                            console.log(data)
+
+                            if (!is_authenticated) {
+                                console.log(is_authenticated);
+                                this.setState({
+                                    isAuthenticated: false,
+                                    isLoading: false
+                                });
+                                return;
+                            }
+
+                            console.log("gets here?")
+
+                            const repositoryOptions = repos;
+                            this.setState({
+                                isAuthenticated: true,
+                                isLoading: false,
+                                repositoryOptions
+                            });
+                            console.log("STATE UPDATED")
+                        })
+                        .catch(error => console.log(error));
+                });
+        });
     }
 
     groupRepositoriesByOwner() {
         const { repositoryOptions } = this.state;
-
-        console.log(repositoryOptions);
 
         const groupedRepositories = repositoryOptions.reduce((r, a) => {
             r[a.owner] = r[a.owner] || [];
@@ -88,6 +93,7 @@ class AuthenticatedRepositoryInput extends Component {
             return r;
         }, Object.create(null));
 
+        console.log("this")
         console.log(groupedRepositories);
 
         return groupedRepositories;
@@ -197,7 +203,7 @@ class AuthenticatedRepositoryInput extends Component {
                                 await onSetCodebase(repository, is_paywalled, message);
                             } else {
                                 const { codebase_id, name, files, is_private } = metadata;
-                                const repository = new Repository(codebase_id, name, files, repo.is_private);
+                                const repository = new Repository(codebase_id, name, files, repo.is_private, isGitLab);
                                 await onSetCodebase(repository, is_paywalled);
                             }
                         } else {
@@ -274,12 +280,11 @@ class AuthenticatedRepositoryInput extends Component {
         const { isAuthenticated: prevAuthStatus } = previousProps;
         const { isAuthenticated: currAuthStatus } = this.props;
 
-        // Check if component updated due to user authentication
-        if (!(!prevAuthStatus && currAuthStatus)) {
-            return;
+        // User is authenticated
+        if (!prevAuthStatus && currAuthStatus) {
+            console.log("Updated due to authentication change")
+            this.fetchRepositoryOptions();
         }
-
-        this.fetchRepositoryOptions();
     }
 
     render() {
@@ -289,6 +294,8 @@ class AuthenticatedRepositoryInput extends Component {
             searchInput,
             isLoading
         } = this.state;
+
+        console.log(this.state);
 
         if (isLoading) {
             return (
@@ -302,6 +309,7 @@ class AuthenticatedRepositoryInput extends Component {
         if (isAuthenticated) {
             const groupedRepositories = this.groupRepositoriesByOwner();
 
+            console.log("hits this")
             return (
                 <div id="authenticatedGithubInput">
                     {this.renderSearchBar()}

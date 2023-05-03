@@ -178,8 +178,8 @@ class RepositoryInput extends Component {
                                 const repository = new Repository("", "", {});
                                 await onSetCodebase(repository, is_paywalled, message);
                             } else {
-                                const { codebase_id, name, files } = metadata;
-                                const repository = new Repository(codebase_id, name, files);
+                                const { codebase_id, name, files, is_gitlab, is_private } = metadata;
+                                const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
                                 await onSetCodebase(repository, is_paywalled);
                             }
                         } else {

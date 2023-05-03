@@ -139,7 +139,7 @@ class CodeExplorer extends Component {
                         codebase_id: codebaseId,
                         file_url: fileUrl,
                         file_path: filePath,
-                        is_private_repo: isPrivateRepo
+                        is_private: isPrivateRepo
                     })
                 })
                     .then(res => res.json())
