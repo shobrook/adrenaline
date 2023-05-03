@@ -87,7 +87,7 @@ export default function DebuggerAppPage() {
                             numMessagesSent: num_messages_sent,
                             numRepositoriesIndexed: num_repositories_indexed,
                             numCodeSnippetsIndexed: num_code_snippets_indexed
-                        })
+                        });
                     });
             });
     }

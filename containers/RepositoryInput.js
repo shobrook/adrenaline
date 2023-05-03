@@ -12,7 +12,7 @@ class RepositoryInput extends Component {
     constructor(props) {
         super(props);
 
-        this.getRepoNameFromUrl = this.getRepoNameFromUrl.bind(this);
+        this.getRepoPathFromUrl = this.getRepoPathFromUrl.bind(this);
         this.renderExampleRepositories = this.renderExampleRepositories.bind(this);
 
         this.onSelectExampleRepository = this.onSelectExampleRepository.bind(this);
@@ -25,7 +25,7 @@ class RepositoryInput extends Component {
 
     /* Utilities */
 
-    getRepoNameFromUrl() {
+    getRepoPathFromUrl() {
         let { url } = this.state;
         url = url.trim();
 
@@ -33,10 +33,10 @@ class RepositoryInput extends Component {
             url = url.slice(0, url.length - 1);
         }
 
-        const components = url.split("/");
-        const repoName = components.slice(-2).join("/");
+        const components = url.split(".com/");
+        const repoPath = components[1];
 
-        return repoName;
+        return repoPath;
     }
 
     renderExampleRepositories() {
@@ -133,7 +133,7 @@ class RepositoryInput extends Component {
                     const request = {
                         user_id: user.sub,
                         token: token,
-                        repo_name: this.getRepoNameFromUrl(),
+                        repo_name: this.getRepoPathFromUrl(),
                         refresh_index: false, // TEMP
                         is_gitlab: isGitLab
                     };
