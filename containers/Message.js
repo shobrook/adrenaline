@@ -147,11 +147,14 @@ export default class Message extends Component {
     renderReasoningSteps() {
         const { steps } = this.props;
 
-        return Object.keys(steps).map(stepType => (
-            <div className="reasoningStep">
-                <span className="stepType">{stepType}:</span> <span className="stepContent">{steps[stepType]}</span>
-            </div>
-        ));
+        return steps.map(step => {
+            const { type, content} = step;
+            return (
+                <div className="reasoningStep">
+                    <span className="stepType">{type}:</span> <span className="stepContent">{content}</span>
+                </div>
+            );
+        });
     }
 
     renderContext() {

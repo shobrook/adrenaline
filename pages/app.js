@@ -203,10 +203,16 @@ export default function DebuggerAppPage() {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let response = prevMessages[prevMessages.length - 1];
 
-                    if (message.type in response.steps) {
-                        response.steps[message.type] += message.content;
+                    if (response.steps.length === 0) {
+                        response.steps.push(message);
                     } else {
-                        response.steps[message.type] = message.content;
+                        const priorStep = response.steps[response.steps.length - 1];
+                        if (priorStep.type === message.type) {
+                            priorStep.content += message.content;
+                            response.steps[response.steps.length - 1] = priorStep;
+                        } else {
+                            response.steps.push(message);
+                        }
                     }
 
                     return [...priorMessages, response];
