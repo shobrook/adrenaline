@@ -77,8 +77,7 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
                 </div>
                 <div className="ctaButtons">
                     {isAuthenticated ? (
-                        <UserNavDropdown onLogout={onLogout}
-                                         setShowSubscriptionModal={setShowSubscriptionModal} />
+                        <UserNavDropdown onLogout={onLogout} setShowSubscriptionModal={setShowSubscriptionModal} />
                     ) : (
                         <>
                             <Button
@@ -100,8 +99,7 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
             </div>
             <div className="compactButtons">
                 {isAuthenticated ? (
-                    <UserNavDropdown onLogout={onLogout}
-                                     setShowSubscriptionModal={setShowSubscriptionModal} />
+                    <UserNavDropdown onLogout={onLogout} setShowSubscriptionModal={setShowSubscriptionModal} />
                 ) : (
                     <>
                         <Button isPrimary={false} onClick={onLogIn}>Log in</Button>
