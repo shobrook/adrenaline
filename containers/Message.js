@@ -11,7 +11,7 @@ export default class Message extends Component {
         super(props);
 
         this.onToggleContext = this.onToggleContext.bind(this);
-        this.onToggleLearnMore = this.onToggleLearnMore.bind(this);
+        // this.onToggleLearnMore = this.onToggleLearnMore.bind(this);
 
         this.scrollToBottom = this.scrollToBottom.bind(this);
         this.isLoading = this.isLoading.bind(this);
@@ -41,15 +41,15 @@ export default class Message extends Component {
         }
     }
 
-    onToggleLearnMore() {
-        const { renderLearnMore, isLastMessage } = this.state;
+    // onToggleLearnMore() {
+    //     const { renderLearnMore, isLastMessage } = this.state;
 
-        this.setState({ renderLearnMore: !renderLearnMore, renderContext: false });
+    //     this.setState({ renderLearnMore: !renderLearnMore, renderContext: false });
 
-        if (!renderLearnMore && isLastMessage) {
-            this.scrollToBottom();
-        }
-    }
+    //     if (!renderLearnMore && isLastMessage) {
+    //         this.scrollToBottom();
+    //     }
+    // }
 
     /* Utilities */
 
@@ -80,14 +80,14 @@ export default class Message extends Component {
                     className={`optionButton ${renderContext ? "isClicked" : ""}`}
                     onClick={this.onToggleContext}
                 >
-                    Context
+                    Sources
                 </div>
-                <div
+                {/* <div
                     className={`optionButton ${renderLearnMore ? "isClicked" : ""}`}
                     onClick={this.onToggleLearnMore}
                 >
                     Learn more
-                </div>
+                </div> */}
             </div>
         );
     }
