@@ -272,7 +272,7 @@ class CodeExplorer extends Component {
             return
         }
 
-        let currentFile = Object.keys(files).find(key => files[key].language != "text");
+        let currentFile = Object.keys(files).find(filePath => files[filePath].language != "text" && !filePath.startsWith("."));
         currentFile = currentFile ? currentFile : Object.keys(files)[-1];
         const fileUrl = files[currentFile].url;
         const { fileContent, fileSummary } = await this.getFileContent(currentFile, fileUrl, codebaseId, isGitLab, isPrivate);
