@@ -3,19 +3,15 @@
     bottom: 0;
     left: 0;
     width: 100%;
-
-    /*border-top-width: 1px;*/
 }
-
-
 
 #chatForm {
     align-items: stretch;
     display: flex;
     flex-direction: row;
     background-color: #181B26;
-
 }
+
 #chatInputContainer {
     display: flex;
     flex-direction: column;
@@ -27,6 +23,7 @@
     border-radius: 7px;
     color: #fff;
 }
+
 .chatTextarea {
     width: 100%;
     max-height: 300px;
