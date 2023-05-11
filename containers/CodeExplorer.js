@@ -45,6 +45,7 @@ const DEFAULT_STATE = {
     ...DEFAULT_PROGRESS_STATE,
     paywallMessage: "You've reached your repository limit! Upgrade your plan to increase it.",
     codebases: [], // List of codebase objects
+    renderLoadingCodebases: false,
     currentCodeContext: {
         files: [],
         currentFile: "",
@@ -93,42 +94,45 @@ class CodeExplorer extends Component {
             return;
         }
 
-        getAccessTokenSilently()
-            .then(async token => {
-                await fetch(`${process.env.NEXT_PUBLIC_API_URI}api/user_codebases`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ user_id: user.sub })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        const { codebases } = data;
+        this.setState({ renderLoadingCodebases: true }, () => {
+            getAccessTokenSilently()
+                .then(async token => {
+                    await fetch(`${process.env.NEXT_PUBLIC_API_URI}api/user_codebases`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ user_id: user.sub })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            const { codebases } = data;
 
-                        this.setState({
-                            codebases: codebases.map(codebase => {
-                                const {
-                                    name,
-                                    is_code_snippet,
-                                    codebase_id,
-                                    files,
-                                    code,
-                                    language,
-                                    is_private,
-                                    is_gitlab
-                                } = codebase;
+                            this.setState({
+                                codebases: codebases.map(codebase => {
+                                    const {
+                                        name,
+                                        is_code_snippet,
+                                        codebase_id,
+                                        files,
+                                        code,
+                                        language,
+                                        is_private,
+                                        is_gitlab
+                                    } = codebase;
 
-                                if (is_code_snippet) {
-                                    return new CodeSnippet(codebase_id, name, code, language);
-                                }
+                                    if (is_code_snippet) {
+                                        return new CodeSnippet(codebase_id, name, code, language);
+                                    }
 
-                                return new Repository(codebase_id, name, files, is_private, is_gitlab);
-                            })
+                                    return new Repository(codebase_id, name, files, is_private, is_gitlab);
+                                }),
+                                renderLoadingCodebases: false
+                            });
                         });
-                    });
-            });
+                });
+        });
     }
 
     async getFileContent(filePath, fileUrl, codebaseId, isGitLab, isPrivateRepo) {
@@ -512,7 +516,7 @@ class CodeExplorer extends Component {
     }
 
     renderCodebaseManager() {
-        const { codebases } = this.state;
+        const { codebases, renderLoadingCodebases } = this.state;
         const renderCodebaseManager = this.shouldRenderCodebaseManager();
 
         if (!renderCodebaseManager) {
@@ -547,6 +551,7 @@ class CodeExplorer extends Component {
                         <AddCodeButton onClick={handleAddCodeSnippet}>Add code
                             snippet</AddCodeButton>
                     </Grid>
+                    
                     {
                         codebases.map(codebase => {
                             const { name, isCodeSnippet, isGitLab } = codebase;
@@ -583,6 +588,13 @@ class CodeExplorer extends Component {
                             );
                         })
                     }
+
+                    {renderLoadingCodebases ? (
+                        <Grid item xs={6}>
+                            <div className="codebaseThumbnail loadingMessage" />
+                            <div className="spacer" />
+                        </Grid>
+                    ) : null}
                 </Grid>
             </div>
         );
