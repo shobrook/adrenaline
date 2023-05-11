@@ -60,6 +60,7 @@ class CodeExplorer extends Component {
     constructor(props) {
         super(props);
 
+        this.onBeforeUnload = this.onBeforeUnload.bind(this);
         this.onToggleFileTree = this.onToggleFileTree.bind(this);
         this.onSetCodebase = this.onSetCodebase.bind(this);
         this.onSelectFile = this.onSelectFile.bind(this);
@@ -216,6 +217,23 @@ class CodeExplorer extends Component {
     }
 
     /* Event Handlers */
+
+    onBeforeUnload(event) {
+        const { renderIndexingProgress } = this.state;
+
+        if (renderIndexingProgress) {
+            // Cancel the event
+            event.preventDefault();
+
+            // Chrome requires returnValue to be set
+            event.returnValue = "";
+
+            // Show the alert to the user
+            const message = "Are you sure you want to leave? Your codebase is still being indexed.";
+            event.returnValue = message; // For Chrome
+            return message; // For other browsers
+        }
+    }
 
     onToggleSelectPrivateRepository() {
         const { renderSelectPrivateRepository } = this.state;
@@ -658,6 +676,8 @@ class CodeExplorer extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
+        window.addEventListener("beforeunload", this.onBeforeUnload);
+
         const { fileContext } = this.props;
         const { renderCodeSnippet, renderRepository } = this.state;
 
@@ -666,6 +686,10 @@ class CodeExplorer extends Component {
         if (fileContext != "" && (renderRepository || renderCodeSnippet)) {
             this.onSelectFile(fileContext);
         }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("beforeunload", this.onBeforeUnload);
     }
 
     componentDidUpdate(prevProps, prevState) {
