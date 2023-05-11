@@ -61,7 +61,8 @@ export default function SubscriptionModal({ setShowSubscriptionModal }) {
                             features={[
                                 "100 chat messages.",
                                 "15 repositories.",
-                                "50 code snippets."
+                                "50 code snippets.",
+                                "Upgrades to medium sized repos (2,500 lines of code)"
                             ]}
                         />
                         <div id="spacer" />
@@ -72,7 +73,8 @@ export default function SubscriptionModal({ setShowSubscriptionModal }) {
                             features={[
                                 "Unlimited chat messages.",
                                 "25 repositories.",
-                                "Unlimited code snippets."
+                                "Unlimited code snippets.",
+                                "Upgrades to larger sized repos (100,000 lines of code)"
                             ]}
                         />
                     </div>
