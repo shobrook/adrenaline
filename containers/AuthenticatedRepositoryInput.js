@@ -161,14 +161,13 @@ class AuthenticatedRepositoryInput extends Component {
                         token: token,
                         repo_name: `${repo.owner}/${repo.name}`,
                         is_gitlab: isGitLab,
-                        refresh_index: true // TEMP
+                        refresh_index: false // TEMP
                     };
                     this.websocket.send(JSON.stringify(request));
 
                     onSetProgressMessage("Scraping repository");
                 };
                 this.websocket.onmessage = async event => {
-                    const { secondaryIndexingProgressId } = this.state;
                     const {
                         content,
                         step,

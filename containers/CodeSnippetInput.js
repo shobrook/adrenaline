@@ -114,18 +114,45 @@ class CodeSnippetInput extends Component {
                         code
                     };
                     this.websocket.send(JSON.stringify(request));
-
-                    onSetProgressMessage("Analyzing code");
                 };
                 this.websocket.onmessage = async event => {
                     const { code, language } = this.state;
-                    const { codebase_id, name, is_paywalled, error_message } = JSON.parse(event.data);
-                    const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);
+                    const { 
+                        name,
+                        step,
+                        codebase_id, 
+                        is_paywalled,
+                        is_finished,
+                        progress_target,
+                        error
+                    } = JSON.parse(event.data);
 
-                    onSetProgressMessage("");
-                    onSetCodeSnippet(codeSnippet, is_paywalled);
+                    if (error != "") {
+                        toast.error(error, {
+                            style: {
+                                borderRadius: "7px",
+                                background: "#FB4D3D",
+                                color: "#fff",
+                            },
+                            iconTheme: {
+                                primary: '#ffffff7a',
+                                secondary: '#fff',
+                            }
+                        });
+                        onSetProgressMessage(step, "", progress_target, true);
+                        return;
+                    }
 
-                    this.websocket.close();
+                    if (is_finished) {
+                        const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);
+
+                        onSetProgressMessage(null, "", progress_target, true);
+                        onSetCodeSnippet(codeSnippet, is_paywalled);
+
+                        this.websocket.close();
+                    } else {
+                        onSetProgressMessage(step, "", progress_target);
+                    }
                 }
                 this.websocket.onerror = event => {
                     toast.error("Error connecting to server. Please try again later.");

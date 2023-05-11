@@ -134,7 +134,7 @@ class RepositoryInput extends Component {
                         user_id: user.sub,
                         token: token,
                         repo_name: this.getRepoPathFromUrl(),
-                        refresh_index: true, // TEMP
+                        refresh_index: false, // TEMP
                         is_gitlab: isGitLab
                     };
 
