@@ -5,9 +5,9 @@ import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { motion } from "framer-motion";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
-import { HiTrash, HiCode } from "react-icons/hi";
+import { HiTrash, HiCode, HiRefresh } from "react-icons/hi";
 import { AiFillGithub, AiFillGitlab } from "react-icons/ai";
-import Box from '@mui/material/Box';
+import toast from "react-hot-toast";
 
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
@@ -19,10 +19,7 @@ import Button from "../components/Button";
 import AddCodeButton from "../components/AddCodeButton";
 import ProgressBar from "../components/ProgressBar";
 import { CodeSnippet, Repository } from "../library/data";
-
-import { formControlClasses } from "@mui/material";
 import Mixpanel from "../library/mixpanel";
-import toast from "react-hot-toast";
 
 const DEFAULT_PROGRESS_STATE = {
     progressStepHistory: [],
@@ -222,8 +219,7 @@ class CodeExplorer extends Component {
 
     /* Event Handlers */
 
-    onIndexRepository(repoPath) {
-        const { renderSelectGitLabRepository } = this.state;
+    onIndexRepository(repoPath, isGitLab, refreshIndex = false) {
         const {
             isAuthenticated,
             loginWithRedirect,
@@ -249,8 +245,8 @@ class CodeExplorer extends Component {
                         user_id: user.sub,
                         token: token,
                         repo_name: repoPath,
-                        refresh_index: true, // TEMP
-                        is_gitlab: renderSelectGitLabRepository
+                        refresh_index: refreshIndex,
+                        is_gitlab: isGitLab
                     };
 
                     this.websocket.send(JSON.stringify(request));
@@ -568,11 +564,6 @@ class CodeExplorer extends Component {
         const prevProgressBars = progressStepHistory.map((step, index) => ( <ProgressBar key={index} step={step} value={100} /> ));
         const progressValue = progressTarget ? (progress / progressTarget) * 100 : 0;
 
-        console.log(progressStep)
-        console.log(progressTarget)
-        console.log(progressValue)
-        console.log()
-
         return (
             <div id="indexingProgress">
                 {prevProgressBars}
@@ -665,7 +656,7 @@ class CodeExplorer extends Component {
 
                     {
                         codebases.map(codebase => {
-                            const { name, isCodeSnippet, isGitLab } = codebase;
+                            const { name, isCodeSnippet, isGitLab, codebaseId } = codebase;
 
                             if (isCodeSnippet) {
                                 return (
@@ -692,7 +683,25 @@ class CodeExplorer extends Component {
                                             }
                                             <span>{name}</span>
                                         </div>
-                                        <HiTrash fill="white" size={22} onClick={() => this.deleteCodebase(codebase)} />
+                                        <div className="codebaseOptions">
+                                            <HiRefresh 
+                                                fill="white" 
+                                                size={22} 
+                                                onClick={() => {
+                                                    let repoName;
+                                                    if (codebaseId.startsWith("github/")) {
+                                                        repoName = codebaseId.split("github/")[1];
+                                                    } else if (codebaseId.startsWith("gitlab/")) { // GitLab repository
+                                                        repoName = codebaseId.split("gitlab/")[1];
+                                                    } else {
+                                                        repoName = codebaseId;
+                                                    }
+
+                                                    this.onIndexRepository(repoName, isGitLab, true);
+                                                }}
+                                            />
+                                            <HiTrash fill="white" size={22} onClick={() => this.deleteCodebase(codebase)} />
+                                        </div>
                                     </div>
                                     <div className="spacer" />
                                 </Grid>

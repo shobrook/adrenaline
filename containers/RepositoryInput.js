@@ -102,7 +102,7 @@ class RepositoryInput extends Component {
     }
 
     onSubmitUrl() {
-        const { onIndexRepository } = this.props;
+        const { onIndexRepository, isGitLab } = this.props;
         const { url } = this.state;
         const repoPath = this.getRepoPathFromUrl();
 
@@ -110,7 +110,7 @@ class RepositoryInput extends Component {
             return;
         }
 
-        onIndexRepository(repoPath);
+        onIndexRepository(repoPath, isGitLab);
         Mixpanel.track("Scrape public repository")
     }
 

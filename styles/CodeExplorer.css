@@ -292,6 +292,19 @@
     opacity: 1.0;
 }
 
+.codebaseOptions {
+    display: flex;
+    align-items: center;
+}
+
+.codebaseOptions > svg {
+    padding-left: 5px;
+}
+
+.codebaseOptions > svg:hover{
+    opacity: 0.75;
+}
+
 .codebaseName {
     display: flex;
 }

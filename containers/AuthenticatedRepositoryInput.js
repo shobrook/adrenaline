@@ -142,10 +142,10 @@ class AuthenticatedRepositoryInput extends Component {
     }
 
     onSelectRepository(repo) {
-        const { onIndexRepository } = this.props;
+        const { onIndexRepository, isGitLab } = this.props;
         const repoPath = `${repo.owner}/${repo.name}`;
 
-        onIndexRepository(repoPath);
+        onIndexRepository(repoPath, isGitLab);
         Mixpanel.track("Scrape public repository")
     }
 
