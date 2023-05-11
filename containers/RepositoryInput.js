@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 import Button from "../components/Button";
 import ExampleRepository from "../components/ExampleRepository";
 
-import { Repository } from "../library/data";
 import Mixpanel from "../library/mixpanel";
 
 class RepositoryInput extends Component {
@@ -103,118 +102,16 @@ class RepositoryInput extends Component {
     }
 
     onSubmitUrl() {
-        const { onSetProgressMessage, onSetCodebase, isGitLab } = this.props;
-        const {
-            isAuthenticated,
-            loginWithRedirect,
-            getAccessTokenSilently,
-            user
-        } = this.props.auth0;
+        const { onIndexRepository } = this.props;
         const { url } = this.state;
+        const repoPath = this.getRepoPathFromUrl();
 
         if (url == "") {
             return;
         }
 
-        if (!isAuthenticated) {
-            loginWithRedirect({
-                appState: {
-                    returnTo: window.location.pathname
-                }
-            });
-            return;
-        }
-
-        getAccessTokenSilently()
-            .then(token => {
-                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_repository`);
-
-                this.websocket.onopen = event => {
-                    const request = {
-                        user_id: user.sub,
-                        token: token,
-                        repo_name: this.getRepoPathFromUrl(),
-                        refresh_index: false, // TEMP
-                        is_gitlab: isGitLab
-                    };
-
-                    this.websocket.send(JSON.stringify(request));
-
-                    Mixpanel.track("Scrape public repository")
-                };
-                this.websocket.onmessage = async event => {
-                    const {
-                        content,
-                        step,
-                        metadata,
-                        progress_target,
-                        is_finished,
-                        is_paywalled,
-                        error
-                    } = JSON.parse(event.data);
-
-                    if (error != "") {
-                        toast.error(error, {
-                            style: {
-                                borderRadius: "7px",
-                                background: "#FB4D3D",
-                                color: "#fff",
-                            },
-                            iconTheme: {
-                                primary: '#ffffff7a',
-                                secondary: '#fff',
-                            }
-                        });
-                        onSetProgressMessage(step, content, progress_target, true);
-                        return;
-                    }
-
-                    if (is_finished) {
-                        onSetProgressMessage(null, content, progress_target, true);
-
-                        if (is_paywalled) {
-                            const repository = new Repository("", "", {});
-                            await onSetCodebase(repository, is_paywalled, content);
-                        } else {
-                            const { codebase_id, name, files, is_gitlab, is_private } = metadata;
-                            const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
-                            await onSetCodebase(repository, is_paywalled);
-                        }
-                    } else {
-                        onSetProgressMessage(step, content, progress_target);
-                    }
-                }
-                this.websocket.onerror = event => {
-                    onSetProgressMessage("", "", false, null, true);
-                    toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                        style: {
-                            borderRadius: "7px",
-                            background: "#FB4D3D",
-                            color: "#fff",
-                        },
-                        iconTheme: {
-                            primary: '#ffffff7a',
-                            secondary: '#fff',
-                        }
-                    });
-                };
-                // this.websocket.onclose = event => {
-                //     console.log("gh input ws close")
-                //     console.log(event);
-                //     onSetProgressMessage("", true);
-                //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                //         style: {
-                //             borderRadius: "7px",
-                //             background: "#FB4D3D",
-                //             color: "#fff",
-                //         },
-                //         iconTheme: {
-                //             primary: '#ffffff7a',
-                //             secondary: '#fff',
-                //         }
-                //     });
-                // };
-            });
+        onIndexRepository(repoPath);
+        Mixpanel.track("Scrape public repository")
     }
 
     onKeyPress(event) {

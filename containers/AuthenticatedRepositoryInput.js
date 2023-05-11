@@ -1,10 +1,8 @@
 import { withAuth0 } from "@auth0/auth0-react";
 import { Component } from "react";
-import toast from "react-hot-toast";
 
 import Spinner from "../components/Spinner";
 import Button from "../components/Button";
-import { Repository } from "../library/data";
 import Mixpanel from "../library/mixpanel";
 
 class AuthenticatedRepositoryInput extends Component {
@@ -144,99 +142,11 @@ class AuthenticatedRepositoryInput extends Component {
     }
 
     onSelectRepository(repo) {
-        const { onSetProgressMessage, onSetCodebase, isGitLab } = this.props;
-        const {
-            getAccessTokenSilently,
-            user
-        } = this.props.auth0;
+        const { onIndexRepository } = this.props;
+        const repoPath = `${repo.owner}/${repo.name}`;
 
-        getAccessTokenSilently()
-            .then(token => {
-                // TODO: The websocket stuff in this component and GithubInput should be moved up a level
-
-                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_repository`);
-                this.websocket.onopen = event => {
-                    const request = {
-                        user_id: user.sub,
-                        token: token,
-                        repo_name: `${repo.owner}/${repo.name}`,
-                        is_gitlab: isGitLab,
-                        refresh_index: false // TEMP
-                    };
-                    this.websocket.send(JSON.stringify(request));
-
-                    onSetProgressMessage("Scraping repository");
-                };
-                this.websocket.onmessage = async event => {
-                    const {
-                        content,
-                        step,
-                        metadata,
-                        progress_target,
-                        is_finished,
-                        is_paywalled,
-                        error
-                    } = JSON.parse(event.data);
-
-                    if (error != "") {
-                        toast.error(error, {
-                            style: {
-                                borderRadius: "7px",
-                                background: "#FB4D3D",
-                                color: "#fff",
-                            },
-                            iconTheme: {
-                                primary: '#ffffff7a'
-                            }
-                        });
-                        onSetProgressMessage(step, content, progress_target, true);
-                        return;
-                    }
-
-                    if (is_finished) {
-                        onSetProgressMessage(null, content, progress_target, true);
-
-                        if (is_paywalled) {
-                            const repository = new Repository("", "", {});
-                            await onSetCodebase(repository, is_paywalled, message);
-                        } else {
-                            const { codebase_id, name, files, is_private } = metadata;
-                            const repository = new Repository(codebase_id, name, files, repo.is_private, isGitLab);
-                            await onSetCodebase(repository, is_paywalled);
-                        }
-                    } else {
-                        onSetProgressMessage(step, content, progress_target);
-                    }
-                }
-                this.websocket.onerror = event => {
-                    onSetProgressMessage("", true);
-                    toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                        style: {
-                            borderRadius: "7px",
-                            background: "#FB4D3D",
-                            color: "#fff",
-                        },
-                        iconTheme: {
-                            primary: '#ffffff7a',
-                            secondary: '#fff',
-                        }
-                    });
-                };
-                // this.websocket.onclose = event => {
-                //     onSetProgressMessage("", true);
-                //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                //         style: {
-                //             borderRadius: "7px",
-                //             background: "#FB4D3D",
-                //             color: "#fff",
-                //         },
-                //         iconTheme: {
-                //             primary: '#ffffff7a',
-                //             secondary: '#fff',
-                //         }
-                //     });
-                // };
-            });
+        onIndexRepository(repoPath);
+        Mixpanel.track("Scrape public repository")
     }
 
     /* Renderers */

@@ -16,7 +16,6 @@ import AuthenticatedRepositoryInput from "./AuthenticatedRepositoryInput";
 import FileStructure from "./FileStructure";
 import FileSummary from "./FileSummary";
 import Button from "../components/Button";
-import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
 import ProgressBar from "../components/ProgressBar";
 import { CodeSnippet, Repository } from "../library/data";
@@ -61,6 +60,7 @@ class CodeExplorer extends Component {
     constructor(props) {
         super(props);
 
+        this.onIndexRepository = this.onIndexRepository.bind(this);
         this.onBeforeUnload = this.onBeforeUnload.bind(this);
         this.onToggleFileTree = this.onToggleFileTree.bind(this);
         this.onSetCodebase = this.onSetCodebase.bind(this);
@@ -221,6 +221,119 @@ class CodeExplorer extends Component {
     }
 
     /* Event Handlers */
+
+    onIndexRepository(repoPath) {
+        const { renderSelectGitLabRepository } = this.state;
+        const {
+            isAuthenticated,
+            loginWithRedirect,
+            getAccessTokenSilently,
+            user
+        } = this.props.auth0;
+
+        if (!isAuthenticated) {
+            loginWithRedirect({
+                appState: {
+                    returnTo: window.location.pathname
+                }
+            });
+            return;
+        }
+
+        getAccessTokenSilently()
+            .then(token => {
+                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_repository`);
+
+                this.websocket.onopen = event => {
+                    const request = {
+                        user_id: user.sub,
+                        token: token,
+                        repo_name: repoPath,
+                        refresh_index: true, // TEMP
+                        is_gitlab: renderSelectGitLabRepository
+                    };
+
+                    this.websocket.send(JSON.stringify(request));
+
+                    Mixpanel.track("Scrape public repository")
+                };
+                this.websocket.onmessage = async event => {
+                    const {
+                        content,
+                        step,
+                        metadata,
+                        progress_target,
+                        is_finished,
+                        is_paywalled,
+                        error
+                    } = JSON.parse(event.data);
+
+                    if (error != "") {
+                        toast.error(error, {
+                            style: {
+                                borderRadius: "7px",
+                                background: "#FB4D3D",
+                                color: "#fff",
+                            },
+                            iconTheme: {
+                                primary: '#ffffff7a',
+                                secondary: '#fff',
+                            }
+                        });
+                        this.onSetProgressMessage(step, content, progress_target, true);
+                        return;
+                    }
+
+                    if (is_finished) {
+                        this.onSetProgressMessage(null, content, progress_target, true);
+
+                        if (is_paywalled) {
+                            const repository = new Repository("", "", {});
+                            await this.onSetCodebase(repository, is_paywalled, content);
+                        } else {
+                            const { codebase_id, name, files, is_gitlab, is_private } = metadata;
+                            const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
+                            await this.onSetCodebase(repository, is_paywalled);
+                        }
+
+                        this.websocket.close();
+                    } else {
+                        this.onSetProgressMessage(step, content, progress_target);
+                    }
+                }
+                this.websocket.onerror = event => {
+                    this.onSetProgressMessage("", "", false, null, true);
+
+                    toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                        style: {
+                            borderRadius: "7px",
+                            background: "#FB4D3D",
+                            color: "#fff",
+                        },
+                        iconTheme: {
+                            primary: '#ffffff7a',
+                            secondary: '#fff',
+                        }
+                    });
+                };
+                // this.websocket.onclose = event => {
+                //     console.log("gh input ws close")
+                //     console.log(event);
+                //     onSetProgressMessage("", true);
+                //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                //         style: {
+                //             borderRadius: "7px",
+                //             background: "#FB4D3D",
+                //             color: "#fff",
+                //         },
+                //         iconTheme: {
+                //             primary: '#ffffff7a',
+                //             secondary: '#fff',
+                //         }
+                //     });
+                // };
+            });
+    }
 
     onBeforeUnload(event) {
         const { renderIndexingProgress } = this.state;
@@ -498,15 +611,13 @@ class CodeExplorer extends Component {
 
                 {renderSelectPrivateRepository ? (
                     <AuthenticatedRepositoryInput
-                        onSetProgressMessage={this.onSetProgressMessage}
-                        onSetCodebase={this.onSetCodebase}
+                        onIndexRepository={this.onIndexRepository}
                         isGitLab={renderSelectGitLabRepository}
                     />
                 ) : (
                     <>
                         <RepositoryInput
-                            onSetProgressMessage={this.onSetProgressMessage}
-                            onSetCodebase={this.onSetCodebase}
+                            onIndexRepository={this.onIndexRepository}
                             isGitLab={renderSelectGitLabRepository}
                         />
                     </>
@@ -551,7 +662,7 @@ class CodeExplorer extends Component {
                         <AddCodeButton onClick={handleAddCodeSnippet}>Add code
                             snippet</AddCodeButton>
                     </Grid>
-                    
+
                     {
                         codebases.map(codebase => {
                             const { name, isCodeSnippet, isGitLab } = codebase;
