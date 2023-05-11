@@ -619,7 +619,6 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        {/* <img src="./repository_icon.png" /> */}
                         <span>Add {renderSelectGitHubRepository ? "GitHub" : "GitLab"} repository</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
@@ -643,7 +642,6 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        {/* <img src="./code_snippet_icon.png" /> */}
                         <span>Add a code snippet</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
@@ -666,7 +664,6 @@ class CodeExplorer extends Component {
         return (
             <div id="managerHeader">
                 <div id="headerLabel">
-                    {/* <img src="./manager_icon.png" /> */}
                     <span>Manage codebases</span>
                 </div>
             </div>
