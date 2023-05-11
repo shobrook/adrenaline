@@ -161,15 +161,28 @@
 #indexingProgress {
     display: flex;
     flex-direction: column;
-    align-items: center;
     height: 100%;
     justify-content: center;
-    width: 100%;
+    width: calc(100% - 15px - 15px);
 }
 
-#indexingProgress > span {
-    padding-top: 30px;
-    text-align: center;
+.progressTitle {
+    display: flex;
+    align-items: center;
+}
+
+.progressBarOuter {
+    width: 100%;
+    padding-bottom: 15px;
+}
+
+.progressStep {
+    font-weight: 500;
+    padding-right: 10px;
+}
+
+.progressMessage {
+    opacity: 0.75;
 }
 
 #initCodebaseManager {

@@ -7,6 +7,7 @@ import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import { HiTrash, HiCode } from "react-icons/hi";
 import { AiFillGithub, AiFillGitlab } from "react-icons/ai";
+import Box from '@mui/material/Box';
 
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
@@ -17,12 +18,20 @@ import FileSummary from "./FileSummary";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import AddCodeButton from "../components/AddCodeButton";
+import ProgressBar from "../components/ProgressBar";
 import { CodeSnippet, Repository } from "../library/data";
 
 import { formControlClasses } from "@mui/material";
 import Mixpanel from "../library/mixpanel";
 import toast from "react-hot-toast";
 
+const DEFAULT_PROGRESS_STATE = {
+    progressStepHistory: [],
+    progressStep: "",
+    progressTarget: null,
+    progressMessage: "",
+    progress: 0
+}
 const DEFAULT_STATE = {
     renderCodeSnippet: false,
     renderRepository: false,
@@ -33,8 +42,7 @@ const DEFAULT_STATE = {
     renderFileTree: true,
     renderPaywall: false,
     renderIndexingProgress: false,
-    renderSecondaryIndexingProgress: false,
-    progressMessage: "",
+    ...DEFAULT_PROGRESS_STATE,
     paywallMessage: "You've reached your repository limit! Upgrade your plan to increase it.",
     codebases: [], // List of codebase objects
     currentCodeContext: {
@@ -52,11 +60,11 @@ class CodeExplorer extends Component {
     constructor(props) {
         super(props);
 
+        this.onBeforeUnload = this.onBeforeUnload.bind(this);
         this.onToggleFileTree = this.onToggleFileTree.bind(this);
         this.onSetCodebase = this.onSetCodebase.bind(this);
         this.onSelectFile = this.onSelectFile.bind(this);
         this.onSetProgressMessage = this.onSetProgressMessage.bind(this);
-        this.onSetSecondaryProgressMessage = this.onSetSecondaryProgressMessage.bind(this);
         this.onSetCodeSnippet = this.onSetCodeSnippet.bind(this);
         this.onReturnToManager = this.onReturnToManager.bind(this);
         this.onToggleSelectPrivateRepository = this.onToggleSelectPrivateRepository.bind(this);
@@ -210,6 +218,23 @@ class CodeExplorer extends Component {
 
     /* Event Handlers */
 
+    onBeforeUnload(event) {
+        const { renderIndexingProgress } = this.state;
+
+        if (renderIndexingProgress) {
+            // Cancel the event
+            event.preventDefault();
+
+            // Chrome requires returnValue to be set
+            event.returnValue = "";
+
+            // Show the alert to the user
+            const message = "Are you sure you want to leave? Your codebase is still being indexed.";
+            event.returnValue = message; // For Chrome
+            return message; // For other browsers
+        }
+    }
+
     onToggleSelectPrivateRepository() {
         const { renderSelectPrivateRepository } = this.state;
         this.setState({ renderSelectPrivateRepository: !renderSelectPrivateRepository });
@@ -234,20 +259,43 @@ class CodeExplorer extends Component {
         });
     }
 
-    onSetProgressMessage(progressMessage, haltProgress = false) {
-        this.setState({
-            renderIndexingProgress: !haltProgress,
-            renderSelectCodeSnippet: false,
-            renderSelectGitHubRepository: false,
-            renderSelectGitLabRepository: false,
-            progressMessage
-        });
-    }
+    onSetProgressMessage(progressStep, progressMessage, progressTarget, haltProgress = false) {
+        this.setState(prevState => {
+            const { 
+                progressStep: prevProgressStep, 
+                progress, 
+                progressStepHistory
+            } = prevState;
+            const updatedProgress = progressStep == prevProgressStep ? progress + 1 : 0;
 
-    onSetSecondaryProgressMessage(progressMessage) {
-        this.setState({
-            renderSecondaryIndexingProgress: true,
-            progressMessage
+            let updatedProgressStepHistory = progressStepHistory.slice();
+            if (prevProgressStep && prevProgressStep != progressStep) {
+                updatedProgressStepHistory.push(prevProgressStep);
+            }
+
+            let progressState;
+            if (haltProgress) {
+                progressState = {
+                    renderIndexingProgress: false,
+                    ...DEFAULT_PROGRESS_STATE
+                }
+            } else {
+                progressState = {
+                    renderIndexingProgress: true,
+                    progressMessage,
+                    progressTarget,
+                    progressStep,
+                    progress: updatedProgress,
+                    progressStepHistory: updatedProgressStepHistory
+                }
+            }
+
+            return {
+                renderSelectCodeSnippet: false,
+                renderSelectGitHubRepository: false,
+                renderSelectGitLabRepository: false,
+                ...progressState
+            }
         });
     }
 
@@ -387,30 +435,31 @@ class CodeExplorer extends Component {
     }
 
     renderIndexingProgress() {
-        const { renderIndexingProgress, progressMessage } = this.state;
+        const { 
+            renderIndexingProgress, 
+            progress, 
+            progressTarget, 
+            progressMessage,
+            progressStep,
+            progressStepHistory
+        } = this.state;
 
         if (!renderIndexingProgress) {
             return null;
         }
 
+        const prevProgressBars = progressStepHistory.map((step, index) => ( <ProgressBar key={index} step={step} value={100} /> ));
+        const progressValue = progressTarget ? (progress / progressTarget) * 100 : 0;
+
+        console.log(progressStep)
+        console.log(progressTarget)
+        console.log(progressValue)
+        console.log()
+
         return (
             <div id="indexingProgress">
-                <Spinner />
-                <span>{progressMessage}</span>
-            </div>
-        );
-    }
-
-    renderSecondaryIndexingProgress() {
-        const { renderSecondaryIndexingProgress, progressMessage } = this.state;
-
-        if (!renderSecondaryIndexingProgress) {
-            return null;
-        }
-
-        return (
-            <div id="secondaryIndexingProgress">
-                <span>{progressMessage}</span>
+                {prevProgressBars}
+                <ProgressBar key={prevProgressBars.length} step={progressStep} message={progressMessage} value={progressValue} />
             </div>
         );
     }
@@ -446,7 +495,6 @@ class CodeExplorer extends Component {
                 {renderSelectPrivateRepository ? (
                     <AuthenticatedRepositoryInput
                         onSetProgressMessage={this.onSetProgressMessage}
-                        onSetSecondaryProgressMessage={this.onSetSecondaryProgressMessage}
                         onSetCodebase={this.onSetCodebase}
                         isGitLab={renderSelectGitLabRepository}
                     />
@@ -454,7 +502,6 @@ class CodeExplorer extends Component {
                     <>
                         <RepositoryInput
                             onSetProgressMessage={this.onSetProgressMessage}
-                            onSetSecondaryProgressMessage={this.onSetSecondaryProgressMessage}
                             onSetCodebase={this.onSetCodebase}
                             isGitLab={renderSelectGitLabRepository}
                         />
@@ -572,7 +619,6 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        {/* <img src="./repository_icon.png" /> */}
                         <span>Add {renderSelectGitHubRepository ? "GitHub" : "GitLab"} repository</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
@@ -596,7 +642,6 @@ class CodeExplorer extends Component {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
-                        {/* <img src="./code_snippet_icon.png" /> */}
                         <span>Add a code snippet</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
@@ -619,7 +664,6 @@ class CodeExplorer extends Component {
         return (
             <div id="managerHeader">
                 <div id="headerLabel">
-                    {/* <img src="./manager_icon.png" /> */}
                     <span>Manage codebases</span>
                 </div>
             </div>
@@ -629,6 +673,8 @@ class CodeExplorer extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
+        window.addEventListener("beforeunload", this.onBeforeUnload);
+
         const { fileContext } = this.props;
         const { renderCodeSnippet, renderRepository } = this.state;
 
@@ -637,6 +683,10 @@ class CodeExplorer extends Component {
         if (fileContext != "" && (renderRepository || renderCodeSnippet)) {
             this.onSelectFile(fileContext);
         }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("beforeunload", this.onBeforeUnload);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -685,7 +735,6 @@ class CodeExplorer extends Component {
                         {this.renderHeader()}
                         {this.renderCodeExplorer()}
                     </motion.div>
-                    {this.renderSecondaryIndexingProgress()}
                 </div>
             )
         }
@@ -699,7 +748,6 @@ class CodeExplorer extends Component {
                 {this.renderSelectCodeSnippet()}
                 {this.renderIndexingProgress()}
                 {this.renderCodeExplorer()}
-                {this.renderSecondaryIndexingProgress()}
             </div>
         );
     }
