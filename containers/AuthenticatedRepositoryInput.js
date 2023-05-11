@@ -27,8 +27,7 @@ class AuthenticatedRepositoryInput extends Component {
             repositoryOptions: {},
             selectedRepository: "",
             searchInput: "",
-            isLoading: false,
-            secondaryIndexingProgressId: null
+            isLoading: false
         };
     }
 
@@ -162,7 +161,7 @@ class AuthenticatedRepositoryInput extends Component {
                         token: token,
                         repo_name: `${repo.owner}/${repo.name}`,
                         is_gitlab: isGitLab,
-                        refresh_index: false // TEMP
+                        refresh_index: true // TEMP
                     };
                     this.websocket.send(JSON.stringify(request));
 
@@ -171,16 +170,17 @@ class AuthenticatedRepositoryInput extends Component {
                 this.websocket.onmessage = async event => {
                     const { secondaryIndexingProgressId } = this.state;
                     const {
-                        message,
+                        content,
+                        step,
                         metadata,
-                        is_final,
+                        progress_target,
+                        is_finished,
                         is_paywalled,
-                        is_fast,
-                        error_message
+                        error
                     } = JSON.parse(event.data);
 
-                    if (error_message != "") {
-                        toast.error(error_message, {
+                    if (error != "") {
+                        toast.error(error, {
                             style: {
                                 borderRadius: "7px",
                                 background: "#FB4D3D",
@@ -190,35 +190,23 @@ class AuthenticatedRepositoryInput extends Component {
                                 primary: '#ffffff7a'
                             }
                         });
-                        onSetProgressMessage("", true);
+                        onSetProgressMessage(step, content, progress_target, true);
                         return;
                     }
 
-                    if (is_fast) {
-                        if (is_final) {
-                            onSetProgressMessage("");
+                    if (is_finished) {
+                        onSetProgressMessage(null, content, progress_target, true);
 
-                            if (is_paywalled) {
-                                const repository = new Repository("", "", {});
-                                await onSetCodebase(repository, is_paywalled, message);
-                            } else {
-                                const { codebase_id, name, files, is_private } = metadata;
-                                const repository = new Repository(codebase_id, name, files, repo.is_private, isGitLab);
-                                await onSetCodebase(repository, is_paywalled);
-                            }
+                        if (is_paywalled) {
+                            const repository = new Repository("", "", {});
+                            await onSetCodebase(repository, is_paywalled, message);
                         } else {
-                            onSetProgressMessage(message);
+                            const { codebase_id, name, files, is_private } = metadata;
+                            const repository = new Repository(codebase_id, name, files, repo.is_private, isGitLab);
+                            await onSetCodebase(repository, is_paywalled);
                         }
                     } else {
-                        if (is_final) {
-                            toast.dismiss(secondaryIndexingProgressId);
-                            toast.success("Fine-tuning complete. Chatbot is fully optimized.", { id: secondaryIndexingProgressId });
-
-                            this.websocket.close();
-                        } else {
-                            const toastId = toast.loading("Fine-tuning chatbot on your code. Output will continuously improve until complete.");
-                            this.setState({ secondaryIndexingProgressId: toastId });
-                        }
+                        onSetProgressMessage(step, content, progress_target);
                     }
                 }
                 this.websocket.onerror = event => {

@@ -25,6 +25,13 @@ import { formControlClasses } from "@mui/material";
 import Mixpanel from "../library/mixpanel";
 import toast from "react-hot-toast";
 
+const DEFAULT_PROGRESS_STATE = {
+    progressStepHistory: [],
+    progressStep: "",
+    progressTarget: null,
+    progressMessage: "",
+    progress: 0
+}
 const DEFAULT_STATE = {
     renderCodeSnippet: false,
     renderRepository: false,
@@ -35,11 +42,7 @@ const DEFAULT_STATE = {
     renderFileTree: true,
     renderPaywall: false,
     renderIndexingProgress: false,
-    progressStepHistory: [],
-    progressStep: "",
-    progressTarget: null,
-    progressMessage: "",
-    progress: 0,
+    ...DEFAULT_PROGRESS_STATE,
     paywallMessage: "You've reached your repository limit! Upgrade your plan to increase it.",
     codebases: [], // List of codebase objects
     currentCodeContext: {
@@ -247,20 +250,33 @@ class CodeExplorer extends Component {
             } = prevState;
             const updatedProgress = progressStep == prevProgressStep ? progress + 1 : 0;
 
+            let updatedProgressStepHistory = progressStepHistory.slice();
             if (prevProgressStep && prevProgressStep != progressStep) {
-                progressStepHistory.push(prevProgressStep);
+                updatedProgressStepHistory.push(prevProgressStep);
+            }
+
+            let progressState;
+            if (haltProgress) {
+                progressState = {
+                    renderIndexingProgress: false,
+                    ...DEFAULT_PROGRESS_STATE
+                }
+            } else {
+                progressState = {
+                    renderIndexingProgress: true,
+                    progressMessage,
+                    progressTarget,
+                    progressStep,
+                    progress: updatedProgress,
+                    progressStepHistory: updatedProgressStepHistory
+                }
             }
 
             return {
-                renderIndexingProgress: !haltProgress,
                 renderSelectCodeSnippet: false,
                 renderSelectGitHubRepository: false,
                 renderSelectGitLabRepository: false,
-                progressMessage,
-                progressTarget,
-                progressStep,
-                progress: updatedProgress,
-                progressStepHistory
+                ...progressState
             }
         });
     }
@@ -414,13 +430,18 @@ class CodeExplorer extends Component {
             return null;
         }
 
-        const prevProgressBars = progressStepHistory.map(step => ( <ProgressBar step={step} value={100} /> ));
+        const prevProgressBars = progressStepHistory.map((step, index) => ( <ProgressBar key={index} step={step} value={100} /> ));
         const progressValue = progressTarget ? (progress / progressTarget) * 100 : 0;
+
+        console.log(progressStep)
+        console.log(progressTarget)
+        console.log(progressValue)
+        console.log()
 
         return (
             <div id="indexingProgress">
                 {prevProgressBars}
-                <ProgressBar step={progressStep} message={progressMessage} value={progressValue} />
+                <ProgressBar key={prevProgressBars.length} step={progressStep} message={progressMessage} value={progressValue} />
             </div>
         );
     }
