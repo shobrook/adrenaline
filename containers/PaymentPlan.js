@@ -80,6 +80,24 @@ class PaymentPlan extends Component {
             price,
             isActive
         } = this.props;
+        if (planName == "FREE") {
+            return (
+                <div key={lookupKey} className="paymentPlan">
+                    <span className="planLabel">{planName} PLAN</span>
+                    <span className="planPrice">{`$${price}/month`}</span>
+
+                    <Button
+                        className="selectPlan"
+                        isPrimary={false}
+                        isDisabled={true}
+                    >
+                        {"No Subscription Needed"}
+                    </Button>
+                    <div className="planFeatures">
+                        {this.renderFeatures()} 
+                    </div>
+                </div>
+            );}
 
         return (
             <div key={lookupKey} className="paymentPlan">
