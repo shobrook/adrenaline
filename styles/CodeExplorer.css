@@ -1,0 +1,329 @@
+#codeExplorer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc(100% - 30px);
+    border: 2px solid #262A39;
+    border-radius: 7px;
+    background-color: #181b26;
+    width: calc(60% - 30px);
+    max-width: calc(60% - 30px);
+}
+
+.repositoryView {
+    flex-direction: row !important;
+}
+
+#codeContextPrompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+#codeContextPrompt > span {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+#managerHeader {
+    border-bottom: 2px solid #262A39;
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #14171f;
+    border-radius: 5px 5px 0px 0px;
+}
+
+#headerLabel {
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+}
+
+#headerLabel > img {
+    height: 12px;
+    cursor: pointer;
+    padding-right: 10px;
+}
+
+#headerLabel > img:hover {
+    opacity: 0.75;
+}
+
+#headerLabel > span {
+    /* padding-left: 10px; */
+    font-weight: 600;
+}
+
+#returnToManager {
+    margin-right: 15px;
+}
+
+#codeContent {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* width: 100%; */
+    flex: 1;
+}
+
+.paywalledCodeContent {
+    filter: blur(4px);
+}
+
+.truncatedCodeContent {
+    border-left: 2px solid #262A39;
+    /* width: 70% !important; */
+}
+
+#codeHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#codePreview {
+    width: 100%;
+    height: calc(100% - 60px);
+    overflow: auto;
+    border-radius: 0px 0px 5px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#codeContextOptions {
+    border-top: 2px solid #262A39;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+    padding-right: 15px;
+    justify-content: space-between;
+}
+
+#repoLink {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+#repoLink:hover {
+    opacity: 0.75;
+}
+
+#repoLink > img {
+    height: 20px;
+}
+
+#repoLink > a {
+    text-decoration: none;
+    color: white;
+    padding-left: 10px;
+    font-weight: 500;
+}
+
+.codeBlock {
+    background: #181B26 !important;
+    width: calc(100% - 2em);
+    margin: 0 !important;
+}
+
+.MuiTreeItem-content {
+    padding-left: 15px !important;
+}
+
+.MuiTreeItem-group {
+    border-left: 1px dashed #262A39;
+}
+
+.Mui-selected { 
+    background-color: #262A39 !important;
+}
+
+@media (max-width: 700px) {
+    #codeExplorer {
+        width: calc(100% - 4px) !important;
+        max-width: none !important;
+        margin-bottom: 20px;
+    }
+}
+
+#indexingProgress {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    width: calc(100% - 15px - 15px);
+}
+
+.progressTitle {
+    display: flex;
+    align-items: center;
+}
+
+.progressBarOuter {
+    width: 100%;
+    padding-bottom: 15px;
+}
+
+.progressStep {
+    font-weight: 500;
+    padding-right: 10px;
+}
+
+.progressMessage {
+    opacity: 0.75;
+}
+
+#initCodebaseManager {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 30px);
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
+    overflow: auto;
+    padding-bottom: 15px;
+}
+
+#initCodebaseManager > .addCodeButton {
+    width: 175px !important;
+}
+
+#selectRepository {
+    padding-top: 45px;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: calc(85% - 15px - 15px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    height: 100%;
+}
+
+.MuiFormControl-root {
+    border: 2px solid #262A39;
+    border-radius: 7px;
+}
+
+#selectRepositoryHeading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#selectHeading {
+    font-size: 22px;
+    font-weight: 500;
+}
+
+#selectSubheading {
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.75;
+    max-width: 340px;
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 30px;
+}
+
+#repoSwitch {
+    display: flex !important;
+    align-items: center;
+    align-self: start;
+    font-size: 14px;
+    font-weight: 500;
+    padding-bottom: 7px;
+}
+
+#repoSwitch > span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#activeSwitch {
+    padding-left: 2.5px;
+    opacity: 1.0;
+}
+
+#passiveSwitch {
+    padding-left: 2.5px;
+    opacity: 0.75;
+}
+
+#secondaryIndexingProgress {
+    position: fixed;
+}
+
+.codebaseThumbnail {
+    padding-left: 30px;
+    padding-right: 30px;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #15171f;
+    /* box-shadow: 0px 1px 4px 2px #0000006b; */
+    border-radius: 7px;
+    border: 2px solid #262A39;
+    cursor: pointer;
+}
+
+/* .codebaseThumbnail:hover {
+    background-color: #191b26;
+} */
+
+.codebaseThumbnail > svg {
+    opacity: 0.75;
+}
+
+.codebaseThumbnail > svg:hover {
+    opacity: 1.0;
+}
+
+.codebaseOptions {
+    display: flex;
+    align-items: center;
+}
+
+.codebaseOptions > svg {
+    padding-left: 5px;
+}
+
+.codebaseOptions > svg:hover{
+    opacity: 0.75;
+}
+
+.codebaseName {
+    display: flex;
+    align-items: center;
+}
+
+.codebaseName:hover {
+    opacity: 0.75;
+}
+
+.codebaseName > span {
+    font-weight: 500;
+    padding-left: 10px;
+}
+
+.linenumber {
+    min-width: 0px !important;
+    padding-right: 1.5em !important;
+}
+
+#codeSnippetIcon {
+    height: 17px !important;
+}

@@ -1,0 +1,17 @@
+.githubInput {
+    /* width: calc(100% - 30px); */
+    width: calc(100% - 2px - 2px);
+}
+
+#inputFieldArea > img {
+    height: 20px;
+    padding-right: 10px;
+}
+
+#passiveLink {
+    opacity: 0.75;
+}
+
+#activeLink {
+    opacity: 1.0;
+}
