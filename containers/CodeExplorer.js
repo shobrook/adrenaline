@@ -190,7 +190,6 @@ class CodeExplorer extends Component {
 
     deleteCodebase(codebase) {
         // TODO: Add loading state (not toast)
-        // TODO: Don't call fetchCodebases; delete from state instead
 
         const { codebaseId } = codebase;
         const { getAccessTokenSilently, user } = this.props.auth0;
@@ -214,8 +213,12 @@ class CodeExplorer extends Component {
                         const { success } = data;
 
                         if (success) {
-                            console.log("Fetching codebases")
-                            this.fetchCodebases();
+                            this.setState(prevState => {
+                                let { codebases } = prevState;
+                                codebases = codebases.filter(codebase => codebase.codebaseId != codebaseId);
+
+                                return { codebases };
+                            });
                         } else {
                             toast.error("Failed to delete codebase!");
                         }
