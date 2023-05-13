@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
+import { HiRefresh } from "react-icons/hi";
 
 import QueryInput from "./QueryInput";
 import Message from "./Message";
@@ -9,6 +10,7 @@ class ChatBot extends Component {
     render() {
         const {
             onSubmitQuery,
+            onClearConversation,
             messages,
             onUpgradePlan,
             setFileContext
@@ -44,7 +46,13 @@ class ChatBot extends Component {
                         );
                     })}
                 </div>
-                <QueryInput onSubmitQuery={onSubmitQuery} />
+                <div>
+                    <QueryInput onSubmitQuery={onSubmitQuery} />
+                    <div id="chatbotOptions" onClick={onClearConversation}>
+                        <HiRefresh size={16} />
+                        <span>Clear conversation</span>
+                    </div>
+                </div>
             </div>
         );
     }

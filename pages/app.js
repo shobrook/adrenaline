@@ -136,6 +136,10 @@ export default function DebuggerAppPage() {
         // setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
     }
 
+    function onClearConversation() {
+        setMessages([new Message(WELCOME_MESSAGE, true, true)]);
+    }
+
     /* Helpers */
 
     function renderApp() {
@@ -155,6 +159,7 @@ export default function DebuggerAppPage() {
                                 onSubmitQuery={onSubmitQuery}
                                 onUpgradePlan={() => setShowSubscriptionModal(true)}
                                 setFileContext={setFileContext}
+                                onClearConversation={onClearConversation}
                             />
                             <CodeExplorer
                                 onSetCodebaseId={onSetCodebaseId}
