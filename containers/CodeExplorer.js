@@ -8,6 +8,7 @@ import Switch from "@mui/material/Switch";
 import { HiTrash, HiCode, HiRefresh } from "react-icons/hi";
 import { AiFillGithub, AiFillGitlab } from "react-icons/ai";
 import toast from "react-hot-toast";
+import { CircularProgress } from "@mui/material";
 
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
@@ -84,10 +85,17 @@ class CodeExplorer extends Component {
 
     /* Utilities */
 
+    // TODO: Progress state is only tracked for one codebase at a time; need to track for multiple concurrent indexing jobs
+
     fetchCodebases() {
         const { getAccessTokenSilently, isAuthenticated, user } = this.props.auth0;
+        const { codebases } = this.state;
 
         if (!isAuthenticated) {
+            return;
+        }
+
+        if (codebases.length > 0) {
             return;
         }
 
@@ -104,29 +112,34 @@ class CodeExplorer extends Component {
                     })
                         .then(res => res.json())
                         .then(data => {
-                            const { codebases } = data;
+                            let { codebases } = data;
+                            codebases = codebases.map(codebase => {
+                                const {
+                                    name,
+                                    is_code_snippet,
+                                    codebase_id,
+                                    files,
+                                    code,
+                                    language,
+                                    is_private,
+                                    is_gitlab
+                                } = codebase;
 
-                            this.setState({
-                                codebases: codebases.map(codebase => {
-                                    const {
-                                        name,
-                                        is_code_snippet,
-                                        codebase_id,
-                                        files,
-                                        code,
-                                        language,
-                                        is_private,
-                                        is_gitlab
-                                    } = codebase;
+                                if (is_code_snippet) {
+                                    return new CodeSnippet(codebase_id, name, code, language);
+                                }
 
-                                    if (is_code_snippet) {
-                                        return new CodeSnippet(codebase_id, name, code, language);
-                                    }
-
-                                    return new Repository(codebase_id, name, files, is_private, is_gitlab);
-                                }),
-                                renderLoadingCodebases: false
+                                return new Repository(codebase_id, name, files, is_private, is_gitlab);
                             });
+
+                            this.setState({ renderLoadingCodebases: false, codebases });
+                            // this.setState(prevState => {
+                            //     const { codebaseInProgress } = prevState;
+
+                            //     return {
+                            //         renderLoadingCodebases: false
+                            //     }
+                            // });
                         });
                 });
         });
@@ -178,6 +191,9 @@ class CodeExplorer extends Component {
     }
 
     deleteCodebase(codebase) {
+        // TODO: Add loading state (not toast)
+        // TODO: Don't call fetchCodebases; delete from state instead
+
         const { codebaseId } = codebase;
         const { getAccessTokenSilently, user } = this.props.auth0;
 
@@ -245,11 +261,26 @@ class CodeExplorer extends Component {
                         user_id: user.sub,
                         token: token,
                         repo_name: repoPath,
-                        refresh_index: refreshIndex,
+                        refresh_index: true, //refreshIndex,
                         is_gitlab: isGitLab
                     };
-
                     this.websocket.send(JSON.stringify(request));
+
+                    const codebaseId = `${isGitLab ? "gitlab" : "github"}/${repoPath}`;
+                    const name = repoPath.split("/").slice(-1)[0];
+                    const repository = new Repository(codebaseId, name, {}, false, isGitLab);
+                    
+                    // TODO: codebaseInProgress doesn't work for matching with old codebases missing the github/gitlab prefix in their IDs
+
+                    const { codebases } = this.state;
+                    this.setState({ 
+                        renderIndexingProgress: !refreshIndex,
+                        codebaseInProgress: repository,
+                        codebases: refreshIndex ? codebases : [repository, ...codebases],
+                        renderSelectCodeSnippet: false,
+                        renderSelectGitHubRepository: false,
+                        renderSelectGitLabRepository: false,
+                    });
 
                     Mixpanel.track("Scrape public repository")
                 };
@@ -286,12 +317,28 @@ class CodeExplorer extends Component {
                         if (is_paywalled) {
                             const repository = new Repository("", "", {});
                             await this.onSetCodebase(repository, is_paywalled, content);
+
+                            // TODO: Remove codebase from state
+                            // TODO: Render paywall message
+
                         } else {
                             const { codebase_id, name, files, is_gitlab, is_private } = metadata;
                             const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
                             await this.onSetCodebase(repository, is_paywalled);
+                            
+                            let { codebases } = this.state;
+                            codebases = codebases.map(codebase => {
+                                if (codebase.codebaseId == codebase_id) {
+                                    codebase.files = files;
+                                    codebase.isPrivate = is_private;
+                                }
+
+                                return codebase;
+                            });
+                            this.setState({ codebases });
                         }
 
+                        this.setState({ codebaseInProgress: null });
                         this.websocket.close();
                     } else {
                         this.onSetProgressMessage(step, content, progress_target);
@@ -386,28 +433,16 @@ class CodeExplorer extends Component {
                 updatedProgressStepHistory.push(prevProgressStep);
             }
 
-            let progressState;
             if (haltProgress) {
-                progressState = {
-                    renderIndexingProgress: false,
-                    ...DEFAULT_PROGRESS_STATE
-                }
-            } else {
-                progressState = {
-                    renderIndexingProgress: true,
-                    progressMessage,
-                    progressTarget,
-                    progressStep,
-                    progress: updatedProgress,
-                    progressStepHistory: updatedProgressStepHistory
-                }
+                return DEFAULT_PROGRESS_STATE
             }
 
             return {
-                renderSelectCodeSnippet: false,
-                renderSelectGitHubRepository: false,
-                renderSelectGitLabRepository: false,
-                ...progressState
+                progressMessage,
+                progressTarget,
+                progressStep,
+                progress: updatedProgress,
+                progressStepHistory: updatedProgressStepHistory
             }
         });
     }
@@ -419,6 +454,7 @@ class CodeExplorer extends Component {
 
     async onSetCodebase(repository, isPaywalled, paywallMessage = "") {
         const { onSetCodebaseId } = this.props;
+        const { renderIndexingProgress } = this.state;
         const { codebaseId, files, isPrivate, isGitLab } = repository;
 
         onSetCodebaseId(codebaseId);
@@ -449,7 +485,7 @@ class CodeExplorer extends Component {
                 isPrivate,
                 isGitLab
             },
-            renderRepository: true,
+            renderRepository: renderIndexingProgress,
             renderIndexingProgress: false
         });
     }
@@ -618,7 +654,12 @@ class CodeExplorer extends Component {
     }
 
     renderCodebaseManager() {
-        const { codebases, renderLoadingCodebases } = this.state;
+        const { 
+            // progress, 
+            // codebaseInProgress, 
+            codebases, 
+            renderLoadingCodebases
+        } = this.state;
         const renderCodebaseManager = this.shouldRenderCodebaseManager();
 
         if (!renderCodebaseManager) {
@@ -673,10 +714,20 @@ class CodeExplorer extends Component {
                                 )
                             }
 
+                            const { codebaseInProgress } = this.state;
+                            const shouldRenderLoading = codebaseInProgress?.codebaseId == codebaseId;
+
                             return (
                                 <Grid item xs={6}>
                                     <div className="codebaseThumbnail">
-                                        <div className="codebaseName" onClick={async () => await this.onSetCodebase(codebase, false)}>
+                                        <div className="codebaseName" onClick={async () => {
+                                            if (shouldRenderLoading) {
+                                                this.setState({ renderIndexingProgress: true });
+                                                return;
+                                            }
+
+                                            await this.onSetCodebase(codebase, false);
+                                        }}>
                                             {
                                                 isGitLab ? (<AiFillGitlab fill="white" size={22} />) :
                                                     (<AiFillGithub fill="white" size={22} />)
@@ -684,22 +735,26 @@ class CodeExplorer extends Component {
                                             <span>{name}</span>
                                         </div>
                                         <div className="codebaseOptions">
-                                            <HiRefresh 
-                                                fill="white" 
-                                                size={22} 
-                                                onClick={() => {
-                                                    let repoName;
-                                                    if (codebaseId.startsWith("github/")) {
-                                                        repoName = codebaseId.split("github/")[1];
-                                                    } else if (codebaseId.startsWith("gitlab/")) { // GitLab repository
-                                                        repoName = codebaseId.split("gitlab/")[1];
-                                                    } else {
-                                                        repoName = codebaseId;
-                                                    }
+                                            {
+                                                shouldRenderLoading ? (<CircularProgress color="secondary" size={20} />) : (
+                                                    <HiRefresh 
+                                                        fill="white" 
+                                                        size={22} 
+                                                        onClick={() => {
+                                                            let repoName;
+                                                            if (codebaseId.startsWith("github/")) {
+                                                                repoName = codebaseId.split("github/")[1];
+                                                            } else if (codebaseId.startsWith("gitlab/")) { // GitLab repository
+                                                                repoName = codebaseId.split("gitlab/")[1];
+                                                            } else {
+                                                                repoName = codebaseId;
+                                                            }
 
-                                                    this.onIndexRepository(repoName, isGitLab, true);
-                                                }}
-                                            />
+                                                            this.onIndexRepository(repoName, isGitLab, true);
+                                                        }}
+                                                    />
+                                                )
+                                            }
                                             <HiTrash fill="white" size={22} onClick={() => this.deleteCodebase(codebase)} />
                                         </div>
                                     </div>
@@ -743,7 +798,8 @@ class CodeExplorer extends Component {
             renderRepository,
             renderSelectGitHubRepository,
             renderSelectGitLabRepository,
-            renderSelectCodeSnippet
+            renderSelectCodeSnippet,
+            renderIndexingProgress
         } = this.state;
         const { currentFile } = this.state.currentCodeContext;
 
@@ -787,6 +843,17 @@ class CodeExplorer extends Component {
                     <div id="headerLabel">
                         <img id="codeSnippetIcon" src="./code_snippet_icon.png" />
                         <span>Code snippet</span>
+                    </div>
+                    <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
+                </div>
+            );
+        }
+
+        if (renderIndexingProgress) {
+            return (
+                <div id="managerHeader">
+                    <div id="headerLabel">
+                        <span>Indexing code</span>
                     </div>
                     <Button id="returnToManager" onClick={this.onReturnToManager}>Manage Codebases</Button>
                 </div>
