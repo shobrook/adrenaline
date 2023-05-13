@@ -4,6 +4,8 @@ import { Component } from "react";
 import Spinner from "../components/Spinner";
 import Button from "../components/Button";
 import Mixpanel from "../library/mixpanel";
+import GitLabAuthenticationButton from "../components/GitLabAuthenticationButton";
+import GitHubAuthenticationButton from "../components/GitHubAuthenticationButton";
 
 class AuthenticatedRepositoryInput extends Component {
     constructor(props) {
@@ -12,8 +14,6 @@ class AuthenticatedRepositoryInput extends Component {
         this.onChangeRepository = this.onChangeRepository.bind(this);
         this.onSelectRepository = this.onSelectRepository.bind(this);
         this.onChangeSearchInput = this.onChangeSearchInput.bind(this);
-        this.onGitHubAuthentication = this.onGitHubAuthentication.bind(this);
-        this.onGitLabAuthentication = this.onGitLabAuthentication.bind(this);
 
         this.renderSearchBar = this.renderSearchBar.bind(this);
 
@@ -97,41 +97,6 @@ class AuthenticatedRepositoryInput extends Component {
     }
 
     /* Event Handlers */
-
-    onGitLabAuthentication() {
-        const scope = "read_user+read_repository+read_api";
-        let authUrl = "https://gitlab.com/oauth/authorize?";
-        authUrl += `client_id=${process.env.NEXT_PUBLIC_GITLAB_CLIENT_ID}`;
-        authUrl += `&redirect_uri=${process.env.NEXT_PUBLIC_GITLAB_REDIRECT_URI}`;
-        authUrl += `&response_type=code`
-        // authUrl += `&state=${process.env.NEXT_PUBLIC_GITLAB_STATE}`;
-        authUrl += `&scope=${scope}`;
-
-        const win = window.open(authUrl, "_blank");
-        if (win != null) {
-            win.focus();
-        }
-
-        Mixpanel.track("Connect to GitLab");
-    }
-
-    onGitHubAuthentication() {
-        // const login = ""; // TODO: Populate this if user is already authenticated with Github
-        const scope = "repo,read:org";
-
-        let authUrl = "https://github.com/login/oauth/authorize?"
-        authUrl += `client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`;
-        authUrl += `&redirect_uri=${process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI}`;
-        // authUrl += `&login=${login}`;
-        authUrl += `&scope=${scope}`;
-
-        const win = window.open(authUrl, "_blank");
-        if (win != null) {
-            win.focus();
-        }
-
-        Mixpanel.track("Connect to GitHub")
-    }
 
     onChangeSearchInput(event) {
         this.setState({ searchInput: event.target.value });
@@ -267,12 +232,7 @@ class AuthenticatedRepositoryInput extends Component {
 
                 <div id="githubAuthPrompt">
                     <span>Authorize Adrenaline to access the list of your {isGitLab ? "GitLab" : "GitHub"} repositories</span>
-                    <Button
-                        isPrimary
-                        onClick={() => isGitLab ? this.onGitLabAuthentication() : this.onGitHubAuthentication()}
-                    >
-                        Authenticate with {isGitLab ? "GitLab" : "GitHub"}
-                    </Button>
+                    { isGitLab ? (<GitLabAuthenticationButton />) : (<GitHubAuthenticationButton />) }
                 </div>
             </div>
         );

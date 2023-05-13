@@ -10,6 +10,7 @@ import { AiFillGithub, AiFillGitlab } from "react-icons/ai";
 import toast from "react-hot-toast";
 import { CircularProgress } from "@mui/material";
 
+import AuthenticationWall from "./AuthenticationWall";
 import PaywallMessage from "./PaywallMessage";
 import CodeSnippetInput from "./CodeSnippetInput";
 import RepositoryInput from "./RepositoryInput";
@@ -39,6 +40,7 @@ const DEFAULT_STATE = {
     renderSelectCodeSnippet: false,
     renderFileTree: true,
     renderPaywall: false,
+    renderAuthenticationWall: false,
     renderIndexingProgress: false,
     ...DEFAULT_PROGRESS_STATE,
     paywallMessage: "You've reached your repository limit! Upgrade your plan to increase it.",
@@ -71,6 +73,7 @@ class CodeExplorer extends Component {
 
         this.renderHeader = this.renderHeader.bind(this);
         this.renderPaywall = this.renderPaywall.bind(this);
+        this.renderAuthenticationWall = this.renderAuthenticationWall.bind(this);
         this.renderCodebaseManager = this.renderCodebaseManager.bind(this);
         this.renderIndexingProgress = this.renderIndexingProgress.bind(this);
         this.renderCodeExplorer = this.renderCodeExplorer.bind(this);
@@ -160,10 +163,11 @@ class CodeExplorer extends Component {
                 })
                     .then(res => res.json())
                     .then(data => {
-                        const { file_content, file_summary } = data;
+                        const { file_content, file_summary, is_authenticated } = data;
                         return {
                             fileContent: file_content,
-                            fileSummary: file_summary
+                            fileSummary: file_summary,
+                            shouldAuthenticate: !is_authenticated
                         };
                     })
                     .catch(error => {
@@ -471,8 +475,11 @@ class CodeExplorer extends Component {
         let currentFile = Object.keys(files).find(filePath => files[filePath].language != "text" && !filePath.startsWith("."));
         currentFile = currentFile ? currentFile : Object.keys(files)[-1];
         const fileUrl = files[currentFile].url;
-        const { fileContent, fileSummary } = await this.getFileContent(currentFile, fileUrl, codebaseId, isGitLab, isPrivate);
+        const { fileContent, fileSummary, shouldAuthenticate } = await this.getFileContent(currentFile, fileUrl, codebaseId, isGitLab, isPrivate);
         const fileLanguage = files[currentFile].language;
+
+        console.log("gets called")
+        console.log(shouldAuthenticate)
 
         this.setState({
             currentCodeContext: {
@@ -485,7 +492,8 @@ class CodeExplorer extends Component {
                 isGitLab
             },
             renderRepository: isRefresh ? true : renderIndexingProgress,
-            renderIndexingProgress: false
+            renderIndexingProgress: false,
+            renderAuthenticationWall: shouldAuthenticate
         });
     }
 
@@ -788,6 +796,18 @@ class CodeExplorer extends Component {
         return null;
     }
 
+    renderAuthenticationWall() {
+        const { renderAuthenticationWall } = this.state;
+        const { isGitLab } = this.state.currentCodeContext;
+        console.log("This gets rendered!")
+
+        if (renderAuthenticationWall) {
+            return ( <AuthenticationWall isGitLab={isGitLab} /> );
+        }
+
+        return null;
+    }
+
     renderHeader() {
         const {
             renderCodeSnippet,
@@ -907,21 +927,23 @@ class CodeExplorer extends Component {
     }
 
     render() {
-        const { renderRepository, renderFileTree, renderPaywall } = this.state;
+        const { renderRepository, renderFileTree, renderPaywall, renderAuthenticationWall } = this.state;
+        const shouldRenderWall = renderPaywall || renderAuthenticationWall;
 
         if (renderRepository) {
             let codeContentClassName = renderFileTree ? "truncatedCodeContent" : "";
-            codeContentClassName += renderPaywall ? " paywalledCodeContent" : "";
+            codeContentClassName += shouldRenderWall ? " paywalledCodeContent" : "";
 
             return (
                 <div id="codeExplorer" className="repositoryView">
                     {this.renderPaywall()}
+                    {this.renderAuthenticationWall()}
                     {this.renderFileTree()}
                     <motion.div
                         id="codeContent"
                         className={codeContentClassName}
                         initial="closed"
-                        animate={renderFileTree ? "open" : "closed"}
+                        animate={renderFileTree && !shouldRenderWall ? "open" : "closed"}
                         variants={{
                             open: { width: "70%" },
                             closed: { width: "100%" }
@@ -937,6 +959,7 @@ class CodeExplorer extends Component {
         return (
             <div id="codeExplorer">
                 {this.renderPaywall()}
+                {this.renderAuthenticationWall()}
                 {this.renderHeader()}
                 {this.renderCodebaseManager()}
                 {this.renderSelectRepository()}

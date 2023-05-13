@@ -7,8 +7,6 @@ class PaywallMessage extends Component {
     render() {
         const { className, onUpgradePlan, message } = this.props;
 
-        console.log(message)
-
         return (
             <div className={`rateLimitMessage ${className ?? ""}`}>
                 {message ? (<span>{message}</span>) : (
