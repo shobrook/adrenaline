@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { FaRegFileAlt } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { HiRefresh } from "react-icons/hi";
 
 import PaywallMessage from "./PaywallMessage";
 
@@ -67,7 +68,13 @@ export default class Message extends Component {
     }
 
     renderOptions() {
-        const { isFirstMessage, isResponse, isComplete } = this.props;
+        const { 
+            isFirstMessage, 
+            isResponse, 
+            isComplete, 
+            isLastMessage, 
+            onRegenerateAnswer
+        } = this.props;
         const { renderContext, renderLearnMore } = this.state;
 
         if (!isResponse || this.isLoading() || isFirstMessage || !isComplete) {
@@ -82,6 +89,16 @@ export default class Message extends Component {
                 >
                     Sources
                 </div>
+                {
+                    isLastMessage ? (
+                        <div 
+                            className="regenerateAnswer"
+                            onClick={onRegenerateAnswer}
+                        >
+                            <HiRefresh size={22} />
+                        </div>
+                    ) : <div />
+                }
                 {/* <div
                     className={`optionButton ${renderLearnMore ? "isClicked" : ""}`}
                     onClick={this.onToggleLearnMore}
@@ -216,7 +233,6 @@ export default class Message extends Component {
 
         return (
             <>
-
                 <div className="chatMessageContainer">
                     {this.renderReasoningSteps()}
                     <div

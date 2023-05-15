@@ -40,6 +40,7 @@ class ChatBot extends Component {
                                 isFirstMessage={index == 0}
                                 isLastMessage={index == messages.length - 1}
                                 setFileContext={setFileContext}
+                                onRegenerateAnswer={() => onSubmitQuery(content, true)}
                             >
                                 {content}
                             </Message>
