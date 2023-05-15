@@ -481,9 +481,6 @@ class CodeExplorer extends Component {
         const { fileContent, fileSummary, shouldAuthenticate } = await this.getFileContent(currentFile, fileUrl, codebaseId, isGitLab, isPrivate);
         const fileLanguage = files[currentFile].language;
 
-        console.log("gets called")
-        console.log(shouldAuthenticate)
-
         this.setState({
             currentCodeContext: {
                 files,
@@ -563,15 +560,13 @@ class CodeExplorer extends Component {
             <CodeSnippetInput
                 onSetProgressMessage={this.onSetProgressMessage}
                 onSetCodeSnippet={this.onSetCodeSnippet}
+                onRenderIndexingProgress={() => this.setState({ renderIndexingProgress: true, renderSelectCodeSnippet: false })}
             />
         );
     }
 
     renderCodeExplorer() {
-        const {
-            renderCodeSnippet,
-            renderRepository
-        } = this.state;
+        const { renderCodeSnippet, renderRepository } = this.state;
         const { code, language, fileSummary } = this.state.currentCodeContext;
 
         if (!renderRepository && !renderCodeSnippet) {
@@ -731,8 +726,6 @@ class CodeExplorer extends Component {
                                                 return;
                                             }
 
-                                            console.log("HIT THIS")
-                                            console.log(codebase.codebaseId);
                                             await this.onSetCodebase(codebase, false, "", true);
                                         }}>
                                             {
@@ -802,7 +795,6 @@ class CodeExplorer extends Component {
     renderAuthenticationWall() {
         const { renderAuthenticationWall } = this.state;
         const { isGitLab } = this.state.currentCodeContext;
-        console.log("This gets rendered!")
 
         if (renderAuthenticationWall) {
             return ( <AuthenticationWall isGitLab={isGitLab} /> );

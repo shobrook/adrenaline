@@ -54,8 +54,6 @@ class AuthenticatedRepositoryInput extends Component {
                         .then(data => {
                             const { is_authenticated, repos } = data;
 
-                            console.log(data)
-
                             if (!is_authenticated) {
                                 console.log(is_authenticated);
                                 this.setState({
@@ -65,15 +63,12 @@ class AuthenticatedRepositoryInput extends Component {
                                 return;
                             }
 
-                            console.log("gets here?")
-
                             const repositoryOptions = repos;
                             this.setState({
                                 isAuthenticated: true,
                                 isLoading: false,
                                 repositoryOptions
                             });
-                            console.log("STATE UPDATED")
                         })
                         .catch(error => console.log(error));
                 });
@@ -171,7 +166,6 @@ class AuthenticatedRepositoryInput extends Component {
         if (isAuthenticated) {
             const groupedRepositories = this.groupRepositoriesByOwner();
 
-            console.log("hits this")
             return (
                 <div id="authenticatedGithubInput">
                     {this.renderSearchBar()}
