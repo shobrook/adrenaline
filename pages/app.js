@@ -13,7 +13,7 @@ import { useRouter } from "next/router";
 
 const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
-export default function DebuggerAppPage() {
+export default function App() {
     const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
     const [codebaseId, setCodebaseId] = useState("");
     const [messages, setMessages] = useState([new Message(WELCOME_MESSAGE, true, true)]);
@@ -46,15 +46,6 @@ export default function DebuggerAppPage() {
                         // TODO: Update state to tell CodeExplorer to render the SelectRepository view
                     })
             });
-    }
-
-    function getChatHistory() {
-        return messages.slice(1).map(message => {
-            return {
-                content: message.content,
-                is_response: message.isResponse
-            };
-        });
     }
 
     function fetchUserMetadata() {
@@ -96,9 +87,19 @@ export default function DebuggerAppPage() {
         setRenderSubscriptionModal(isVisible);
     }
 
-    function onSubmitQuery(message) {
-        // TODO: Handle regeneration
+    function getChatHistory() {
+        return messages
+            .slice(1)
+            .map(message => {
+                return {
+                    content: message.content,
+                    is_response: message.isResponse
+            };
+            })
+            .filter((message, index) => index < messages.length - 3);
+    }
 
+    function onSubmitQuery(message, regenerate = false) {
         const query = new Message(message, false, true);
         let response = new Message("", true, false);
 
@@ -108,14 +109,15 @@ export default function DebuggerAppPage() {
         }
 
         setMessages(prevMessages => {
-            const priorMessages = prevMessages.slice(0, prevMessages.length);
+            if (regenerate) {
+                let priorMessages = prevMessages.slice(0, prevMessages.length - 1);
+                return [...priorMessages, response];
+            }
+
+            let priorMessages = prevMessages.slice(0, prevMessages.length);
             return [...priorMessages, query, response];
         });
         // localStorage.setItem(codebaseId, JSON.stringify(priorMessages));
-
-        if (!isAuthenticated) {
-            return;
-        }
 
         getAccessTokenSilently()
             .then(token => {
@@ -128,12 +130,16 @@ export default function DebuggerAppPage() {
                 };
                 queryWS.current.send(JSON.stringify(request));
                 Mixpanel.track("received_chatbot_response", { query: message });
-            })
+            });
     }
 
     function onSetCodebaseId(codebaseId) {
         setCodebaseId(codebaseId);
         // setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
+    }
+
+    function onClearConversation() {
+        setMessages([new Message(WELCOME_MESSAGE, true, true)]);
     }
 
     /* Helpers */
@@ -155,6 +161,7 @@ export default function DebuggerAppPage() {
                                 onSubmitQuery={onSubmitQuery}
                                 onUpgradePlan={() => setShowSubscriptionModal(true)}
                                 setFileContext={setFileContext}
+                                onClearConversation={onClearConversation}
                             />
                             <CodeExplorer
                                 onSetCodebaseId={onSetCodebaseId}
@@ -179,7 +186,7 @@ export default function DebuggerAppPage() {
 
         Mixpanel.track("load_playground");
 
-        // TODO: Only connect to websocket when user is authenticated
+        // TODO: Only connect to websocket when user is authenticated (will reduce load on server)
 
         /* Connect to query handler websocket */
 

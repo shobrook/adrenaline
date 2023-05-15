@@ -80,8 +80,9 @@ class CodeSnippetInput extends Component {
         this.setState({ code });
     }
 
+    // TODO: Move this up a level
     onSubmitCode() {
-        const { onSetCodeSnippet, onSetProgressMessage } = this.props;
+        const { onSetCodeSnippet, onSetProgressMessage, onRenderIndexingProgress } = this.props;
         const {
             isAuthenticated,
             loginWithRedirect,
@@ -103,6 +104,7 @@ class CodeSnippetInput extends Component {
             return;
         }
 
+
         getAccessTokenSilently()
             .then(token => {
                 this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
@@ -114,6 +116,8 @@ class CodeSnippetInput extends Component {
                         code
                     };
                     this.websocket.send(JSON.stringify(request));
+
+                    onRenderIndexingProgress();
                 };
                 this.websocket.onmessage = async event => {
                     const { code, language } = this.state;

@@ -129,7 +129,17 @@
     display: flex;
     align-items: center;
     margin-top: 22.5px;
-    justify-content: flex-start;
+    /* justify-content: flex-start; */
+    justify-content: space-between;
+}
+
+.regenerateAnswer {
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.regenerateAnswer:hover {
+    opacity: 0.75;
 }
 
 .optionButton:first-child {

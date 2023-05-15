@@ -29,3 +29,22 @@
 #messages::-webkit-scrollbar {
     display: none;
 } 
+
+#chatbotOptions {
+    padding-top: 7px;
+    display: flex;
+    align-items: center;
+    opacity: 0.75;
+    cursor: pointer;
+    justify-content: flex-end;
+}
+
+#chatbotOptions > span {
+    font-weight: 500;
+    font-size: 14px;
+    padding-left: 5px;
+}
+
+#chatbotOptions:hover {
+    opacity: 1.0;
+}
