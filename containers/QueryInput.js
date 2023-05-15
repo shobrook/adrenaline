@@ -1,71 +1,99 @@
 import { withAuth0 } from "@auth0/auth0-react";
-import { Component } from "react";
-
+import { useEffect, useRef, useState} from "react";
 import Button from "../components/Button";
-import Mixpanel from "../library/mixpanel";
 
-class QueryInput extends Component {
-    constructor(props) {
-        super(props);
+const  QueryInput = (props) => {
+    const [query, setQuery] = useState('');
+    const [rows, setRows] = useState(1);
+    const textAreaRef = useRef(null);
+    const { placeholder, minRows, maxRows, onSubmitQuery } = props;
 
-        this.onChangeQuery = this.onChangeQuery.bind(this);
-        this.onSubmitQuery = this.onSubmitQuery.bind(this);
-        this.onKeyPress = this.onKeyPress.bind(this);
-
-        this.state = { query: "" };
-    }
-
-    /* Event Handlers */
-
-    onChangeQuery(event) {
-        this.setState({ query: event.target.value });
-    }
-
-    onSubmitQuery() {
-        const { query } = this.state;
-
-        if (query === "") {
-            return;
-        }
-
-        this.props.onSubmitQuery(query);
-        this.setState({ query: "" });
-    }
-
-    onKeyPress(event) {
-        const code = event.keyCode || event.which;
-
-        if (code === 13) {
-            this.onSubmitQuery();
+    const onChangeQuery =(event) => {
+        const textarea = event.target;
+        const previousRows = textarea.rows;
+        const currentRows = ~~(textarea.scrollHeight / 24);
+        textarea.rows = currentRows < maxRows ? currentRows : maxRows;
+        setQuery(event.target.value);
+        setRows(currentRows);
+        if (currentRows === previousRows) {
+            textarea.scrollTop = textarea.scrollHeight;
         }
     }
 
-    /* Lifecycle Methods */
+    const onSubmit = () => {
+        if (query !== '') {
+            onSubmitQuery(query);
+            setQuery('');
+            setRows(1);
+            textAreaRef.current.style.height = `${24 * (minRows || 1) * 1.5}px`;
+        }
+    }
 
-    render() {
-        const { query } = this.state;
+    const handleKeyDown = (event) => {
+        const textarea = event.target;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const value = textarea.value;
+        const previousRows = textarea.rows;
+        const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight);
+        const maxRows = Math.floor(textarea.clientHeight / lineHeight);
+        const currentRows = ~~(textarea.scrollHeight / lineHeight);
 
-        return (
-            <div id="inputField">
-                <div id="inputFieldArea">
-                    <input
-                        id="inputFieldValue"
-                        placeholder="Ask a question"
-                        onChange={this.onChangeQuery}
-                        value={query}
-                        onKeyPress={this.onKeyPress}
-                    />
-                    <Button
-                        id="sendInputButton"
-                        isPrimary
-                        onClick={this.onSubmitQuery}
-                    >
-                        Ask
-                    </Button>
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            onSubmit(value);
+            setQuery("");
+            setRows(1);
+        } else if (event.key === "Enter" && event.key === "Shift") {
+            event.preventDefault();
+            textarea.value = value.substring(0, start) + "\n" + value.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + 1;
+            textarea.scrollTop = textarea.scrollHeight;
+        } else if (event.key === "Backspace" && value === "" && previousRows > 1) {
+            event.preventDefault();
+            textarea.rows = previousRows - 1;
+            setRows(previousRows - 1);
+        } else {
+            textarea.style.height = "auto";
+            textarea.style.height = `${textarea.scrollHeight}px`;
+            if (currentRows < maxRows) {
+                textarea.rows = currentRows;
+                setRows(currentRows);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (textAreaRef.current) {
+            textAreaRef.current.style.height = "auto";
+            textAreaRef.current.rows = 1;
+        }
+    }, [query.length === 0]);
+
+    return (
+        <div className="chatContainer">
+            <form className="chatForm" onSubmit={onSubmit}>
+                <div id="chatInputContainer">
+                <textarea
+                    ref={textAreaRef}
+                    value={query}
+                    rows={rows}
+                    onChange={onChangeQuery}
+                    onKeyDown={handleKeyDown}
+                    className="chatTextarea"
+                    placeholder="Ask a question"
+                />
+                <Button
+                    id="chatSubmitButton"
+                    isPrimary
+                    type="submit"
+                >
+                    Ask
+                </Button>
                 </div>
-            </div>
-        );
-    }
+            </form>
+        </div>
+    );
 }
 
 export default withAuth0(QueryInput);

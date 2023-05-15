@@ -8,13 +8,15 @@ export default class Button extends Component {
 	}
 
 	onClick() {
-		const { isLoading } = this.props;
+		const { isLoading, onClick } = this.props;
 
 		if (isLoading) {
 			return null;
 		}
 
-		return this.props.onClick();
+		if(onClick){
+			return this.props.onClick();
+		}
 	}
 
 	render() {
