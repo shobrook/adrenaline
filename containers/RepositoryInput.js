@@ -135,7 +135,7 @@ class RepositoryInput extends Component {
                         <img id={url == "" ? "passiveLink" : "activeLink"} src="./link_icon.png" />
                         <input
                             id="inputFieldValue"
-                            placeholder={`${isGitLab ? "GitLab" : "GitHub"} repository link`}
+                            placeholder={`${isGitLab ? "GitLab" : "GitHub"} repository url`}
                             onChange={this.onChangeUrl}
                             value={url}
                             onKeyPress={this.onKeyPress}
