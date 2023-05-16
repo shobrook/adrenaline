@@ -31,8 +31,11 @@ class RepositoryInput extends Component {
         if (url.endsWith("/")) {
             url = url.slice(0, url.length - 1);
         }
-
-        const components = url.split(".com/");
+        // handle both .com and .edu
+        var components = url.split(".com/");
+        if (url.includes(".edu")) {
+            components = url.split(".edu/");
+        }
         const repoPath = components[1];
 
         return repoPath;
