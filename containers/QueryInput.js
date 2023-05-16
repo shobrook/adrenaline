@@ -1,71 +1,55 @@
 import { withAuth0 } from "@auth0/auth0-react";
-import { Component } from "react";
-
+import { useEffect, useRef, useState} from "react";
 import Button from "../components/Button";
-import Mixpanel from "../library/mixpanel";
-
-class QueryInput extends Component {
-    constructor(props) {
-        super(props);
-
-        this.onChangeQuery = this.onChangeQuery.bind(this);
-        this.onSubmitQuery = this.onSubmitQuery.bind(this);
-        this.onKeyPress = this.onKeyPress.bind(this);
-
-        this.state = { query: "" };
+import { TextareaAutosize, TextareaAutosizeProps } from '@mui/material';
+const  QueryInput = (props) => {
+    const { onSubmitQuery } = props;
+    const [query, setQuery] = useState('');
+    const textAreaRef = useRef(null);
+    const onChangeQuery =(event) => {
+        setQuery(event.target.value);
     }
 
-    /* Event Handlers */
-
-    onChangeQuery(event) {
-        this.setState({ query: event.target.value });
-    }
-
-    onSubmitQuery() {
-        const { query } = this.state;
-
-        if (query === "") {
-            return;
+    const handleKeyDown = (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            onSubmit(event.target.value);
+            setQuery("");
         }
+    };
 
-        this.props.onSubmitQuery(query);
-        this.setState({ query: "" });
-    }
-
-    onKeyPress(event) {
-        const code = event.keyCode || event.which;
-
-        if (code === 13) {
-            this.onSubmitQuery();
+    const onSubmit = () => {
+        if (query !== '') {
+            onSubmitQuery(query);
+            setQuery('');
         }
     }
 
-    /* Lifecycle Methods */
-
-    render() {
-        const { query } = this.state;
-
-        return (
-            <div id="inputField">
-                <div id="inputFieldArea">
-                    <input
-                        id="inputFieldValue"
-                        placeholder="Ask a question"
-                        onChange={this.onChangeQuery}
-                        value={query}
-                        onKeyPress={this.onKeyPress}
-                    />
-                    <Button
-                        id="sendInputButton"
-                        isPrimary
-                        onClick={this.onSubmitQuery}
-                    >
-                        Ask
-                    </Button>
-                </div>
-            </div>
-        );
-    }
+    return (
+      <div className="chatContainer">
+          <form className="chatForm" onSubmit={onSubmit}>
+              <div id="chatInputContainer">
+                  <TextareaAutosize
+                    ref={textAreaRef}
+                    minRows={1}
+                    maxRows={10}
+                    className="chatTextarea"
+                    value={query}
+                    onChange={onChangeQuery}
+                    placeholder="Ask a question..."
+                    onKeyDown={handleKeyDown}
+                  />
+                  <Button
+                    id="chatSubmitButton"
+                    isPrimary
+                    type="submit"
+                  >
+                      Ask
+                  </Button>
+              </div>
+          </form>
+      </div>
+    );
 }
 
 export default withAuth0(QueryInput);

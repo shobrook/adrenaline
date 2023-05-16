@@ -1,6 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { AiFillStar } from "react-icons/ai";
 
@@ -77,8 +77,7 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
                 </div>
                 <div className="ctaButtons">
                     {isAuthenticated ? (
-                        <UserNavDropdown onLogout={onLogout}
-                            setShowSubscriptionModal={setShowSubscriptionModal} />
+                        <UserNavDropdown onLogout={onLogout} setShowSubscriptionModal={setShowSubscriptionModal} />
                     ) : (
                         <>
                             <Button
@@ -100,8 +99,7 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
             </div>
             <div className="compactButtons">
                 {isAuthenticated ? (
-                    <UserNavDropdown onLogout={onLogout}
-                        setShowSubscriptionModal={setShowSubscriptionModal} />
+                    <UserNavDropdown onLogout={onLogout} setShowSubscriptionModal={setShowSubscriptionModal} />
                 ) : (
                     <>
                         <Button isPrimary={false} onClick={onLogIn}>Log in</Button>
@@ -115,7 +113,7 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
 const UserNavDropdown = ({ onLogout, setShowSubscriptionModal }) => {
     const { getAccessTokenSilently, user } = useAuth0();
     const [dropdownVisible, setDropdownVisible] = useState(false);
-
+    const dropdownRef = useRef(null);
     const toggleDropdown = () => {
         setDropdownVisible(!dropdownVisible);
     };
@@ -142,9 +140,21 @@ const UserNavDropdown = ({ onLogout, setShowSubscriptionModal }) => {
                     })
             })
     }
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownVisible(false);
+            }
+        }
+
+        window.addEventListener("click", handleClickOutside);
+        return () => {
+            window.removeEventListener("click", handleClickOutside);
+        };
+    }, [dropdownRef]);
 
     return (
-        <div className="user-nav-dropdown">
+        <div className="user-nav-dropdown" ref={dropdownRef}>
             <div className={"dropdown-button"} onClick={toggleDropdown}>
                 <img src={user?.picture} className="profile-picture" />
                 <MdKeyboardArrowDown fill={"lightgrey"} size={24} />
