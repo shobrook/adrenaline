@@ -218,7 +218,7 @@ export default function App() {
                             priorStep.content += message.content;
                             response.steps[response.steps.length - 1] = priorStep;
                         } else if (message.type.toLowerCase() == "progress") {
-                            response.progress = message.content;
+                            response.progress += 1;
                         } else {
                             response.steps.push(message);
                         }
@@ -237,6 +237,7 @@ export default function App() {
                     response.isComplete = is_final;
                     response.isPaywalled = is_paywalled;
                     response.sources = file_paths.map(filePath => new Source(filePath));
+                    response.progress = null;
 
                     return [...priorMessages, response];
                 });

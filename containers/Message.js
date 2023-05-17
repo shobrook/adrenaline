@@ -239,7 +239,7 @@ export default class Message extends Component {
                     {
                         progress != null && progress != 1 ? (
                             <div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""}`}>
-                                <ProgressBar key={0} step="Fetching context" value={progress * 100} />
+                                <ProgressBar key={0} step="Fetching context" value={progress * 0.95} />
                             </div>
                         ) : (
                             <>
