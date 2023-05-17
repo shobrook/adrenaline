@@ -6,6 +6,7 @@ export class Message {
         this.isPaywalled = isPaywalled;
         this.sources = sources;
         this.steps = [];
+        this.progress = null;
     }
 }
 

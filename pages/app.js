@@ -217,6 +217,8 @@ export default function App() {
                         if (priorStep.type === message.type) {
                             priorStep.content += message.content;
                             response.steps[response.steps.length - 1] = priorStep;
+                        } else if (message.type.toLowerCase() == "progress") {
+                            response.progress = message.content;
                         } else {
                             response.steps.push(message);
                         }

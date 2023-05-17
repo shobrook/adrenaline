@@ -17,6 +17,7 @@
 @import "./Spinner.css";
 @import "./ExampleRepository.css";
 @import "./FileSummary.css";
+@import "./ProgressBar.css";
 
 body {
     margin: 0;

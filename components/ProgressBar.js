@@ -6,12 +6,17 @@ import Box from "@mui/material/Box";
 
 export default function ProgressBar({ key, step, message, value }) {
     return (
-        <div className="progressBarOuter">
-            <div className="progressTitle">
-                <span className="progressStep">{step}{message ? ": " : ""}</span>
-                { !message && value == 0 ? (<CircularProgress color="secondary" size={20} />) : null }
-                { message ? (<span className="progressMessage">{message}</span>) : null }
-            </div>
+        <div className={step == "Fetching context" ? "isolatedProgressBarOuter" : "progressBarOuter"}>
+            {
+                step != null ? (
+                    <div className="progressTitle">
+                        <span className="progressStep">{step}{message ? ": " : ""}</span>
+                        { !message && value == 0 ? (<CircularProgress color="secondary" size={20} />) : null }
+                        { message ? (<span className="progressMessage">{message}</span>) : null }
+                    </div>
+                ) : null
+            }
+
             <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Box sx={{ width: "100%", mr: 1 }}>
                     <LinearProgress 

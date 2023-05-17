@@ -26,7 +26,8 @@ class ChatBot extends Component {
                             isComplete,
                             isPaywalled,
                             sources,
-                            steps
+                            steps,
+                            progress
                         } = message;
 
                         return (
@@ -37,6 +38,7 @@ class ChatBot extends Component {
                                 onUpgradePlan={onUpgradePlan}
                                 sources={sources}
                                 steps={steps}
+                                progress={progress}
                                 isFirstMessage={index == 0}
                                 isLastMessage={index == messages.length - 1}
                                 setFileContext={setFileContext}

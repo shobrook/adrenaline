@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HiRefresh } from "react-icons/hi";
 
 import PaywallMessage from "./PaywallMessage";
+import ProgressBar from "../components/ProgressBar";
 
 export default class Message extends Component {
     constructor(props) {
@@ -228,22 +229,32 @@ export default class Message extends Component {
     }
 
     render() {
-        const { isResponse, isPaywalled } = this.props;
+        const { isResponse, isPaywalled, progress } = this.props;
         const isLoading = this.isLoading();
 
         return (
             <>
                 <div className="chatMessageContainer">
                     {this.renderReasoningSteps()}
-                    <div
-                        className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""} ${isLoading ? "loadingMessage" : ""}`}>
-                        {this.renderPaywall()}
-                        <div className={`messageContainer ${isPaywalled ? "blocked" : ""}`}>
-                            {this.renderMessage()}
-                        </div>
-                        {this.renderOptions()}
-                    </div>
-                    <AnimatePresence>{this.renderContext()}</AnimatePresence>
+                    {
+                        progress != null && progress != 1 ? (
+                            <div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""}`}>
+                                <ProgressBar key={0} step="Fetching context" value={progress * 100} />
+                            </div>
+                        ) : (
+                            <>
+                                <div
+                                    className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""} ${isLoading && progress == null ? "loadingMessage" : ""}`}>
+                                    {this.renderPaywall()}
+                                    <div className={`messageContainer ${isPaywalled ? "blocked" : ""}`}>
+                                        {this.renderMessage()}
+                                    </div>
+                                    {this.renderOptions()}
+                                </div>
+                                <AnimatePresence>{this.renderContext()}</AnimatePresence>
+                            </>
+                        )
+                    }
                 </div>
 
                 {this.renderScrollAnchor()}

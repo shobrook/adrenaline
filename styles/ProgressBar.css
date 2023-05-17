@@ -1,0 +1,22 @@
+.progressTitle {
+    display: flex;
+    align-items: center;
+}
+
+.progressBarOuter {
+    width: 100%;
+    padding-bottom: 15px;
+}
+
+.isolatedProgressBarOuter {
+    width: 100%;
+}
+
+.progressStep {
+    font-weight: 500;
+    padding-right: 10px;
+}
+
+.progressMessage {
+    opacity: 0.75;
+}
