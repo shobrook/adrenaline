@@ -237,7 +237,7 @@ export default class Message extends Component {
                 <div className="chatMessageContainer">
                     {this.renderReasoningSteps()}
                     {
-                        progress != null && progress < 100 ? (
+                        progress != null && progress < 100 && children.trim() != "" ? (
                             <div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""}`}>
                                 <ProgressBar key={0} step="Validating answer" value={progress * 0.95} />
                             </div>
