@@ -206,6 +206,8 @@ export default function App() {
             if (type === "reasoning_step") {
                 const { message } = data;
 
+                console.log(message);
+
                 setMessages(prevMessages => {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let response = prevMessages[prevMessages.length - 1];
@@ -237,7 +239,7 @@ export default function App() {
                     response.isComplete = is_final;
                     response.isPaywalled = is_paywalled;
                     response.sources = file_paths.map(filePath => new Source(filePath));
-                    response.progress = 100;
+                    response.progress = null;
 
                     return [...priorMessages, response];
                 });

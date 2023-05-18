@@ -232,12 +232,14 @@ export default class Message extends Component {
         const { isResponse, isPaywalled, progress, children } = this.props;
         const isLoading = this.isLoading();
 
+        console.log(progress);
+
         return (
             <>
                 <div className="chatMessageContainer">
                     {this.renderReasoningSteps()}
                     {
-                        progress != null && progress < 100 && children.trim() != "" ? (
+                        progress != null && progress < 100 && children.trim() == "" ? (
                             <div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""}`}>
                                 <ProgressBar key={0} step="Validating answer" value={progress * 0.95} />
                             </div>
