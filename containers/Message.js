@@ -229,7 +229,7 @@ export default class Message extends Component {
     }
 
     render() {
-        const { isResponse, isPaywalled, progress } = this.props;
+        const { isResponse, isPaywalled, progress, children } = this.props;
         const isLoading = this.isLoading();
 
         return (
