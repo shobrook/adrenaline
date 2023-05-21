@@ -198,48 +198,50 @@ export default function App() {
             const {
                 type,
                 data,
-                is_final,
+                is_finished,
                 is_paywalled,
-                error_message
+                progress_target,
+                error
             } = JSON.parse(event.data);
 
-            if (type === "reasoning_step") {
-                const { message } = data;
+            console.log(event.data);
 
-                console.log(message);
+            if (type === "loading") {
+                const { step, message } = data;
 
                 setMessages(prevMessages => {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
-                    let response = prevMessages[prevMessages.length - 1];
+                    let lastMessage = prevMessages[prevMessages.length - 1];
 
-                    if (response.steps.length === 0) {
-                        response.steps.push(message);
+                    if (lastMessage.loadingSteps.length === 0) { // First loading step
+                        lastMessage.loadingSteps.push(data);
                     } else {
-                        const priorStep = response.steps[response.steps.length - 1];
-                        if (priorStep.type === message.type) {
-                            priorStep.content += message.content;
-                            response.steps[response.steps.length - 1] = priorStep;
-                        } else if (message.type.toLowerCase() == "progress" && response.progress < 100) {
-                            response.progress += 1;
-                        } else {
-                            response.steps.push(message);
+                        const lastLoadingStep = lastMessage.loadingSteps[lastMessage.loadingSteps.length - 1];
+                        if (lastLoadingStep.step === step) { // Same loading step
+                            lastLoadingStep.message += message;
+                            lastMessage.loadingSteps[lastMessage.loadingSteps.length - 1] = lastLoadingStep;
+                        } else if (step.toLowerCase() == "progress") { // Progress update
+                            lastMessage.progress += 1;
+                            lastMessage.progressTarget = progress_target;
+                        } else { // New loading step
+                            lastMessage.loadingSteps.push(data);
                         }
                     }
 
-                    return [...priorMessages, response];
+                    return [...priorMessages, lastMessage];
                 });
             } else if (type == "answer") {
-                const { message, file_paths } = data;
+                const { message, sources } = data;
 
                 setMessages(prevMessages => {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let response = prevMessages[prevMessages.length - 1];
 
                     response.content += message;
-                    response.isComplete = is_final;
+                    response.isComplete = is_finished;
                     response.isPaywalled = is_paywalled;
-                    response.sources = file_paths.map(filePath => new Source(filePath));
-                    response.progress = null;
+                    response.sources = sources.map(filePath => new Source(filePath));
+                    response.progressTarget = null;
 
                     return [...priorMessages, response];
                 });

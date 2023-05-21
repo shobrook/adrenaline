@@ -20,3 +20,7 @@
 .progressMessage {
     opacity: 0.75;
 }
+
+.css-pazuet {
+    min-width: 40px !important;
+}

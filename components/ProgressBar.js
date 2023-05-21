@@ -6,7 +6,7 @@ import Box from "@mui/material/Box";
 
 export default function ProgressBar({ key, step, message, value }) {
     return (
-        <div className={step == "Validating answer" ? "isolatedProgressBarOuter" : "progressBarOuter"}>
+        <div className={step == "Generating response" ? "isolatedProgressBarOuter" : "progressBarOuter"}>
             {
                 step != null ? (
                     <div className="progressTitle">
