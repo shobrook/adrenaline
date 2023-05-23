@@ -21,7 +21,7 @@ class ChatBot extends Component {
         if (messages.length > 1 || codebaseId == "" || codebaseId == null) {
             suggestedMessages = [];
         } else {
-            suggestedMessages = [{ preview: "What does this project do?", content: "What does this project do?" }];
+            suggestedMessages = [{ preview: "What does this codebase do?", content: "What does this codebase do?" }];
         }
 
         return (
