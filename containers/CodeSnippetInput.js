@@ -68,7 +68,14 @@ class CodeSnippetInput extends Component {
     /* Event Handlers */
 
     onSelectLanguage(language) {
-        this.setState({ language, code: language.codeExample });
+        this.setState(prevState => {
+            const { code } = prevState;
+            if (code == prevState.language.codeExample) {
+                return { language, code: language.codeExample };
+            }
+
+            return { language, code };
+        });
     }
 
     onFocus(event) {
