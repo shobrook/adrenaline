@@ -162,6 +162,7 @@ export default function App() {
                                 onUpgradePlan={() => setShowSubscriptionModal(true)}
                                 setFileContext={setFileContext}
                                 onClearConversation={onClearConversation}
+                                codebaseId={codebaseId}
                             />
                             <CodeExplorer
                                 onSetCodebaseId={onSetCodebaseId}

@@ -13,8 +13,16 @@ class ChatBot extends Component {
             onClearConversation,
             messages,
             onUpgradePlan,
-            setFileContext
+            setFileContext,
+            codebaseId
         } = this.props;
+
+        let suggestedMessages;
+        if (messages.length > 1 || codebaseId == "" || codebaseId == null) {
+            suggestedMessages = [];
+        } else {
+            suggestedMessages = [{ preview: "What does this project do?", content: "What does this project do?" }];
+        }
 
         return (
             <div id="chatBot">
@@ -50,7 +58,10 @@ class ChatBot extends Component {
                     })}
                 </div>
                 <div>
-                    <QueryInput onSubmitQuery={onSubmitQuery} />
+                    <QueryInput 
+                        onSubmitQuery={onSubmitQuery}
+                        suggestedMessages={suggestedMessages}
+                    />
                     <div id="chatbotOptions" onClick={onClearConversation}>
                         <HiRefresh size={16} />
                         <span>Clear conversation</span>

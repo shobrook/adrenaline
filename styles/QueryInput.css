@@ -188,3 +188,48 @@
 [contentEditable=true]:empty:not(:focus):before {
     content: attr(data-text)
 }
+
+#suggestedHeader {
+    padding-bottom: 15px;
+}
+
+.suggestedMessage {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-radius: 7px;
+    color: white;
+    /* margin-top: 15px; */
+    background-color: #2b3044;
+    /* align-self: flex-end; */
+    /* max-width: 75%; */
+    /* width: fit-content; */
+    margin-bottom: 15px;
+    box-shadow: 0px 1px 6px #101018b8;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    /* -webkit-animation: breathing 5s ease-out infinite normal; */
+    /* animation: breathing 5s ease-out infinite normal; */
+    /* -webkit-font-smoothing: antialiased; */
+}
+
+.suggestedMessage:hover {
+    opacity: 0.75 !important;
+}
+
+.suggestedMessage > span {
+    width: 95%;
+}
+
+.sendMessageIcon {
+    height: 20px;
+    fill: #FFFFFF;
+}
