@@ -518,7 +518,7 @@ class CodeExplorer extends Component {
     }
 
     onReturnToManager() {
-        const { setFileContext } = this.props;
+        const { setFileContext, onSetCodebaseId } = this.props;
 
         this.setState({
             renderCodeSnippet: false,
@@ -531,6 +531,7 @@ class CodeExplorer extends Component {
             renderIndexingProgress: false
         });
         setFileContext("");
+        onSetCodebaseId("");
     }
 
     /* Renderers */
