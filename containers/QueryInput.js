@@ -82,7 +82,7 @@ const QueryInput = (props) => {
             type="submit"
             onClick={onSubmit}
           >
-            Ask
+            Ask AI
           </Button>
         </div>
       </form>

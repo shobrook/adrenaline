@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useRouter } from "next/router";
+import { motion, AnimatePresence } from "framer-motion";
 
 import Header from "../containers/Header";
 import ChatBot from "../containers/ChatBot";
@@ -9,7 +11,6 @@ import SubscriptionModal from "../containers/SubscriptionModal";
 
 import Mixpanel from "../library/mixpanel";
 import { Source, Message } from "../library/data";
-import { useRouter } from "next/router";
 
 const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
@@ -20,6 +21,7 @@ export default function App() {
     const [subscriptionStatus, setSubscriptionStatus] = useState({});
     const [renderSubscriptionModal, setRenderSubscriptionModal] = useState(false);
     const [fileContext, setFileContext] = useState("");
+    const [displayCodeExplorer, setDisplayCodeExplorer] = useState(true);
     const queryWS = useRef(null);
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
@@ -149,6 +151,10 @@ export default function App() {
         setMessages([new Message(WELCOME_MESSAGE, true, true)]);
     }
 
+    function onToggleBrowseCode() {
+        setDisplayCodeExplorer(!displayCodeExplorer);
+    }
+
     /* Helpers */
 
     function renderApp() {
@@ -163,21 +169,46 @@ export default function App() {
                         </div>
                         :
                         <div className="body">
-                            <ChatBot
-                                messages={messages}
-                                onSubmitQuery={onSubmitQuery}
-                                onUpgradePlan={() => setShowSubscriptionModal(true)}
-                                setFileContext={setFileContext}
-                                onClearConversation={onClearConversation}
-                                codebaseId={codebaseId}
-                            />
-                            <CodeExplorer
-                                onSetCodebaseId={onSetCodebaseId}
-                                codebaseId={codebaseId}
-                                onUpgradePlan={() => setShowSubscriptionModal(true)}
-                                setFileContext={setFileContext}
-                                fileContext={fileContext}
-                            />
+                            <motion.div
+                                id="chatBot"
+                                initial="closed"
+                                animate={displayCodeExplorer ? "closed" : "open"}
+                                variants={{
+                                    open: { width: "100%", maxWidth: "100%" },
+                                    closed: { width: "40%", maxWidth: "40%" }
+                                }}
+                                transition={{ duration: 0.25, ease: "easeInOut" }}
+                            >
+                                <ChatBot
+                                    messages={messages}
+                                    onSubmitQuery={onSubmitQuery}
+                                    onUpgradePlan={() => setShowSubscriptionModal(true)}
+                                    setFileContext={setFileContext}
+                                    onClearConversation={onClearConversation}
+                                    codebaseId={codebaseId}
+                                    onToggleBrowseCode={onToggleBrowseCode}
+                                    isBrowseCodeToggled={displayCodeExplorer}
+                                />
+                            </motion.div>
+                            <AnimatePresence>
+                                {displayCodeExplorer && (
+                                    <motion.div
+                                        id="codeExplorer"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: "calc(60% - 30px)" }}
+                                        exit={{ width: 0 }}
+                                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                                    >
+                                        <CodeExplorer
+                                            onSetCodebaseId={onSetCodebaseId}
+                                            codebaseId={codebaseId}
+                                            onUpgradePlan={() => setShowSubscriptionModal(true)}
+                                            setFileContext={setFileContext}
+                                            fileContext={fileContext}
+                                        />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                 }
             </div>

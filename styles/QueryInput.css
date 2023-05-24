@@ -18,7 +18,7 @@
     flex-grow: 1;
     padding: 0.5rem 0.5rem 0.5rem 1rem;
     position: relative;
-    background-color: #181B26;
+    background-color: #15171F;
     border: 2px solid #262A39;
     border-radius: 7px;
     color: #fff;
@@ -32,7 +32,7 @@
     padding: 10px 70px 10px 0.5rem;
     color: white;
     border: none;
-    background-color: #181B26;
+    background-color: #15171F;
     font-size: 16px;
     font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif !important;
     box-sizing: border-box;

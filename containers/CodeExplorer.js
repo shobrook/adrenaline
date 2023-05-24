@@ -932,7 +932,7 @@ class CodeExplorer extends Component {
             codeContentClassName += shouldRenderWall ? " paywalledCodeContent" : "";
 
             return (
-                <div id="codeExplorer" className="repositoryView">
+                <div className="repositoryView">
                     {this.renderPaywall()}
                     {this.renderAuthenticationWall()}
                     {this.renderFileTree()}
@@ -950,11 +950,11 @@ class CodeExplorer extends Component {
                         {this.renderCodeExplorer()}
                     </motion.div>
                 </div>
-            )
+            );
         }
 
         return (
-            <div id="codeExplorer">
+            <>
                 {this.renderPaywall()}
                 {this.renderAuthenticationWall()}
                 {this.renderHeader()}
@@ -963,7 +963,7 @@ class CodeExplorer extends Component {
                 {this.renderSelectCodeSnippet()}
                 {this.renderIndexingProgress()}
                 {this.renderCodeExplorer()}
-            </div>
+            </>
         );
     }
 }
