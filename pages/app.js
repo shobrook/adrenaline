@@ -113,11 +113,10 @@ export default function App() {
                 let priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                 return [...priorMessages, response];
             }
-
+            
             let priorMessages = prevMessages.slice(0, prevMessages.length);
             return [...priorMessages, query, response];
         });
-        // localStorage.setItem(codebaseId, JSON.stringify(priorMessages));
 
         getAccessTokenSilently()
             .then(token => {
@@ -135,7 +134,15 @@ export default function App() {
 
     function onSetCodebaseId(codebaseId) {
         setCodebaseId(codebaseId);
-        // setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
+
+        const priorMessages = JSON.parse(localStorage.getItem(codebaseId))
+        if (priorMessages) {
+            setMessages(priorMessages);
+        } else {
+            const newMessages = [new Message(WELCOME_MESSAGE, true, true)];
+            setMessages(newMessages);
+            localStorage.setItem(codebaseId, JSON.stringify(newMessages));
+        }
     }
 
     function onClearConversation() {
@@ -207,8 +214,6 @@ export default function App() {
             if (type === "reasoning_step") {
                 const { message } = data;
 
-                console.log(message);
-
                 setMessages(prevMessages => {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let response = prevMessages[prevMessages.length - 1];
@@ -271,6 +276,10 @@ export default function App() {
 
         prevAuthState.current = isAuthenticated;
     }, [isAuthenticated])
+
+    useEffect(() => {
+        localStorage.setItem(codebaseId, JSON.stringify(messages));
+    }, [messages]);
 
     return (
         <>

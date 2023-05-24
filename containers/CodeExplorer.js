@@ -529,9 +529,10 @@ class CodeExplorer extends Component {
             renderFileTree: false,
             renderPaywall: false,
             renderIndexingProgress: false
+        }, () => {
+            setFileContext("");
+            onSetCodebaseId("");
         });
-        setFileContext("");
-        onSetCodebaseId("");
     }
 
     /* Renderers */

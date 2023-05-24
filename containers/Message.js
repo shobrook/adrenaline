@@ -232,8 +232,6 @@ export default class Message extends Component {
         const { isResponse, isPaywalled, progress, children } = this.props;
         const isLoading = this.isLoading();
 
-        console.log(progress);
-
         return (
             <>
                 <div className="chatMessageContainer">
