@@ -2,13 +2,13 @@ import { Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { motion } from "framer-motion";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import { HiTrash, HiCode, HiRefresh } from "react-icons/hi";
 import { AiFillGithub, AiFillGitlab } from "react-icons/ai";
 import toast from "react-hot-toast";
 import { CircularProgress } from "@mui/material";
+import { motion, AnimatePresence } from "framer-motion";
 
 import AuthenticationWall from "./AuthenticationWall";
 import PaywallMessage from "./PaywallMessage";
@@ -55,7 +55,7 @@ const DEFAULT_STATE = {
         isPrivate: false,
         isGitLab: false
     }
-};
+}
 
 class CodeExplorer extends Component {
     constructor(props) {
@@ -924,18 +924,21 @@ class CodeExplorer extends Component {
     }
 
     render() {
+        const { isVisible } = this.props;
         const { renderRepository, renderFileTree, renderPaywall, renderAuthenticationWall } = this.state;
         const shouldRenderWall = renderPaywall || renderAuthenticationWall;
 
+        let appContent;
         if (renderRepository) {
             let codeContentClassName = renderFileTree ? "truncatedCodeContent" : "";
             codeContentClassName += shouldRenderWall ? " paywalledCodeContent" : "";
 
-            return (
+            appContent = (
                 <div className="repositoryView">
                     {this.renderPaywall()}
                     {this.renderAuthenticationWall()}
                     {this.renderFileTree()}
+
                     <motion.div
                         id="codeContent"
                         className={codeContentClassName}
@@ -951,20 +954,36 @@ class CodeExplorer extends Component {
                     </motion.div>
                 </div>
             );
+        } else {
+            appContent = (
+                <>
+                    {this.renderPaywall()}
+                    {this.renderAuthenticationWall()}
+                    {this.renderHeader()}
+                    {this.renderCodebaseManager()}
+                    {this.renderSelectRepository()}
+                    {this.renderSelectCodeSnippet()}
+                    {this.renderIndexingProgress()}
+                    {this.renderCodeExplorer()}
+                </>
+            );
         }
 
         return (
-            <>
-                {this.renderPaywall()}
-                {this.renderAuthenticationWall()}
-                {this.renderHeader()}
-                {this.renderCodebaseManager()}
-                {this.renderSelectRepository()}
-                {this.renderSelectCodeSnippet()}
-                {this.renderIndexingProgress()}
-                {this.renderCodeExplorer()}
-            </>
-        );
+            <AnimatePresence>
+                {isVisible && (
+                    <motion.div
+                        id="codeExplorer"
+                        initial={{ width: 0 }}
+                        animate={{ width: "calc(60% - 30px)" }}
+                        exit={{ width: 0 }}
+                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                    >
+                        {appContent}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        )
     }
 }
 

@@ -190,25 +190,14 @@ export default function App() {
                                     isBrowseCodeToggled={displayCodeExplorer}
                                 />
                             </motion.div>
-                            <AnimatePresence>
-                                {displayCodeExplorer && (
-                                    <motion.div
-                                        id="codeExplorer"
-                                        initial={{ width: 0 }}
-                                        animate={{ width: "calc(60% - 30px)" }}
-                                        exit={{ width: 0 }}
-                                        transition={{ duration: 0.25, ease: "easeInOut" }}
-                                    >
-                                        <CodeExplorer
-                                            onSetCodebaseId={onSetCodebaseId}
-                                            codebaseId={codebaseId}
-                                            onUpgradePlan={() => setShowSubscriptionModal(true)}
-                                            setFileContext={setFileContext}
-                                            fileContext={fileContext}
-                                        />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            <CodeExplorer
+                                onSetCodebaseId={onSetCodebaseId}
+                                codebaseId={codebaseId}
+                                onUpgradePlan={() => setShowSubscriptionModal(true)}
+                                setFileContext={setFileContext}
+                                fileContext={fileContext}
+                                isVisible={displayCodeExplorer}
+                            />
                         </div>
                 }
             </div>
