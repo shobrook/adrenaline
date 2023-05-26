@@ -266,6 +266,7 @@ export default function App() {
                     response.isPaywalled = is_paywalled;
                     response.sources = file_paths.map(filePath => new Source(filePath));
                     response.progress = null;
+                    response.steps = response.steps.filter(step => step.type.toLowerCase() != "progress");
 
                     return [...priorMessages, response];
                 });
