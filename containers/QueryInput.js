@@ -5,7 +5,7 @@ import { TextareaAutosize, TextareaAutosizeProps } from "@mui/material";
 import { motion } from "framer-motion";
 
 const QueryInput = (props) => {
-  const { onSubmitQuery, suggestedMessages } = props;
+  const { onSubmitQuery, suggestedMessages, isBlocked } = props;
   const [query, setQuery] = useState("");
   const textAreaRef = useRef(null);
   const onChangeQuery = (event) => {
@@ -13,7 +13,7 @@ const QueryInput = (props) => {
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key === "Enter" && !event.shiftKey && query !== "" && !isBlocked) {
       event.preventDefault();
       onSubmit(event.target.value);
       setQuery("");
@@ -21,7 +21,7 @@ const QueryInput = (props) => {
   };
 
   const onSubmit = () => {
-    if (query !== "") {
+    if (query !== "" && !isBlocked) {
       onSubmitQuery(query);
       setQuery("");
     }

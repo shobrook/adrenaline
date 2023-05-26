@@ -76,6 +76,7 @@ class ChatBot extends Component {
                         <QueryInput 
                             onSubmitQuery={onSubmitQuery}
                             suggestedMessages={suggestedMessages}
+                            isBlocked={!messages[messages.length - 1].isComplete}
                         />
                         <div id="chatbotOptions" onClick={onClearConversation}>
                             <HiRefresh size={16} />
