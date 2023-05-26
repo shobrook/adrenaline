@@ -6,8 +6,24 @@ import { BsFillFileEarmarkCodeFill } from "react-icons/bs";
 import QueryInput from "./QueryInput";
 import Message from "./Message";
 import Mixpanel from "../library/mixpanel";
+import { cloneDeep, isEqual } from "lodash";
 
 class ChatBot extends Component {
+    componentDidUpdate(prevProps) {
+        const { messages } = this.props;
+
+        if (messages.length !== prevProps.messages.length) {
+            this.disableAutoScroll = false;
+        }
+
+        if (!this.disableAutoScroll && !isEqual(messages[messages.length - 1], this.lastMessage)) {
+            this.lastMessageElement.scrollIntoView({ behavior: "smooth" });
+
+        }
+
+        this.lastMessage = cloneDeep(messages[messages.length - 1]);
+    }
+
     render() {
         const {
             onSubmitQuery,
@@ -31,8 +47,8 @@ class ChatBot extends Component {
             <>
                 <div id="chatBotHeader">
                     <span id="chatBotLabel">AI Assistant</span>
-                    <div 
-                        id="browseCodeButton" 
+                    <div
+                        id="browseCodeButton"
                         className={isBrowseCodeToggled ? "activeBrowseCode" : ""}
                         onClick={onToggleBrowseCode}
                     >
@@ -41,7 +57,15 @@ class ChatBot extends Component {
                     </div>
                 </div>
                 <div id="chatBotLowerHalf">
-                    <div id="messages">
+                    <div id="messages" onScroll={(e) => {
+                        const { scrollTop: scrollPosition } = e.currentTarget;
+
+                        if (this.oldScroll > scrollPosition && !messages[messages.length - 1].isComplete) {
+                            this.disableAutoScroll = true;
+                        }
+
+                        this.oldScroll = scrollPosition;
+                    }}>
                         {messages.map((message, index) => {
                             const {
                                 content,
@@ -54,26 +78,32 @@ class ChatBot extends Component {
                             } = message;
 
                             return (
-                                <Message
-                                    isResponse={isResponse}
-                                    isComplete={isComplete}
-                                    isPaywalled={isPaywalled}
-                                    onUpgradePlan={onUpgradePlan}
-                                    sources={sources}
-                                    steps={steps}
-                                    progress={progress}
-                                    isFirstMessage={index == 0}
-                                    isLastMessage={index == messages.length - 1}
-                                    setFileContext={setFileContext}
-                                    onRegenerateAnswer={() => onSubmitQuery(content, true)}
-                                >
-                                    {content}
-                                </Message>
+                                <div ref={(el) => {
+                                    if (index == messages.length - 1) {
+                                        this.lastMessageElement = el;
+                                    }
+                                }} >
+                                    <Message
+                                        isResponse={isResponse}
+                                        isComplete={isComplete}
+                                        isPaywalled={isPaywalled}
+                                        onUpgradePlan={onUpgradePlan}
+                                        sources={sources}
+                                        steps={steps}
+                                        progress={progress}
+                                        isFirstMessage={index == 0}
+                                        isLastMessage={index == messages.length - 1}
+                                        setFileContext={setFileContext}
+                                        onRegenerateAnswer={() => onSubmitQuery(content, true)}
+                                    >
+                                        {content}
+                                    </Message>
+                                </div>
                             );
                         })}
                     </div>
                     <div id="chatbotInputContainer">
-                        <QueryInput 
+                        <QueryInput
                             onSubmitQuery={onSubmitQuery}
                             suggestedMessages={suggestedMessages}
                             isBlocked={!messages[messages.length - 1].isComplete}

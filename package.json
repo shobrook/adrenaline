@@ -15,6 +15,7 @@
     "create-react-app": "^5.0.1",
     "diff": "^5.1.0",
     "framer-motion": "^5.3.3",
+    "lodash": "^4.17.21",
     "mixpanel-browser": "^2.45.0",
     "next": "^13.2.4",
     "react": "^18.2.0",

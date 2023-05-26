@@ -15,14 +15,12 @@ export default class Message extends Component {
         this.onToggleContext = this.onToggleContext.bind(this);
         // this.onToggleLearnMore = this.onToggleLearnMore.bind(this);
 
-        this.scrollToBottom = this.scrollToBottom.bind(this);
         this.isLoading = this.isLoading.bind(this);
         this.renderMessage = this.renderMessage.bind(this);
         this.renderReasoningSteps = this.renderReasoningSteps.bind(this);
         this.renderPaywall = this.renderPaywall.bind(this);
         this.renderOptions = this.renderOptions.bind(this);
         this.renderContext = this.renderContext.bind(this);
-        this.renderScrollAnchor = this.renderScrollAnchor.bind(this);
 
         this.state = {
             renderContext: false,
@@ -38,9 +36,6 @@ export default class Message extends Component {
 
         this.setState({ renderContext: !renderContext, renderLearnMore: false });
 
-        if (!renderContext && isLastMessage) {
-            this.scrollToBottom();
-        }
     }
 
     // onToggleLearnMore() {
@@ -55,25 +50,17 @@ export default class Message extends Component {
 
     /* Utilities */
 
-    scrollToBottom() {
-        const { isLastMessage } = this.props;
-
-        if (isLastMessage) {
-            this.endOfMessage.scrollIntoView({ behavior: "smooth" });
-        }
-    }
-
     isLoading() {
         const { isResponse, children, isComplete } = this.props;
         return isResponse && children == "" && !isComplete;
     }
 
     renderOptions() {
-        const { 
-            isFirstMessage, 
-            isResponse, 
-            isComplete, 
-            isLastMessage, 
+        const {
+            isFirstMessage,
+            isResponse,
+            isComplete,
+            isLastMessage,
             onRegenerateAnswer
         } = this.props;
         const { renderContext, renderLearnMore } = this.state;
@@ -92,7 +79,7 @@ export default class Message extends Component {
                 </div>
                 {
                     isLastMessage ? (
-                        <div 
+                        <div
                             className="regenerateAnswer"
                             onClick={onRegenerateAnswer}
                         >
@@ -166,7 +153,7 @@ export default class Message extends Component {
         const { steps } = this.props;
 
         return steps.map(step => {
-            const { type, content} = step;
+            const { type, content } = step;
 
             if (type.toLowerCase() == "progress") {
                 return null;
@@ -211,27 +198,7 @@ export default class Message extends Component {
         );
     }
 
-    renderScrollAnchor() {
-        const { isLastMessage } = this.props;
-
-        if (isLastMessage) {
-            return (
-                <div style={{ float: "left", clear: "both" }}
-                    ref={(el) => { this.endOfMessage = el; }}>
-                </div>
-            );
-        }
-    }
-
     /* Lifecycle Methods */
-
-    componentDidMount() {
-        this.scrollToBottom();
-    }
-
-    componentDidUpdate() {
-        this.scrollToBottom();
-    }
 
     render() {
         const { isResponse, isPaywalled, progress, children } = this.props;
@@ -261,8 +228,6 @@ export default class Message extends Component {
                         )
                     }
                 </div>
-
-                {this.renderScrollAnchor()}
             </>
         );
     }
