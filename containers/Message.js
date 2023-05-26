@@ -167,6 +167,11 @@ export default class Message extends Component {
 
         return steps.map(step => {
             const { type, content} = step;
+
+            if (type.toLowerCase() == "progress") {
+                return null;
+            }
+
             return (
                 <div className="reasoningStep">
                     <span className="stepType">{type}:</span> <span className="stepContent">{content}</span>
