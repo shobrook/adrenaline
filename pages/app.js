@@ -96,7 +96,7 @@ export default function App() {
                 return {
                     content: message.content,
                     is_response: message.isResponse
-            };
+                };
             })
             .filter((message, index) => index < messages.length - 3);
     }
@@ -115,7 +115,7 @@ export default function App() {
                 let priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                 return [...priorMessages, response];
             }
-            
+
             let priorMessages = prevMessages.slice(0, prevMessages.length);
             return [...priorMessages, query, response];
         });

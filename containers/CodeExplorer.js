@@ -270,11 +270,11 @@ class CodeExplorer extends Component {
                     const codebaseId = `${isGitLab ? "gitlab" : "github"}/${repoPath}`;
                     const name = repoPath.split("/").slice(-1)[0];
                     const repository = new Repository(codebaseId, name, {}, false, isGitLab);
-                    
+
                     // TODO: codebaseInProgress doesn't work for matching with old codebases missing the github/gitlab prefix in their IDs
 
                     const { codebases, codebasesInProgress } = this.state;
-                    this.setState({ 
+                    this.setState({
                         renderIndexingProgress: !refreshIndex,
                         codebasesInProgress: [...codebasesInProgress, repository],
                         codebases: refreshIndex ? codebases : [repository, ...codebases],
@@ -327,7 +327,7 @@ class CodeExplorer extends Component {
                         } else {
                             const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
                             await this.onSetCodebase(repository, is_paywalled);
-                            
+
                             let { codebases } = this.state;
                             codebases = codebases.map(codebase => {
                                 if (codebase.codebaseId == codebase_id) {
@@ -427,9 +427,9 @@ class CodeExplorer extends Component {
 
     onSetProgressMessage(progressStep, progressMessage, progressTarget, haltProgress = false) {
         this.setState(prevState => {
-            const { 
-                progressStep: prevProgressStep, 
-                progress, 
+            const {
+                progressStep: prevProgressStep,
+                progress,
                 progressStepHistory
             } = prevState;
             const updatedProgress = progressStep == prevProgressStep ? progress + 1 : 0;
@@ -591,10 +591,10 @@ class CodeExplorer extends Component {
     }
 
     renderIndexingProgress() {
-        const { 
-            renderIndexingProgress, 
-            progress, 
-            progressTarget, 
+        const {
+            renderIndexingProgress,
+            progress,
+            progressTarget,
             progressMessage,
             progressStep,
             progressStepHistory
@@ -604,7 +604,7 @@ class CodeExplorer extends Component {
             return null;
         }
 
-        const prevProgressBars = progressStepHistory.map((step, index) => ( <ProgressBar key={index} step={step} value={100} /> ));
+        const prevProgressBars = progressStepHistory.map((step, index) => (<ProgressBar key={index} step={step} value={100} />));
         const progressValue = progressTarget ? (progress / progressTarget) * 100 : 0;
 
         return (
@@ -739,9 +739,9 @@ class CodeExplorer extends Component {
                                         <div className="codebaseOptions">
                                             {
                                                 shouldRenderLoading ? (<CircularProgress color="secondary" size={20} />) : (
-                                                    <HiRefresh 
-                                                        fill="white" 
-                                                        size={22} 
+                                                    <HiRefresh
+                                                        fill="white"
+                                                        size={22}
                                                         onClick={() => {
                                                             let repoName;
                                                             if (codebaseId.startsWith("github/")) {
@@ -766,12 +766,12 @@ class CodeExplorer extends Component {
                         })
                     }
 
-                    {renderLoadingCodebases ? (
+                    {renderLoadingCodebases && Array(9).fill().map(_ => (
                         <Grid item xs={6}>
                             <div className="codebaseThumbnail loadingMessage" />
                             <div className="spacer" />
                         </Grid>
-                    ) : null}
+                    ))}
                 </Grid>
             </div>
         );
@@ -799,7 +799,7 @@ class CodeExplorer extends Component {
         const { isGitLab } = this.state.currentCodeContext;
 
         if (renderAuthenticationWall) {
-            return ( <AuthenticationWall isGitLab={isGitLab} /> );
+            return (<AuthenticationWall isGitLab={isGitLab} />);
         }
 
         return null;
