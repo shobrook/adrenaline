@@ -684,15 +684,15 @@ class CodeExplorer extends Component {
         }
 
         return (
-            <div id="initCodebaseManager">
-                <Grid className="grid" container spacing={2}>
-                    <Grid item xs={6}>
+            <div id="initCodebaseManager" >
+                <Grid className="grid" container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }} >
+                    <Grid item xs={4}>
                         <AddCodeButton onClick={handleAddGitHubRepository}>Add GitHub repository</AddCodeButton>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={4}>
                         <AddCodeButton onClick={handleAddGitLabRepository}>Add GitLab repository</AddCodeButton>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={4}>
                         <AddCodeButton onClick={handleAddCodeSnippet}>Add code
                             snippet</AddCodeButton>
                     </Grid>
@@ -703,7 +703,7 @@ class CodeExplorer extends Component {
 
                             if (isCodeSnippet) {
                                 return (
-                                    <Grid item xs={6}>
+                                    <Grid item xs={4}>
                                         <div className="codebaseThumbnail">
                                             <div className="codebaseName" onClick={() => this.onSetCodeSnippet(codebase, false)}>
                                                 <HiCode file="white" size={22} />
@@ -720,7 +720,7 @@ class CodeExplorer extends Component {
                             const shouldRenderLoading = codebasesInProgress.some(c => c.codebaseId == codebaseId);
 
                             return (
-                                <Grid item xs={6}>
+                                <Grid item xs={4}>
                                     <div className="codebaseThumbnail">
                                         <div className="codebaseName" onClick={async () => {
                                             if (shouldRenderLoading) {
@@ -766,12 +766,12 @@ class CodeExplorer extends Component {
                         })
                     }
 
-                    {renderLoadingCodebases ? (
-                        <Grid item xs={6}>
+                    {renderLoadingCodebases && Array(7).fill().map(_ => (
+                        <Grid item xs={4}>
                             <div className="codebaseThumbnail loadingMessage" />
                             <div className="spacer" />
                         </Grid>
-                    ) : null}
+                    ))}
                 </Grid>
             </div>
         );

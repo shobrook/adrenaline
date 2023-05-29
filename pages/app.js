@@ -11,8 +11,9 @@ import SubscriptionModal from "../containers/SubscriptionModal";
 
 import Mixpanel from "../library/mixpanel";
 import { Source, Message } from "../library/data";
+import  {default as MessageComponent} from "../containers/Message";
 
-const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
+const WELCOME_MESSAGE = "Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
 export default function App() {
     const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
@@ -157,6 +158,7 @@ export default function App() {
 
     /* Helpers */
 
+
     function renderApp() {
         return (
             <div className="app">
@@ -169,27 +171,31 @@ export default function App() {
                         </div>
                         :
                         <div className="body">
-                            <motion.div
-                                id="chatBot"
-                                initial="closed"
-                                animate={displayCodeExplorer ? "closed" : "open"}
-                                variants={{
-                                    open: { width: "100%", maxWidth: "100%" },
-                                    closed: { width: "40%", maxWidth: "40%" }
-                                }}
-                                transition={{ duration: 0.25, ease: "easeInOut" }}
-                            >
-                                <ChatBot
-                                    messages={messages}
-                                    onSubmitQuery={onSubmitQuery}
-                                    onUpgradePlan={() => setShowSubscriptionModal(true)}
-                                    setFileContext={setFileContext}
-                                    onClearConversation={onClearConversation}
-                                    codebaseId={codebaseId}
-                                    onToggleBrowseCode={onToggleBrowseCode}
-                                    isBrowseCodeToggled={displayCodeExplorer}
-                                />
-                            </motion.div>
+                       
+                                <motion.div
+                                    id="chatBot"
+                                    initial="closed"
+                                    animate={displayCodeExplorer ? "closed" : "open"}
+                                    variants={{
+                                        open: { width: "100%", maxWidth: "100%" },
+                                        closed: { width: codebaseId ? "40%" : "30%" }
+                                    }}
+                                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                                >
+                                     {codebaseId ?  <ChatBot
+                                        messages={messages}
+                                        onSubmitQuery={onSubmitQuery}
+                                        onUpgradePlan={() => setShowSubscriptionModal(true)}
+                                        setFileContext={setFileContext}
+                                        onClearConversation={onClearConversation}
+                                        codebaseId={codebaseId}
+                                        onToggleBrowseCode={onToggleBrowseCode}
+                                        isBrowseCodeToggled={displayCodeExplorer}
+                                    /> :  <div style={{height: "100%", width: "100%", boxSizing: "border-box", textAlign: "center", padding: "30px", display: "flex", alignItems: "center"}}>
+                                      <div >{WELCOME_MESSAGE}</div>  
+                                        </div>}
+                                </motion.div>
+                            
                             <CodeExplorer
                                 onSetCodebaseId={onSetCodebaseId}
                                 codebaseId={codebaseId}
@@ -203,6 +209,7 @@ export default function App() {
             </div>
         )
     }
+
 
     /* Lifecycle Methods */
 
