@@ -137,8 +137,9 @@ export default function App() {
     function onSetCodebaseId(codebaseId) {
         setCodebaseId(codebaseId);
 
-        const priorMessages = JSON.parse(localStorage.getItem(codebaseId))
+        let priorMessages = JSON.parse(localStorage.getItem(codebaseId))
         if (priorMessages) {
+            priorMessages = priorMessages.filter(message => message.isComplete);
             setMessages(priorMessages);
         } else {
             const newMessages = [new Message(WELCOME_MESSAGE, true, true)];
@@ -299,7 +300,9 @@ export default function App() {
     }, [isAuthenticated])
 
     useEffect(() => {
-        localStorage.setItem(codebaseId, JSON.stringify(messages));
+        if (messages[messages.length - 1].isComplete) {
+            localStorage.setItem(codebaseId, JSON.stringify(messages));
+        }
     }, [messages]);
 
     return (
