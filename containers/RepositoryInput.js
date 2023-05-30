@@ -113,6 +113,11 @@ class RepositoryInput extends Component {
             return;
         }
 
+        if (repoPath == "" || repoPath == null) {
+            toast.error("Invalid repository url");
+            return;
+        }
+
         onIndexRepository(repoPath, isGitLab);
         Mixpanel.track("Scrape public repository")
     }
