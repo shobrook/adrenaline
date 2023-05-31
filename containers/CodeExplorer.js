@@ -286,6 +286,11 @@ class CodeExplorer extends Component {
                     Mixpanel.track("Scrape public repository")
                 };
                 this.websocket.onmessage = async event => {
+                    if (event.data == "ping") {
+                        ws.send("pong");
+                        return;
+                    }
+
                     const {
                         content,
                         step,
