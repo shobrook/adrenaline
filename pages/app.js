@@ -130,6 +130,7 @@ export default function App() {
                     chat_history: getChatHistory()
                 };
                 queryWS.current.send(JSON.stringify(request));
+
                 Mixpanel.track("received_chatbot_response", { query: message });
             });
     }
@@ -224,6 +225,11 @@ export default function App() {
         ws.onopen = event => {
         }; // QUESTION: Should we wait to render the rest of the site until connection is established?
         ws.onmessage = event => {
+            if (event.data == "ping") {
+                ws.send("pong");
+                return;
+            }
+
             const {
                 type,
                 data,
