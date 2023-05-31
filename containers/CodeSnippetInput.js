@@ -127,11 +127,16 @@ class CodeSnippetInput extends Component {
                     onRenderIndexingProgress();
                 };
                 this.websocket.onmessage = async event => {
+                    if (event.data == "ping") {
+                        ws.send("pong");
+                        return;
+                    }
+
                     const { code, language } = this.state;
-                    const { 
+                    const {
                         name,
                         step,
-                        codebase_id, 
+                        codebase_id,
                         is_paywalled,
                         is_finished,
                         progress_target,
