@@ -7,12 +7,15 @@
     border: 2px solid #262A39;
     border-radius: 7px;
     background-color: #181b26;
-    width: calc(60% - 30px);
-    max-width: calc(60% - 30px);
+    /* width: calc(60% - 30px); */
+    /* max-width: calc(60% - 30px); */
 }
 
 .repositoryView {
-    flex-direction: row !important;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
 }
 
 #codeContextPrompt {

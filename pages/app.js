@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useRouter } from "next/router";
+import { motion, AnimatePresence } from "framer-motion";
 
 import Header from "../containers/Header";
 import ChatBot from "../containers/ChatBot";
@@ -9,7 +11,6 @@ import SubscriptionModal from "../containers/SubscriptionModal";
 
 import Mixpanel from "../library/mixpanel";
 import { Source, Message } from "../library/data";
-import { useRouter } from "next/router";
 
 const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error."
 
@@ -20,6 +21,7 @@ export default function App() {
     const [subscriptionStatus, setSubscriptionStatus] = useState({});
     const [renderSubscriptionModal, setRenderSubscriptionModal] = useState(false);
     const [fileContext, setFileContext] = useState("");
+    const [displayCodeExplorer, setDisplayCodeExplorer] = useState(true);
     const queryWS = useRef(null);
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
@@ -94,7 +96,7 @@ export default function App() {
                 return {
                     content: message.content,
                     is_response: message.isResponse
-            };
+                };
             })
             .filter((message, index) => index < messages.length - 3);
     }
@@ -117,7 +119,6 @@ export default function App() {
             let priorMessages = prevMessages.slice(0, prevMessages.length);
             return [...priorMessages, query, response];
         });
-        // localStorage.setItem(codebaseId, JSON.stringify(priorMessages));
 
         getAccessTokenSilently()
             .then(token => {
@@ -129,17 +130,31 @@ export default function App() {
                     chat_history: getChatHistory()
                 };
                 queryWS.current.send(JSON.stringify(request));
+
                 Mixpanel.track("received_chatbot_response", { query: message });
             });
     }
 
     function onSetCodebaseId(codebaseId) {
         setCodebaseId(codebaseId);
-        // setMessages(JSON.parse(localStorage.getItem(codebaseId)) || [new Message(WELCOME_MESSAGE, true, true)]);
+
+        let priorMessages = JSON.parse(localStorage.getItem(codebaseId))
+        if (priorMessages) {
+            priorMessages = priorMessages.filter(message => message.isComplete);
+            setMessages(priorMessages);
+        } else {
+            const newMessages = [new Message(WELCOME_MESSAGE, true, true)];
+            setMessages(newMessages);
+            localStorage.setItem(codebaseId, JSON.stringify(newMessages));
+        }
     }
 
     function onClearConversation() {
         setMessages([new Message(WELCOME_MESSAGE, true, true)]);
+    }
+
+    function onToggleBrowseCode() {
+        setDisplayCodeExplorer(!displayCodeExplorer);
     }
 
     /* Helpers */
@@ -156,19 +171,34 @@ export default function App() {
                         </div>
                         :
                         <div className="body">
-                            <ChatBot
-                                messages={messages}
-                                onSubmitQuery={onSubmitQuery}
-                                onUpgradePlan={() => setShowSubscriptionModal(true)}
-                                setFileContext={setFileContext}
-                                onClearConversation={onClearConversation}
-                            />
+                            <motion.div
+                                id="chatBot"
+                                initial="closed"
+                                animate={displayCodeExplorer ? "closed" : "open"}
+                                variants={{
+                                    open: { width: "100%", maxWidth: "100%" },
+                                    closed: { width: "40%", maxWidth: "40%" }
+                                }}
+                                transition={{ duration: 0.25, ease: "easeInOut" }}
+                            >
+                                <ChatBot
+                                    messages={messages}
+                                    onSubmitQuery={onSubmitQuery}
+                                    onUpgradePlan={() => setShowSubscriptionModal(true)}
+                                    setFileContext={setFileContext}
+                                    onClearConversation={onClearConversation}
+                                    codebaseId={codebaseId}
+                                    onToggleBrowseCode={onToggleBrowseCode}
+                                    isBrowseCodeToggled={displayCodeExplorer}
+                                />
+                            </motion.div>
                             <CodeExplorer
                                 onSetCodebaseId={onSetCodebaseId}
                                 codebaseId={codebaseId}
                                 onUpgradePlan={() => setShowSubscriptionModal(true)}
                                 setFileContext={setFileContext}
                                 fileContext={fileContext}
+                                isVisible={displayCodeExplorer}
                             />
                         </div>
                 }
@@ -195,6 +225,11 @@ export default function App() {
         ws.onopen = event => {
         }; // QUESTION: Should we wait to render the rest of the site until connection is established?
         ws.onmessage = event => {
+            if (event.data == "ping") {
+                ws.send("pong");
+                return;
+            }
+
             const {
                 type,
                 data,
@@ -242,6 +277,7 @@ export default function App() {
                     response.isPaywalled = is_paywalled;
                     response.sources = sources.map(filePath => new Source(filePath));
                     response.progressTarget = null;
+                    response.steps = response.steps.filter(step => step.type.toLowerCase() != "progress");
 
                     return [...priorMessages, response];
                 });
@@ -272,6 +308,12 @@ export default function App() {
 
         prevAuthState.current = isAuthenticated;
     }, [isAuthenticated])
+
+    useEffect(() => {
+        if (messages[messages.length - 1].isComplete) {
+            localStorage.setItem(codebaseId, JSON.stringify(messages));
+        }
+    }, [messages]);
 
     return (
         <>

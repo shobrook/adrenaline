@@ -226,7 +226,7 @@ class AuthenticatedRepositoryInput extends Component {
 
                 <div id="githubAuthPrompt">
                     <span>Authorize Adrenaline to access the list of your {isGitLab ? "GitLab" : "GitHub"} repositories</span>
-                    { isGitLab ? (<GitLabAuthenticationButton />) : (<GitHubAuthenticationButton />) }
+                    {isGitLab ? (<GitLabAuthenticationButton />) : (<GitHubAuthenticationButton />)}
                 </div>
             </div>
         );

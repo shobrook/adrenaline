@@ -2,13 +2,13 @@ import { Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { motion } from "framer-motion";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import { HiTrash, HiCode, HiRefresh } from "react-icons/hi";
 import { AiFillGithub, AiFillGitlab } from "react-icons/ai";
 import toast from "react-hot-toast";
 import { CircularProgress } from "@mui/material";
+import { motion, AnimatePresence } from "framer-motion";
 
 import AuthenticationWall from "./AuthenticationWall";
 import PaywallMessage from "./PaywallMessage";
@@ -55,7 +55,7 @@ const DEFAULT_STATE = {
         isPrivate: false,
         isGitLab: false
     }
-};
+}
 
 class CodeExplorer extends Component {
     constructor(props) {
@@ -270,11 +270,11 @@ class CodeExplorer extends Component {
                     const codebaseId = `${isGitLab ? "gitlab" : "github"}/${repoPath}`;
                     const name = repoPath.split("/").slice(-1)[0];
                     const repository = new Repository(codebaseId, name, {}, false, isGitLab);
-                    
+
                     // TODO: codebaseInProgress doesn't work for matching with old codebases missing the github/gitlab prefix in their IDs
 
                     const { codebases, codebasesInProgress } = this.state;
-                    this.setState({ 
+                    this.setState({
                         renderIndexingProgress: !refreshIndex,
                         codebasesInProgress: [...codebasesInProgress, repository],
                         codebases: refreshIndex ? codebases : [repository, ...codebases],
@@ -286,6 +286,11 @@ class CodeExplorer extends Component {
                     Mixpanel.track("Scrape public repository")
                 };
                 this.websocket.onmessage = async event => {
+                    if (event.data == "ping") {
+                        ws.send("pong");
+                        return;
+                    }
+
                     const {
                         content,
                         step,
@@ -327,7 +332,7 @@ class CodeExplorer extends Component {
                         } else {
                             const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
                             await this.onSetCodebase(repository, is_paywalled);
-                            
+
                             let { codebases } = this.state;
                             codebases = codebases.map(codebase => {
                                 if (codebase.codebaseId == codebase_id) {
@@ -427,9 +432,9 @@ class CodeExplorer extends Component {
 
     onSetProgressMessage(progressStep, progressMessage, progressTarget, haltProgress = false) {
         this.setState(prevState => {
-            const { 
-                progressStep: prevProgressStep, 
-                progress, 
+            const {
+                progressStep: prevProgressStep,
+                progress,
                 progressStepHistory
             } = prevState;
             const updatedProgress = progressStep == prevProgressStep ? progress + 1 : 0;
@@ -518,7 +523,7 @@ class CodeExplorer extends Component {
     }
 
     onReturnToManager() {
-        const { setFileContext } = this.props;
+        const { setFileContext, onSetCodebaseId } = this.props;
 
         this.setState({
             renderCodeSnippet: false,
@@ -529,8 +534,10 @@ class CodeExplorer extends Component {
             renderFileTree: false,
             renderPaywall: false,
             renderIndexingProgress: false
+        }, () => {
+            setFileContext("");
+            onSetCodebaseId("");
         });
-        setFileContext("");
     }
 
     /* Renderers */
@@ -589,10 +596,10 @@ class CodeExplorer extends Component {
     }
 
     renderIndexingProgress() {
-        const { 
-            renderIndexingProgress, 
-            progress, 
-            progressTarget, 
+        const {
+            renderIndexingProgress,
+            progress,
+            progressTarget,
             progressMessage,
             progressStep,
             progressStepHistory
@@ -602,7 +609,7 @@ class CodeExplorer extends Component {
             return null;
         }
 
-        const prevProgressBars = progressStepHistory.map((step, index) => ( <ProgressBar key={index} step={step} value={100} /> ));
+        const prevProgressBars = progressStepHistory.map((step, index) => (<ProgressBar key={index} step={step} value={100} />));
         const progressValue = progressTarget ? (progress / progressTarget) * 100 : 0;
 
         return (
@@ -737,9 +744,9 @@ class CodeExplorer extends Component {
                                         <div className="codebaseOptions">
                                             {
                                                 shouldRenderLoading ? (<CircularProgress color="secondary" size={20} />) : (
-                                                    <HiRefresh 
-                                                        fill="white" 
-                                                        size={22} 
+                                                    <HiRefresh
+                                                        fill="white"
+                                                        size={22}
                                                         onClick={() => {
                                                             let repoName;
                                                             if (codebaseId.startsWith("github/")) {
@@ -764,12 +771,12 @@ class CodeExplorer extends Component {
                         })
                     }
 
-                    {renderLoadingCodebases ? (
+                    {renderLoadingCodebases && Array(9).fill().map(_ => (
                         <Grid item xs={6}>
                             <div className="codebaseThumbnail loadingMessage" />
                             <div className="spacer" />
                         </Grid>
-                    ) : null}
+                    ))}
                 </Grid>
             </div>
         );
@@ -797,7 +804,7 @@ class CodeExplorer extends Component {
         const { isGitLab } = this.state.currentCodeContext;
 
         if (renderAuthenticationWall) {
-            return ( <AuthenticationWall isGitLab={isGitLab} /> );
+            return (<AuthenticationWall isGitLab={isGitLab} />);
         }
 
         return null;
@@ -922,18 +929,21 @@ class CodeExplorer extends Component {
     }
 
     render() {
+        const { isVisible } = this.props;
         const { renderRepository, renderFileTree, renderPaywall, renderAuthenticationWall } = this.state;
         const shouldRenderWall = renderPaywall || renderAuthenticationWall;
 
+        let appContent;
         if (renderRepository) {
             let codeContentClassName = renderFileTree ? "truncatedCodeContent" : "";
             codeContentClassName += shouldRenderWall ? " paywalledCodeContent" : "";
 
-            return (
-                <div id="codeExplorer" className="repositoryView">
+            appContent = (
+                <div className="repositoryView">
                     {this.renderPaywall()}
                     {this.renderAuthenticationWall()}
                     {this.renderFileTree()}
+
                     <motion.div
                         id="codeContent"
                         className={codeContentClassName}
@@ -948,21 +958,37 @@ class CodeExplorer extends Component {
                         {this.renderCodeExplorer()}
                     </motion.div>
                 </div>
-            )
+            );
+        } else {
+            appContent = (
+                <>
+                    {this.renderPaywall()}
+                    {this.renderAuthenticationWall()}
+                    {this.renderHeader()}
+                    {this.renderCodebaseManager()}
+                    {this.renderSelectRepository()}
+                    {this.renderSelectCodeSnippet()}
+                    {this.renderIndexingProgress()}
+                    {this.renderCodeExplorer()}
+                </>
+            );
         }
 
         return (
-            <div id="codeExplorer">
-                {this.renderPaywall()}
-                {this.renderAuthenticationWall()}
-                {this.renderHeader()}
-                {this.renderCodebaseManager()}
-                {this.renderSelectRepository()}
-                {this.renderSelectCodeSnippet()}
-                {this.renderIndexingProgress()}
-                {this.renderCodeExplorer()}
-            </div>
-        );
+            <AnimatePresence>
+                {isVisible && (
+                    <motion.div
+                        id="codeExplorer"
+                        initial={{ width: 0 }}
+                        animate={{ width: "calc(60% - 30px)" }}
+                        exit={{ width: 0 }}
+                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                    >
+                        {appContent}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        )
     }
 }
 
