@@ -17,7 +17,7 @@ export default class Message extends Component {
 
         this.isLoading = this.isLoading.bind(this);
         this.renderMessage = this.renderMessage.bind(this);
-        this.renderReasoningSteps = this.renderReasoningSteps.bind(this);
+        this.renderLoadingSteps = this.renderLoadingSteps.bind(this);
         this.renderPaywall = this.renderPaywall.bind(this);
         this.renderOptions = this.renderOptions.bind(this);
         this.renderContext = this.renderContext.bind(this);
@@ -61,7 +61,8 @@ export default class Message extends Component {
             isResponse,
             isComplete,
             isLastMessage,
-            onRegenerateAnswer
+            onRegenerateAnswer,
+            sources
         } = this.props;
         const { renderContext, renderLearnMore } = this.state;
 
@@ -71,12 +72,16 @@ export default class Message extends Component {
 
         return (
             <div className="responseOptions">
-                <div
-                    className={`optionButton ${renderContext ? "isClicked" : ""}`}
-                    onClick={this.onToggleContext}
-                >
-                    Sources
-                </div>
+                {
+                    sources.length > 0 && (
+                        <div
+                            className={`optionButton ${renderContext ? "isClicked" : ""}`}
+                            onClick={this.onToggleContext}
+                        >
+                            Sources
+                        </div>
+                    )
+                }
                 {
                     isLastMessage ? (
                         <div
@@ -149,19 +154,19 @@ export default class Message extends Component {
         }
     }
 
-    renderReasoningSteps() {
+    renderLoadingSteps() {
         const { loadingSteps } = this.props;
 
         return loadingSteps.map(loadingStep => {
-            const { step, message } = loadingStep;
+            const { type, content } = loadingStep;
 
-            if (step.toLowerCase() == "progress") {
+            if (type.toLowerCase() == "progress") {
                 return null;
             }
 
             return (
                 <div className="reasoningStep">
-                    <span className="stepType">{step}:</span> <span className="stepContent">{message}</span>
+                    <span className="stepType">{type}:</span> <span className="stepContent">{content}</span>
                 </div>
             );
         });
@@ -207,7 +212,7 @@ export default class Message extends Component {
         return (
             <>
                 <div className="chatMessageContainer">
-                    {this.renderReasoningSteps()}
+                    {this.renderLoadingSteps()}
                     {
                         progress != null ? (
                             <div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""}`}>
