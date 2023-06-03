@@ -242,24 +242,24 @@ export default function App() {
             console.log(event.data);
 
             if (type === "loading") {
-                const { step, message } = data;
+                const { type: stepType, content } = data;
 
                 setMessages(prevMessages => {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let lastMessage = prevMessages[prevMessages.length - 1];
 
-                    if (lastMessage.loadingSteps.length === 0) { // First loading step
-                        lastMessage.loadingSteps.push(data);
+                    if (lastMessage.steps.length === 0) { // First loading step
+                        lastMessage.steps.push(data);
                     } else {
-                        const lastLoadingStep = lastMessage.loadingSteps[lastMessage.loadingSteps.length - 1];
-                        if (lastLoadingStep.step === step) { // Same loading step
-                            lastLoadingStep.message += message;
-                            lastMessage.loadingSteps[lastMessage.loadingSteps.length - 1] = lastLoadingStep;
-                        } else if (step.toLowerCase() == "progress") { // Progress update
+                        const lastLoadingStep = lastMessage.steps[lastMessage.steps.length - 1];
+                        if (lastLoadingStep.type === stepType) { // Same loading step
+                            lastLoadingStep.content += content;
+                            lastMessage.steps[lastMessage.steps.length - 1] = lastLoadingStep;
+                        } else if (stepType.toLowerCase() == "progress") { // Progress update
                             lastMessage.progress += 1;
                             lastMessage.progressTarget = progress_target;
                         } else { // New loading step
-                            lastMessage.loadingSteps.push(data);
+                            lastMessage.steps.push(data);
                         }
                     }
 

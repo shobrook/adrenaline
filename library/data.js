@@ -5,7 +5,7 @@ export class Message {
         this.isComplete = isComplete; // Indicates whether message has finished streaming
         this.isPaywalled = isPaywalled;
         this.sources = sources;
-        this.loadingSteps = [];
+        this.steps = [];
         this.progress = 0;
         this.progressTarget = null;
     }

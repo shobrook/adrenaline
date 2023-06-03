@@ -74,7 +74,7 @@ class ChatBot extends Component {
                                 isPaywalled,
                                 sources,
                                 progress,
-                                loadingSteps,
+                                steps,
                                 progressTarget
                             } = message;
                             const progressValue = progressTarget != null ? (progress / progressTarget) * 100 : null;
@@ -91,7 +91,7 @@ class ChatBot extends Component {
                                         isPaywalled={isPaywalled}
                                         onUpgradePlan={onUpgradePlan}
                                         sources={sources}
-                                        loadingSteps={loadingSteps}
+                                        loadingSteps={steps}
                                         progress={progressValue}
                                         isFirstMessage={index == 0}
                                         isLastMessage={index == messages.length - 1}
