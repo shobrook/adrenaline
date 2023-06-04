@@ -111,7 +111,6 @@ class CodeSnippetInput extends Component {
             return;
         }
 
-
         getAccessTokenSilently()
             .then(token => {
                 this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
@@ -128,7 +127,7 @@ class CodeSnippetInput extends Component {
                 };
                 this.websocket.onmessage = async event => {
                     if (event.data == "ping") {
-                        ws.send("pong");
+                        this.websocket.send("pong");
                         return;
                     }
 
