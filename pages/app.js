@@ -120,6 +120,10 @@ export default function App() {
             return [...priorMessages, query, response];
         });
 
+        if (!isAuthenticated) {
+            return;
+        }
+
         getAccessTokenSilently()
             .then(token => {
                 const request = {
@@ -209,7 +213,17 @@ export default function App() {
     /* Lifecycle Methods */
 
     useEffect(() => {
+        Mixpanel.track("load_playground");
+    }, [])
+
+    useEffect(() => {
         if (isAuthenticated) {
+            handleOAuthCallback();
+        }
+    }, [router.isReady])
+
+    useEffect(() => {
+        if (prevAuthState.current !== isAuthenticated && isAuthenticated) {
             Mixpanel.identify(user.sub);
             Mixpanel.people.set({ email: user.email });
 
@@ -217,6 +231,7 @@ export default function App() {
 
             let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}answer_query`);
             ws.onopen = event => {
+                console.log("yo")
             }; // TODO: Should we wait to render the rest of the site until connection is established?
             ws.onmessage = event => {
                 if (event.data == "ping") {
@@ -277,24 +292,9 @@ export default function App() {
             }
             ws.onerror = event => {
                 console.log(event); // TODO: Display error message
-            };
+            }
             queryWS.current = ws;
 
-            fetchUserMetadata();
-            handleOAuthCallback();
-        }
-
-        Mixpanel.track("load_playground");
-    }, [])
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            handleOAuthCallback();
-        }
-    }, [router.isReady])
-
-    useEffect(() => {
-        if (prevAuthState.current !== isAuthenticated && isAuthenticated) {
             handleOAuthCallback();
             fetchUserMetadata();
         }
