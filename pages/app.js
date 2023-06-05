@@ -95,7 +95,10 @@ export default function App() {
             }
         }
         ws.onerror = event => {
-            console.log(event); // TODO: Display error message
+            websocket.current = null;
+        }
+        ws.onclose = event => {
+            websocket.current = null;
         }
     }
 
