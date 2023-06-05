@@ -127,7 +127,13 @@ export default function App() {
     }
 
     function fetchUserMetadata() {
-        /* Fetch user's subscription status */
+        if (!isAuthenticated) {
+            return;
+        }
+
+        if (Object.keys(subscriptionStatus).length != 0) {
+            return;
+        }
 
         getAccessTokenSilently()
             .then(token => {
@@ -249,7 +255,7 @@ export default function App() {
                 <Header setShowSubscriptionModal={setShowSubscriptionModal} />
 
                 {
-                    isLoading ?
+                    isLoading || Object.keys(subscriptionStatus).length == 0 ?
                         <div id="loadingBody">
                             <Spinner />
                         </div>
@@ -294,6 +300,7 @@ export default function App() {
 
     useEffect(() => {
         Mixpanel.track("load_playground");
+        fetchUserMetadata();
     }, [])
 
     useEffect(() => {
