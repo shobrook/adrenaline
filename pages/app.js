@@ -212,86 +212,79 @@ export default function App() {
         if (isAuthenticated) {
             Mixpanel.identify(user.sub);
             Mixpanel.people.set({ email: user.email });
-        }
 
-        Mixpanel.track("load_playground");
+            /* Connect to query handler websocket */
 
-        // TODO: Only connect to websocket when user is authenticated (will reduce load on server)
+            let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}answer_query`);
+            ws.onopen = event => {
+            }; // TODO: Should we wait to render the rest of the site until connection is established?
+            ws.onmessage = event => {
+                if (event.data == "ping") {
+                    ws.send("pong");
+                    return;
+                }
 
-        /* Connect to query handler websocket */
+                const {
+                    type,
+                    data,
+                    is_finished,
+                    is_paywalled,
+                    progress_target,
+                    error
+                } = JSON.parse(event.data);
 
-        let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}answer_query`);
+                if (type === "loading") {
+                    const { type: stepType, content } = data;
 
-        ws.onopen = event => {
-        }; // QUESTION: Should we wait to render the rest of the site until connection is established?
-        ws.onmessage = event => {
-            if (event.data == "ping") {
-                ws.send("pong");
-                return;
-            }
+                    setMessages(prevMessages => {
+                        const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
+                        let lastMessage = prevMessages[prevMessages.length - 1];
 
-            const {
-                type,
-                data,
-                is_finished,
-                is_paywalled,
-                progress_target,
-                error
-            } = JSON.parse(event.data);
-
-            console.log(event.data);
-
-            if (type === "loading") {
-                const { type: stepType, content } = data;
-
-                setMessages(prevMessages => {
-                    const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
-                    let lastMessage = prevMessages[prevMessages.length - 1];
-
-                    if (lastMessage.steps.length === 0) { // First loading step
-                        lastMessage.steps.push(data);
-                    } else {
-                        const lastLoadingStep = lastMessage.steps[lastMessage.steps.length - 1];
-                        if (lastLoadingStep.type === stepType) { // Same loading step
-                            lastLoadingStep.content += content;
-                            lastMessage.steps[lastMessage.steps.length - 1] = lastLoadingStep;
-                        } else if (stepType.toLowerCase() == "progress") { // Progress update
-                            lastMessage.progress += 1;
-                            lastMessage.progressTarget = progress_target;
-                        } else { // New loading step
+                        if (lastMessage.steps.length === 0) { // First loading step
                             lastMessage.steps.push(data);
+                        } else {
+                            const lastLoadingStep = lastMessage.steps[lastMessage.steps.length - 1];
+                            if (lastLoadingStep.type === stepType) { // Same loading step
+                                lastLoadingStep.content += content;
+                                lastMessage.steps[lastMessage.steps.length - 1] = lastLoadingStep;
+                            } else if (stepType.toLowerCase() == "progress") { // Progress update
+                                lastMessage.progress += 1;
+                                lastMessage.progressTarget = progress_target;
+                            } else { // New loading step
+                                lastMessage.steps.push(data);
+                            }
                         }
-                    }
 
-                    return [...priorMessages, lastMessage];
-                });
-            } else if (type == "answer") {
-                const { message, sources } = data;
+                        return [...priorMessages, lastMessage];
+                    });
+                } else if (type == "answer") {
+                    const { message, sources } = data;
 
-                setMessages(prevMessages => {
-                    const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
-                    let response = prevMessages[prevMessages.length - 1];
+                    setMessages(prevMessages => {
+                        const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
+                        let response = prevMessages[prevMessages.length - 1];
 
-                    response.content += message;
-                    response.isComplete = is_finished;
-                    response.isPaywalled = is_paywalled;
-                    response.sources = sources.map(filePath => new Source(filePath));
-                    response.progressTarget = null;
-                    response.steps = response.steps.filter(step => step.type.toLowerCase() != "progress");
+                        response.content += message;
+                        response.isComplete = is_finished;
+                        response.isPaywalled = is_paywalled;
+                        response.sources = sources.map(filePath => new Source(filePath));
+                        response.progressTarget = null;
+                        response.steps = response.steps.filter(step => step.type.toLowerCase() != "progress");
 
-                    return [...priorMessages, response];
-                });
+                        return [...priorMessages, response];
+                    });
+                }
             }
-        }
-        ws.onerror = event => {
-            console.log(event); // TODO: Display error message
-        };
-        queryWS.current = ws;
+            ws.onerror = event => {
+                console.log(event); // TODO: Display error message
+            };
+            queryWS.current = ws;
 
-        if (isAuthenticated) {
             fetchUserMetadata();
             handleOAuthCallback();
         }
+
+        Mixpanel.track("load_playground");
     }, [])
 
     useEffect(() => {
