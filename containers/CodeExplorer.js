@@ -83,11 +83,115 @@ class CodeExplorer extends Component {
         this.getFileContent = this.getFileContent.bind(this);
         this.fetchCodebases = this.fetchCodebases.bind(this);
         this.deleteCodebase = this.deleteCodebase.bind(this);
+        this.openWebsocketConnection = this.openWebsocketConnection.bind(this);
+
+        this.websocket = null;
 
         this.state = DEFAULT_STATE;
     }
 
     /* Utilities */
+
+    openWebsocketConnection(callback) {
+        if (this.websocket != null || this.websocket != undefined) {
+            console.log("Websocket connection already opened")
+            callback(this.websocket);
+            return;
+        }
+
+        let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_repository`);
+        ws.onopen = event => {
+            console.log("Websocket connection opened")
+            this.websocket = ws;
+            callback(ws);
+        }
+        ws.onmessage = async event => {
+            if (event.data == "ping") {
+                ws.send("pong");
+                return;
+            }
+
+            const {
+                content,
+                step,
+                metadata,
+                progress_target,
+                is_finished,
+                is_paywalled,
+                error
+            } = JSON.parse(event.data);
+
+            if (error != "") {
+                toast.error(error, {
+                    style: {
+                        borderRadius: "7px",
+                        background: "#FB4D3D",
+                        color: "#fff",
+                    },
+                    iconTheme: {
+                        primary: '#ffffff7a',
+                        secondary: '#fff',
+                    }
+                });
+                this.onSetProgressMessage(step, content, progress_target, true);
+                return;
+            }
+
+            if (is_finished) {
+                const { codebase_id, name, files, is_gitlab, is_private } = metadata;
+
+                this.onSetProgressMessage(null, content, progress_target, true);
+
+                if (is_paywalled) {
+                    const repository = new Repository("", "", {});
+                    await this.onSetCodebase(repository, is_paywalled, content);
+
+                    // TODO: Remove codebase from state
+                    // TODO: Render paywall message
+
+                } else {
+                    const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
+                    await this.onSetCodebase(repository, is_paywalled);
+
+                    let { codebases } = this.state;
+                    codebases = codebases.map(codebase => {
+                        if (codebase.codebaseId == codebase_id) {
+                            console.log(codebase_id);
+                            codebase.files = files;
+                            codebase.isPrivate = is_private;
+                        }
+
+                        return codebase;
+                    });
+                    this.setState({ codebases });
+                }
+
+                let { codebasesInProgress } = this.state;
+                codebasesInProgress = codebasesInProgress.filter(codebase => codebase.codebaseId != codebase_id);
+
+                this.setState({ codebasesInProgress });
+                // ws.close();
+                // this.websocket = null;
+            } else {
+                this.onSetProgressMessage(step, content, progress_target);
+            }
+        }
+        ws.onerror = event => {
+            this.onSetProgressMessage("", "", false, null, true);
+
+            toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                style: {
+                    borderRadius: "7px",
+                    background: "#FB4D3D",
+                    color: "#fff",
+                },
+                iconTheme: {
+                    primary: '#ffffff7a',
+                    secondary: '#fff',
+                }
+            });
+        };
+    }
 
     // TODO: Progress state is only tracked for one codebase at a time; need to track for multiple concurrent indexing jobs
 
@@ -255,9 +359,7 @@ class CodeExplorer extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_repository`);
-
-                this.websocket.onopen = event => {
+                this.openWebsocketConnection(ws => {
                     const request = {
                         user_id: user.sub,
                         token: token,
@@ -265,7 +367,9 @@ class CodeExplorer extends Component {
                         refresh_index: refreshIndex,
                         is_gitlab: isGitLab
                     };
-                    this.websocket.send(JSON.stringify(request));
+                    ws.send(JSON.stringify(request));
+
+                    console.log("Sent indexing request")
 
                     const codebaseId = `${isGitLab ? "gitlab" : "github"}/${repoPath}`;
                     const name = repoPath.split("/").slice(-1)[0];
@@ -284,108 +388,7 @@ class CodeExplorer extends Component {
                     });
 
                     Mixpanel.track("Scrape public repository")
-                };
-                this.websocket.onmessage = async event => {
-                    if (event.data == "ping") {
-                        ws.send("pong");
-                        return;
-                    }
-
-                    const {
-                        content,
-                        step,
-                        metadata,
-                        progress_target,
-                        is_finished,
-                        is_paywalled,
-                        error
-                    } = JSON.parse(event.data);
-
-                    if (error != "") {
-                        toast.error(error, {
-                            style: {
-                                borderRadius: "7px",
-                                background: "#FB4D3D",
-                                color: "#fff",
-                            },
-                            iconTheme: {
-                                primary: '#ffffff7a',
-                                secondary: '#fff',
-                            }
-                        });
-                        this.onSetProgressMessage(step, content, progress_target, true);
-                        return;
-                    }
-
-                    if (is_finished) {
-                        const { codebase_id, name, files, is_gitlab, is_private } = metadata;
-
-                        this.onSetProgressMessage(null, content, progress_target, true);
-
-                        if (is_paywalled) {
-                            const repository = new Repository("", "", {});
-                            await this.onSetCodebase(repository, is_paywalled, content);
-
-                            // TODO: Remove codebase from state
-                            // TODO: Render paywall message
-
-                        } else {
-                            const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
-                            await this.onSetCodebase(repository, is_paywalled);
-
-                            let { codebases } = this.state;
-                            codebases = codebases.map(codebase => {
-                                if (codebase.codebaseId == codebase_id) {
-                                    console.log(codebase_id);
-                                    codebase.files = files;
-                                    codebase.isPrivate = is_private;
-                                }
-
-                                return codebase;
-                            });
-                            this.setState({ codebases });
-                        }
-
-                        let { codebasesInProgress } = this.state;
-                        codebasesInProgress = codebasesInProgress.filter(codebase => codebase.codebaseId != codebase_id);
-
-                        this.setState({ codebasesInProgress });
-                        this.websocket.close();
-                    } else {
-                        this.onSetProgressMessage(step, content, progress_target);
-                    }
-                }
-                this.websocket.onerror = event => {
-                    this.onSetProgressMessage("", "", false, null, true);
-
-                    toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                        style: {
-                            borderRadius: "7px",
-                            background: "#FB4D3D",
-                            color: "#fff",
-                        },
-                        iconTheme: {
-                            primary: '#ffffff7a',
-                            secondary: '#fff',
-                        }
-                    });
-                };
-                // this.websocket.onclose = event => {
-                //     console.log("gh input ws close")
-                //     console.log(event);
-                //     onSetProgressMessage("", true);
-                //     toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                //         style: {
-                //             borderRadius: "7px",
-                //             background: "#FB4D3D",
-                //             color: "#fff",
-                //         },
-                //         iconTheme: {
-                //             primary: '#ffffff7a',
-                //             secondary: '#fff',
-                //         }
-                //     });
-                // };
+                });
             });
     }
 
