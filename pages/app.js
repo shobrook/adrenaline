@@ -22,9 +22,82 @@ export default function App() {
     const [renderSubscriptionModal, setRenderSubscriptionModal] = useState(false);
     const [fileContext, setFileContext] = useState("");
     const [displayCodeExplorer, setDisplayCodeExplorer] = useState(true);
-    const queryWS = useRef(null);
+    const websocket = useRef(null);
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
+
+    function openWebsocketConnection(callback) {
+        if (websocket.current != null) {
+            callback(websocket.current);
+            return;
+        }
+
+        let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}answer_query`);
+        ws.onopen = event => {
+            websocket.current = ws;
+            callback(ws);
+        };
+        ws.onmessage = event => {
+            if (event.data == "ping") {
+                ws.send("pong");
+                return;
+            }
+
+            const {
+                type,
+                data,
+                is_finished,
+                is_paywalled,
+                progress_target,
+                error
+            } = JSON.parse(event.data);
+
+            if (type === "loading") {
+                const { type: stepType, content } = data;
+
+                setMessages(prevMessages => {
+                    const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
+                    let lastMessage = prevMessages[prevMessages.length - 1];
+
+                    if (lastMessage.steps.length === 0) { // First loading step
+                        lastMessage.steps.push(data);
+                    } else {
+                        const lastLoadingStep = lastMessage.steps[lastMessage.steps.length - 1];
+                        if (lastLoadingStep.type === stepType) { // Same loading step
+                            lastLoadingStep.content += content;
+                            lastMessage.steps[lastMessage.steps.length - 1] = lastLoadingStep;
+                        } else if (stepType.toLowerCase() == "progress") { // Progress update
+                            lastMessage.progress += 1;
+                            lastMessage.progressTarget = progress_target;
+                        } else { // New loading step
+                            lastMessage.steps.push(data);
+                        }
+                    }
+
+                    return [...priorMessages, lastMessage];
+                });
+            } else if (type == "answer") {
+                const { message, sources } = data;
+
+                setMessages(prevMessages => {
+                    const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
+                    let response = prevMessages[prevMessages.length - 1];
+
+                    response.content += message;
+                    response.isComplete = is_finished;
+                    response.isPaywalled = is_paywalled;
+                    response.sources = sources.map(filePath => new Source(filePath));
+                    response.progressTarget = null;
+                    response.steps = response.steps.filter(step => step.type.toLowerCase() != "progress");
+
+                    return [...priorMessages, response];
+                });
+            }
+        }
+        ws.onerror = event => {
+            console.log(event); // TODO: Display error message
+        }
+    }
 
     function handleOAuthCallback() {
         const { source, code } = router.query;
@@ -126,16 +199,20 @@ export default function App() {
 
         getAccessTokenSilently()
             .then(token => {
-                const request = {
-                    user_id: user.sub,
-                    token: token,
-                    codebase_id: codebaseId,
-                    query: message,
-                    chat_history: getChatHistory()
-                };
-                queryWS.current.send(JSON.stringify(request));
+                openWebsocketConnection(ws => {
+                    const request = {
+                        user_id: user.sub,
+                        token: token,
+                        codebase_id: codebaseId,
+                        query: message,
+                        chat_history: getChatHistory()
+                    };
+                    ws.send(JSON.stringify(request));
 
-                Mixpanel.track("received_chatbot_response", { query: message });
+                    console.log("sent stuff")
+
+                    Mixpanel.track("received_chatbot_response", { query: message });
+                })
             });
     }
 
@@ -226,74 +303,6 @@ export default function App() {
         if (prevAuthState.current !== isAuthenticated && isAuthenticated) {
             Mixpanel.identify(user.sub);
             Mixpanel.people.set({ email: user.email });
-
-            /* Connect to query handler websocket */
-
-            let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}answer_query`);
-            ws.onopen = event => {
-                console.log("yo")
-            }; // TODO: Should we wait to render the rest of the site until connection is established?
-            ws.onmessage = event => {
-                if (event.data == "ping") {
-                    ws.send("pong");
-                    return;
-                }
-
-                const {
-                    type,
-                    data,
-                    is_finished,
-                    is_paywalled,
-                    progress_target,
-                    error
-                } = JSON.parse(event.data);
-
-                if (type === "loading") {
-                    const { type: stepType, content } = data;
-
-                    setMessages(prevMessages => {
-                        const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
-                        let lastMessage = prevMessages[prevMessages.length - 1];
-
-                        if (lastMessage.steps.length === 0) { // First loading step
-                            lastMessage.steps.push(data);
-                        } else {
-                            const lastLoadingStep = lastMessage.steps[lastMessage.steps.length - 1];
-                            if (lastLoadingStep.type === stepType) { // Same loading step
-                                lastLoadingStep.content += content;
-                                lastMessage.steps[lastMessage.steps.length - 1] = lastLoadingStep;
-                            } else if (stepType.toLowerCase() == "progress") { // Progress update
-                                lastMessage.progress += 1;
-                                lastMessage.progressTarget = progress_target;
-                            } else { // New loading step
-                                lastMessage.steps.push(data);
-                            }
-                        }
-
-                        return [...priorMessages, lastMessage];
-                    });
-                } else if (type == "answer") {
-                    const { message, sources } = data;
-
-                    setMessages(prevMessages => {
-                        const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
-                        let response = prevMessages[prevMessages.length - 1];
-
-                        response.content += message;
-                        response.isComplete = is_finished;
-                        response.isPaywalled = is_paywalled;
-                        response.sources = sources.map(filePath => new Source(filePath));
-                        response.progressTarget = null;
-                        response.steps = response.steps.filter(step => step.type.toLowerCase() != "progress");
-
-                        return [...priorMessages, response];
-                    });
-                }
-            }
-            ws.onerror = event => {
-                console.log(event); // TODO: Display error message
-            }
-            queryWS.current = ws;
 
             handleOAuthCallback();
             fetchUserMetadata();
