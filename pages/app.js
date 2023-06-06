@@ -258,7 +258,7 @@ export default function App() {
                 />
 
                 {
-                    isLoading || Object.keys(subscriptionStatus).length == 0 ?
+                    isLoading || (isAuthenticated && Object.keys(subscriptionStatus).length == 0) ?
                         <div id="loadingBody">
                             <Spinner />
                         </div>
