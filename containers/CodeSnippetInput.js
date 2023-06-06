@@ -57,15 +57,108 @@ class CodeSnippetInput extends Component {
     constructor(props) {
         super(props);
 
+        this.openWebsocketConnection = this.openWebsocketConnection.bind(this);
+
         this.onSelectLanguage = this.onSelectLanguage.bind(this);
         this.onChangeCode = this.onChangeCode.bind(this);
         this.onSubmitCode = this.onSubmitCode.bind(this);
         this.onFocus = this.onFocus.bind(this);
+        this.onBeforeUnload = this.onBeforeUnload.bind(this);
+
+        this.websocket = null;
 
         this.state = { code: LANGUAGES[0].codeExample, language: LANGUAGES[0] };
     }
 
+    /* Utilities */
+
+    openWebsocketConnection(callback) {
+        const { onSetProgressMessage, onSetCodeSnippet } = this.props;
+
+        if (this.websocket != null || this.websocket != undefined) {
+            callback(this.websocket);
+            return;
+        }
+
+        let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
+        ws.onopen = event => {
+            this.websocket = ws;
+            window.addEventListener("beforeunload", this.onBeforeUnload);
+
+            callback(ws);
+        };
+        ws.onmessage = async event => {
+            if (event.data == "ping") {
+                ws.send("pong");
+                return;
+            }
+
+            const { code, language } = this.state;
+            const {
+                name,
+                step,
+                codebase_id,
+                is_paywalled,
+                is_finished,
+                progress_target,
+                error
+            } = JSON.parse(event.data);
+
+            if (error != "") {
+                toast.error(error, {
+                    style: {
+                        borderRadius: "7px",
+                        background: "#FB4D3D",
+                        color: "#fff",
+                    },
+                    iconTheme: {
+                        primary: '#ffffff7a',
+                        secondary: '#fff',
+                    }
+                });
+                onSetProgressMessage(step, "", progress_target, true);
+                return;
+            }
+
+            if (is_finished) {
+                const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);
+
+                onSetProgressMessage(null, "", progress_target, true);
+                onSetCodeSnippet(codeSnippet, is_paywalled);
+            } else {
+                onSetProgressMessage(step, "", progress_target);
+            }
+        }
+        ws.onerror = event => {
+            this.websocket = null;
+            onSetProgressMessage("", "", false, null, true);
+            window.removeEventListener("beforeunload", this.onBeforeUnload);
+
+            toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                style: {
+                    borderRadius: "7px",
+                    background: "#FB4D3D",
+                    color: "#fff",
+                },
+                iconTheme: {
+                    primary: '#ffffff7a',
+                    secondary: '#fff',
+                }
+            });
+        }
+        ws.onclose = event => {
+            this.websocket = null;
+            window.removeEventListener("beforeunload", this.onBeforeUnload);
+        }
+
+    }
+
     /* Event Handlers */
+
+    onBeforeUnload(event) {
+        // event.preventDefault();
+        this.websocket.close();
+    }
 
     onSelectLanguage(language) {
         this.setState(prevState => {
@@ -113,65 +206,17 @@ class CodeSnippetInput extends Component {
 
         getAccessTokenSilently()
             .then(token => {
-                this.websocket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_code_snippet`);
-                this.websocket.onopen = event => {
+                this.openWebsocketConnection(ws => {
                     const request = {
                         user_id: user.sub,
                         token: token,
                         language: language.value,
                         code
                     };
-                    this.websocket.send(JSON.stringify(request));
+                    ws.send(JSON.stringify(request));
 
                     onRenderIndexingProgress();
-                };
-                this.websocket.onmessage = async event => {
-                    if (event.data == "ping") {
-                        this.websocket.send("pong");
-                        return;
-                    }
-
-                    const { code, language } = this.state;
-                    const {
-                        name,
-                        step,
-                        codebase_id,
-                        is_paywalled,
-                        is_finished,
-                        progress_target,
-                        error
-                    } = JSON.parse(event.data);
-
-                    if (error != "") {
-                        toast.error(error, {
-                            style: {
-                                borderRadius: "7px",
-                                background: "#FB4D3D",
-                                color: "#fff",
-                            },
-                            iconTheme: {
-                                primary: '#ffffff7a',
-                                secondary: '#fff',
-                            }
-                        });
-                        onSetProgressMessage(step, "", progress_target, true);
-                        return;
-                    }
-
-                    if (is_finished) {
-                        const codeSnippet = new CodeSnippet(codebase_id, name, code, language.value);
-
-                        onSetProgressMessage(null, "", progress_target, true);
-                        onSetCodeSnippet(codeSnippet, is_paywalled);
-
-                        this.websocket.close();
-                    } else {
-                        onSetProgressMessage(step, "", progress_target);
-                    }
-                }
-                this.websocket.onerror = event => {
-                    toast.error("Error connecting to server. Please try again later.");
-                };
+                });
             });
     }
 

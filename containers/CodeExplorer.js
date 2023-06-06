@@ -194,8 +194,8 @@ class CodeExplorer extends Component {
             });
         };
         ws.onclose = event => {
-            window.removeEventListener("beforeunload", this.onBeforeUnload);
             this.websocket = null;
+            window.removeEventListener("beforeunload", this.onBeforeUnload);
         }
     }
 
@@ -374,8 +374,6 @@ class CodeExplorer extends Component {
                         is_gitlab: isGitLab
                     };
                     ws.send(JSON.stringify(request));
-
-                    console.log("Sent indexing request")
 
                     const codebaseId = `${isGitLab ? "gitlab" : "github"}/${repoPath}`;
                     const name = repoPath.split("/").slice(-1)[0];
