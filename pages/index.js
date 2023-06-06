@@ -30,7 +30,11 @@ export default function LandingPage() {
 
     return (
         <div id="landing">
-            <Header isTransparent setShowSubscriptionModal={setShowSubscriptionModal} />
+            <Header
+                isTransparent
+                setShowSubscriptionModal={setShowSubscriptionModal}
+                subscriptionPlan={undefined}
+            />
 
             <div id="overTheFold">
                 <div id="landingHeading">

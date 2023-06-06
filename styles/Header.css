@@ -6,7 +6,8 @@
     padding-left: 30px;
     padding-right: 30px;
     justify-content: space-between;
-    border-bottom: 2px solid #262A39; /* #4E4881 */
+    border-bottom: 2px solid #262A39;
+    /* #4E4881 */
     background-color: #181b26;
     border-top: 4px solid #A305E1;
     padding-top: 2px;
@@ -37,13 +38,13 @@
     margin-right: 20px;
 }
 
-.linkButtons > a {
+.linkButtons>a {
     text-decoration: none;
     color: white;
     font-weight: 500;
 }
 
-.linkButtons > a > img {
+.linkButtons>a>img {
     height: 25px;
 }
 
@@ -63,12 +64,13 @@
     color: #d93cff;
 }
 
-.star-count > svg {
+.star-count>svg {
     padding-left: 5px;
     padding-top: 1px;
 }
 
-.discordIcon:hover, .githubIcon:hover {
+.discordIcon:hover,
+.githubIcon:hover {
     opacity: 0.75;
 }
 
@@ -115,7 +117,7 @@
     align-items: center;
 }
 
-.header .buttons > a {
+.header .buttons>a {
     text-decoration: none;
     color: white;
     /* font-family: "Helvetica Neue"; */
@@ -138,7 +140,7 @@
     margin-right: 15px;
 }
 
-.header .buttons > a:hover {
+.header .buttons>a:hover {
     opacity: 0.75;
 }
 
@@ -187,9 +189,11 @@
         opacity: 0;
         transform: scale(0.8);
     }
+
     50% {
         opacity: 1;
     }
+
     100% {
         opacity: 1;
         transform: scale(1);
@@ -217,4 +221,8 @@
 
 .logout {
     border-top: 1px solid #ccc;
+}
+
+#subscriptionTier {
+    font-weight: 600;
 }

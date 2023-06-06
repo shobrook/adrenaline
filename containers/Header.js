@@ -1,13 +1,13 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import Link from "next/link";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { AiFillStar } from "react-icons/ai";
 
 import Button from "../components/Button";
 import Mixpanel from "../library/mixpanel";
 
-export default function Header({ isTransparent, setShowSubscriptionModal }) {
+export default function Header({ isTransparent, setShowSubscriptionModal, subscriptionPlan }) {
     const {
         isAuthenticated,
         loginWithRedirect,
@@ -15,6 +15,8 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
         user
     } = useAuth0();
     const [starsCount, setStarsCount] = useState(null);
+
+    console.log(subscriptionPlan)
 
     useEffect(() => {
         async function fetchStarsCount() {
@@ -77,7 +79,11 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
                 </div>
                 <div className="ctaButtons">
                     {isAuthenticated ? (
-                        <UserNavDropdown onLogout={onLogout} setShowSubscriptionModal={setShowSubscriptionModal} />
+                        <UserNavDropdown
+                            onLogout={onLogout}
+                            setShowSubscriptionModal={setShowSubscriptionModal}
+                            subscriptionPlan={subscriptionPlan}
+                        />
                     ) : (
                         <>
                             <Button
@@ -99,7 +105,11 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
             </div>
             <div className="compactButtons">
                 {isAuthenticated ? (
-                    <UserNavDropdown onLogout={onLogout} setShowSubscriptionModal={setShowSubscriptionModal} />
+                    <UserNavDropdown
+                        onLogout={onLogout}
+                        setShowSubscriptionModal={setShowSubscriptionModal}
+                        subscriptionPlan={subscriptionPlan}
+                    />
                 ) : (
                     <>
                         <Button isPrimary={false} onClick={onLogIn}>Log in</Button>
@@ -110,7 +120,7 @@ export default function Header({ isTransparent, setShowSubscriptionModal }) {
     );
 }
 
-const UserNavDropdown = ({ onLogout, setShowSubscriptionModal }) => {
+const UserNavDropdown = ({ onLogout, setShowSubscriptionModal, subscriptionPlan }) => {
     const { getAccessTokenSilently, user } = useAuth0();
     const [dropdownVisible, setDropdownVisible] = useState(false);
     const dropdownRef = useRef(null);
@@ -153,6 +163,19 @@ const UserNavDropdown = ({ onLogout, setShowSubscriptionModal }) => {
         };
     }, [dropdownRef]);
 
+    let subscriptionTier;
+    if (subscriptionPlan == undefined) {
+        subscriptionTier = undefined;
+    } else if (subscriptionPlan.startsWith("free")) {
+        subscriptionTier = "Free trial";
+    } else if (subscriptionPlan.startsWith("premium")) {
+        subscriptionTier = "Premium plan";
+    } else if (subscriptionPlan.startsWith("power")) {
+        subscriptionTier = "Power plan";
+    } else if (subscriptionPlan.startsWith("unlimited")) {
+        subscriptionTier = "Unlimited plan";
+    }
+
     return (
         <div className="user-nav-dropdown" ref={dropdownRef}>
             <div className={"dropdown-button"} onClick={toggleDropdown}>
@@ -167,6 +190,11 @@ const UserNavDropdown = ({ onLogout, setShowSubscriptionModal }) => {
                     <div className={"dropdown-item"} onClick={onLogout}>
                         Logout
                     </div>
+                    {subscriptionTier ? (
+                        <div className="dropdown-item" id="subscriptionTier">
+                            {subscriptionTier}
+                        </div>
+                    ) : null}
                     <div className={"dropdown-item"}>
                         <Button
                             isPrimary

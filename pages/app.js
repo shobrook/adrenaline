@@ -252,7 +252,10 @@ export default function App() {
     function renderApp() {
         return (
             <div className="app">
-                <Header setShowSubscriptionModal={setShowSubscriptionModal} />
+                <Header
+                    setShowSubscriptionModal={setShowSubscriptionModal}
+                    subscriptionPlan={subscriptionStatus.plan}
+                />
 
                 {
                     isLoading || Object.keys(subscriptionStatus).length == 0 ?
