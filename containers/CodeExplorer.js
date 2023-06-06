@@ -94,15 +94,15 @@ class CodeExplorer extends Component {
 
     openWebsocketConnection(callback) {
         if (this.websocket != null || this.websocket != undefined) {
-            console.log("Websocket connection already opened")
             callback(this.websocket);
             return;
         }
 
         let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}index_repository`);
         ws.onopen = event => {
-            console.log("Websocket connection opened")
             this.websocket = ws;
+            window.addEventListener("beforeunload", this.onBeforeUnload);
+
             callback(ws);
         }
         ws.onmessage = async event => {
@@ -177,7 +177,9 @@ class CodeExplorer extends Component {
             }
         }
         ws.onerror = event => {
+            this.websocket = null;
             this.onSetProgressMessage("", "", false, null, true);
+            window.removeEventListener("beforeunload", this.onBeforeUnload);
 
             toast.error("We are experiencing unusually high load. Please try again at another time.", {
                 style: {
@@ -191,6 +193,10 @@ class CodeExplorer extends Component {
                 }
             });
         };
+        ws.onclose = event => {
+            window.removeEventListener("beforeunload", this.onBeforeUnload);
+            this.websocket = null;
+        }
     }
 
     // TODO: Progress state is only tracked for one codebase at a time; need to track for multiple concurrent indexing jobs
@@ -393,20 +399,19 @@ class CodeExplorer extends Component {
     }
 
     onBeforeUnload(event) {
+        event.preventDefault();
+
         const { renderIndexingProgress } = this.state;
-
         if (renderIndexingProgress) {
-            // Cancel the event
-            event.preventDefault();
+            const isLeaving = confirm("Your codebase is still being indexed. Leaving will lose all progress.");
+            if (isLeaving) {
+                this.websocket.close();
+            }
 
-            // Chrome requires returnValue to be set
-            event.returnValue = "";
-
-            // Show the alert to the user
-            const message = "Are you sure you want to leave? Your codebase is still being indexed.";
-            event.returnValue = message; // For Chrome
-            return message; // For other browsers
+            return;
         }
+
+        this.websocket.close();
     }
 
     onToggleSelectPrivateRepository() {
@@ -893,8 +898,6 @@ class CodeExplorer extends Component {
     /* Lifecycle Methods */
 
     componentDidMount() {
-        window.addEventListener("beforeunload", this.onBeforeUnload);
-
         const { fileContext } = this.props;
         const { renderCodeSnippet, renderRepository } = this.state;
 
@@ -903,10 +906,6 @@ class CodeExplorer extends Component {
         if (fileContext != "" && (renderRepository || renderCodeSnippet)) {
             this.onSelectFile(fileContext);
         }
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener("beforeunload", this.onBeforeUnload);
     }
 
     componentDidUpdate(prevProps, prevState) {

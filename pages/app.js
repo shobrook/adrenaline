@@ -26,6 +26,11 @@ export default function App() {
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
 
+    function onBeforeUnload(event) {
+        // event.preventDefault();
+        websocket.current.close();
+    }
+
     function openWebsocketConnection(callback) {
         if (websocket.current != null) {
             callback(websocket.current);
@@ -35,6 +40,8 @@ export default function App() {
         let ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URI}answer_query`);
         ws.onopen = event => {
             websocket.current = ws;
+            window.addEventListener("beforeunload", onBeforeUnload);
+
             callback(ws);
         };
         ws.onmessage = event => {
@@ -96,9 +103,12 @@ export default function App() {
         }
         ws.onerror = event => {
             websocket.current = null;
+            window.removeEventListener("beforeunload", onBeforeUnload);
         }
         ws.onclose = event => {
+            console.log("Closed??")
             websocket.current = null;
+            window.removeEventListener("beforeunload", onBeforeUnload);
         }
     }
 
