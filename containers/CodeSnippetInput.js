@@ -150,7 +150,6 @@ class CodeSnippetInput extends Component {
             this.websocket = null;
             window.removeEventListener("beforeunload", this.onBeforeUnload);
         }
-
     }
 
     /* Event Handlers */

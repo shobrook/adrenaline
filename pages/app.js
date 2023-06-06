@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useRouter } from "next/router";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 import Header from "../containers/Header";
 import ChatBot from "../containers/ChatBot";
@@ -59,6 +60,21 @@ export default function App() {
                 error
             } = JSON.parse(event.data);
 
+            if (error != "") {
+                toast.error(error, {
+                    style: {
+                        borderRadius: "7px",
+                        background: "#FB4D3D",
+                        color: "#fff",
+                    },
+                    iconTheme: {
+                        primary: '#ffffff7a',
+                        secondary: '#fff',
+                    }
+                });
+                return;
+            }
+
             if (type === "loading") {
                 const { type: stepType, content } = data;
 
@@ -104,9 +120,20 @@ export default function App() {
         ws.onerror = event => {
             websocket.current = null;
             window.removeEventListener("beforeunload", onBeforeUnload);
+
+            toast.error("We are experiencing unusually high load. Please try again at another time.", {
+                style: {
+                    borderRadius: "7px",
+                    background: "#FB4D3D",
+                    color: "#fff",
+                },
+                iconTheme: {
+                    primary: '#ffffff7a',
+                    secondary: '#fff',
+                }
+            });
         }
         ws.onclose = event => {
-            console.log("Closed??")
             websocket.current = null;
             window.removeEventListener("beforeunload", onBeforeUnload);
         }
