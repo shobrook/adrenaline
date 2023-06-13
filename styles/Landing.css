@@ -5,7 +5,7 @@
 
 #landing {
   position: absolute;
-  /* background-color: #373751; */
+  background-color: #06060a;
   background-image: url("../public/cyberpunk_background.png");
   background-position-y: center;
   background-size: 100% auto;
@@ -38,7 +38,7 @@
   width: 500px;
 }
 
-#landingTitle > span {
+#landingTitle>span {
   color: #d93cff;
 }
 
@@ -94,12 +94,12 @@
   max-width: 400px;
 }
 
-.featureOverview > span {
+.featureOverview>span {
   font-family: "Gilroy";
   font-size: 40px;
 }
 
-.featureOverview > p {
+.featureOverview>p {
   font-size: 20px;
   opacity: 0.75;
 }
@@ -112,11 +112,11 @@
   width: 70%;
 }
 
-#debugFeature > .featureOverview {
+#debugFeature>.featureOverview {
   padding-left: 100px;
 }
 
-#debugFeature > img {
+#debugFeature>img {
   max-width: 500px;
   min-width: 300px;
   width: 60%;
@@ -134,11 +134,11 @@
   width: 70%;
 }
 
-#chatbotFeature > .featureOverview {
+#chatbotFeature>.featureOverview {
   padding-right: 100px;
 }
 
-#chatbotFeature > img {
+#chatbotFeature>img {
   max-width: 500px;
   min-width: 300px;
   width: 60%;
@@ -189,7 +189,7 @@
     text-align: center;
   }
 
-  #debugFeature > .featureOverview {
+  #debugFeature>.featureOverview {
     padding-top: 50px;
   }
 
@@ -199,7 +199,7 @@
     text-align: center;
   }
 
-  #chatbotFeature > .featureOverview {
+  #chatbotFeature>.featureOverview {
     padding-bottom: 50px;
   }
 }
@@ -217,22 +217,22 @@
 
 @media (max-width: 1250px) {
   #pricingOptions {
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      width: fit-content;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    width: fit-content;
   }
 
   #subscriptionTitle {
-      font-size: 40px;
+    font-size: 40px;
   }
 
   #subscriptionSubtitle {
-      font-size: 16px;
-      width: 300px;
+    font-size: 16px;
+    width: 300px;
   }
 
   .paymentPlan {
-      margin-bottom: 30px;
+    margin-bottom: 30px;
   }
 }
