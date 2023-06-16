@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import Button from "../components/Button";
@@ -10,9 +10,52 @@ import SubscriptionModal from "../containers/SubscriptionModal";
 import { useRouter } from "next/router";
 
 export default function LandingPage() {
-    const { isAuthenticated, user } = useAuth0();
+    const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
     const router = useRouter();
+    const [subscriptionStatus, setSubscriptionStatus] = useState({});
     const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
+    const prevAuthState = useRef(isAuthenticated);
+
+    function fetchUserMetadata() {
+        if (!isAuthenticated) {
+            return;
+        }
+
+        if (Object.keys(subscriptionStatus).length != 0) {
+            return;
+        }
+
+        getAccessTokenSilently()
+            .then(token => {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}api/stripe/subscription_status`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        user_id: user.sub,
+                        email: user.email
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        const {
+                            plan,
+                            num_messages_sent,
+                            num_repositories_indexed,
+                            num_code_snippets_indexed
+                        } = data;
+
+                        setSubscriptionStatus({
+                            plan,
+                            numMessagesSent: num_messages_sent,
+                            numRepositoriesIndexed: num_repositories_indexed,
+                            numCodeSnippetsIndexed: num_code_snippets_indexed
+                        });
+                    });
+            });
+    }
 
     function onGetStarted() {
         Mixpanel.track("click_get_started", { isAuthenticated });
@@ -27,6 +70,21 @@ export default function LandingPage() {
 
         Mixpanel.track("load_landing_page");
     })
+
+    useEffect(() => {
+        if (prevAuthState.current !== isAuthenticated && isAuthenticated) {
+            Mixpanel.identify(user.sub);
+            Mixpanel.people.set({ email: user.email });
+
+            fetchUserMetadata();
+        }
+
+        prevAuthState.current = isAuthenticated;
+    }, [isAuthenticated])
+
+    useEffect(() => {
+        fetchUserMetadata();
+    }, []);
 
     return (
         <div id="landing">

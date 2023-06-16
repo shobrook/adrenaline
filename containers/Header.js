@@ -16,8 +16,6 @@ export default function Header({ isTransparent, setShowSubscriptionModal, subscr
     } = useAuth0();
     const [starsCount, setStarsCount] = useState(null);
 
-    console.log(subscriptionPlan)
-
     useEffect(() => {
         async function fetchStarsCount() {
             const res = await fetch(`https://api.github.com/repos/shobrook/adrenaline`);
