@@ -31,6 +31,15 @@ const DEFAULT_PROGRESS_STATE = {
     progress: 0,
     codebasesInProgress: [],
 }
+const DEFAULT_CODE_CONTEXT = {
+    files: [],
+    currentFile: "",
+    code: "",
+    fileSummary: "",
+    language: "python",
+    isPrivate: false,
+    isGitLab: false
+}
 const DEFAULT_STATE = {
     renderCodeSnippet: false,
     renderRepository: false,
@@ -41,20 +50,11 @@ const DEFAULT_STATE = {
     renderFileTree: true,
     renderPaywall: false,
     renderAuthenticationWall: false,
-    renderIndexingProgress: false,
     ...DEFAULT_PROGRESS_STATE,
     paywallMessage: "You've reached your repository limit! Upgrade your plan to increase it.",
     codebases: [], // List of codebase objects
     renderLoadingCodebases: false,
-    currentCodeContext: {
-        files: [],
-        currentFile: "",
-        code: "",
-        fileSummary: "",
-        language: "python",
-        isPrivate: false,
-        isGitLab: false
-    }
+    currentCodeContext: DEFAULT_CODE_CONTEXT
 }
 
 class CodeExplorer extends Component {
@@ -293,9 +293,9 @@ class CodeExplorer extends Component {
             renderSelectGitHubRepository,
             renderSelectGitLabRepository,
             renderSelectCodeSnippet,
-            renderIndexingProgress
         } = this.state;
-        return !renderCodeSnippet && !renderRepository && !renderSelectGitHubRepository && !renderSelectGitLabRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
+        const { isIndexing } = this.props;
+        return !renderCodeSnippet && !renderRepository && !renderSelectGitHubRepository && !renderSelectGitLabRepository && !renderSelectCodeSnippet && !isIndexing;
     }
 
     deleteCodebase(codebase) {
@@ -353,6 +353,7 @@ class CodeExplorer extends Component {
             getAccessTokenSilently,
             user
         } = this.props.auth0;
+        const { setIsIndexing } = this.props;
 
         if (!isAuthenticated) {
             loginWithRedirect({
@@ -383,13 +384,12 @@ class CodeExplorer extends Component {
 
                     const { codebases, codebasesInProgress } = this.state;
                     this.setState({
-                        renderIndexingProgress: !refreshIndex,
                         codebasesInProgress: [...codebasesInProgress, repository],
                         codebases: refreshIndex ? codebases : [repository, ...codebases],
                         renderSelectCodeSnippet: false,
                         renderSelectGitHubRepository: false,
                         renderSelectGitLabRepository: false,
-                    });
+                    }, () => setIsIndexing(!refreshIndex));
 
                     Mixpanel.track("Scrape public repository")
                 });
@@ -399,8 +399,8 @@ class CodeExplorer extends Component {
     onBeforeUnload(event) {
         event.preventDefault();
 
-        const { renderIndexingProgress } = this.state;
-        if (renderIndexingProgress) {
+        const { isIndexing } = this.props;
+        if (isIndexing) {
             const isLeaving = confirm("Your codebase is still being indexed. Leaving will lose all progress.");
             if (isLeaving) {
                 this.websocket.close();
@@ -418,14 +418,13 @@ class CodeExplorer extends Component {
     }
 
     onSetCodeSnippet(codeSnippet, isPaywalled) {
-        const { onSetCodebaseId } = this.props;
+        const { onSetCodebaseId, setIsIndexing } = this.props;
         const { currentCodeContext } = this.state;
         const { codebaseId, name, code, language } = codeSnippet;
 
         onSetCodebaseId(codebaseId);
         this.setState({
             renderPaywall: isPaywalled,
-            renderIndexingProgress: false,
             renderCodeSnippet: true,
             currentCodeContext: {
                 ...currentCodeContext,
@@ -433,7 +432,7 @@ class CodeExplorer extends Component {
                 language,
                 currentFile: name
             }
-        });
+        }, () => setIsIndexing(false));
     }
 
     onSetProgressMessage(progressStep, progressMessage, progressTarget, haltProgress = false) {
@@ -470,8 +469,7 @@ class CodeExplorer extends Component {
     }
 
     async onSetCodebase(repository, isPaywalled, paywallMessage = "", isRefresh = false) {
-        const { onSetCodebaseId } = this.props;
-        const { renderIndexingProgress } = this.state;
+        const { onSetCodebaseId, isIndexing, setIsIndexing } = this.props;
         const { codebaseId, files, isPrivate, isGitLab } = repository;
 
         onSetCodebaseId(codebaseId);
@@ -480,9 +478,8 @@ class CodeExplorer extends Component {
             this.setState({
                 renderRepository: true,
                 renderPaywall: true,
-                renderIndexingProgress: false,
                 paywallMessage: paywallMessage != "" ? paywallMessage : this.state.paywallMessage
-            });
+            }, () => setIsIndexing(false));
             return
         }
 
@@ -502,10 +499,9 @@ class CodeExplorer extends Component {
                 isPrivate,
                 isGitLab
             },
-            renderRepository: isRefresh ? true : renderIndexingProgress,
-            renderIndexingProgress: false,
+            renderRepository: isRefresh ? true : isIndexing,
             renderAuthenticationWall: shouldAuthenticate
-        });
+        }, () => setIsIndexing(false));
     }
 
     async onSelectFile(filePath) {
@@ -529,7 +525,7 @@ class CodeExplorer extends Component {
     }
 
     onReturnToManager() {
-        const { setFileContext, onSetCodebaseId } = this.props;
+        const { setFileContext, onSetCodebaseId, setIsIndexing } = this.props;
 
         this.setState({
             renderCodeSnippet: false,
@@ -539,10 +535,11 @@ class CodeExplorer extends Component {
             renderSelectCodeSnippet: false,
             renderFileTree: false,
             renderPaywall: false,
-            renderIndexingProgress: false
+            currentCodeContext: DEFAULT_CODE_CONTEXT
         }, () => {
             setFileContext("");
             onSetCodebaseId("");
+            setIsIndexing(false);
         });
     }
 
@@ -563,6 +560,7 @@ class CodeExplorer extends Component {
     }
 
     renderSelectCodeSnippet() {
+        const { setIsIndexing } = this.props;
         const { renderSelectCodeSnippet } = this.state;
 
         if (!renderSelectCodeSnippet) {
@@ -573,7 +571,7 @@ class CodeExplorer extends Component {
             <CodeSnippetInput
                 onSetProgressMessage={this.onSetProgressMessage}
                 onSetCodeSnippet={this.onSetCodeSnippet}
-                onRenderIndexingProgress={() => this.setState({ renderIndexingProgress: true, renderSelectCodeSnippet: false })}
+                onRenderIndexingProgress={() => this.setState({ renderSelectCodeSnippet: false }, () => setIsIndexing(true))}
             />
         );
     }
@@ -602,8 +600,8 @@ class CodeExplorer extends Component {
     }
 
     renderIndexingProgress() {
+        const { isIndexing } = this.props;
         const {
-            renderIndexingProgress,
             progress,
             progressTarget,
             progressMessage,
@@ -611,7 +609,7 @@ class CodeExplorer extends Component {
             progressStepHistory
         } = this.state;
 
-        if (!renderIndexingProgress) {
+        if (!isIndexing) {
             return null;
         }
 
@@ -727,6 +725,7 @@ class CodeExplorer extends Component {
                                 )
                             }
 
+                            const { setIsIndexing } = this.props;
                             const { codebasesInProgress } = this.state;
                             const shouldRenderLoading = codebasesInProgress.some(c => c.codebaseId == codebaseId);
 
@@ -735,7 +734,7 @@ class CodeExplorer extends Component {
                                     <div className="codebaseThumbnail">
                                         <div className="codebaseName" onClick={async () => {
                                             if (shouldRenderLoading) {
-                                                this.setState({ renderIndexingProgress: true });
+                                                setIsIndexing(true);
                                                 return;
                                             }
 
@@ -817,13 +816,13 @@ class CodeExplorer extends Component {
     }
 
     renderHeader() {
+        const { isIndexing } = this.props;
         const {
             renderCodeSnippet,
             renderRepository,
             renderSelectGitHubRepository,
             renderSelectGitLabRepository,
             renderSelectCodeSnippet,
-            renderIndexingProgress
         } = this.state;
         const { currentFile } = this.state.currentCodeContext;
 
@@ -873,7 +872,7 @@ class CodeExplorer extends Component {
             );
         }
 
-        if (renderIndexingProgress) {
+        if (isIndexing) {
             return (
                 <div id="managerHeader">
                     <div id="headerLabel">
@@ -908,15 +907,15 @@ class CodeExplorer extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         const { fileContext } = this.props;
+        const { isIndexing } = prevProps;
         const {
             renderCodeSnippet,
             renderRepository,
             renderSelectGitHubRepository,
             renderSelectGitLabRepository,
-            renderSelectCodeSnippet,
-            renderIndexingProgress
+            renderSelectCodeSnippet
         } = prevState;
-        const prevShouldRenderCodebaseManager = !renderCodeSnippet && !renderRepository && !renderSelectGitHubRepository && !renderSelectGitLabRepository && !renderSelectCodeSnippet && !renderIndexingProgress;
+        const prevShouldRenderCodebaseManager = !renderCodeSnippet && !renderRepository && !renderSelectGitHubRepository && !renderSelectGitLabRepository && !renderSelectCodeSnippet && !isIndexing;
         const shouldRenderCodebaseManager = this.shouldRenderCodebaseManager();
 
         if (prevShouldRenderCodebaseManager != shouldRenderCodebaseManager && shouldRenderCodebaseManager) {

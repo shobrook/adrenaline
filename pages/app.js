@@ -23,13 +23,22 @@ export default function App() {
     const [renderSubscriptionModal, setRenderSubscriptionModal] = useState(false);
     const [fileContext, setFileContext] = useState("");
     const [displayCodeExplorer, setDisplayCodeExplorer] = useState(true);
+    const [isIndexing, setIsIndexing] = useState(false);
     const websocket = useRef(null);
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
 
     function onBeforeUnload(event) {
         // event.preventDefault();
-        websocket.current.close();
+
+        if (isIndexing) {
+            const isLeaving = confirm("Your codebase is still being indexed. Leaving will lose all progress.");
+            if (isLeaving) {
+                websocket.current.close();
+            }
+
+            return;
+        }
     }
 
     function openWebsocketConnection(callback) {
@@ -227,6 +236,9 @@ export default function App() {
         if (!isAuthenticated) { // TODO: Display blurred output and prompt user to sign up
             response.content = "You must be signed in to use the chatbot.";
             response.isComplete = true;
+        } else if (isIndexing) {
+            response.content = "We are currently indexing your codebase. Please try again in a few minutes.";
+            response.isComplete = true;
         }
 
         setMessages(prevMessages => {
@@ -239,7 +251,7 @@ export default function App() {
             return [...priorMessages, query, response];
         });
 
-        if (!isAuthenticated) {
+        if (!isAuthenticated || isIndexing) {
             return;
         }
 
@@ -254,8 +266,6 @@ export default function App() {
                         chat_history: getChatHistory()
                     };
                     ws.send(JSON.stringify(request));
-
-                    console.log("sent stuff")
 
                     Mixpanel.track("received_chatbot_response", { query: message });
                 })
@@ -329,6 +339,8 @@ export default function App() {
                                 setFileContext={setFileContext}
                                 fileContext={fileContext}
                                 isVisible={displayCodeExplorer}
+                                isIndexing={isIndexing}
+                                setIsIndexing={setIsIndexing}
                             />
                         </div>
                 }
