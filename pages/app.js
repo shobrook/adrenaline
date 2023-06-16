@@ -217,16 +217,24 @@ export default function App() {
         setRenderSubscriptionModal(isVisible);
     }
 
-    function getChatHistory() {
-        return messages
-            .slice(1)
-            .map(message => {
-                return {
-                    content: message.content,
-                    is_response: message.isResponse
-                };
-            })
-            .filter((message, index) => index < messages.length - 3);
+    function getChatHistory(chatMessages) {
+        let startingMessages;
+        if (!chatMessages[chatMessages.length - 1].isResponse) {
+            startingMessages = chatMessages.slice(0, chatMessages.length - 1);
+        } else if (!chatMessages[chatMessages.length - 1].isComplete) {
+            startingMessages = chatMessages.slice(0, chatMessages.length - 2);
+        } else {
+            startingMessages = chatMessages;
+        }
+
+        var x = startingMessages.slice(1).map(message => {
+            return {
+                content: message.content,
+                is_response: message.isResponse,
+            }
+        });
+        console.log(x);
+        return x;
     }
 
     function onSubmitQuery(message, regenerate = false) {
@@ -241,15 +249,16 @@ export default function App() {
             response.isComplete = true;
         }
 
-        setMessages(prevMessages => {
-            if (regenerate) {
-                let priorMessages = prevMessages.slice(0, prevMessages.length - 1);
-                return [...priorMessages, response];
-            }
+        let newMessages;
+        if (regenerate) {
+            let priorMessages = messages.slice(0, messages.length - 1);
+            newMessages = [...priorMessages, response];
+        } else {
+            let priorMessages = messages.slice(0, messages.length);
+            newMessages = [...priorMessages, query, response];
+        }
 
-            let priorMessages = prevMessages.slice(0, prevMessages.length);
-            return [...priorMessages, query, response];
-        });
+        setMessages(newMessages);
 
         if (!isAuthenticated || isIndexing) {
             return;
@@ -263,7 +272,7 @@ export default function App() {
                         token: token,
                         codebase_id: codebaseId,
                         query: message,
-                        chat_history: getChatHistory()
+                        chat_history: getChatHistory(newMessages)
                     };
                     ws.send(JSON.stringify(request));
 
