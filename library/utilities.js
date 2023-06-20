@@ -1,22 +1,25 @@
+export function buildTreeFromFlatList(filePaths) {
+    const root = { name: '', path: '', children: [] };
 
-export function buildTreeFromFlatList(flatListArray) {
-    if (!flatListArray) {
-        return [];
-    }
+    filePaths.forEach(filePath => {
+        const pathParts = filePath.split('/');
+        let currentNode = root;
 
-    let result = [];
-    let level = { result };
+        pathParts.forEach((part, index) => {
+            let node = currentNode.children.find(child => child.name === part);
 
-    flatListArray.forEach(path => {
-        path.split('/').reduce((r, name) => {
-            if (!r[name]) {
-                r[name] = { result: [] };
-                r.result.push({ name, path, children: r[name].result })
+            if (!node) {
+                node = {
+                    name: part,
+                    path: pathParts.slice(0, index + 1).join('/'),
+                    children: []
+                };
+                currentNode.children.push(node);
             }
 
-            return r[name];
-        }, level)
-    })
+            currentNode = node;
+        });
+    });
 
-    return result;
+    return root.children;
 }

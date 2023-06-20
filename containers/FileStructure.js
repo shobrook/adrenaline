@@ -138,7 +138,6 @@ export default class FileStructure extends Component {
                     defaultEndIcon={<CloseSquare />}
                     sx={{ height: 264, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
                 >
-
                     {
                         treeFiles.map((level, index) => this.renderTreeLevel(level, index))
                     }
