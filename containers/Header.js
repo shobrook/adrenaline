@@ -183,7 +183,7 @@ const UserNavDropdown = ({ onLogout, setShowSubscriptionModal, subscriptionPlan 
             {dropdownVisible && (
                 <div className="dropdown-menu">
                     <div className={"dropdown-item"}>
-                        <a onClick={onClickManageAccount}>Manage Account</a>
+                        <a onClick={onClickManageAccount}>Manage Subscription</a>
                     </div>
                     <div className={"dropdown-item"} onClick={onLogout}>
                         Logout
@@ -193,17 +193,6 @@ const UserNavDropdown = ({ onLogout, setShowSubscriptionModal, subscriptionPlan 
                             {subscriptionTier}
                         </div>
                     ) : null}
-                    <div className={"dropdown-item"}>
-                        <Button
-                            isPrimary
-                            onClick={() => {
-                                console.log("test")
-                                setShowSubscriptionModal(true)
-                            }}
-                        >
-                            Upgrade Account
-                        </Button>
-                    </div>
                 </div>
             )}
         </div>
