@@ -18,6 +18,8 @@
 @import "./ExampleRepository.css";
 @import "./FileSummary.css";
 @import "./ProgressBar.css";
+@import "./QuotedCode.css";
+@import "./FileChip.css";
 
 body {
     margin: 0;

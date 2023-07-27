@@ -1,6 +1,7 @@
 .progressTitle {
     display: flex;
     align-items: center;
+    padding-bottom: 10px;
 }
 
 .progressBarOuter {
@@ -23,4 +24,9 @@
 
 .css-pazuet {
     min-width: 40px !important;
+}
+
+.progressStep > span {
+    font-weight: 400 !important;
+    opacity: 0.75;
 }

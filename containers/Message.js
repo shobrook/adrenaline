@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HiRefresh } from "react-icons/hi";
 
 import PaywallMessage from "./PaywallMessage";
-import ProgressBar from "../components/ProgressBar";
+import IndeterminateProgressBar from "../components/IndeterminateProgressBar";
+import MarkdownWithCode from "../components/MarkdownWithCode";
 
 export default class Message extends Component {
     constructor(props) {
@@ -17,7 +18,6 @@ export default class Message extends Component {
 
         this.isLoading = this.isLoading.bind(this);
         this.renderMessage = this.renderMessage.bind(this);
-        this.renderLoadingSteps = this.renderLoadingSteps.bind(this);
         this.renderPaywall = this.renderPaywall.bind(this);
         this.renderOptions = this.renderOptions.bind(this);
         this.renderContext = this.renderContext.bind(this);
@@ -104,44 +104,76 @@ export default class Message extends Component {
 
     renderMessage() {
         const { children } = this.props;
+        const isLoading = this.isLoading();
 
-        const messageContent = children.split("```").map((text, index) => {
-            // TODO: Remove trailing newlines
+        // let testMarkdown = "First, we test some *generated code* below:";
+        // testMarkdown += "\n\n";
+        // testMarkdown += "```type:Generated,lang:Rust,path:,lines:0-0\n";
+        // testMarkdown += "fn foo<T>(t: T) -> bool {\n";
+        // testMarkdown += "    &foo < &bar<i32>(t)\n";
+        // testMarkdown += "}\n";
+        // testMarkdown += "```\n";
+        // testMarkdown += "\n";
+        // testMarkdown += "Then, we test some quoted code:\n";
+        // testMarkdown += "\n";
+        // testMarkdown += "```type:Quoted,lang:Rust,path:src/main.rs,lines:10-12\n";
+        // testMarkdown += "fn foo<T>(t: T) -> bool {\n";
+        // testMarkdown += "    &foo < &bar<i32>(t)\n";
+        // testMarkdown += "}\n";
+        // testMarkdown += "```\n";
+        // testMarkdown += "\n";
+        // testMarkdown += "## Foo\n";
+        // testMarkdown += "\n";
+        // testMarkdown += "These should result in base64-encoded XML output, while maintaining the rest of the markdown article.";
+        // testMarkdown += "\nHere is a filepath references [`src/foo.rs`](src/foo.rs#L50-L78) okay??"
 
-            if (index % 2) { // Code block
-                let codeLines = text.split('\n');
-                let programmingLanguage = 'text';
+        // markdown={isLoading ? 
+        //     children.replace(/\[\`[^`]*$|\[\`[^`]+\`\]\([^)]*$/, '')
+        //     : children}
+        // />)
+        return (<MarkdownWithCode
+                    repoName={"sequitur"}
+                    source={"github"}
+                    markdown={children}
+                />);
 
-                if (codeLines[0].match(/^[a-zA-Z]+$/)) {
-                    programmingLanguage = codeLines.shift();
-                }
-                codeLines = codeLines.join('\n');
+        // const messageContent = children.split("```").map((text, index) => {
+        //     // TODO: Remove trailing newlines
 
-                return (
-                    <SyntaxHighlighter
-                        className="codeBlock"
-                        language={programmingLanguage}
-                        style={dracula}
-                        showLineNumbers={true}
-                    >
-                        {codeLines.trim()}
-                    </SyntaxHighlighter>
-                );
-            }
+        //     if (index % 2) { // Code block
+        //         let codeLines = text.split('\n');
+        //         let programmingLanguage = 'text';
 
-            return (
-                <pre className={"plainText"}>{
-                    text.split("`").map((otherText, otherIndex) => {
-                        if (otherIndex % 2) { // In-line code
-                            return (<b>{`\`${otherText}\``}</b>);
-                        }
+        //         if (codeLines[0].match(/^[a-zA-Z]+$/)) {
+        //             programmingLanguage = codeLines.shift();
+        //         }
+        //         codeLines = codeLines.join('\n');
 
-                        return otherText.replace(/^\n/, "")
-                    })
-                }</pre>
-            );
-        });
-        return (<div className="messageContent">{messageContent}</div>);
+        //         return (
+        //             <SyntaxHighlighter
+        //                 className="codeBlock"
+        //                 language={programmingLanguage}
+        //                 style={dracula}
+        //                 showLineNumbers={true}
+        //             >
+        //                 {codeLines.trim()}
+        //             </SyntaxHighlighter>
+        //         );
+        //     }
+
+        //     return (
+        //         <pre className={"plainText"}>{
+        //             text.split("`").map((otherText, otherIndex) => {
+        //                 if (otherIndex % 2) { // In-line code
+        //                     return (<b>{`\`${otherText}\``}</b>);
+        //                 }
+
+        //                 return otherText.replace(/^\n/, "")
+        //             })
+        //         }</pre>
+        //     );
+        // });
+        // return (<div className="messageContent">{messageContent}</div>);
     }
 
     renderPaywall() {
@@ -152,24 +184,6 @@ export default class Message extends Component {
                 <PaywallMessage onUpgradePlan={onUpgradePlan} />
             );
         }
-    }
-
-    renderLoadingSteps() {
-        const { loadingSteps } = this.props;
-
-        return loadingSteps.map(loadingStep => {
-            const { type, content } = loadingStep;
-
-            if (type.toLowerCase() == "progress") {
-                return null;
-            }
-
-            return (
-                <div className="reasoningStep">
-                    <span className="stepType">{type}:</span> <span className="stepContent">{content}</span>
-                </div>
-            );
-        });
     }
 
     renderContext() {
@@ -206,17 +220,16 @@ export default class Message extends Component {
     /* Lifecycle Methods */
 
     render() {
-        const { isResponse, isPaywalled, progress } = this.props;
+        const { isResponse, isPaywalled, progressMessage } = this.props;
         const isLoading = this.isLoading();
 
         return (
             <>
                 <div className="chatMessageContainer">
-                    {this.renderLoadingSteps()}
                     {
-                        progress != null ? (
+                        progressMessage != null ? (
                             <div className={`chatMessage ${isResponse ? "aiResponse" : ""} ${isPaywalled ? "blockedMessage" : ""}`}>
-                                <ProgressBar key={0} step="Generating response" value={progress} />
+                                <IndeterminateProgressBar key={0} message={progressMessage} />
                             </div>
                         ) : (
                             <>
