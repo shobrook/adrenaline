@@ -13,14 +13,13 @@ import GeneratedCode from '../components/GeneratedCode';
 import FileChip from '../components/FileChip';
 
 type Props = {
-  repoName: string;
+  repoPath: string;
+  repoBranch: string;
   markdown: string;
-  source: string;
+  repoSource: string;
 };
 
-// type:Quoted,lang:Rust,path:src/main.rs,lines:10-12
-
-const MarkdownWithCode = ({markdown, repoName, source}: Props) => {
+const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource}: Props) => {
   const components = useMemo(() => {
     return {
       a(
@@ -48,13 +47,24 @@ const MarkdownWithCode = ({markdown, repoName, source}: Props) => {
           }
         }
 
-        // start ? `${start - 1}_${(end ?? start) - 1}` : undefined,
+        let fileUrl = `https://${repoSource}.com/${repoPath}/`;
+        if (repoSource == "github") {
+          fileUrl += `blob/${repoBranch}/${filePath}`;
+          if (start) {
+            fileUrl += `#L${start}-L${end ?? start}`
+          }
+        } else if (repoSource == "gitlab") {
+          fileUrl += `-/blob/${repoBranch}/${filePath}`;
+          if (start) {
+            fileUrl += `#L${start}-${end ?? start}`
+          }
+        }
 
         return (
           <FileChip
             fileName={fileName || filePath || ''}
             skipIcon={!!fileName && fileName !== filePath}
-            onClick={() => {}}
+            onClick={() => window.open(fileUrl, "_blank")}
           />
         );
       },
@@ -68,6 +78,24 @@ const MarkdownWithCode = ({markdown, repoName, source}: Props) => {
         const lines = matchLines?.[1].split("-").map((l) => Number(l)) || [];
         // colorPreview?
       
+        let fileUrl = "";
+        if (matchPath?.[1] && matchType?.[1] === "Quoted") {
+          fileUrl = `https://${repoSource}.com/${repoPath}/`;
+          if (repoSource == "github") {
+            fileUrl += `blob/${repoBranch}/${matchPath?.[1]}`;
+
+            if (lines[0]) {
+              fileUrl += `#L${lines[0] - 1}-L${lines[1] ?? lines[0] - 1}`
+            }
+          } else if (repoSource == "gitlab") {
+            fileUrl += `-/blob/${repoBranch}/${matchPath?.[1]}`;
+
+            if (lines[0]) {
+              fileUrl += `#L${lines[0] - 1}-${lines[1] ?? lines[0] - 1}`
+            }
+          }
+        }
+
         return (matchType?.[1] || matchLang?.[1]) && typeof children[0] === "string" ? (
           matchType?.[1] === "Quoted" ? (
             <QuotedCode
@@ -75,8 +103,8 @@ const MarkdownWithCode = ({markdown, repoName, source}: Props) => {
               language={matchLang?.[1] || ""}
               filePath={matchPath?.[1] || ""}
               startLine={lines[0] ? lines[0] - 1 : null}
-              repoName={repoName}
-              repoSource={source}
+              repoSource={repoSource}
+              onClick={() => fileUrl ? window.open(fileUrl, "_blank") : null}
             />
           ) : (
             <GeneratedCode code={code} language={matchLang?.[1] || ""} />
@@ -87,7 +115,7 @@ const MarkdownWithCode = ({markdown, repoName, source}: Props) => {
           );
       }
     }
-  }, [repoName, source]);
+  }, [repoPath, repoSource, repoBranch]);
 
   return (<ReactMarkdown components={components}>{markdown}</ReactMarkdown>);
 }

@@ -6,7 +6,7 @@ const GeneratedCode = ({ code, language }) => {
         <div className="generatedCode">
             <SyntaxHighlighter
                 className="codeBlock"
-                language={language}
+                language={language.toLowerCase()}
                 style={dracula}
                 showLineNumbers={true}
             >

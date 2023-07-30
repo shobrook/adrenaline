@@ -101,7 +101,7 @@ export default function App() {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let response = prevMessages[prevMessages.length - 1];
 
-                    response.content = message;
+                    response.content = is_finished ? response.content : message;
                     response.isComplete = is_finished;
                     response.isPaywalled = is_paywalled;
                     response.sources = sources.map(filePath => new Source(filePath));

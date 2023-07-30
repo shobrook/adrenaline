@@ -3,17 +3,7 @@ import { ReactElement } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
-const QuotedCode = ({ code, language, filePath, startLine, repoPath, repoSource, }) => {
-    // const onClickCode = () => {
-    //     const numLines = code.split("\n").length;
-    //     const endLine = startLine ? startLine + numLines : 0;
-    //     const url = `${repoSource == "github" ? "https://github.com" : "https://gitlab.com"}/${repoName}/blob/master/${filePath}`;
-
-    //     https://github.com/shobrook/sequitur/blob/master/setup.py#L6-L10
-    //     // TODO: Build link to GitHub/GitLab
-    // }
-    const onClickCode = () => {}
-
+const QuotedCode = ({ code, language, filePath, startLine, repoSource, onClick }) => {
     let filePathParts = filePath.split("/");
     let styledFilePath : ReactElement[] = [];
     filePathParts.forEach((part, index) => {
@@ -30,13 +20,13 @@ const QuotedCode = ({ code, language, filePath, startLine, repoPath, repoSource,
 
     return (
         <div className="quotedCode">
-            <div className="filePathHeader" onClick={onClickCode}>
+            <div className="filePathHeader" onClick={onClick}>
                 <span className="filePath">{styledFilePath}</span>
                 {repoSource == "github" ? (<img src="github_icon.png" />) : (<img src="/gitlab.svg" />)}
             </div>
             <SyntaxHighlighter
                 className="codeBlock"
-                language={language}
+                language={language.toLowerCase()}
                 style={dracula}
                 showLineNumbers={true}
             >

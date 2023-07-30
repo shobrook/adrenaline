@@ -106,35 +106,14 @@ export default class Message extends Component {
         const { children } = this.props;
         const isLoading = this.isLoading();
 
-        // let testMarkdown = "First, we test some *generated code* below:";
-        // testMarkdown += "\n\n";
-        // testMarkdown += "```type:Generated,lang:Rust,path:,lines:0-0\n";
-        // testMarkdown += "fn foo<T>(t: T) -> bool {\n";
-        // testMarkdown += "    &foo < &bar<i32>(t)\n";
-        // testMarkdown += "}\n";
-        // testMarkdown += "```\n";
-        // testMarkdown += "\n";
-        // testMarkdown += "Then, we test some quoted code:\n";
-        // testMarkdown += "\n";
-        // testMarkdown += "```type:Quoted,lang:Rust,path:src/main.rs,lines:10-12\n";
-        // testMarkdown += "fn foo<T>(t: T) -> bool {\n";
-        // testMarkdown += "    &foo < &bar<i32>(t)\n";
-        // testMarkdown += "}\n";
-        // testMarkdown += "```\n";
-        // testMarkdown += "\n";
-        // testMarkdown += "## Foo\n";
-        // testMarkdown += "\n";
-        // testMarkdown += "These should result in base64-encoded XML output, while maintaining the rest of the markdown article.";
-        // testMarkdown += "\nHere is a filepath references [`src/foo.rs`](src/foo.rs#L50-L78) okay??"
-
-        // markdown={isLoading ? 
-        //     children.replace(/\[\`[^`]*$|\[\`[^`]+\`\]\([^)]*$/, '')
-        //     : children}
-        // />)
+        let markdown = isLoading ? 
+            children.replace(/\[\`[^`]*$|\[\`[^`]+\`\]\([^)]*$/, '')
+            : children;
         return (<MarkdownWithCode
-                    repoName={"sequitur"}
-                    source={"github"}
-                    markdown={children}
+                    repoPath={"shobrook/sequitur"}
+                    repoSource={"github"}
+                    repoBranch={"master"}
+                    markdown={markdown}
                 />);
 
         // const messageContent = children.split("```").map((text, index) => {

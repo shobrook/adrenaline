@@ -17,6 +17,7 @@
     z-index: 2;
     padding-top: 1px;
     padding-bottom: 1px;
+    min-height: 25px;
 }
 
 .loadingMessage {
@@ -138,6 +139,7 @@
 .regenerateAnswer {
     margin-top: 3px;
     cursor: pointer;
+    padding-bottom: 10px;
 }
 
 .regenerateAnswer:hover {
