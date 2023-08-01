@@ -134,12 +134,12 @@
     margin-top: 22.5px;
     /* justify-content: flex-start; */
     justify-content: space-between;
+    padding-bottom: 15px;
 }
 
 .regenerateAnswer {
     margin-top: 3px;
     cursor: pointer;
-    padding-bottom: 10px;
 }
 
 .regenerateAnswer:hover {
