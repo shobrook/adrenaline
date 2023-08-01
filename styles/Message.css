@@ -15,6 +15,9 @@
     width: calc(100% - 15px - 15px);
     overflow-wrap: break-word;
     z-index: 2;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    min-height: 25px;
 }
 
 .loadingMessage {
@@ -131,6 +134,7 @@
     margin-top: 22.5px;
     /* justify-content: flex-start; */
     justify-content: space-between;
+    padding-bottom: 15px;
 }
 
 .regenerateAnswer {

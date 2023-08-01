@@ -1,0 +1,48 @@
+.quotedCode {
+    background-color: #181b26;
+    border-radius: 7px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+
+.filePathHeader {
+    height: 45px;
+    font-family: "Helvetica Neue";
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.filePathHeader > img {
+    height: 20px;
+    opacity: 0.75;
+    cursor: pointer;
+}
+
+.filePathHeader > img:hover {
+    opacity: 1.0;
+}
+
+.quotedCode > .codeBlock {
+    border-radius: 0px 0px 5px 5px !important;
+    background-color: #101117 !important;
+}
+
+.filePathPart {
+    color: #788AAD;
+}
+
+.filePathPartDivider {
+    color: #788aad40;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.filePathPartFinal {
+    color: #DBE2F0;
+}

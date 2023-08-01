@@ -69,6 +69,8 @@ export default function App() {
                 error
             } = JSON.parse(event.data);
 
+            console.log(event.data)
+
             if (error != "") {
                 toast.error(error, {
                     style: {
@@ -84,27 +86,11 @@ export default function App() {
                 return;
             }
 
-            if (type === "loading") {
-                const { type: stepType, content } = data;
-
+            if (type === "progress") {
                 setMessages(prevMessages => {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let lastMessage = prevMessages[prevMessages.length - 1];
-
-                    if (lastMessage.steps.length === 0) { // First loading step
-                        lastMessage.steps.push(data);
-                    } else {
-                        const lastLoadingStep = lastMessage.steps[lastMessage.steps.length - 1];
-                        if (lastLoadingStep.type === stepType) { // Same loading step
-                            lastLoadingStep.content += content;
-                            lastMessage.steps[lastMessage.steps.length - 1] = lastLoadingStep;
-                        } else if (stepType.toLowerCase() == "progress") { // Progress update
-                            lastMessage.progress += 1;
-                            lastMessage.progressTarget = progress_target;
-                        } else { // New loading step
-                            lastMessage.steps.push(data);
-                        }
-                    }
+                    lastMessage.progressMessage = data;
 
                     return [...priorMessages, lastMessage];
                 });
@@ -115,12 +101,11 @@ export default function App() {
                     const priorMessages = prevMessages.slice(0, prevMessages.length - 1);
                     let response = prevMessages[prevMessages.length - 1];
 
-                    response.content += message;
+                    response.content = is_finished ? response.content : message;
                     response.isComplete = is_finished;
                     response.isPaywalled = is_paywalled;
                     response.sources = sources.map(filePath => new Source(filePath));
-                    response.progressTarget = null;
-                    response.steps = response.steps.filter(step => step.type.toLowerCase() != "progress");
+                    response.progressMessage = null;
 
                     return [...priorMessages, response];
                 });
