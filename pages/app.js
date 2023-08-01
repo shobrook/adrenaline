@@ -13,7 +13,7 @@ import SubscriptionModal from "../containers/SubscriptionModal";
 import Mixpanel from "../library/mixpanel";
 import { Source, Message } from "../library/data";
 
-const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error. \nI work best with understanding Python, Javascript, and Typescript."
+const WELCOME_MESSAGE = "I'm here to help you understand your codebase. Get started by importing a GitHub repository or a code snippet. You can ask me to explain how something works, where something is implemented, or even how to debug an error.\n\nI work best with understanding Python, Javascript, and Typescript."
 
 export default function App() {
     const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
