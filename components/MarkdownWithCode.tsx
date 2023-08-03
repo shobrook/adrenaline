@@ -96,7 +96,7 @@ const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource}: Props) =
           }
         }
 
-        return (matchType?.[1] || matchLang?.[1]) && typeof children[0] === "string" ? (
+        return !inline && (matchType?.[1] || matchLang?.[1]) && typeof children[0] === "string" ? (
           matchType?.[1] === "Quoted" ? (
             <QuotedCode
               code={code}
@@ -109,7 +109,7 @@ const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource}: Props) =
           ) : (
             <GeneratedCode code={code} language={matchLang?.[1] || ""} />
           )) : (
-            <code {...props} className={className}>
+            <code {...props} className={className} style={{color: "#FFABFF", fontWeight: 600}}>
               {children}
             </code>
           );

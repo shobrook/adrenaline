@@ -33,7 +33,10 @@ class ChatBot extends Component {
             setFileContext,
             codebaseId,
             onToggleBrowseCode,
-            isBrowseCodeToggled
+            isBrowseCodeToggled,
+            repoPath,
+            repoSource,
+            repoBranch
         } = this.props;
 
         let suggestedMessages;
@@ -75,7 +78,6 @@ class ChatBot extends Component {
                                 sources,
                                 progressMessage
                             } = message;
-
                             return (
                                 <div ref={(el) => {
                                     if (index == messages.length - 1) {
@@ -93,6 +95,9 @@ class ChatBot extends Component {
                                         isLastMessage={index == messages.length - 1}
                                         setFileContext={setFileContext}
                                         onRegenerateAnswer={() => onSubmitQuery(content, true)}
+                                        repoPath={repoPath}
+                                        repoSource={repoSource}
+                                        repoBranch={repoBranch}
                                     >
                                         {content}
                                     </Message>

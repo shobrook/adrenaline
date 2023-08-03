@@ -28,6 +28,17 @@ export default function App() {
     const prevAuthState = useRef(isAuthenticated);
     const router = useRouter();
 
+    const sources = ["github", "gitlab"];
+
+    let repoPath = "";
+    let repoSource = "";
+    let repoBranch = "";
+    if (sources.some(source => codebaseId.startsWith(source))) {
+        repoPath = codebaseId.split("/").slice(1).join("/");
+        repoSource = codebaseId.split("/")[0];
+        repoBranch = "main"; // TODO: Get the right branch
+    }
+
     function onBeforeUnload(event) {
         // event.preventDefault();
 
@@ -324,6 +335,9 @@ export default function App() {
                                     codebaseId={codebaseId}
                                     onToggleBrowseCode={onToggleBrowseCode}
                                     isBrowseCodeToggled={displayCodeExplorer}
+                                    repoPath={repoPath}
+                                    repoSource={repoSource}
+                                    repoBranch={repoBranch}
                                 />
                             </motion.div>
                             <CodeExplorer

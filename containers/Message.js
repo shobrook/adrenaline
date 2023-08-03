@@ -103,16 +103,16 @@ export default class Message extends Component {
     }
 
     renderMessage() {
-        const { children } = this.props;
+        const { repoPath, repoSource, repoBranch, children } = this.props;
         const isLoading = this.isLoading();
 
         let markdown = isLoading ? 
             children.replace(/\[\`[^`]*$|\[\`[^`]+\`\]\([^)]*$/, '')
             : children;
         return (<MarkdownWithCode
-                    repoPath={"shobrook/sequitur"}
-                    repoSource={"github"}
-                    repoBranch={"master"}
+                    repoPath={repoPath}
+                    repoSource={repoSource}
+                    repoBranch={repoBranch}
                     markdown={markdown}
                 />);
 
