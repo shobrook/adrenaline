@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
+import Button from "../components/Button";
 import Header from "../containers/Header";
 import ChatBot from "../containers/ChatBot";
 import CodeExplorer from "../containers/CodeExplorer";
@@ -386,6 +387,27 @@ export default function App() {
             localStorage.setItem(codebaseId, JSON.stringify(messages));
         }
     }, [messages]);
+
+    useEffect(() => {
+        toast((t) => (
+            <span style={{display: "flex", flexDirection: "column"}}>
+                <span style={{marginBottom: "10px"}}>
+                    Adrenaline is currently in <b>early alpha.</b> If you need help or find a bug, please <a style={{color: "#4393E7", cursor: "pointer", textDecoration: "none"}} href="mailto: support@useadrenaline.com"><b>contact us.</b></a>
+                </span>
+                <Button onClick={() => toast.dismiss(t.id)}>
+                    Dismiss
+                </Button>
+            </span>
+        ), { 
+            position: "top-center", 
+            duration: Infinity, 
+            style: {
+                padding: '15px',
+                backgroundColor: "#313A5B",
+                color: "white"
+            } 
+        });
+    }, [])
 
     return (
         <>
