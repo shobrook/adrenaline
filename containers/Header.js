@@ -182,6 +182,9 @@ const UserNavDropdown = ({ onLogout, setShowSubscriptionModal, subscriptionPlan 
             </div>
             {dropdownVisible && (
                 <div className="dropdown-menu">
+                    <div className="dropdown-item">
+                        <a href="mailto: support@useadrenaline.com">Report a bug</a>
+                    </div>
                     <div className={"dropdown-item"}>
                         <a onClick={onClickManageAccount}>Manage Subscription</a>
                     </div>
