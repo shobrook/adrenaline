@@ -1,0 +1,1 @@
+// window.open(window.location.origin, '_blank');

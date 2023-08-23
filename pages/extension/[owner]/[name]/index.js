@@ -1,7 +1,8 @@
 import * as React from 'react';
-import ExtensionScreen from "/components/ExtensionScreen";
+import Extension from "/extension/Extension";
 
 const ExtensionPage = () => {
-  return <ExtensionScreen />;
+  return <Extension />;
 };
+
 export default ExtensionPage;
