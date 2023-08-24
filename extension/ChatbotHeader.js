@@ -5,17 +5,18 @@ export default class ChatbotHeader extends Component {
     constructor(props) {
         super(props);
 
-        this.onExit = this.onExit.bind(this);
+        this.onMinimize = this.onMinimize.bind(this);
+        this.onClose = this.onClose.bind(this);
     }
 
     /* Event Handlers */
 
-    onPin() {
-        window.parent.postMessage("pinIframe", "*"); // TODO: Restrict origin
+    onMinimize() {
+        window.parent.postMessage("minimizeChatbot", "*"); // TODO: Restrict origin
     }
 
-    onExit() {
-        window.parent.postMessage("closeIframe", "*"); // TODO: Restrict origin
+    onClose() {
+        window.parent.postMessage("closeChatbot", "*"); // TODO: Restrict origin
     }
 
     /* Lifecycle Methods */
@@ -25,11 +26,10 @@ export default class ChatbotHeader extends Component {
 
         return (
             <div className="ext-chatBotHeader">
-                {/* TODO: Show 'View on Adrenaline' button */}
                 <span className="ext-chatBotLabel">Adrenaline <span>Chat</span></span>
                 <div className="ext-chatBotOptions">
-                    <BsFullscreenExit />
-                    <BsXCircle onClick={this.onExit} />
+                    <BsFullscreenExit onClick={this.onMinimize} />
+                    <BsXCircle onClick={this.onClose} />
                 </div>
             </div>
         );
