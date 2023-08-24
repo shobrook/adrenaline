@@ -7,10 +7,10 @@ import AuthModal from "./AuthModal";
 
 class Repository {
   constructor(owner, name, branch="main") {
-    self.owner = owner;
-    self.name = name;
-    self.branch = branch;
-    self.fullPath = `${owner}/${name}`;
+    this.owner = owner;
+    this.name = name;
+    this.branch = branch;
+    this.fullPath = `${owner}/${name}`;
   }
 }
 
@@ -36,17 +36,17 @@ const Extension = () => {
   const onCloseModal = () => window.parent.postMessage('closeIframe', '*');
 
   useEffect(() => {
-    if (router.isReady) {
+    if (router.isReady && Object.keys(router.query).length > 0) {
       const { owner, name } = router.query; // TODO: Pass in default branch as well, or get it from API
       setRepository(new Repository(owner, name));
     }
-  }, [router.isReady])
+  }, [router.isReady, router.query])
 
   return (
     <div>
       {isModalOpen && (
         isAuthenticated ? (
-          repository !== null && (
+          repository && (
             <ChatBot repository={repository} onCloseModal={onCloseModal} />
           )
         ) : (<AuthModal onCloseModal={onCloseModal} />)

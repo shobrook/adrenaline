@@ -43,7 +43,7 @@ const buildChatHistory = messages => {
 }
 
 const buildWelcomeMessage = repositoryName => {
-    const messageContent = `Hi, I’m your AI expert on ${repositoryName}. Ask me anything about this codebase.`;
+    const messageContent = `Hi, I'm your AI expert on ${repositoryName}. Ask me anything about this codebase.`;
     const welcomeMessage = new Message(messageContent, true, true);
     
     return welcomeMessage;
@@ -233,9 +233,6 @@ class ChatBot extends Component {
         const { repository } = this.props;
         const { getAccessTokenSilently } = this.props.auth0;
 
-        console.log("mount")
-        console.log(repository)
-
         this.setState({ messages: [buildWelcomeMessage(repository.name)] });
         
         // getAccessTokenSilently().then(token => {
@@ -265,9 +262,6 @@ class ChatBot extends Component {
     render() {
         const { repository } = this.props;
         const { messages, indexingStatus } = this.state;
-
-        console.log("render")
-        console.log(repository)
 
         return (
             <div className="ext-chatbotContainer">
