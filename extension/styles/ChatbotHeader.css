@@ -1,0 +1,38 @@
+.chatBotHeader {
+    height: 60px;
+    min-height: 60px;
+    border-bottom: 2px solid #262A39;
+    background-color: #181B26;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 5px 5px 0px 0px;
+    color: #DBE2F0;
+}
+
+.chatBotLabel {
+    font-weight: 600;
+}
+
+.chatBotOptions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chatBotOptions > svg {
+    stroke-width: 1px;
+    height: 15px;
+    width: 15px;
+    color: #DBE2F0;
+    opacity: 0.75;
+    transition: 0.15s;
+    overflow: visible;
+    cursor: pointer;
+}
+
+.chatBotOptions > svg:hover {
+    opacity: 1.0;
+}
