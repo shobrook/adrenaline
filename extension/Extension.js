@@ -4,15 +4,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import ChatBot from "./Chatbot";
 import AuthModal from "./AuthModal";
-
-class Repository {
-  constructor(owner, name, branch="main") {
-    this.owner = owner;
-    this.name = name;
-    this.branch = branch;
-    this.fullPath = `${owner}/${name}`;
-  }
-}
+import { Repository } from "./lib/dtos";
 
 const Extension = () => {
   const [repository, setRepository] = useState(null);

@@ -11,11 +11,11 @@ export default class ChatbotHeader extends Component {
     /* Event Handlers */
 
     onPin() {
-        return; // TODO
+        window.parent.postMessage("pinIframe", "*"); // TODO: Restrict origin
     }
 
     onExit() {
-        window.parent.postMessage('closeIframe', '*')
+        window.parent.postMessage("closeIframe", "*"); // TODO: Restrict origin
     }
 
     /* Lifecycle Methods */

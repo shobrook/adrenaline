@@ -1,21 +1,16 @@
 import React, { Component } from "react";
 import IndeterminateProgressBar from "../components/IndeterminateProgressBar";
 import MarkdownWithCode from "../components/MarkdownWithCode";
+import { isResponseLoading } from "./lib/utilities";
 
 export default class Message extends Component {
     constructor(props) {
         super(props);
 
-        this.isLoading = this.isLoading.bind(this);
         this.renderMessage = this.renderMessage.bind(this);
     }
 
     /* Utilities */
-
-    isLoading() {
-        const { message } = this.props;
-        return message.isResponse && message.content == "" && !message.isComplete;
-    }
 
     renderProgress() {
         const { message } = this.props;
@@ -26,7 +21,7 @@ export default class Message extends Component {
                     <IndeterminateProgressBar key={0} message={message.progressMessage} />
                 </div>
             )
-        } else if (this.isLoading()) {
+        } else if (isResponseLoading(message)) {
             return (
                 <div className={`chatMessage ${message.isResponse ? "aiResponse" : ""}`}>
                     <IndeterminateProgressBar key={0} message="Understanding your question" />
@@ -39,13 +34,12 @@ export default class Message extends Component {
 
     renderMessage() {
         const { repository, message } = this.props;
-        const isLoading = this.isLoading();
 
-        if (isLoading) {
+        if (isResponseLoading(message)) {
             return null;
         }
 
-        let markdown = isLoading ? 
+        let markdown = isResponseLoading(message) ? 
             message.content.replace(/\[\`[^`]*$|\[\`[^`]+\`\]\([^)]*$/, '')
             : message.content;
 
