@@ -270,12 +270,12 @@ class ChatBot extends Component {
         console.log(repository)
 
         return (
-            <div className="chatbotContainer">
+            <div className="ext-chatbotContainer">
                 <IndexingStatusNotification 
                     indexingStatus={indexingStatus} 
                     setIndexingStatus={this.onChangeIndexingStatus} 
                 />
-                <div className={`chatbot ${indexingStatus}`}>
+                <div className={`ext-chatbot ${indexingStatus}`}>
                     <ChatbotHeader repository={repository} />
                     <Messages messages={messages} repository={repository} />
                     <MessageInput 

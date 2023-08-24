@@ -43,8 +43,8 @@ export default class Messages extends Component {
 
         return (
             <>
-                <div className="topMessagesShadow" />
-                <div className="messages" onScroll={this.onScroll}>
+                <div className="ext-topMessagesShadow" />
+                <div className="ext-messages" onScroll={this.onScroll}>
                     {messages.map((message, index) => {
                         return (
                             <div ref={(el) => {
@@ -61,7 +61,7 @@ export default class Messages extends Component {
                         );
                     })}
                 </div>
-                <div className="bottomMessagesShadow" />
+                <div className="ext-bottomMessagesShadow" />
             </>
         );
     }

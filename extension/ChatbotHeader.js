@@ -6,10 +6,10 @@ export default class ChatbotHeader extends Component {
         const { repository } = this.props;
 
         return (
-            <div className="chatBotHeader">
+            <div className="ext-chatBotHeader">
                 {/* TODO: Show 'View on Adrenaline' button */}
-                <span className="chatBotLabel">Adrenaline <span>Chat</span></span>
-                <div className="chatBotOptions">
+                <span className="ext-chatBotLabel">Adrenaline <span>Chat</span></span>
+                <div className="ext-chatBotOptions">
                     <BsFullscreenExit />
                     <BsXCircle />
                 </div>

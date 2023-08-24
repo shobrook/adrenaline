@@ -49,21 +49,21 @@ export default class MessageInput extends Component {
         const { query } = this.state;
 
         return (
-            <div className="chatbotInputContainer">
-                <form className="chatForm" onSubmit={this.onSubmitInput}>
-                    <div className="chatInputContainer">
+            <div className="ext-chatbotInputContainer">
+                <form className="ext-chatForm" onSubmit={this.onSubmitInput}>
+                    <div className="ext-chatInputContainer">
                         <TextareaAutosize
                             ref={this.textAreaRef}
                             minRows={1}
                             maxRows={10}
-                            className="chatTextarea"
+                            className="ext-chatTextarea"
                             value={query}
                             onChange={this.onChangeQuery}
                             placeholder="Ask a question..."
                             onKeyDown={this.onKeyDown}
                         />
                         <Button
-                            className="chatSubmitButton"
+                            className="ext-chatSubmitButton"
                             isPrimary
                             type="submit"
                             onClick={this.onSubmitInput}
@@ -72,7 +72,7 @@ export default class MessageInput extends Component {
                         </Button>
                     </div>
                 </form>
-                <div className="chatbotOptions" onClick={onClearConversation}>
+                <div className="ext-chatbotOptions" onClick={onClearConversation}>
                     <HiRefresh size={16} />
                     <span>Clear conversation</span>
                 </div>

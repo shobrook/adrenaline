@@ -1,4 +1,4 @@
-.messages {
+.ext-messages {
     height: calc(100% - 120px);
     background-color: #14171F;
     padding-left: 15px;
@@ -7,7 +7,7 @@
     overflow: auto;
 }
 
-.topMessagesShadow {
+.ext-topMessagesShadow {
     height: 15px;
     width: 100%;
     z-index: 1000;
@@ -17,7 +17,7 @@
     background: linear-gradient( rgba(20, 23, 31, 0.6), rgba(20, 23, 31, 0));
 }
 
-/* .bottomMessagesShadow {
+/* .ext-bottomMessagesShadow {
     height: 15px;
     width: 100%;
     z-index: 1000;

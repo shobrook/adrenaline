@@ -1,4 +1,201 @@
-.chatMessage {
+.ext-chatMessageContainer {
+    margin-bottom: 22.5px;
+}
+
+.ext-chatMessage {
+    /* display: flex;
+    flex-direction: column;
+    justify-content: flex-start; */
+    position: relative;
+    padding: 15px;
+    border-radius: 7px;
     background-color: #8204B3;
     color: #DBE2F0;
+    align-self: flex-end;
+    width: calc(100% - 15px - 15px);
+    overflow-wrap: break-word;
+    z-index: 2;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    min-height: 25px;
+}
+
+.ext-loadingMessage {
+    background: linear-gradient(90deg,#0000 33%,rgba(80, 90, 125, 0.23) 50%,#0000 66%) #2B3044;
+    background-size: 300% 100%;
+    animation: shine 2s infinite;   
+    border: none !important;
+}
+
+@keyframes shine {
+    0% {
+        background-position: right;    
+    }
+    /*100% {
+        background-position: left; it's the default value, no need to define it
+    }*/
+}
+
+.ext-chatMessage > pre {
+    background-color: #29293d !important;
+    font-size: 14px !important;
+    margin-top: 15px !important;
+}
+
+.ext-aiResponse {
+    /* background-color: #1E212E !important; */
+    background-color: #2B3044 !important;
+    align-self: flex-start !important;
+}
+
+.ext-aiSenderId {
+    background-color: #FFFFFF !important;
+    color: #101018 !important;
+}
+
+.ext-messageContent {
+    font-weight: 400;
+    /* padding-left: 15px; */
+}
+
+.ext-codeBlock {
+    font-size: 14px;
+    /*margin: 1rem 0 !important;*/
+    border-radius: 7px !important;
+}
+
+.ext-regenerateResponse {
+    margin-top: 15px;
+    padding-left: 15px;
+    display: flex;
+    justify-content: flex-end;
+    cursor: pointer;
+    /* width: 100%; */
+}
+
+.ext-regenerateResponse:hover {
+    opacity: 0.75;
+}
+
+.ext-regenerateResponse > img {
+    height: 15px;
+}
+
+.ext-chatMessageOptions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.ext-blockedMessage {
+    background-color: #2b3044 !important;
+    height: 100px;
+}
+
+.ext-blocked {
+    filter: blur(4px);
+    opacity: 0.4;
+}
+
+.ext-messageContainer .spinner {
+    margin: 0 !important;
+}
+
+.ext-plainText{
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+.ext-reasoningStep {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #4B5A91;
+    border-radius: 7px;
+    margin-bottom: 7px;
+    width: fit-content;
+    font-size: 14px;
+}
+
+.ext-stepType {
+    font-weight: 600;
+}
+
+.ext-stepContent {
+    opacity: 0.75;
+}
+
+.ext-responseOptions {
+    display: flex;
+    align-items: center;
+    margin-top: 22.5px;
+    /* justify-content: flex-start; */
+    justify-content: space-between;
+    padding-bottom: 15px;
+}
+
+.ext-regenerateAnswer {
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.ext-regenerateAnswer:hover {
+    opacity: 0.75;
+}
+
+.ext-optionButton:first-child {
+    margin-right: 10px;
+}
+
+.ext-optionButton {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #181b26b0;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.ext-optionButton:hover {
+    background-color: #181b26;
+}
+
+.ext-optionsDisplay {
+    margin-top: 7px;
+    background-color: #1d212f;
+    border-radius: 7px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ext-contextSource {
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    opacity: 0.85;
+    font-weight: 500;
+}
+
+.ext-contextSource:hover {
+    opacity: 1.0;
+}
+
+.ext-contextSource:first-child {
+    margin-top: 0px;
+}
+
+.ext-contextSource > svg {
+    padding-right: 15px;
+}
+
+.ext-isClicked {
+    background-color: #181b26;
 }

@@ -1,4 +1,4 @@
-.chatBotHeader {
+.ext-chatBotHeader {
     height: 60px;
     min-height: 60px;
     border-bottom: 2px solid #262A39;
@@ -12,21 +12,21 @@
     color: #DBE2F0;
 }
 
-.chatBotLabel {
+.ext-chatBotLabel {
     font-weight: 600;
 }
 
-.chatBotLabel > span {
+.ext-chatBotLabel > span {
     font-weight: 400;
 }
 
-.chatBotOptions {
+.ext-chatBotOptions {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.chatBotOptions > svg {
+.ext-chatBotOptions > svg {
     stroke-width: 0.8px;
     height: 15px;
     width: 15px;
@@ -37,6 +37,6 @@
     cursor: pointer;
 }
 
-.chatBotOptions > svg:hover {
+.ext-chatBotOptions > svg:hover {
     opacity: 1.0;
 }

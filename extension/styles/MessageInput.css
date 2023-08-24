@@ -1,4 +1,4 @@
-.chatbotInputContainer {
+.ext-chatbotInputContainer {
     padding-left: 15px;
     padding-right: 15px;
     padding-bottom: 15px;
@@ -6,21 +6,21 @@
     flex-direction: column;
 }
 
-.chatContainer {
+.ext-chatContainer {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
 }
 
-.chatForm {
+.ext-chatForm {
     align-items: stretch;
     display: flex;
     flex-direction: row;
     background-color: #181B26;
 }
 
-.chatInputContainer {
+.ext-chatInputContainer {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -32,7 +32,7 @@
     color: #fff;
 }
 
-.chatTextarea {
+.ext-chatTextarea {
     width: 100%;
     /*max-height: 300px;*/
     overflow: auto;
@@ -47,14 +47,14 @@
     outline: none;
 }
 
-.chatSubmitButton {
+.ext-chatSubmitButton {
     position: absolute;
     right: 1rem;
     bottom: 0.65rem;
     background-color: #8204B3 !important;
 }
 
-.inputField {
+.ext-inputField {
     border: 2px solid #262A39;
     border-radius: 7px;
     display: flex;
@@ -63,7 +63,7 @@
     /* justify-content: space-between; */
 }
 
-.inputFieldArea {
+.ext-inputFieldArea {
     z-index: 3;
     display: flex;
     flex-direction: row;
@@ -75,7 +75,7 @@
     border-radius: 7px;
 }
 
-.inputFieldValue {
+.ext-inputFieldValue {
     border: 0;
     box-sizing: border-box;
     outline: none;
@@ -97,15 +97,15 @@
     padding-right: 15px;
 }
 
-.sendInputButton {
+.ext-sendInputButton {
     color: #FFFFFF;
 }
 
-.suggestedHeader {
+.ext-suggestedHeader {
     padding-bottom: 15px;
 }
 
-.suggestedMessage {
+.ext-suggestedMessage {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -133,15 +133,15 @@
     /* -webkit-font-smoothing: antialiased; */
 }
 
-.suggestedMessage:hover {
+.ext-suggestedMessage:hover {
     opacity: 0.75 !important;
 }
 
-.suggestedMessage > span {
+.ext-suggestedMessage > span {
     width: 95%;
 }
 
-.sendMessageIcon {
+.ext-sendMessageIcon {
     height: 20px;
     fill: #FFFFFF;
 }
@@ -198,11 +198,11 @@
     content: attr(data-text)
 }
 
-.suggestedHeader {
+.ext-suggestedHeader {
     padding-bottom: 15px;
 }
 
-.suggestedMessage {
+.ext-suggestedMessage {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -230,20 +230,20 @@
     /* -webkit-font-smoothing: antialiased; */
 }
 
-.suggestedMessage:hover {
+.ext-suggestedMessage:hover {
     opacity: 0.75 !important;
 }
 
-.suggestedMessage > span {
+.ext-suggestedMessage > span {
     width: 95%;
 }
 
-.sendMessageIcon {
+.ext-sendMessageIcon {
     height: 20px;
     fill: #FFFFFF;
 }
 
-.chatbotOptions {
+.ext-chatbotOptions {
     display: flex;
     align-items: center;
     color: #DBE2F0;
@@ -256,6 +256,6 @@
     font-size: 14px;
 }
 
-.chatbotOptions:hover {
+.ext-chatbotOptions:hover {
     opacity: 1.0;
 }

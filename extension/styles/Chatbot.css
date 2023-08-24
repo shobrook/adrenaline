@@ -1,4 +1,4 @@
-.chatbotContainer {
+.ext-chatbotContainer {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -6,7 +6,7 @@
     position: absolute;
 }
 
-.chatbot {
+.ext-chatbot {
     display: flex;
     flex-direction: column;
     background-color: #14171F;

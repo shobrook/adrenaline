@@ -51,8 +51,8 @@ export default class Message extends Component {
 
         return (
             <div
-                className={`chatMessage ${message.isResponse ? "aiResponse" : ""}`}>
-                <div className={`messageContainer`}>
+                className={`ext-chatMessage ${message.isResponse ? "aiResponse" : ""}`}>
+                <div className="ext-messageContainer">
                     <MarkdownWithCode
                         repoPath={repository.fullPath}
                         repoSource={repository.source}
