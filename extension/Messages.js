@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { cloneDeep, isEqual } from "lodash";
 import Message from "./Message";
 
 export default class Messages extends Component {
@@ -22,6 +23,20 @@ export default class Messages extends Component {
     }
 
     /* Lifecycle Methods */
+
+    componentDidUpdate(prevProps) {
+        const { messages } = this.props;
+
+        if (messages.length !== prevProps.messages.length) {
+            this.disableAutoScroll = false;
+        }
+
+        if (!this.disableAutoScroll && !isEqual(messages[messages.length - 1], this.lastMessage)) {
+            this.lastMessageElement.scrollIntoView({ behavior: "smooth" });
+        }
+
+        this.lastMessage = cloneDeep(messages[messages.length - 1]);
+    }
 
     render() {
         const { messages, repository } = this.props;

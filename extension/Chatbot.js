@@ -1,6 +1,5 @@
 import React, { createRef, Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
-import { cloneDeep, isEqual } from "lodash";
 
 import IndexingStatusNotification from "./IndexingStatusNotification";
 import ChatbotHeader from "./ChatbotHeader";
@@ -218,42 +217,28 @@ class ChatBot extends Component {
             isLoading: true,
             messages: [this.buildWelcomeMessage()]
         });
-        getAccessTokenSilently().then(token => {
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}api/get_repository`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({ repository_id: `github/${repository.fullPath}` })
-            }).then(res => res.json()).then(data => {
-                const { is_private, is_indexed, num_commits_behind } = data;
+        // getAccessTokenSilently().then(token => {
+        //     fetch(`${process.env.NEXT_PUBLIC_API_URI}api/get_repository`, {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "Authorization": `Bearer ${token}`
+        //         },
+        //         body: JSON.stringify({ repository_id: `github/${repository.fullPath}` })
+        //     }).then(res => res.json()).then(data => {
+        //         const { is_private, is_indexed, num_commits_behind } = data;
                 
-                if (!is_indexed) { // Not indexed
-                    this.setState({indexingStatus: IndexingStatus.NotIndexed});
-                } else if (num_commits_behind > 0) { // Indexed but needs reindexing
-                    this.setState({indexingStatus: IndexingStatus.IndexedButStale});
-                } else {
-                    this.setState({indexingStatus: IndexingStatus.Indexed});
-                }
+        //         if (!is_indexed) { // Not indexed
+        //             this.setState({indexingStatus: IndexingStatus.NotIndexed});
+        //         } else if (num_commits_behind > 0) { // Indexed but needs reindexing
+        //             this.setState({indexingStatus: IndexingStatus.IndexedButStale});
+        //         } else {
+        //             this.setState({indexingStatus: IndexingStatus.Indexed});
+        //         }
     
-                // TODO: Prompt user to pay for private repository
-            });
-        });
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        const { messages } = this.state;
-
-        if (messages.length !== prevState.messages.length) {
-            this.disableAutoScroll = false;
-        }
-
-        if (!this.disableAutoScroll && !isEqual(messages[messages.length - 1], this.lastMessage)) {
-            this.lastMessageElement.scrollIntoView({ behavior: "smooth" });
-        }
-
-        this.lastMessage = cloneDeep(messages[messages.length - 1]);
+        //         // TODO: Prompt user to pay for private repository
+        //     });
+        // });
     }
 
     render() {
