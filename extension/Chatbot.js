@@ -163,6 +163,7 @@ class ChatBot extends Component {
 
     onSubmitMessage(message, regenerate = false) {
         const { messages } = this.state;
+        const { repository } = this.props;
         const { getAccessTokenSilently, user } = this.props.auth0;
 
         const query = new Message(message, false, true);
@@ -182,7 +183,7 @@ class ChatBot extends Component {
         getAccessTokenSilently()
             .then(token => {
                 this.openWebsocketConnection(ws => {
-                    if (ws === null) {
+                    if (ws === null) { // Connection could not be established
                         this.setState(prevState => {
                             const { messages } = prevState;
                             const priorMessages = messages.slice(0, messages.length - 1);
@@ -205,7 +206,7 @@ class ChatBot extends Component {
                     const request = {
                         user_id: user.sub,
                         token: token,
-                        codebase_id: codebaseId,
+                        codebase_id: `github/${repository.fullPath}`,
                         query: message,
                         chat_history: buildChatHistory(newMessages)
                     };
