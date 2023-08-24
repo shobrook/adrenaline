@@ -16,6 +16,10 @@
     font-weight: 600;
 }
 
+.chatBotLabel > span {
+    font-weight: 400;
+}
+
 .chatBotOptions {
     display: flex;
     align-items: center;
@@ -23,7 +27,7 @@
 }
 
 .chatBotOptions > svg {
-    stroke-width: 1px;
+    stroke-width: 0.8px;
     height: 15px;
     width: 15px;
     color: #DBE2F0;

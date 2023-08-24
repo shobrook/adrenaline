@@ -1,6 +1,7 @@
 import React, { createRef, Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 
+import Mixpanel from "./lib/mixpanel";
 import IndexingStatusNotification from "./IndexingStatusNotification";
 import ChatbotHeader from "./ChatbotHeader";
 import Messages from "./Messages";
@@ -12,6 +13,7 @@ class Message {
         this.isResponse = isResponse;
         this.isComplete = isComplete; // Indicates whether message has finished streaming
         this.progressMessage = null;
+        this.isError = false;
     }
 }
 
@@ -40,12 +42,18 @@ const buildChatHistory = messages => {
     });
 }
 
+const buildWelcomeMessage = repositoryName => {
+    const messageContent = `Hi, I’m your AI expert on ${repositoryName}. Ask me anything about this codebase.`;
+    const welcomeMessage = new Message(messageContent, true, true);
+    
+    return welcomeMessage;
+}
+
 class ChatBot extends Component {
     constructor(props) {
         super(props);
 
         this.openWebsocketConnection = this.openWebsocketConnection.bind(this);
-        this.buildWelcomeMessage = this.buildWelcomeMessage.bind(this);
         this.onChangeIndexingStatus = this.onChangeIndexingStatus.bind(this);
         this.onSubmitMessage = this.onSubmitMessage.bind(this);
         this.onClearConversation = this.onClearConversation.bind(this);
@@ -84,22 +92,26 @@ class ChatBot extends Component {
                 error
             } = JSON.parse(event.data);
 
-            // Render error message
-            if (error != "") {
-                toast.error(error, {
-                    style: {
-                        borderRadius: "7px",
-                        background: "#FB4D3D",
-                        color: "#fff",
-                    },
-                    iconTheme: {
-                        primary: '#ffffff7a',
-                        secondary: '#fff',
+            if (error != "") { // Error message
+                this.setState(prevState => {
+                    const { messages } = prevState;
+                    const priorMessages = messages.slice(0, messages.length - 1);
+                    let response = messages[messages.length - 1];
+                    response.progressMessage = null;
+                    response.content = error;
+                    response.isError = true;
+                    response.isComplete = true;
+
+                    Mixpanel.track("received_error_response", { error });
+
+                    return {
+                        ...prevState,
+                        messages: [...priorMessages, response]
                     }
                 });
                 return;
             }
-
+            
             if (type === "progress") { // Answering progress
                 this.setState(prevState => {
                     const { messages } = prevState;
@@ -136,29 +148,11 @@ class ChatBot extends Component {
         }
         ws.onerror = event => {
             this.websocketRef.current = null;
-            toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                style: {
-                    borderRadius: "7px",
-                    background: "#FB4D3D",
-                    color: "#fff",
-                },
-                iconTheme: {
-                    primary: '#ffffff7a',
-                    secondary: '#fff',
-                }
-            });
+            callback(null)
         }
         ws.onclose = event => {
             this.websocketRef.current = null;
         }
-    }
-
-    buildWelcomeMessage() {
-        const { repository } = this.props;
-        const messageContent = `Hi, I’m your AI expert on ${repository.name}. Ask me anything about this codebase.`;
-        const welcomeMessage = new Message(messageContent, true, true);
-        
-        return welcomeMessage;
     }
 
     /* Event Handlers */
@@ -169,7 +163,7 @@ class ChatBot extends Component {
 
     onSubmitMessage(message, regenerate = false) {
         const { messages } = this.state;
-        const { getAccessTokenSilently } = this.props.auth0;
+        const { getAccessTokenSilently, user } = this.props.auth0;
 
         const query = new Message(message, false, true);
         let response = new Message("", true, false); // Initialize response
@@ -188,6 +182,26 @@ class ChatBot extends Component {
         getAccessTokenSilently()
             .then(token => {
                 this.openWebsocketConnection(ws => {
+                    if (ws === null) {
+                        this.setState(prevState => {
+                            const { messages } = prevState;
+                            const priorMessages = messages.slice(0, messages.length - 1);
+                            let response = messages[messages.length - 1];
+                            response.progressMessage = null;
+                            response.content = "We are currently experiencing high load. Please try again at another time.";
+                            response.isError = true;
+                            response.isComplete = true;
+
+                            Mixpanel.track("websocket_connection_failed");
+
+                            return {
+                                ...prevState,
+                                messages: [...priorMessages, response]
+                            };
+                        });
+                        return;
+                    }
+
                     const request = {
                         user_id: user.sub,
                         token: token,
@@ -204,7 +218,13 @@ class ChatBot extends Component {
 
     onClearConversation() {
         Mixpanel.track("clear_conversation");
-        this.setState({ messages: [this.buildWelcomeMessage()]});
+        this.setState(prevState => {
+            const { messages } = prevState;
+            return {
+                ...prevState,
+                messages: [messages[0]]
+            }
+        });
     }
 
     /* Lifecycle Methods */
@@ -212,11 +232,12 @@ class ChatBot extends Component {
     componentDidMount() {
         const { repository } = this.props;
         const { getAccessTokenSilently } = this.props.auth0;
+
+        console.log("mount")
+        console.log(repository)
+
+        this.setState({ messages: [buildWelcomeMessage(repository.name)] });
         
-        this.setState({
-            isLoading: true,
-            messages: [this.buildWelcomeMessage()]
-        });
         // getAccessTokenSilently().then(token => {
         //     fetch(`${process.env.NEXT_PUBLIC_API_URI}api/get_repository`, {
         //         method: "POST",
@@ -245,6 +266,9 @@ class ChatBot extends Component {
         const { repository } = this.props;
         const { messages, indexingStatus } = this.state;
 
+        console.log("render")
+        console.log(repository)
+
         return (
             <div className="chatbotContainer">
                 <IndexingStatusNotification 
@@ -254,7 +278,10 @@ class ChatBot extends Component {
                 <div className={`chatbot ${indexingStatus}`}>
                     <ChatbotHeader repository={repository} />
                     <Messages messages={messages} repository={repository} />
-                    <MessageInput onSubmitMessage={this.onSubmitMessage} />
+                    <MessageInput 
+                        onSubmitMessage={this.onSubmitMessage} 
+                        isBlocked={!messages[messages.length - 1]?.isComplete} 
+                    />
                 </div>
             </div>
         )  

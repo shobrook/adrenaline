@@ -26,6 +26,12 @@ export default class Message extends Component {
                     <IndeterminateProgressBar key={0} message={message.progressMessage} />
                 </div>
             )
+        } else if (this.isLoading()) {
+            return (
+                <div className={`chatMessage ${message.isResponse ? "aiResponse" : ""}`}>
+                    <IndeterminateProgressBar key={0} message="<span>Sending message</span>" />
+                </div>
+            )
         }
 
         return null;
@@ -35,13 +41,17 @@ export default class Message extends Component {
         const { repository, message } = this.props;
         const isLoading = this.isLoading();
 
+        if (isLoading) {
+            return null;
+        }
+
         let markdown = isLoading ? 
             message.content.replace(/\[\`[^`]*$|\[\`[^`]+\`\]\([^)]*$/, '')
             : message.content;
 
         return (
             <div
-                className={`chatMessage ${message.isResponse ? "aiResponse" : ""} ${isLoading ? "loadingMessage" : ""}`}>
+                className={`chatMessage ${message.isResponse ? "aiResponse" : ""}`}>
                 <div className={`messageContainer`}>
                     <MarkdownWithCode
                         repoPath={repository.fullPath}
@@ -57,9 +67,6 @@ export default class Message extends Component {
     /* Lifecycle Methods */
 
     render() {
-        const { isResponse, isPaywalled, progressMessage } = this.props;
-        const isLoading = this.isLoading();
-
         return (
             <div className="chatMessageContainer">
                 {this.renderProgress()}
