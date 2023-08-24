@@ -2,6 +2,7 @@
     padding-left: 15px;
     padding-right: 15px;
     padding-bottom: 15px;
+    padding-top: 10px;
     display: flex;
     flex-direction: column;
 }

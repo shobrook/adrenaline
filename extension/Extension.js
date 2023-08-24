@@ -15,25 +15,9 @@ class Repository {
 }
 
 const Extension = () => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
   const [repository, setRepository] = useState(null);
-  const { loginWithRedirect, isLoading, isAuthenticated } = useAuth0();
+  const { isLoading, isAuthenticated } = useAuth0();
   const router = useRouter();
-
-  // TODO: leave this for noe commented. It might be needed
-  // useEffect(() => {
-  //   getAuth0userInfoRequest()
-  //     .then(res => {
-  //       console.log({ res });
-  //       setIsAuth(true);
-  //     })
-  //     .catch(e => {
-  //       setIsAuth(false);
-  //       console.log(e);
-  //     });
-  // });
-
-  const onCloseModal = () => window.parent.postMessage('closeIframe', '*');
 
   useEffect(() => {
     if (router.isReady && Object.keys(router.query).length > 0) {
@@ -42,17 +26,11 @@ const Extension = () => {
     }
   }, [router.isReady, router.query])
 
-  return (
-    <div>
-      {isModalOpen && (
-        isAuthenticated ? (
-          repository && (
-            <ChatBot repository={repository} onCloseModal={onCloseModal} />
-          )
-        ) : (<AuthModal onCloseModal={onCloseModal} />)
-      )}
-    </div>
-  );
+  if (repository) {
+    return (isAuthenticated ? (<ChatBot repository={repository} />) : (<AuthModal repository={repository} />));
+  }
+
+  return null
 };
 
 export default Extension;

@@ -13,4 +13,5 @@
     border: 2px solid #262A39;
     border-radius: 7px;
     height: calc(100% - 4px);
+    width: calc(100% - 4px);
 }

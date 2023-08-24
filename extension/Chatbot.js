@@ -219,6 +219,7 @@ class ChatBot extends Component {
 
     onClearConversation() {
         Mixpanel.track("clear_conversation");
+
         this.setState(prevState => {
             const { messages } = prevState;
             return {
@@ -276,6 +277,7 @@ class ChatBot extends Component {
                     <MessageInput 
                         onSubmitMessage={this.onSubmitMessage} 
                         isBlocked={!messages[messages.length - 1]?.isComplete} 
+                        onClearConversation={this.onClearConversation}
                     />
                 </div>
             </div>

@@ -29,7 +29,7 @@ export default class Message extends Component {
         } else if (this.isLoading()) {
             return (
                 <div className={`chatMessage ${message.isResponse ? "aiResponse" : ""}`}>
-                    <IndeterminateProgressBar key={0} message="<span>Sending message</span>" />
+                    <IndeterminateProgressBar key={0} message="Understanding your question" />
                 </div>
             )
         }

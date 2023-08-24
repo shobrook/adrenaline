@@ -1,0 +1,62 @@
+.authModal {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 4px);
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    background-color: #14171F;
+    border: 2px solid #262A39;
+    border-radius: 7px;
+    height: calc(100% - 4px);
+}
+
+.authMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #DBE2F0;
+}
+
+.authTitle {
+    font-size: 34px;
+    font-weight: 500;
+}
+
+.authSubtitle {
+    font-size: 18px;
+    opacity: 0.75;
+    font-weight: 400;
+}
+
+.authSubtitle > span {
+    font-weight: 600;
+}
+
+.authOptions {
+    width: 65%;
+    margin-top: 30px;
+    gap: 15px;
+    display: flex;
+    font-weight: 500;
+    flex-direction: column;
+}
+
+.ext-signUpButton {
+    height: 40px !important;
+    color: #DBE2F0 !important;
+    transition: 0.15s;
+    background-color: #8204B3 !important;
+}
+
+.ext-loginButton {
+    height: 40px !important;
+    border: solid 2px #313A5B !important;
+    color: #8EA4CF !important;
+    transition: 0.15s;
+}
+
+.ext-loginButton:hover {
+    opacity: 0.75;
+}

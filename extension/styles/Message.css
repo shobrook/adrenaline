@@ -3,9 +3,6 @@
 }
 
 .ext-chatMessage {
-    /* display: flex;
-    flex-direction: column;
-    justify-content: flex-start; */
     position: relative;
     padding: 15px;
     border-radius: 7px;
@@ -18,6 +15,7 @@
     padding-top: 1px;
     padding-bottom: 1px;
     min-height: 25px;
+    transition: 0.15s;
 }
 
 .ext-loadingMessage {
