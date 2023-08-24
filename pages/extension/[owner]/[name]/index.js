@@ -1,5 +1,5 @@
-import * as React from 'react';
-import Extension from "/extension/Extension";
+import React from 'react';
+import Extension from "../../../../extension/Extension";
 
 const ExtensionPage = () => {
   return <Extension />;

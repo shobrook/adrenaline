@@ -1,7 +1,5 @@
-import { Component } from "react";
-import { GoScreenNormal, GoXCircle } from "react-icons/go";
-
-import "./styles/ChatbotHeader.css";
+import React, { Component } from "react";
+import { BsFullscreenExit, BsXCircle } from "react-icons/bs";
 
 export default class ChatbotHeader extends Component {
     render() {
@@ -12,8 +10,8 @@ export default class ChatbotHeader extends Component {
                 {/* TODO: Show 'View on Adrenaline' button */}
                 <span className="chatBotLabel">Adrenaline <span>Chat</span></span>
                 <div className="chatBotOptions">
-                    <GoScreenNormal />
-                    <GoXCircle />
+                    <BsFullscreenExit />
+                    <BsXCircle />
                 </div>
             </div>
         );

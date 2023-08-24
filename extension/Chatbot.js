@@ -1,10 +1,11 @@
-import { Component } from "react";
+import React, { createRef, Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 import { cloneDeep, isEqual } from "lodash";
 
+import IndexingStatusNotification from "./IndexingStatusNotification";
 import ChatbotHeader from "./ChatbotHeader";
-
-import "./styles/Chatbot.css";
+import Messages from "./Messages";
+import MessageInput from "./MessageInput";
 
 class Message {
     constructor(content, isResponse, isComplete) {
@@ -22,11 +23,35 @@ const IndexingStatus = Object.freeze({
     Indexed: "indexed"
 });
 
+const buildChatHistory = messages => {
+    let startingMessages;
+    if (!messages[messages.length - 1].isResponse) {
+        startingMessages = messages.slice(0, messages.length - 1);
+    } else if (!messages[messages.length - 1].isComplete) {
+        startingMessages = messages.slice(0, messages.length - 2);
+    } else {
+        startingMessages = messages;
+    }
+
+    return startingMessages.slice(1).map(message => {
+        return {
+            content: message.content,
+            is_response: message.isResponse,
+        }
+    });
+}
+
 class ChatBot extends Component {
     constructor(props) {
         super(props);
 
-        this.websocketRef = React.createRef();
+        this.openWebsocketConnection = this.openWebsocketConnection.bind(this);
+        this.buildWelcomeMessage = this.buildWelcomeMessage.bind(this);
+        this.onChangeIndexingStatus = this.onChangeIndexingStatus.bind(this);
+        this.onSubmitMessage = this.onSubmitMessage.bind(this);
+        this.onClearConversation = this.onClearConversation.bind(this);
+
+        this.websocketRef = createRef();
         this.state = {
             messages: [],
             indexingStatus: IndexingStatus.NotIndexed,
@@ -137,24 +162,6 @@ class ChatBot extends Component {
         return welcomeMessage;
     }
 
-    getChatHistory(messages) {
-        let startingMessages;
-        if (!messages[messages.length - 1].isResponse) {
-            startingMessages = messages.slice(0, messages.length - 1);
-        } else if (!messages[messages.length - 1].isComplete) {
-            startingMessages = messages.slice(0, messages.length - 2);
-        } else {
-            startingMessages = messages;
-        }
-
-        return startingMessages.slice(1).map(message => {
-            return {
-                content: message.content,
-                is_response: message.isResponse,
-            }
-        });
-    }
-
     /* Event Handlers */
 
     onChangeIndexingStatus(indexingStatus) {
@@ -163,6 +170,7 @@ class ChatBot extends Component {
 
     onSubmitMessage(message, regenerate = false) {
         const { messages } = this.state;
+        const { getAccessTokenSilently } = this.props.auth0;
 
         const query = new Message(message, false, true);
         let response = new Message("", true, false); // Initialize response
@@ -180,13 +188,13 @@ class ChatBot extends Component {
     
         getAccessTokenSilently()
             .then(token => {
-                openWebsocketConnection(ws => {
+                this.openWebsocketConnection(ws => {
                     const request = {
                         user_id: user.sub,
                         token: token,
                         codebase_id: codebaseId,
                         query: message,
-                        chat_history: getChatHistory(newMessages)
+                        chat_history: buildChatHistory(newMessages)
                     };
                     ws.send(JSON.stringify(request));
 
@@ -204,8 +212,12 @@ class ChatBot extends Component {
 
     componentDidMount() {
         const { repository } = this.props;
+        const { getAccessTokenSilently } = this.props.auth0;
         
-        this.setState({isLoading: true});
+        this.setState({
+            isLoading: true,
+            messages: [this.buildWelcomeMessage()]
+        });
         getAccessTokenSilently().then(token => {
             fetch(`${process.env.NEXT_PUBLIC_API_URI}api/get_repository`, {
                 method: "POST",
@@ -230,10 +242,10 @@ class ChatBot extends Component {
         });
     }
 
-    componentDidUpdate(prevProps) {
-        const { messages } = this.props;
+    componentDidUpdate(prevProps, prevState) {
+        const { messages } = this.state;
 
-        if (messages.length !== prevProps.messages.length) {
+        if (messages.length !== prevState.messages.length) {
             this.disableAutoScroll = false;
         }
 
@@ -256,7 +268,7 @@ class ChatBot extends Component {
                 />
                 <div className={`chatbot ${indexingStatus}`}>
                     <ChatbotHeader repository={repository} />
-                    <Messages messages={messages} />
+                    <Messages messages={messages} repository={repository} />
                     <MessageInput onSubmitMessage={this.onSubmitMessage} />
                 </div>
             </div>

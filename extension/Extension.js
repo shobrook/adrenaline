@@ -1,24 +1,25 @@
+import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import * as React from 'react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import Chatbot from "./Chatbot";
+import ChatBot from "./Chatbot";
 import AuthModal from "./AuthModal";
 
 class Repository {
-  constructor(owner, name) {
+  constructor(owner, name, branch="main") {
     self.owner = owner;
     self.name = name;
+    self.branch = branch;
     self.fullPath = `${owner}/${name}`;
   }
 }
 
 const Extension = () => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { loginWithRedirect, isLoading, isAuthenticated } = useAuth0();
   const router = useRouter();
   
-  const { owner, name } = router.query;
+  const { owner, name } = router.query; // TODO: Pass in default branch as well, or get it from API
   const repository = new Repository(owner, name);
 
   // TODO: leave this for noe commented. It might be needed
@@ -34,21 +35,15 @@ const Extension = () => {
   //     });
   // });
 
-  useEffect(() => {
-    const stylesheet = document.createElement('style');
-    stylesheet.innerText = 'body, html { background-color: transparent; }';
-
-    document.head.appendChild(stylesheet);
-  }, []);
-
   const onCloseModal = () => window.parent.postMessage('closeIframe', '*');
 
+  return (<ChatBot onCloseModal={onCloseModal} repository={repository} />); 
   return (
     <div>
       {isModalOpen && (
         isAuthenticated ? (
           router.isReady && (
-            <Chatbot 
+            <ChatBot 
               onCloseModal={onCloseModal} 
               repository={repository}
             />

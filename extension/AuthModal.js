@@ -1,1 +1,7 @@
-// window.open(window.location.origin, '_blank');
+import React, { Component } from "react";
+
+export default class AuthModal extends Component {
+    render() {
+        return null;
+    }
+}

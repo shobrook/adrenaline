@@ -21,6 +21,14 @@
 @import "./QuotedCode.css";
 @import "./FileChip.css";
 
+@import "../extension/styles/AuthModal.css";
+@import "../extension/styles/Chatbot.css";
+@import "../extension/styles/ChatbotHeader.css";
+@import "../extension/styles/IndexingStatusNotification.css";
+@import "../extension/styles/Messages.css";
+@import "../extension/styles/Message.css";
+@import "../extension/styles/MessageInput.css";
+
 body {
     margin: 0;
     padding: 0;
