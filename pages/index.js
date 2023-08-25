@@ -10,7 +10,7 @@ import SubscriptionModal from "../containers/SubscriptionModal";
 import { useRouter } from "next/router";
 
 export default function LandingPage() {
-    const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
+    const { isAuthenticated, user, loginWithRedirect, getAccessTokenSilently } = useAuth0();
     const router = useRouter();
     const [subscriptionStatus, setSubscriptionStatus] = useState({});
     const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
@@ -85,6 +85,27 @@ export default function LandingPage() {
     useEffect(() => {
         fetchUserMetadata();
     }, []);
+
+    useEffect(() => {
+        const { signup, login } = router.query;
+
+        if (login) {
+            loginWithRedirect({
+                appState: {
+                    returnTo: `${window.location.pathname}?authSuccess=true`
+                }
+            });
+        } else if (signup) {
+            loginWithRedirect({
+                authorizationParams: {
+                    screen_hint: "signup"
+                },
+                appState: {
+                    returnTo: `${window.location.pathname}?authSuccess=true`
+                }
+            });
+        }
+    }, [router.query])
 
     return (
         <div id="landing">

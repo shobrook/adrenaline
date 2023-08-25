@@ -10,8 +10,15 @@ const Auth0ProviderWithHistory = ({ children }) => {
         setIsClientLoaded(true);
     }, []);
 
+    useEffect(() => {
+        const { authSuccess } = router.query;
+        if (authSuccess) {
+            window.close();
+            return;
+        }
+    }, [router.query])
+
     const onRedirectCallback = (appState) => {
-        // TODO: Check if we are on the extension URL and if so, change the redirect behavior
         router.push(appState?.returnTo || window.location.pathname);
     };
 

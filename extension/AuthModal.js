@@ -14,28 +14,13 @@ class AuthModal extends Component {
     /* Event Handlers */
 
     onSignUp() {
-        const { loginWithRedirect } = this.props.auth0;
-
         Mixpanel.track("click_sign_up");
-        loginWithRedirect({
-            authorizationParams: {
-                screen_hint: "signup"
-            },
-            appState: {
-                returnTo: `${window.location.pathname}?success=true` // TODO: Use router instead?
-            }
-        });
+        window.open(`${process.env.NEXT_PUBLIC_HOST_URI}?signup=true`)
     }
 
     onLogIn() {
-        const { loginWithRedirect } = this.props.auth0;
-
         Mixpanel.track("click_log_in");
-        loginWithRedirect({
-            appState: {
-                returnTo: `${window.location.pathname}?success=true` // TODO: Use router instead?
-            }
-        });
+        window.open(`${process.env.NEXT_PUBLIC_HOST_URI}?login=true`)
     }
 
     /* Lifecycle Methods */
@@ -51,7 +36,7 @@ class AuthModal extends Component {
                 </div>
                 <div className="authOptions">
                     <Button className="ext-signUpButton" isPrimary onClick={this.onSignUp}>Sign up</Button>
-                    <Button className="ext-loginButton" isPrimary={false} onClick={this.onLogIn}>Log in</Button>
+                    <Button className="ext-loginButton" isPrimary={false} onClick={this.onLogIn} target="_blank" rel="noopener noreferrer">Log in</Button>
                 </div>
             </div>
         )

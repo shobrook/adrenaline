@@ -13,7 +13,7 @@ class IndexingButton extends Component {
         this.onIndex = this.onIndex.bind(this);
 
         this.websocketRef = createRef();
-        this.state = { indexingProgress: 0.0, indexingMessage: "", isError: false }
+        this.state = { indexingProgress: 0, progressTarget: 1, indexingMessage: "", isError: false }
     }
 
     /* Utilities */
@@ -50,19 +50,27 @@ class IndexingButton extends Component {
 
             if (is_finished) {
                 const { updateIndexingStatus } = this.props;
-                this.setState({indexingProgress: 0.0, indexingMessage: "", isError: false});
+                this.setState({indexingProgress: 0, indexingMessage: "", isError: false});
                 updateIndexingStatus(IndexingStatus.Indexed);
 
                 Mixpanel.track("indexed_repository");
             } else {
                 this.setState(prevState => {
                     console.log("Got updated")
-                    const { indexingProgress } = prevState;
+                    const { indexingProgress, progressTarget } = prevState;
+                    const newProgress = indexingProgress + 1;
+
+                    let factor = 1;
+                    if (step.toLowerCase() !== "scraping repository") {
+                        factor = 2;
+                    }
+
                 
                     return {
                         ...prevState,
-                        indexingProgress: progress_target ? ((indexingProgress + 1) / progress_target) * 100 : 0.0,
-                        indexingMessage: `${step}: <span>${content}</span>`
+                        indexingProgress: (indexingProgress + 1),
+                        // progressTarget: 
+                        indexingMessage: content ? `${step}: <span>${content}</span>` : step
                     }
                 });
             }
@@ -144,7 +152,7 @@ class IndexingButton extends Component {
         } else if (repository.indexingStatus === IndexingStatus.Indexing) {
             return (
                 <div className="indexingButton">
-                    {indexingProgress ? (
+                    {indexingProgress || indexingMessage ? (
                         <>
                             <CircularProgress
                                 variant="determinate"
