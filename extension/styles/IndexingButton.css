@@ -1,0 +1,88 @@
+.notIndexedButton {
+    height: 34px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.15s;
+
+    cursor: pointer;
+    background-color: #8204B3;
+}
+
+.notIndexedButton > svg {
+    height: 18px;
+    width: 18px;
+}
+
+.notIndexedButton:hover {
+    opacity: 0.75;
+}
+
+.failedIndexButton {
+    height: 34px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.15s;
+
+    background-color: #8F2E2E;
+}
+
+.failedIndexButton > svg {
+    height: 18px;
+    width: 18px;
+}
+
+.isIndexedButton {
+    height: 34px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 14px;
+
+    background-color: #313A5B;
+}
+
+.isIndexedButton > svg {
+    height: 18px;
+    width: 18px;
+}
+
+.staleIndexButton {
+    height: 34px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.15s;
+
+    cursor: pointer;
+    background-color: #313A5B;
+}
+
+.staleIndexButton:hover {
+    opacity: 0.75;
+}
+
+.staleIndexButton > svg {
+    height: 18px;
+    width: 18px;
+}

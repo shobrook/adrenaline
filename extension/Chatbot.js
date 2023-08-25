@@ -2,7 +2,6 @@ import React, { createRef, Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
 
 import Mixpanel from "./lib/mixpanel";
-import IndexingStatusNotification from "./IndexingStatusNotification";
 import ChatbotHeader from "./ChatbotHeader";
 import Messages from "./Messages";
 import MessageInput from "./MessageInput";
@@ -14,16 +13,11 @@ class ChatBot extends Component {
         super(props);
 
         this.openWebsocketConnection = this.openWebsocketConnection.bind(this);
-        this.onChangeIndexingStatus = this.onChangeIndexingStatus.bind(this);
         this.onSubmitMessage = this.onSubmitMessage.bind(this);
         this.onClearConversation = this.onClearConversation.bind(this);
 
         this.websocketRef = createRef();
-        this.state = {
-            messages: [],
-            indexingStatus: IndexingStatus.NotIndexed,
-            isLoading: true
-        }
+        this.state = { messages: [], isLoading: true }
     }
 
     /* Utilities */
@@ -117,10 +111,6 @@ class ChatBot extends Component {
 
     /* Event Handlers */
 
-    onChangeIndexingStatus(indexingStatus) {
-        this.setState({ indexingStatus });
-    }
-
     onSubmitMessage(message, regenerate = false) {
         const { messages } = this.state;
         const { repository } = this.props;
@@ -193,46 +183,17 @@ class ChatBot extends Component {
 
     componentDidMount() {
         const { repository } = this.props;
-        const { getAccessTokenSilently } = this.props.auth0;
-
         this.setState({ messages: [buildWelcomeMessage(repository.name)] });
-        
-        // getAccessTokenSilently().then(token => {
-        //     fetch(`${process.env.NEXT_PUBLIC_API_URI}api/get_repository`, {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             "Authorization": `Bearer ${token}`
-        //         },
-        //         body: JSON.stringify({ repository_id: `github/${repository.fullPath}` })
-        //     }).then(res => res.json()).then(data => {
-        //         const { is_private, is_indexed, num_commits_behind } = data;
-                
-        //         if (!is_indexed) { // Not indexed
-        //             this.setState({indexingStatus: IndexingStatus.NotIndexed});
-        //         } else if (num_commits_behind > 0) { // Indexed but needs reindexing
-        //             this.setState({indexingStatus: IndexingStatus.IndexedButStale});
-        //         } else {
-        //             this.setState({indexingStatus: IndexingStatus.Indexed});
-        //         }
-    
-        //         // TODO: Prompt user to pay for private repository
-        //     });
-        // });
     }
 
     render() {
-        const { repository } = this.props;
-        const { messages, indexingStatus } = this.state;
+        const { repository, updateIndexingStatus } = this.props;
+        const { messages } = this.state;
 
         return (
             <div className="ext-chatbotContainer">
-                <IndexingStatusNotification 
-                    indexingStatus={indexingStatus} 
-                    setIndexingStatus={this.onChangeIndexingStatus} 
-                />
-                <div className={`ext-chatbot ${indexingStatus}`}>
-                    <ChatbotHeader repository={repository} />
+                <div className={`ext-chatbot ${repository.indexingStatus}`}>
+                    <ChatbotHeader repository={repository} updateIndexingStatus={updateIndexingStatus} />
                     <Messages messages={messages} repository={repository} />
                     <MessageInput 
                         onSubmitMessage={this.onSubmitMessage} 

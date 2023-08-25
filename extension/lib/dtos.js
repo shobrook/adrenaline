@@ -4,6 +4,9 @@ export class Repository {
         this.name = name;
         this.branch = branch;
         this.fullPath = `${owner}/${name}`;
+        this.numCommitsBehind = null;
+        this.isPrivate = null;
+        this.indexingStatus = null;
     }
 }
 
@@ -19,6 +22,7 @@ export class Message {
 
 export const IndexingStatus = Object.freeze({
     NotIndexed: "notIndexed",
+    Indexing: "indexing",
     FailedToIndex: "failedToIndex",
     IndexedButStale: "indexedButStale",
     Indexed: "indexed"

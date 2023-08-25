@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { BsFullscreenExit, BsXCircle } from "react-icons/bs";
+import IndexingButton from "./IndexingButton";
 
 export default class ChatbotHeader extends Component {
     constructor(props) {
@@ -22,11 +23,9 @@ export default class ChatbotHeader extends Component {
     /* Lifecycle Methods */
 
     render() {
-        const { repository } = this.props;
-
         return (
             <div className="ext-chatBotHeader">
-                <span className="ext-chatBotLabel">Adrenaline <span>Chat</span></span>
+                <IndexingButton {...this.props} />
                 <div className="ext-chatBotOptions">
                     <BsFullscreenExit onClick={this.onMinimize} />
                     <BsXCircle onClick={this.onClose} />
