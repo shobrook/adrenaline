@@ -6,6 +6,7 @@
     align-items: center;
     justify-content: center;
     background-color: #14171F;
+    background: transparent;
     border: 2px solid #262A39;
     border-radius: 7px;
     height: calc(100% - 4px);
