@@ -1,6 +1,5 @@
 import React, { createRef, Component } from "react";
 import { withAuth0 } from "@auth0/auth0-react";
-
 import Mixpanel from "./lib/mixpanel";
 import ChatbotHeader from "./ChatbotHeader";
 import Messages from "./Messages";

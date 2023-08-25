@@ -22,7 +22,7 @@ class AuthModal extends Component {
                 screen_hint: "signup"
             },
             appState: {
-                returnTo: window.location.pathname // TODO: Use router instead?
+                returnTo: `${window.location.pathname}?success=true` // TODO: Use router instead?
             }
         });
     }
@@ -33,7 +33,7 @@ class AuthModal extends Component {
         Mixpanel.track("click_log_in");
         loginWithRedirect({
             appState: {
-                returnTo: window.location.pathname // TODO: Use router instead?
+                returnTo: `${window.location.pathname}?success=true` // TODO: Use router instead?
             }
         });
     }

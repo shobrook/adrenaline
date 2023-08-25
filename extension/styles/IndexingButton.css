@@ -53,8 +53,9 @@
     border-radius: 7px;
     font-weight: 500;
     font-size: 14px;
+    transition: 0.15s;
 
-    background-color: #313A5B;
+    background-color: #3D7747;
 }
 
 .isIndexedButton > svg {
@@ -85,4 +86,23 @@
 .staleIndexButton > svg {
     height: 18px;
     width: 18px;
+}
+
+.indexingButton {
+    height: 34px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.15s;
+
+    background-color: #8204B3;
+}
+
+.indexingButton > svg {
+    stroke-width: 1.25px !important;
 }

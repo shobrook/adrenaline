@@ -25,14 +25,12 @@ const Extension = () => {
       const { owner, name } = router.query; // TODO: Pass in the branch as well
       const repository = new Repository(owner, name);
 
-      console.log("Repository is set")
       setRepository(repository);
     }
   }, [router.isReady, router.query]);
 
   useEffect(() => {
     if (isAuthenticated && repository && !isRepositoryInitialized) {
-      console.log("Data goten")
       getAccessTokenSilently().then(token => {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}api/codebase_metadata`, {
             method: "POST",
@@ -61,6 +59,12 @@ const Extension = () => {
       });
     }
   }, [isAuthenticated, repository]);
+
+  useEffect(() => {
+    if (router.query.success) {
+      window.close();
+    }
+  }, [router.query]);
 
   if (repository) {
     return (isAuthenticated ? (

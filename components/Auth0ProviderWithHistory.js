@@ -11,6 +11,7 @@ const Auth0ProviderWithHistory = ({ children }) => {
     }, []);
 
     const onRedirectCallback = (appState) => {
+        // TODO: Check if we are on the extension URL and if so, change the redirect behavior
         router.push(appState?.returnTo || window.location.pathname);
     };
 

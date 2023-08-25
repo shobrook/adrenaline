@@ -1,15 +1,18 @@
-import React, { Component } from "react";
+import React, { createRef, Component } from "react";
 import { TbCircleX, TbCircleCheck, TbAnalyzeFilled } from "react-icons/tb";
 import { CircularProgress } from "@mui/material";
+import { withAuth0 } from "@auth0/auth0-react";
 import { IndexingStatus } from "./lib/dtos";
+import Mixpanel from "./lib/mixpanel";
 
-export default class IndexingButton extends Component {
+class IndexingButton extends Component {
     constructor(props) {
         super(props);
 
         this.openWebsocketConnection = this.openWebsocketConnection.bind(this);
         this.onIndex = this.onIndex.bind(this);
 
+        this.websocketRef = createRef();
         this.state = { indexingProgress: 0.0, indexingMessage: "", isError: false }
     }
 
@@ -33,8 +36,9 @@ export default class IndexingButton extends Component {
             }
 
             const {
-                message,
-                progress,
+                content,
+                step,
+                progress_target,
                 is_finished,
                 error
             } = JSON.parse(event.data);
@@ -48,12 +52,24 @@ export default class IndexingButton extends Component {
                 const { updateIndexingStatus } = this.props;
                 this.setState({indexingProgress: 0.0, indexingMessage: "", isError: false});
                 updateIndexingStatus(IndexingStatus.Indexed);
+
+                Mixpanel.track("indexed_repository");
             } else {
-                this.setState({indexingProgress: progress, indexingMessage: message});
+                this.setState(prevState => {
+                    console.log("Got updated")
+                    const { indexingProgress } = prevState;
+                
+                    return {
+                        ...prevState,
+                        indexingProgress: progress_target ? ((indexingProgress + 1) / progress_target) * 100 : 0.0,
+                        indexingMessage: `${step}: <span>${content}</span>`
+                    }
+                });
             }
         }
         ws.onerror = event => {
             this.websocketRef.current = null;
+            Mixpanel.track("websocket_connection_failed");
         };
         ws.onclose = event => {
             this.websocketRef.current = null;
@@ -76,7 +92,7 @@ export default class IndexingButton extends Component {
 
                     const request = {
                         user_id: user.sub,
-                        token: token,
+                        token,
                         repo_name: repository.fullPath,
                         refresh_index: reIndex,
                         is_gitlab: false
@@ -86,16 +102,16 @@ export default class IndexingButton extends Component {
                     Mixpanel.track("index_repository", { repositoryPath: repository.fullPath, reIndex });
             });
         });
-        // TODO: Open websocket connection and send index request
     }
 
     /* Lifecycle Methods */
 
     render() {
         const { repository } = this.props;
-        const { indexingMessage } = this.state;
+        let { indexingProgress, indexingMessage } = this.state;
 
-        console.log(repository)
+        console.log(indexingMessage)
+        console.log(indexingProgress)
 
         if (repository.indexingStatus === IndexingStatus.Indexed) {
             return (
@@ -113,14 +129,14 @@ export default class IndexingButton extends Component {
             );
         } else if (repository.indexingStatus === IndexingStatus.IndexedButStale) {
             return (
-                <div className="staleIndexButton" onClick={this.onIndex}>
+                <div className="staleIndexButton" onClick={() => this.onIndex(true)}>
                     <TbAnalyzeFilled />
                     <span>{repository.numCommitsBehind ?? 0} commits behind</span>
                 </div>
             );
         } else if (repository.indexingStatus === IndexingStatus.NotIndexed) {
             return (
-                <div className="notIndexedButton">
+                <div className="notIndexedButton" onClick={() => this.onIndex(true)}>
                     <TbAnalyzeFilled />
                     <span>Sync repository</span>
                 </div>
@@ -128,14 +144,23 @@ export default class IndexingButton extends Component {
         } else if (repository.indexingStatus === IndexingStatus.Indexing) {
             return (
                 <div className="indexingButton">
-                    {indexingMessage ? (
+                    {indexingProgress ? (
                         <>
-                            <CircularProgress />
+                            <CircularProgress
+                                variant="determinate"
+                                value={indexingProgress}
+                                size="17px"
+                                sx={{color:"#DBE2F0"}} 
+                            />
                             <span dangerouslySetInnerHTML={{ __html: indexingMessage }} />
                         </>
                     ) : (
                         <>
-                            <CircularProgress />
+                            <CircularProgress 
+                                variant="indeterminate"
+                                size="17px" 
+                                sx={{color:"#DBE2F0"}} 
+                            />
                             <span>Learning codebase</span>
                         </>
                     )}
@@ -146,3 +171,5 @@ export default class IndexingButton extends Component {
         return <div />;
     }
 }
+
+export default withAuth0(IndexingButton);
