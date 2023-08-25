@@ -128,43 +128,43 @@ class ChatBot extends Component {
             newMessages = [...priorMessages, query, response];
         }
         
-        this.setState({messages: newMessages})
-    
-        getAccessTokenSilently()
-            .then(token => {
-                this.openWebsocketConnection(ws => {
-                    if (ws === null) { // Connection could not be established
-                        this.setState(prevState => {
-                            const { messages } = prevState;
-                            const priorMessages = messages.slice(0, messages.length - 1);
-                            let response = messages[messages.length - 1];
-                            response.progressMessage = null;
-                            response.content = "We are currently experiencing high load. Please try again at another time.";
-                            response.isError = true;
-                            response.isComplete = true;
+        this.setState({messages: newMessages}, () => {
+            getAccessTokenSilently()
+                .then(token => {
+                    this.openWebsocketConnection(ws => {
+                        if (ws === null) { // Connection could not be established
+                            this.setState(prevState => {
+                                const { messages } = prevState;
+                                const priorMessages = messages.slice(0, messages.length - 1);
+                                let response = messages[messages.length - 1];
+                                response.progressMessage = null;
+                                response.content = "We are currently experiencing high load. Please try again at another time.";
+                                response.isError = true;
+                                response.isComplete = true;
 
-                            Mixpanel.track("websocket_connection_failed");
+                                Mixpanel.track("websocket_connection_failed");
 
-                            return {
-                                ...prevState,
-                                messages: [...priorMessages, response]
-                            };
-                        });
-                        return;
-                    }
+                                return {
+                                    ...prevState,
+                                    messages: [...priorMessages, response]
+                                };
+                            });
+                            return;
+                        }
 
-                    const request = {
-                        user_id: user.sub,
-                        token: token,
-                        codebase_id: `github/${repository.fullPath}`,
-                        query: message,
-                        chat_history: buildChatHistory(newMessages)
-                    };
-                    ws.send(JSON.stringify(request));
+                        const request = {
+                            user_id: user.sub,
+                            token: token,
+                            codebase_id: `github/${repository.fullPath}`,
+                            query: message,
+                            chat_history: buildChatHistory(newMessages)
+                        };
+                        ws.send(JSON.stringify(request));
 
-                    Mixpanel.track("sent_message", { message });
-                })
-            });
+                        Mixpanel.track("sent_message", { message });
+                    })
+                });
+        });
     }
 
     onClearConversation() {

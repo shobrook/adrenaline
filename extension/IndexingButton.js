@@ -7,9 +7,10 @@ export default class IndexingButton extends Component {
     constructor(props) {
         super(props);
 
+        this.openWebsocketConnection = this.openWebsocketConnection.bind(this);
         this.onIndex = this.onIndex.bind(this);
 
-        this.state = { indexingProgress: 0.0, indexingMessage: "" }
+        this.state = { indexingProgress: 0.0, indexingMessage: "", isError: false }
     }
 
     /* Utilities */
@@ -26,106 +27,65 @@ export default class IndexingButton extends Component {
             callback(ws);
         }
         ws.onmessage = async event => {
-            if (event.data == "ping") {
+            if (event.data == "ping") { // Keepalive mechanism
                 ws.send("pong");
                 return;
             }
 
             const {
-                content,
-                step,
-                metadata,
-                progress_target,
+                message,
+                progress,
                 is_finished,
-                is_paywalled,
                 error
             } = JSON.parse(event.data);
 
             if (error != "") {
-                toast.error(error, {
-                    style: {
-                        borderRadius: "7px",
-                        background: "#FB4D3D",
-                        color: "#fff",
-                    },
-                    iconTheme: {
-                        primary: '#ffffff7a',
-                        secondary: '#fff',
-                    }
-                });
-                this.onSetProgressMessage(step, content, progress_target, true);
+                this.setState({isError: true, indexingMessage: error});
                 return;
             }
 
             if (is_finished) {
-                const { codebase_id, name, files, is_gitlab, is_private } = metadata;
-
-                this.onSetProgressMessage(null, content, progress_target, true);
-
-                if (is_paywalled) {
-                    const repository = new Repository("", "", {});
-                    await this.onSetCodebase(repository, is_paywalled, content);
-
-                    // TODO: Remove codebase from state
-                    // TODO: Render paywall message
-
-                } else {
-                    const repository = new Repository(codebase_id, name, files, is_private, is_gitlab);
-                    await this.onSetCodebase(repository, is_paywalled);
-
-                    let { codebases } = this.state;
-                    codebases = codebases.map(codebase => {
-                        if (codebase.codebaseId == codebase_id) {
-                            console.log(codebase_id);
-                            codebase.files = files;
-                            codebase.isPrivate = is_private;
-                        }
-
-                        return codebase;
-                    });
-                    this.setState({ codebases });
-                }
-
-                let { codebasesInProgress } = this.state;
-                codebasesInProgress = codebasesInProgress.filter(codebase => codebase.codebaseId != codebase_id);
-
-                this.setState({ codebasesInProgress });
-                // ws.close();
-                // this.websocket = null;
+                const { updateIndexingStatus } = this.props;
+                this.setState({indexingProgress: 0.0, indexingMessage: "", isError: false});
+                updateIndexingStatus(IndexingStatus.Indexed);
             } else {
-                this.onSetProgressMessage(step, content, progress_target);
+                this.setState({indexingProgress: progress, indexingMessage: message});
             }
         }
         ws.onerror = event => {
             this.websocketRef.current = null;
-            this.onSetProgressMessage("", "", false, null, true);
-            window.removeEventListener("beforeunload", this.onBeforeUnload);
-
-            toast.error("We are experiencing unusually high load. Please try again at another time.", {
-                style: {
-                    borderRadius: "7px",
-                    background: "#FB4D3D",
-                    color: "#fff",
-                },
-                iconTheme: {
-                    primary: '#ffffff7a',
-                    secondary: '#fff',
-                }
-            });
         };
         ws.onclose = event => {
             this.websocketRef.current = null;
-            window.removeEventListener("beforeunload", this.onBeforeUnload);
         }
     }
 
     /* Event Handlers */
 
-    onIndex() {
+    onIndex(reIndex=false) {
         const { repository, updateIndexingStatus } = this.props;
+        const { getAccessTokenSilently, user } = this.props.auth0;
 
-        updateIndexingStatus(IndexingStatus.Indexing)
+        updateIndexingStatus(IndexingStatus.Indexing);
+        getAccessTokenSilently()
+            .then(token => {
+                this.openWebsocketConnection(ws => {
+                    if (ws === null) {
+                        return;
+                    }
 
+                    const request = {
+                        user_id: user.sub,
+                        token: token,
+                        repo_name: repository.fullPath,
+                        refresh_index: reIndex,
+                        is_gitlab: false
+                    };
+                    ws.send(JSON.stringify(request));
+
+                    Mixpanel.track("index_repository", { repositoryPath: repository.fullPath, reIndex });
+            });
+        });
         // TODO: Open websocket connection and send index request
     }
 
@@ -134,8 +94,6 @@ export default class IndexingButton extends Component {
     render() {
         const { repository } = this.props;
         const { indexingMessage } = this.state;
-
-        repository.indexingStatus = IndexingStatus.IndexedButStale;
 
         if (repository.indexingStatus === IndexingStatus.Indexed) {
             return (
@@ -168,8 +126,17 @@ export default class IndexingButton extends Component {
         } else if (repository.indexingStatus === IndexingStatus.Indexing) {
             return (
                 <div className="indexingButton">
-                    <CircularProgress />
-                    <span>{indexingMessage ? indexingMessage : "Learning codebase"}</span>
+                    {indexingMessage ? (
+                        <>
+                            <CircularProgress />
+                            <span dangerouslySetInnerHTML={{ __html: indexingMessage }} />
+                        </>
+                    ) : (
+                        <>
+                            <CircularProgress />
+                            <span>Learning codebase</span>
+                        </>
+                    )}
                 </div>
             );
         }

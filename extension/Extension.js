@@ -20,9 +20,15 @@ const Extension = () => {
 
   useEffect(() => {
     if (router.isReady && Object.keys(router.query).length > 0) {
-      const { owner, name } = router.query; // TODO: Pass in default branch as well, or get it from API
-      let repository = new Repository(owner, name);
+      const { owner, name } = router.query; // TODO: Pass in the branch as well
+      const repository = new Repository(owner, name);
 
+      setRepository(repository);
+    }
+  }, [router.isReady, router.query]);
+
+  useEffect(() => {
+    if (isAuthenticated && repository) {
       getAccessTokenSilently().then(token => {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}api/codebase_metadata`, {
             method: "POST",
@@ -48,7 +54,7 @@ const Extension = () => {
         });
       });
     }
-  }, [router.isReady, router.query])
+  }, [isAuthenticated]);
 
   if (repository) {
     return (isAuthenticated ? (
