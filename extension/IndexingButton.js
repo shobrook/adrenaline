@@ -95,6 +95,8 @@ export default class IndexingButton extends Component {
         const { repository } = this.props;
         const { indexingMessage } = this.state;
 
+        console.log(repository)
+
         if (repository.indexingStatus === IndexingStatus.Indexed) {
             return (
                 <div className="isIndexedButton">

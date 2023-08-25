@@ -2,12 +2,14 @@ import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { cloneDeep } from "lodash";
 import ChatBot from "./Chatbot";
 import AuthModal from "./AuthModal";
 import { Repository, IndexingStatus } from "./lib/dtos";
 
 const Extension = () => {
   const [repository, setRepository] = useState(null);
+  const [isRepositoryInitialized, setIsRepositoryInitialized] = useState(false);
   const { isLoading, getAccessTokenSilently, isAuthenticated } = useAuth0();
   const router = useRouter();
 
@@ -23,12 +25,14 @@ const Extension = () => {
       const { owner, name } = router.query; // TODO: Pass in the branch as well
       const repository = new Repository(owner, name);
 
+      console.log("Repository is set")
       setRepository(repository);
     }
   }, [router.isReady, router.query]);
 
   useEffect(() => {
-    if (isAuthenticated && repository) {
+    if (isAuthenticated && repository && !isRepositoryInitialized) {
+      console.log("Data goten")
       getAccessTokenSilently().then(token => {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}api/codebase_metadata`, {
             method: "POST",
@@ -39,22 +43,24 @@ const Extension = () => {
             body: JSON.stringify({codebase_id: `github/${repository.fullPath}`})
         }).then(res => res.json()).then(data => {
             const { is_private, is_indexed, num_commits_behind } = data;
-            repository.isPrivate = is_private;
-            repository.numCommitsBehind = num_commits_behind;
+            let updatedRepository = cloneDeep(repository);
+            updatedRepository.isPrivate = is_private;
+            updatedRepository.numCommitsBehind = num_commits_behind;
 
             if (!is_indexed) {
-              repository.indexingStatus = IndexingStatus.NotIndexed;
+              updatedRepository.indexingStatus = IndexingStatus.NotIndexed;
             } else if (num_commits_behind > 0) {
-              repository.indexingStatus = IndexingStatus.IndexedButStale;
+              updatedRepository.indexingStatus = IndexingStatus.IndexedButStale;
             } else {
-              repository.indexingStatus = IndexingStatus.Indexed;
+              updatedRepository.indexingStatus = IndexingStatus.Indexed;
             }
 
-            setRepository(repository);
+            setRepository(updatedRepository);
+            setIsRepositoryInitialized(true);
         });
       });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, repository]);
 
   if (repository) {
     return (isAuthenticated ? (
