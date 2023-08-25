@@ -5,6 +5,7 @@
     padding-top: 10px;
     display: flex;
     flex-direction: column;
+    background-color: #14171F;
 }
 
 .ext-chatContainer {

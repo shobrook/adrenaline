@@ -4,12 +4,14 @@
     width: 100%;
     height: 100%;
     position: absolute;
+    background: transparent;
 }
 
 .ext-chatbot {
     display: flex;
     flex-direction: column;
     background-color: #14171F;
+    background: transparent;
     border: 2px solid #262A39;
     border-radius: 7px;
     height: calc(100% - 4px);
