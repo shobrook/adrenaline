@@ -35,6 +35,16 @@
 }
 
 .ext-messagesContainer.notIndexed {
-    opacity: 0.5;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.ext-messagesContainer.indexedButStale {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.ext-messagesContainer.failedToIndex {
+    opacity: 0.35;
     pointer-events: none;
 }

@@ -195,7 +195,7 @@ class ChatBot extends Component {
                     <ChatbotHeader repository={repository} updateIndexingStatus={updateIndexingStatus} />
                     <fieldset 
                         className={`ext-messagesContainer ${repository.indexingStatus}`} 
-                        disabled={repository.indexingStatus === IndexingStatus.NotIndexed}
+                        disabled={repository.indexingStatus !== IndexingStatus.Indexed && repository.indexingStatus !== IndexingStatus.IndexedButStale}
                     >
                         <Messages messages={messages} repository={repository} />
                         <MessageInput 

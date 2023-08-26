@@ -135,15 +135,13 @@ class IndexingButton extends Component {
             return (
                 <div className="staleIndexButton" onClick={() => this.onIndex(true)}>
                     <TbAnalyzeFilled />
-                    <span>{repository.numCommitsBehind ?? 0} commits behind</span>
+                    <span>Resync repository ({repository.numCommitsBehind ?? 0} commits behind)</span>
                 </div>
             );
         } else if (repository.indexingStatus === IndexingStatus.NotIndexed) {
             return (
                 <Tooltip 
-                    title="You must sync this repository before asking questions." 
-                    open 
-                    arrow
+                    title="Sync repository to start asking questions" 
                     placement="right"
                     classes={{tooltip: "indexingTooltip"}}
                 >
