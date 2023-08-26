@@ -179,10 +179,25 @@ class ChatBot extends Component {
     }
 
     /* Lifecycle Methods */
+    
+    componentDidUpdate(prevProps, prevState) {
+        const { repository } = this.props;
+        const { messages } = this.state;
+
+        if (messages.every(message => message.isComplete)) {
+            localStorage.setItem(repository.fullPath, JSON.stringify(messages));
+        }
+    }
 
     componentDidMount() {
         const { repository } = this.props;
-        this.setState({ messages: [buildWelcomeMessage(repository.name)] });
+        let priorMessages = JSON.parse(localStorage.getItem(repository.fullPath));
+
+        if (priorMessages) {
+            this.setState({ messages: priorMessages })
+        } else {
+            this.setState({ messages: [buildWelcomeMessage(repository.name)] });
+        }
     }
 
     render() {
