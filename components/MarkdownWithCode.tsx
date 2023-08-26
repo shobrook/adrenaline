@@ -63,7 +63,6 @@ const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource, isExtensi
 
         const onClickLink = () => {
           if (isExtension) {
-            // window.parent.postMessage("minimizeChatbot", "*"); // TODO: Restrict origin
             window.parent.postMessage(JSON.stringify({message: "redirectToUrl", data: fileUrl}), "*"); // TODO: Restrict origin
           } else {
             window.open(fileUrl, "_blank");

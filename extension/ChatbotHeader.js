@@ -15,12 +15,12 @@ export default class ChatbotHeader extends Component {
     /* Event Handlers */
 
     onPin() {
-        window.parent.postMessage("minimizeChatbot", "*"); // TODO: Restrict origin
+        window.parent.postMessage(JSON.stringify({message: "minimizeChatbot"}), "*"); // TODO: Restrict origin
         this.setState(prevState => ({ isPinned: !prevState.isPinned }));
     }
 
     onClose() {
-        window.parent.postMessage("closeChatbot", "*"); // TODO: Restrict origin
+        window.parent.postMessage(JSON.stringify({message: "closeChatbot"}), "*"); // TODO: Restrict origin
     }
 
     /* Lifecycle Methods */

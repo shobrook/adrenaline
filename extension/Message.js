@@ -55,6 +55,7 @@ export default class Message extends Component {
                         repoSource={repository.source}
                         repoBranch={repository.branch}
                         markdown={markdown}
+                        isExtension={true}
                     />
                 </div>
             </div>
