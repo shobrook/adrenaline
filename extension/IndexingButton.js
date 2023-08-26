@@ -46,6 +46,7 @@ class IndexingButton extends Component {
 
             if (error != "") {
                 updateIndexingStatus(IndexingStatus.FailedToIndex);
+                Mixpanel.track("indexing_failure");
                 return;
             }
 
@@ -56,12 +57,7 @@ class IndexingButton extends Component {
                 Mixpanel.track("indexed_repository");
             } else {
                 this.setState(prevState => {
-                    const { indexingMessage, indexingProgress, progressTarget } = prevState;
-
-                    console.log(indexingMessage)
-                    console.log(indexingProgress)
-                    console.log(progressTarget)
-                    console.log()
+                    const { indexingProgress, progressTarget } = prevState;
                 
                     return {
                         ...prevState,
@@ -73,6 +69,7 @@ class IndexingButton extends Component {
             }
         }
         ws.onerror = event => {
+            const { updateIndexingStatus } = this.props;
             this.websocketRef.current = null;
             updateIndexingStatus(IndexingStatus.FailedToIndex);
             Mixpanel.track("websocket_connection_failed");

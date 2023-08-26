@@ -48,3 +48,8 @@
     opacity: 0.35;
     pointer-events: none;
 }
+
+.ext-messagesContainer.indexing {
+    opacity: 0.35;
+    pointer-events: none;
+}

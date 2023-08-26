@@ -11,6 +11,7 @@ import { CodeProps } from 'react-markdown/lib/ast-to-react';
 import QuotedCode from '../components/QuotedCode';
 import GeneratedCode from '../components/GeneratedCode';
 import FileChip from '../components/FileChip';
+import Mixpanel from "../extension/lib/mixpanel";
 
 type Props = {
   repoPath: string;
@@ -63,6 +64,7 @@ const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource, isExtensi
 
         const onClickLink = () => {
           if (isExtension) {
+            Mixpanel.track("click_code_citation", { fileChip: true });
             window.parent.postMessage(JSON.stringify({message: "redirectToUrl", data: fileUrl}), "*"); // TODO: Restrict origin
           } else {
             window.open(fileUrl, "_blank");
@@ -108,6 +110,7 @@ const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource, isExtensi
         const onClickLink = () => {
           if (fileUrl) {
             if (isExtension) {
+              Mixpanel.track("click_code_citation", { fileChip: false });
               window.parent.postMessage(JSON.stringify({message: "redirectToUrl", data: fileUrl}), "*"); // TODO: Restrict origin
             } else {
               window.open(fileUrl, "_blank");

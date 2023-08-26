@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { BsPinAngle, BsPin, BsXCircle } from "react-icons/bs";
 import IndexingButton from "./IndexingButton";
+import Mixpanel from "./lib/mixpanel";
 
 export default class ChatbotHeader extends Component {
     constructor(props) {
@@ -15,11 +16,13 @@ export default class ChatbotHeader extends Component {
     /* Event Handlers */
 
     onPin() {
+        Mixpanel.track("pin_chatbot");
         window.parent.postMessage(JSON.stringify({message: "minimizeChatbot"}), "*"); // TODO: Restrict origin
         this.setState(prevState => ({ isPinned: !prevState.isPinned }));
     }
 
     onClose() {
+        Mixpanel.track("close_chatbot");
         window.parent.postMessage(JSON.stringify({message: "closeChatbot"}), "*"); // TODO: Restrict origin
     }
 

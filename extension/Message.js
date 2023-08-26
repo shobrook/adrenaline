@@ -42,9 +42,6 @@ export default class Message extends Component {
         let markdown = isResponseLoading(message) ? 
             message.content.replace(/\[\`[^`]*$|\[\`[^`]+\`\]\([^)]*$/, '')
             : message.content;
-        
-        console.log(markdown);
-        console.log();
 
         return (
             <div
