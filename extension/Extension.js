@@ -7,6 +7,7 @@ import { CircularProgress } from '@mui/material';
 import ChatBot from "./Chatbot";
 import AuthModal from "./AuthModal";
 import { Repository, IndexingStatus } from "./lib/dtos";
+import Mixpanel from "./lib/mixpanel";
 
 const Extension = () => {
   const [repository, setRepository] = useState(null);
@@ -21,6 +22,10 @@ const Extension = () => {
       return newRepository;
     });
   }
+
+  useEffect(() => {
+    Mixpanel.track("loaded_extension");
+  }, []);
 
   useEffect(() => {
     if (router.isReady && Object.keys(router.query).length > 0) {
