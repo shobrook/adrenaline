@@ -197,3 +197,8 @@
 .ext-isClicked {
     background-color: #181b26;
 }
+
+.MuiLinearProgress-root {
+    height: 7px !important;
+    border-radius: 2px;
+}

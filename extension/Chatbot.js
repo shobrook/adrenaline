@@ -191,14 +191,19 @@ class ChatBot extends Component {
 
         return (
             <div className="ext-chatbotContainer">
-                <div className={`ext-chatbot ${repository.indexingStatus}`}>
+                <div className="ext-chatbot">
                     <ChatbotHeader repository={repository} updateIndexingStatus={updateIndexingStatus} />
-                    <Messages messages={messages} repository={repository} />
-                    <MessageInput 
-                        onSubmitMessage={this.onSubmitMessage} 
-                        isBlocked={!messages[messages.length - 1]?.isComplete} 
-                        onClearConversation={this.onClearConversation}
-                    />
+                    <fieldset 
+                        className={`ext-messagesContainer ${repository.indexingStatus}`} 
+                        disabled={repository.indexingStatus === IndexingStatus.NotIndexed}
+                    >
+                        <Messages messages={messages} repository={repository} />
+                        <MessageInput 
+                            onSubmitMessage={this.onSubmitMessage} 
+                            isBlocked={!messages[messages.length - 1]?.isComplete} 
+                            onClearConversation={this.onClearConversation}
+                        />
+                    </fieldset>
                 </div>
             </div>
         )  

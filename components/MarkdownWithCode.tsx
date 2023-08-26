@@ -1,5 +1,5 @@
 import ReactMarkdown from 'react-markdown';
-import {
+import React, {
   AnchorHTMLAttributes,
   DetailedHTMLProps,
   ReactElement,
@@ -17,9 +17,10 @@ type Props = {
   repoBranch: string;
   markdown: string;
   repoSource: string;
+  isExtension: boolean;
 };
 
-const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource}: Props) => {
+const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource, isExtension}: Props) => {
   const components = useMemo(() => {
     return {
       a(
@@ -60,11 +61,20 @@ const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource}: Props) =
           }
         }
 
+        const onClickLink = () => {
+          if (isExtension) {
+            // window.parent.postMessage("minimizeChatbot", "*"); // TODO: Restrict origin
+            window.parent.postMessage({message: "redirectToUrl", data: fileUrl}, "*"); // TODO: Restrict origin
+          } else {
+            window.open(fileUrl, "_blank");
+          }
+        }
+
         return (
           <FileChip
             fileName={fileName || filePath || ''}
             skipIcon={!!fileName && fileName !== filePath}
-            onClick={() => window.open(fileUrl, "_blank")}
+            onClick={onClickLink}
           />
         );
       },
@@ -96,6 +106,18 @@ const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource}: Props) =
           }
         }
 
+        const onClickLink = () => {
+          if (fileUrl) {
+            if (isExtension) {
+              window.parent.postMessage({message: "redirectToUrl", data: fileUrl}, "*"); // TODO: Restrict origin
+            } else {
+              window.open(fileUrl, "_blank");
+            }
+          }
+          
+          return null;
+        }
+
         return !inline && (matchType?.[1] || matchLang?.[1]) && typeof children[0] === "string" ? (
           matchType?.[1] === "Quoted" ? (
             <QuotedCode
@@ -104,7 +126,7 @@ const MarkdownWithCode = ({markdown, repoPath, repoBranch, repoSource}: Props) =
               filePath={matchPath?.[1] || ""}
               startLine={lines[0] ? lines[0] - 1 : null}
               repoSource={repoSource}
-              onClick={() => fileUrl ? window.open(fileUrl, "_blank") : null}
+              onClick={onClickLink}
             />
           ) : (
             <GeneratedCode code={code} language={matchLang?.[1] || ""} />

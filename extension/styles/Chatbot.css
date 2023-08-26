@@ -1,3 +1,14 @@
+.ext-loading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: #14171F;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
 .ext-chatbotContainer {
     display: flex;
     flex-direction: column;
@@ -12,4 +23,18 @@
     background-color: #14171F;
     height: 100%;
     width: 100%;
+}
+
+.ext-messagesContainer {
+    padding: 0px;
+    height: calc(100% - 62px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: none;
+}
+
+.ext-messagesContainer.notIndexed {
+    opacity: 0.5;
+    pointer-events: none;
 }

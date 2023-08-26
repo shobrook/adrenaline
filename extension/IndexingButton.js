@@ -1,6 +1,6 @@
 import React, { createRef, Component } from "react";
 import { TbCircleX, TbCircleCheck, TbAnalyzeFilled } from "react-icons/tb";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Tooltip } from "@mui/material";
 import { withAuth0 } from "@auth0/auth0-react";
 import { IndexingStatus } from "./lib/dtos";
 import Mixpanel from "./lib/mixpanel";
@@ -13,7 +13,7 @@ class IndexingButton extends Component {
         this.onIndex = this.onIndex.bind(this);
 
         this.websocketRef = createRef();
-        this.state = { indexingProgress: 0, progressTarget: 1, indexingMessage: "", isError: false }
+        this.state = { indexingProgress: 0, progressTarget: null, indexingMessage: "" }
     }
 
     /* Utilities */
@@ -42,34 +42,31 @@ class IndexingButton extends Component {
                 is_finished,
                 error
             } = JSON.parse(event.data);
+            const { updateIndexingStatus } = this.props;
 
             if (error != "") {
-                this.setState({isError: true, indexingMessage: error});
+                updateIndexingStatus(IndexingStatus.FailedToIndex);
                 return;
             }
 
             if (is_finished) {
-                const { updateIndexingStatus } = this.props;
-                this.setState({indexingProgress: 0, indexingMessage: "", isError: false});
+                this.setState({indexingProgress: 0, progressTarget: null, indexingMessage: "", isError: false});
                 updateIndexingStatus(IndexingStatus.Indexed);
 
                 Mixpanel.track("indexed_repository");
             } else {
                 this.setState(prevState => {
-                    console.log("Got updated")
-                    const { indexingProgress, progressTarget } = prevState;
-                    const newProgress = indexingProgress + 1;
+                    const { indexingMessage, indexingProgress, progressTarget } = prevState;
 
-                    let factor = 1;
-                    if (step.toLowerCase() !== "scraping repository") {
-                        factor = 2;
-                    }
-
+                    console.log(indexingMessage)
+                    console.log(indexingProgress)
+                    console.log(progressTarget)
+                    console.log()
                 
                     return {
                         ...prevState,
-                        indexingProgress: (indexingProgress + 1),
-                        // progressTarget: 
+                        indexingProgress: progress_target == progressTarget ? (indexingProgress + 1) : 1,
+                        progressTarget: progress_target,
                         indexingMessage: content ? `${step}: <span>${content}</span>` : step
                     }
                 });
@@ -77,6 +74,7 @@ class IndexingButton extends Component {
         }
         ws.onerror = event => {
             this.websocketRef.current = null;
+            updateIndexingStatus(IndexingStatus.FailedToIndex);
             Mixpanel.track("websocket_connection_failed");
         };
         ws.onclose = event => {
@@ -86,15 +84,16 @@ class IndexingButton extends Component {
 
     /* Event Handlers */
 
-    onIndex(reIndex=false) {
+    async onIndex(reIndex=false) {
         const { repository, updateIndexingStatus } = this.props;
         const { getAccessTokenSilently, user } = this.props.auth0;
 
-        updateIndexingStatus(IndexingStatus.Indexing);
+        await updateIndexingStatus(IndexingStatus.Indexing);
         getAccessTokenSilently()
             .then(token => {
                 this.openWebsocketConnection(ws => {
                     if (ws === null) {
+                        updateIndexingStatus(IndexingStatus.FailedToIndex);
                         return;
                     }
 
@@ -116,10 +115,7 @@ class IndexingButton extends Component {
 
     render() {
         const { repository } = this.props;
-        let { indexingProgress, indexingMessage } = this.state;
-
-        console.log(indexingMessage)
-        console.log(indexingProgress)
+        let { indexingProgress, progressTarget, indexingMessage } = this.state;
 
         if (repository.indexingStatus === IndexingStatus.Indexed) {
             return (
@@ -144,34 +140,63 @@ class IndexingButton extends Component {
             );
         } else if (repository.indexingStatus === IndexingStatus.NotIndexed) {
             return (
-                <div className="notIndexedButton" onClick={() => this.onIndex(true)}>
-                    <TbAnalyzeFilled />
-                    <span>Sync repository</span>
-                </div>
+                <Tooltip 
+                    title="You must sync this repository before asking questions." 
+                    open 
+                    arrow
+                    placement="right"
+                    classes={{tooltip: "indexingTooltip"}}
+                >
+                    <div className="notIndexedButton" onClick={() => this.onIndex(true)}>
+                        <TbAnalyzeFilled />
+                        <span>Sync repository</span>
+                    </div>
+                </Tooltip>
             );
         } else if (repository.indexingStatus === IndexingStatus.Indexing) {
-            return (
-                <div className="indexingButton">
-                    {indexingProgress || indexingMessage ? (
-                        <>
+            if (indexingMessage) {
+                let progressValue = 101;
+                if (progressTarget) {
+                    progressValue = (indexingProgress / progressTarget) * 100;
+                    if (indexingMessage.toLowerCase().startsWith("scraping")) {
+                        progressValue *= 0.5;
+                    }
+                }
+
+                if (progressValue > 100) {
+                    return (
+                        <div className="indexingButton">
                             <CircularProgress
-                                variant="determinate"
-                                value={indexingProgress}
+                                variant="indeterminate"
                                 size="17px"
                                 sx={{color:"#DBE2F0"}} 
                             />
-                            <span dangerouslySetInnerHTML={{ __html: indexingMessage }} />
-                        </>
-                    ) : (
-                        <>
-                            <CircularProgress 
-                                variant="indeterminate"
-                                size="17px" 
-                                sx={{color:"#DBE2F0"}} 
-                            />
-                            <span>Learning codebase</span>
-                        </>
-                    )}
+                            <span className="indexingMessage" dangerouslySetInnerHTML={{ __html: indexingMessage }} />
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="indexingButton">
+                        <CircularProgress
+                            variant="determinate"
+                            value={progressValue}
+                            size="17px"
+                            sx={{color:"#DBE2F0"}} 
+                        />
+                        <span className="indexingMessage" dangerouslySetInnerHTML={{ __html: indexingMessage }} />
+                    </div>
+                );
+            }
+
+            return (
+                <div className="indexingButton">
+                    <CircularProgress 
+                        variant="indeterminate"
+                        size="17px" 
+                        sx={{color:"#DBE2F0"}} 
+                    />
+                    <span>Learning codebase</span>
                 </div>
             );
         }

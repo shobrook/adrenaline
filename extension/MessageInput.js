@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { HiRefresh } from "react-icons/hi";
-import { TextareaAutosize } from "@mui/material";
+import { CircularProgress, TextareaAutosize } from "@mui/material";
 import Button from "../components/Button";
 
 export default class MessageInput extends Component {
@@ -68,7 +68,13 @@ export default class MessageInput extends Component {
                             type="submit"
                             onClick={this.onSubmitInput}
                         >
-                            Ask AI
+                            {isBlocked ? (
+                                <CircularProgress
+                                    variant="indeterminate"
+                                    size="17px"
+                                    sx={{color:"#DBE2F0"}} 
+                                />
+                            ) : "Ask AI"}
                         </Button>
                     </div>
                 </form>

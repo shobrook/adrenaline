@@ -106,3 +106,22 @@
 .indexingButton > svg {
     stroke-width: 1.25px !important;
 }
+
+.indexingMessage > span{
+    opacity: 0.75;
+    font-weight: 400;
+}
+
+.MuiTooltip-tooltip {
+    font-size: 14px !important;
+    background-color: #313A5B !important;
+    color: #DBE2F0 !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.MuiTooltip-arrow {
+    color: #313A5B !important;
+}

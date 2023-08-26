@@ -1,19 +1,22 @@
 import React, { Component } from "react";
-import { BsFullscreenExit, BsXCircle } from "react-icons/bs";
+import { BsPinAngle, BsPin, BsXCircle } from "react-icons/bs";
 import IndexingButton from "./IndexingButton";
 
 export default class ChatbotHeader extends Component {
     constructor(props) {
         super(props);
 
-        this.onMinimize = this.onMinimize.bind(this);
+        this.onPin = this.onPin.bind(this);
         this.onClose = this.onClose.bind(this);
+
+        this.state = { isPinned: false };
     }
 
     /* Event Handlers */
 
-    onMinimize() {
+    onPin() {
         window.parent.postMessage("minimizeChatbot", "*"); // TODO: Restrict origin
+        this.setState(prevState => ({ isPinned: !prevState.isPinned }));
     }
 
     onClose() {
@@ -23,11 +26,17 @@ export default class ChatbotHeader extends Component {
     /* Lifecycle Methods */
 
     render() {
+        const { isPinned } = this.state;
+
         return (
             <div className="ext-chatBotHeader">
                 <IndexingButton {...this.props} />
                 <div className="ext-chatBotOptions">
-                    <BsFullscreenExit onClick={this.onMinimize} />
+                    {isPinned ? (
+                        <BsPin onClick={this.onPin} />
+                    ) : (
+                        <BsPinAngle onClick={this.onPin} />
+                    )}
                     <BsXCircle onClick={this.onClose} />
                 </div>
             </div>

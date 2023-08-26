@@ -3,6 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { cloneDeep } from "lodash";
+import { CircularProgress } from '@mui/material';
 import ChatBot from "./Chatbot";
 import AuthModal from "./AuthModal";
 import { Repository, IndexingStatus } from "./lib/dtos";
@@ -15,8 +16,9 @@ const Extension = () => {
 
   const updateIndexingStatus = indexingStatus => {
     setRepository(prevRepository => {
-      prevRepository.indexingStatus = indexingStatus;
-      return prevRepository;
+      const newRepository = cloneDeep(prevRepository);
+      newRepository.indexingStatus = indexingStatus;
+      return newRepository;
     });
   }
 
@@ -66,13 +68,21 @@ const Extension = () => {
     }
   }, [router.query]);
 
-  if (repository) {
+  if (isRepositoryInitialized) {
     return (isAuthenticated ? (
       <ChatBot repository={repository} updateIndexingStatus={updateIndexingStatus} />
     ) : (<AuthModal repository={repository} />));
   }
 
-  return null
+  return (
+    <div className="ext-loading">
+      <CircularProgress 
+          variant="indeterminate"
+          size="32px" 
+          sx={{color:"#DBE2F0"}} 
+      />
+    </div>
+  );
 };
 
 export default Extension;
