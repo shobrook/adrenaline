@@ -3,6 +3,7 @@ export class Repository {
         this.owner = owner;
         this.name = name;
         this.branch = branch;
+        this.source = "github";
         this.fullPath = `${owner}/${name}`;
         this.numCommitsBehind = null;
         this.isPrivate = null;
