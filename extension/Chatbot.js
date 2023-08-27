@@ -208,7 +208,7 @@ class ChatBot extends Component {
             <div className="ext-chatbotContainer">
                 <div className="ext-chatbot">
                     <ChatbotHeader repository={repository} updateIndexingStatus={updateIndexingStatus} />
-                    <fieldset 
+                    <div 
                         className={`ext-messagesContainer ${repository.indexingStatus}`} 
                         disabled={repository.indexingStatus !== IndexingStatus.Indexed && repository.indexingStatus !== IndexingStatus.IndexedButStale}
                     >
@@ -218,7 +218,7 @@ class ChatBot extends Component {
                             isBlocked={!messages[messages.length - 1]?.isComplete} 
                             onClearConversation={this.onClearConversation}
                         />
-                    </fieldset>
+                    </div>
                 </div>
             </div>
         )  
