@@ -47,10 +47,11 @@ const Extension = () => {
             },
             body: JSON.stringify({codebase_id: `github/${repository.fullPath}`})
         }).then(res => res.json()).then(data => {
-            const { is_private, is_indexed, num_commits_behind } = data;
+            const { is_private, is_indexed, num_commits_behind, branch } = data;
             let updatedRepository = cloneDeep(repository);
             updatedRepository.isPrivate = is_private;
             updatedRepository.numCommitsBehind = num_commits_behind;
+            updatedRepository.branch = is_indexed ? branch : repository.branch;
 
             if (!is_indexed) {
               updatedRepository.indexingStatus = IndexingStatus.NotIndexed;
