@@ -15,9 +15,9 @@ export default class Messages extends Component {
         const { messages } = this.props;
         const { scrollTop: scrollPosition } = event.currentTarget;
 
-        if (this.oldScroll > scrollPosition && !messages[messages.length - 1].isComplete) {
-            this.disableAutoScroll = true;
-        }
+        // if (this.oldScroll > scrollPosition && !messages[messages.length - 1].isComplete) {
+        //     this.disableAutoScroll = true;
+        // }
 
         this.oldScroll = scrollPosition;
     }
