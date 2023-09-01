@@ -2,6 +2,7 @@ import React from "react";
 import { ReactElement } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { AiFillGithub } from "react-icons/ai";
 
 const QuotedCode = ({ code, language, filePath, startLine, repoSource, onClick }) => {
     let filePathParts = filePath.split("/");
@@ -21,8 +22,8 @@ const QuotedCode = ({ code, language, filePath, startLine, repoSource, onClick }
     return (
         <div className="quotedCode">
             <div className="filePathHeader" onClick={onClick}>
+            {repoSource == "github" ? (<AiFillGithub />) : (<img src="./gitlab.svg" />)}
                 <span className="filePath">{styledFilePath}</span>
-                {repoSource == "github" ? (<img src="github_icon.png" />) : (<img src="/gitlab.svg" />)}
             </div>
             <SyntaxHighlighter
                 className="codeBlock"

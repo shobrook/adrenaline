@@ -11,6 +11,7 @@
     font-weight: 600;
     cursor: pointer;
     box-sizing: border-box;
+    transition: 0.15s;
 }
 
 .fileChip:hover {

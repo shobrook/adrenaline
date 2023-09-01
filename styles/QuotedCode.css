@@ -13,18 +13,27 @@
     font-weight: 500;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding-left: 10px;
     padding-right: 10px;
 }
 
-.filePathHeader > img {
+.filePathHeader > svg {
     height: 20px;
+    width: 20px;
+    min-height: 20px;
+    min-width: 20px;
     opacity: 0.75;
     cursor: pointer;
+    fill: #DBE2F0;
+    transition: 0.15s;
 }
 
-.filePathHeader > img:hover {
+.filePath {
+    padding-left: 7px;
+    overflow: auto;
+}
+
+.filePathHeader > svg:hover {
     opacity: 1.0;
 }
 
