@@ -74,10 +74,14 @@ const Extension = () => {
     }
   }, [router.query]);
 
-  if (isRepositoryInitialized) {
-    return (isAuthenticated ? (
+  if (isRepositoryInitialized && isAuthenticated) {
+    return (
       <ChatBot repository={repository} updateIndexingStatus={updateIndexingStatus} />
-    ) : (<AuthModal repository={repository} />));
+    );
+  }
+
+  if (!isAuthenticated && repository) {
+    return (<AuthModal repository={repository} />);
   }
 
   return (
