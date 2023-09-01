@@ -12,7 +12,8 @@ import Mixpanel from "./lib/mixpanel";
 const Extension = () => {
   const [repository, setRepository] = useState(null);
   const [isRepositoryInitialized, setIsRepositoryInitialized] = useState(false);
-  const { isLoading, getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const [isUserInitialized, setIsUserInitialized] = useState(false);
+  const { isLoading, user, getAccessTokenSilently, isAuthenticated } = useAuth0();
   const router = useRouter();
 
   const updateIndexingStatus = indexingStatus => {
@@ -37,7 +38,30 @@ const Extension = () => {
   }, [router.isReady, router.query]);
 
   useEffect(() => {
-    if (isAuthenticated && repository && !isRepositoryInitialized) {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    getAccessTokenSilently()
+      .then(token => {
+          fetch(`${process.env.NEXT_PUBLIC_API_URI}api/stripe/subscription_status`, {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                  user_id: user.sub,
+                  email: user.email
+              })
+          })
+              .then(res => res.json())
+              .then(data => setIsUserInitialized(true));
+      });
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    if (isAuthenticated && repository && isUserInitialized && !isRepositoryInitialized) {
       getAccessTokenSilently().then(token => {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}api/codebase_metadata`, {
             method: "POST",
@@ -66,7 +90,7 @@ const Extension = () => {
         });
       });
     }
-  }, [isAuthenticated, repository]);
+  }, [isAuthenticated, isUserInitialized, repository]);
 
   useEffect(() => {
     if (router.query.success) {
@@ -74,7 +98,7 @@ const Extension = () => {
     }
   }, [router.query]);
 
-  if (isRepositoryInitialized && isAuthenticated) {
+  if (isRepositoryInitialized && isUserInitialized && isAuthenticated) {
     return (
       <ChatBot repository={repository} updateIndexingStatus={updateIndexingStatus} />
     );
