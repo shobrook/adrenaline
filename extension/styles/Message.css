@@ -16,6 +16,7 @@
     padding-bottom: 1px;
     min-height: 25px;
     transition: 0.15s;
+    overflow: auto;
 }
 
 .ext-loadingMessage {

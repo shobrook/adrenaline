@@ -27,10 +27,6 @@ export default class Messages extends Component {
     componentDidUpdate(prevProps) {
         const { messages } = this.props;
 
-        if (messages.length !== prevProps.messages.length) {
-            this.disableAutoScroll = false;
-        }
-
         if (!this.disableAutoScroll && !isEqual(messages[messages.length - 1], this.lastMessage)) {
             this.lastMessageElement.scrollIntoView({ behavior: "smooth" });
         }
@@ -47,16 +43,17 @@ export default class Messages extends Component {
                 <div className="ext-messages" onScroll={this.onScroll}>
                     {messages.map((message, index) => {
                         return (
-                            <div ref={(el) => {
-                                if (index == messages.length - 1) {
-                                    this.lastMessageElement = el;
-                                }
-                            }}>
+                            <div>
                                 <Message 
                                     index={index == messages.length - 1 ? -1 : index}
                                     message={message} 
                                     repository={repository} 
                                 />
+                                <div ref={(el) => {
+                                    if (index == messages.length - 1) {
+                                        this.lastMessageElement = el;
+                                    }
+                                }} />
                             </div>
                         );
                     })}
