@@ -1,9 +1,27 @@
 import React, { createRef, Component } from "react";
 import { TbCircleX, TbCircleCheck, TbAnalyzeFilled } from "react-icons/tb";
+import { IoMdAddCircleOutline } from "react-icons/io";
+import { AiFillGithub } from "react-icons/ai";
 import { CircularProgress, Tooltip } from "@mui/material";
 import { withAuth0 } from "@auth0/auth0-react";
 import { IndexingStatus } from "./lib/dtos";
 import Mixpanel from "./lib/mixpanel";
+
+const getRepoPathFromUrl = url => {
+    url = url.trim();
+
+    if (url.endsWith("/")) {
+        url = url.slice(0, url.length - 1);
+    }
+    // handle both .com and .edu
+    var components = url.split(".com/");
+    if (url.includes(".edu")) {
+        components = url.split(".edu/");
+    }
+    const repoPath = components[1];
+
+    return repoPath;
+}
 
 class IndexingButton extends Component {
     constructor(props) {
@@ -11,9 +29,15 @@ class IndexingButton extends Component {
 
         this.openWebsocketConnection = this.openWebsocketConnection.bind(this);
         this.onIndex = this.onIndex.bind(this);
+        this.onAddRepository = this.onAddRepository.bind(this);
 
         this.websocketRef = createRef();
-        this.state = { indexingProgress: 0, progressTarget: null, indexingMessage: "" }
+        this.state = { 
+            indexingProgress: 0, 
+            progressTarget: null, 
+            indexingMessage: "",
+            repositoryUrl: ""
+        }
     }
 
     /* Utilities */
@@ -81,15 +105,22 @@ class IndexingButton extends Component {
 
     /* Event Handlers */
 
+    async onAddRepository() {
+        const { updateIndexingStatus } = this.props;
+        await updateIndexingStatus(IndexingStatus.AddingRepository);
+    }
+    
     async onIndex(reIndex=false) {
-        const { repository, updateIndexingStatus } = this.props;
+        const { updateIndexingStatus } = this.props;
         const { getAccessTokenSilently, user } = this.props.auth0;
+        const { repositoryUrl } = this.state;
+        const fullPath = getRepoPathFromUrl(repositoryUrl);
 
         await updateIndexingStatus(IndexingStatus.Indexing);
         getAccessTokenSilently()
             .then(token => {
                 this.openWebsocketConnection(ws => {
-                    if (ws === null) {
+                    if (ws == null) {
                         updateIndexingStatus(IndexingStatus.FailedToIndex);
                         return;
                     }
@@ -97,13 +128,13 @@ class IndexingButton extends Component {
                     const request = {
                         user_id: user.sub,
                         token,
-                        repo_name: repository.fullPath,
+                        repo_name: fullPath,
                         refresh_index: reIndex,
                         is_gitlab: false
                     };
                     ws.send(JSON.stringify(request));
 
-                    Mixpanel.track("index_repository", { repositoryPath: repository.fullPath, reIndex });
+                    Mixpanel.track("index_repository", { repositoryPath: fullPath, reIndex });
             });
         });
     }
@@ -112,23 +143,23 @@ class IndexingButton extends Component {
 
     render() {
         const { repository } = this.props;
-        let { indexingProgress, progressTarget, indexingMessage } = this.state;
+        let { indexingProgress, progressTarget, indexingMessage, repositoryUrl } = this.state;
 
-        if (repository.indexingStatus === IndexingStatus.Indexed) {
+        if (repository.indexingStatus == IndexingStatus.Indexed) {
             return (
                 <div className="isIndexedButton">
-                    <TbCircleCheck />
-                    <span>Up to date</span>
+                    <AiFillGithub />
+                    <span>{getRepoPathFromUrl(repositoryUrl)}</span>
                 </div>
             );
-        } else if (repository.indexingStatus === IndexingStatus.FailedToIndex) {
+        } else if (repository.indexingStatus == IndexingStatus.FailedToIndex) {
             return (
                 <div className="failedIndexButton">
                     <TbCircleX />
                     <span>Failed to sync</span>
                 </div>
             );
-        } else if (repository.indexingStatus === IndexingStatus.IndexedButStale) {
+        } else if (repository.indexingStatus == IndexingStatus.IndexedButStale) {
             return (
                 <div className="staleIndexButton" onClick={() => this.onIndex(true)}>
                     <TbAnalyzeFilled />
@@ -138,17 +169,17 @@ class IndexingButton extends Component {
         } else if (repository.indexingStatus === IndexingStatus.NotIndexed) {
             return (
                 <Tooltip 
-                    title="Sync repository to start asking questions" 
+                    title="Add context to get better answers" 
                     placement="right"
                     classes={{tooltip: "indexingTooltip"}}
                 >
-                    <div className="notIndexedButton" onClick={() => this.onIndex(true)}>
-                        <TbAnalyzeFilled />
-                        <span>Sync repository</span>
+                    <div className="notIndexedButton" onClick={this.onAddRepository}>
+                        <IoMdAddCircleOutline />
+                        <span>Your code</span>
                     </div>
                 </Tooltip>
             );
-        } else if (repository.indexingStatus === IndexingStatus.Indexing) {
+        } else if (repository.indexingStatus == IndexingStatus.Indexing) {
             if (indexingMessage) {
                 let progressValue = 101;
                 if (progressTarget) {
@@ -193,6 +224,19 @@ class IndexingButton extends Component {
                     />
                     <span>Learning codebase</span>
                 </div>
+            );
+        } else if (repository.indexingStatus == IndexingStatus.AddingRepository) {
+            return (
+                <form className="addRepositoryButton" onSubmit={() => this.onIndex(true)}>
+                    <AiFillGithub />
+                    <input 
+                        type="text" 
+                        placeholder="Enter repository URL" 
+                        value={repositoryUrl} 
+                        onChange={event => this.setState({repositoryUrl: event.target.value })}
+                    />
+                    <IoMdAddCircleOutline className={`addRepositoryIcon ${repositoryUrl ? "active" : ""}`} />
+                </form>
             );
         }
 

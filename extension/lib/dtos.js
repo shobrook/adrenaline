@@ -23,6 +23,7 @@ export class Message {
 
 export const IndexingStatus = Object.freeze({
     NotIndexed: "notIndexed",
+    AddingRepository: "addingRepository",
     Indexing: "indexing",
     FailedToIndex: "failedToIndex",
     IndexedButStale: "indexedButStale",

@@ -19,7 +19,7 @@ export const buildChatHistory = messages => {
 }
 
 export const buildWelcomeMessage = repositoryName => {
-    const messageContent = `Hi, I'm your AI expert on ${repositoryName}. Ask me anything about this repository.`;
+    const messageContent = `Hi, I'm your AI expert on Weaviate. Ask me anything.`;
     const welcomeMessage = new Message(messageContent, true, true);
     
     return welcomeMessage;

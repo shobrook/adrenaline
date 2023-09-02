@@ -125,3 +125,52 @@
 .MuiTooltip-arrow {
     color: #313A5B !important;
 }
+
+.addRepositoryButton {
+    height: 34px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.15s;
+
+    background-color: #8204B3;
+}
+
+.addRepositoryButton > svg {
+    min-height: 22px;
+    min-width: 22px;
+}
+
+.addRepositoryButton > input {
+    background-color: #68058f;
+    outline: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding-left: 7px;
+    border: none;
+    border-radius: 5px;
+    height: 22px;
+    color: #DBE2F0;
+    width: 350px;
+}
+
+.addRepositoryButton > input::placeholder {
+    color: #DBE2F0;
+    opacity: 0.75;
+}
+
+.addRepositoryIcon {
+    opacity: 0.5;
+    transition: 0.15s;
+    min-height: 20px;
+    min-width: 20px;
+}
+
+.addRepositoryIcon.active {
+    opacity: 1;
+}

@@ -213,8 +213,7 @@ class ChatBot extends Component {
                         websocketRef={this.websocketRef}
                     />
                     <div 
-                        className={`ext-messagesContainer ${repository.indexingStatus}`} 
-                        disabled={repository.indexingStatus !== IndexingStatus.Indexed && repository.indexingStatus !== IndexingStatus.IndexedButStale}
+                        className={`ext-messagesContainer`} 
                     >
                         <Messages messages={messages} repository={repository} />
                         <MessageInput 
