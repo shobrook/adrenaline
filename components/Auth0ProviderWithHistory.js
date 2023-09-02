@@ -13,6 +13,7 @@ const Auth0ProviderWithHistory = ({ children }) => {
     useEffect(() => {
         const { authSuccess } = router.query;
         if (authSuccess) {
+            window.parent.postMessage(JSON.stringify({message: "successfulLogin"}), "*"); // TODO: Restrict origin
             window.close();
             return;
         }
