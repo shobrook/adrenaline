@@ -154,7 +154,7 @@ class ChatBot extends Component {
                         const request = {
                             user_id: user.sub,
                             token: token,
-                            codebase_id: `github/${repository.fullPath}`,
+                            codebase_id: `github/pinecone-io/pinecone-vercel-starter`,
                             query: message,
                             chat_history: buildChatHistory(newMessages)
                         };
