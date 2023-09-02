@@ -42,6 +42,9 @@ const Extension = () => {
       return;
     }
 
+    Mixpanel.identify(user.sub);
+    Mixpanel.people.set({ auth0_id: user.sub, email: user.email });
+
     getAccessTokenSilently()
       .then(token => {
           fetch(`${process.env.NEXT_PUBLIC_API_URI}api/stripe/subscription_status`, {
