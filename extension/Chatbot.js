@@ -207,7 +207,11 @@ class ChatBot extends Component {
         return (
             <div className="ext-chatbotContainer">
                 <div className="ext-chatbot">
-                    <ChatbotHeader repository={repository} updateIndexingStatus={updateIndexingStatus} />
+                    <ChatbotHeader 
+                        repository={repository} 
+                        updateIndexingStatus={updateIndexingStatus}
+                        websocketRef={this.websocketRef}
+                    />
                     <div 
                         className={`ext-messagesContainer ${repository.indexingStatus}`} 
                         disabled={repository.indexingStatus !== IndexingStatus.Indexed && repository.indexingStatus !== IndexingStatus.IndexedButStale}

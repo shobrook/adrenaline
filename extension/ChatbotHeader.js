@@ -22,8 +22,14 @@ export default class ChatbotHeader extends Component {
     }
 
     onClose() {
+        const { websocketRef } = this.props;
+
         Mixpanel.track("close_chatbot");
         window.parent.postMessage(JSON.stringify({message: "closeChatbot"}), "*"); // TODO: Restrict origin
+
+        if (websocketRef.current) {
+            websocketRef.current.close();
+        }
     }
 
     /* Lifecycle Methods */
