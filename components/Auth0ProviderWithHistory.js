@@ -13,6 +13,7 @@ const Auth0ProviderWithHistory = ({ children }) => {
     useEffect(() => {
         const { authSuccess } = router.query;
         if (authSuccess) {
+            console.log("Sent")
             window.parent.postMessage(JSON.stringify({message: "successfulLogin"}), "*"); // TODO: Restrict origin
             window.close();
             return;
@@ -20,6 +21,8 @@ const Auth0ProviderWithHistory = ({ children }) => {
     }, [router.query])
 
     const onRedirectCallback = (appState) => {
+        window.parent.postMessage(JSON.stringify({message: "successfulLogin"}), "*"); // TODO: Restrict origin
+        console.log("Sent!")
         router.push(appState?.returnTo || window.location.pathname);
     };
 
