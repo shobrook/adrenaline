@@ -1,7 +1,7 @@
 import { Component } from "react";
 
 import Button from "../components/Button";
-import Mixpanel from "../library/mixpanel";
+import Mixpanel from "../library/mixpanel"; 
 
 class PaywallMessage extends Component {
     render() {
