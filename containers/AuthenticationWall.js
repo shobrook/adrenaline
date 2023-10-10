@@ -1,6 +1,5 @@
 import { Component } from "react";
 
-import Mixpanel from "../library/mixpanel";
 import GitLabAuthenticationButton from "../components/GitLabAuthenticationButton";
 import GitHubAuthenticationButton from "../components/GitHubAuthenticationButton";
 
