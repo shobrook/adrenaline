@@ -1,6 +1,6 @@
 # Adrenaline
 
-This is an issues-only repository for Adrenaline, **your AI expert on anything technical.**
+This is an issues-only repository for Adrenaline, **your AI expert on everything technical.**
 
 Please feel free to create issues for bugs or feature requests –– it's much appreciated. Your feedback will directly impact how Adrenaline improves over time.
 
